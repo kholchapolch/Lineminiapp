@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 type LiffState =
   | { status: "loading"; message: string }
   | { status: "mock"; message: string }
-  | { status: "ready"; message: string }
+  | { status: "ready"; message: string; lineUuid?: string }
   | { status: "unsupported"; message: string }
   | { status: "error"; message: string };
 
@@ -44,12 +44,14 @@ export function LiffStatus(): JSX.Element {
         }
 
         const isInClient = liff.isInClient();
+        const profile = isInClient ? await liff.getProfile() : undefined;
 
         setState(
           isInClient
             ? {
                 status: "ready",
                 message: "Running inside LINE",
+                lineUuid: profile?.userId,
               }
             : {
                 status: "unsupported",
@@ -76,8 +78,11 @@ export function LiffStatus(): JSX.Element {
   }, []);
 
   return (
-    <p className={`liffStatus ${state.status}`} aria-live="polite">
-      {state.message}
-    </p>
+    <div className={`liffStatus ${state.status}`} aria-live="polite">
+      <p>{state.message}</p>
+      {state.status === "ready" && state.lineUuid ? (
+        <a href={`/entry?lineuuid=${encodeURIComponent(state.lineUuid)}`}>Continue</a>
+      ) : null}
+    </div>
   );
 }

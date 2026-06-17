@@ -39,12 +39,43 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-Useful sample customers:
+Useful sample LINE UUIDs:
 
-- `http://localhost:3000?customerId=demo-earned`
-- `http://localhost:3000?customerId=demo-locked`
-- `http://localhost:3000?customerId=demo-empty`
-- `http://localhost:3000?customerId=demo-missing-data`
+- `http://localhost:3000/badge?lineuuid=demo-line-earned`
+- `http://localhost:3000/badge?lineuuid=demo-line-locked`
+- `http://localhost:3000/badge?lineuuid=demo-line-empty`
+- `http://localhost:3000/badge?lineuuid=demo-line-missing-data`
+
+Badge result API:
+
+- `http://localhost:3000/api/customer-products?lineuuid=demo-line-earned`
+
+Local LIFF entry preview:
+
+- `http://localhost:3000/entry?lineuuid=demo-line-earned`
+- `http://localhost:3000/entry?lineuuid=demo-line-locked`
+
+The `/entry` route validates the request source with `Origin` and/or `Referer`
+against `ALLOWED_ORIGINS` and `ALLOWED_REFERRERS` before resolving the
+`lineuuid` into the badge display route.
+
+## App Configuration
+
+Required server-side settings:
+
+- `APP_ENV`: `local`, `staging`, or `production`.
+- `APP_BASE_URL`: canonical app origin, for example `http://localhost:3000`.
+- `DATABASE_URL`: server-side Postgres connection string.
+- `ALLOWED_ORIGINS`: comma-separated allowed `Origin` values for `/entry`.
+- `ALLOWED_REFERRERS`: comma-separated allowed `Referer` origins for `/entry`.
+- `SONY_PRODUCT_API_MODE`: `mock` locally, `live` for Sony API integration.
+- `SONY_PRODUCT_API_BASE_URL`: required when `SONY_PRODUCT_API_MODE=live`.
+- `SONY_DEMO_LINE_UUID`: local fallback `lineuuid` for preview entry flow.
+
+Client-visible setting:
+
+- `NEXT_PUBLIC_LIFF_ID`: required outside local mode. Leave blank locally to use
+  preview mode without LINE.
 
 ## Database
 
@@ -65,6 +96,53 @@ Reset local DB schema/data:
 ```bash
 npm run db:reset
 ```
+
+### Direct Badge Rule Updates
+
+This pilot has no CMS/admin surface. Badge rules are maintained directly in
+Postgres until an admin workflow is approved.
+
+Use a reviewed SQL transaction for every badge rule change:
+
+```sql
+BEGIN;
+
+UPDATE badge_rules
+SET
+  badge_name = 'Alpha Collector',
+  description = 'Collect eligible Sony Alpha camera and G Master lens products.',
+  rule_type = 'tier',
+  required_count = 3,
+  sort_order = 10,
+  is_active = true,
+  updated_at = now()
+WHERE badge_code = 'alpha-tier';
+
+DELETE FROM badge_rule_skus
+WHERE badge_rule_id = (
+  SELECT id FROM badge_rules WHERE badge_code = 'alpha-tier'
+);
+
+INSERT INTO badge_rule_skus (badge_rule_id, sony_sku, is_active)
+SELECT id, sku, true
+FROM badge_rules
+CROSS JOIN (VALUES ('ILCE-7M4'), ('ILCE-7CM2')) AS allowed_skus(sku)
+WHERE badge_code = 'alpha-tier';
+
+COMMIT;
+```
+
+Operational rules:
+
+1. Run the SQL in staging first, then verify the affected customer examples at
+   `/badge?lineuuid=...` and `/api/customer-products?lineuuid=...`.
+2. Keep `badge_code` stable because the display layer and analytics can depend
+   on it.
+3. Prefer setting `is_active = false` over deleting a rule that has already been
+   issued to customers.
+4. Do not paste LINE IDs, serial numbers, customer exports, or database secrets
+   into GitHub issues, screenshots, or chat logs.
+5. Keep production SQL in a dated, reviewed change note before applying it.
 
 ## Supabase Path
 
@@ -96,6 +174,10 @@ NEXT_PUBLIC_LIFF_ID=<liff-id>
 ```
 
 The LIFF endpoint must be HTTPS in staging/production.
+
+When LIFF runs inside LINE, the client reads `liff.getProfile().userId` and
+passes it to `/entry?lineuuid=...`. The server entry route keeps redirect
+validation server-side before sending the user to the badge display route.
 
 ## Verification Before Closing Issues
 

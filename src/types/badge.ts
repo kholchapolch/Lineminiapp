@@ -2,7 +2,70 @@ export type BadgeStatus = "earned" | "locked" | "no-badge";
 
 export type BadgeType = "product" | "quest";
 
+export type BadgeRuleType = "tier" | "achievement";
+
+export type SonyOwnedProduct = {
+  sku: string;
+  modelName: string | null;
+  serialNumber: string | null;
+  registeredAt: string;
+};
+
+export type SonyCustomerProfile = {
+  lineuuid: string;
+  customerId: string;
+  displayName: string;
+  lineDisplayName: string | null;
+  linePictureUrl: string | null;
+};
+
+export type SonyCustomerProducts = {
+  customer: SonyCustomerProfile;
+  products: SonyOwnedProduct[];
+};
+
+export type BadgeThresholdConfig = {
+  level: string;
+  requiredCount: number;
+  imageUrl: string | null;
+  lockedImageUrl: string | null;
+  displayName: string;
+};
+
+export type BadgeRuleConfig = {
+  id: number;
+  code: string;
+  name: string;
+  ruleType: BadgeRuleType;
+  description: string | null;
+  sortOrder: number;
+  isActive: boolean;
+  activeFrom: string | null;
+  activeTo: string | null;
+  registrationStart: string | null;
+  registrationEnd: string | null;
+  skus: string[];
+  thresholds: BadgeThresholdConfig[];
+};
+
+export type CalculatedBadge = {
+  code: string;
+  name: string;
+  ruleType: BadgeRuleType;
+  description: string | null;
+  status: BadgeStatus;
+  level: string | null;
+  displayName: string | null;
+  matchedCount: number;
+  requiredCount: number;
+  remainingCount: number;
+  progress: number;
+  imageUrl: string | null;
+  matchedProducts: SonyOwnedProduct[];
+};
+
 export type BadgeDisplayItem = {
+  level?: string | null;
   code: string;
   name: string;
   type: BadgeType;
@@ -23,6 +86,13 @@ export type CustomerBadgeDisplay = {
   displayName: string;
   lineDisplayName: string | null;
   linePictureUrl: string | null;
+  supportMessage: string;
+  badges: BadgeDisplayItem[];
+};
+
+export type BadgeResultPayload = {
+  customer: SonyCustomerProfile;
+  products: SonyOwnedProduct[];
   supportMessage: string;
   badges: BadgeDisplayItem[];
 };

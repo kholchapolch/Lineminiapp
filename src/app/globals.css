@@ -24,31 +24,31 @@ body {
   line-height: 1.5;
 }
 
-.pageShell {
+.badgePage {
   width: min(960px, calc(100% - 32px));
   margin: 0 auto;
   padding: 28px 0 48px;
 }
 
-.hero,
-.profilePanel,
+.badgeHero,
+.badgeProfilePanel,
 .badgeCard,
-.supportBox,
-.emptyState {
+.badgeSupportBox,
+.badgeEmptyState {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
 }
 
-.hero {
+.badgeHero {
   display: flex;
   justify-content: space-between;
   gap: 18px;
   padding: 24px;
 }
 
-.eyebrow,
-.profileLabel,
+.badgeEyebrow,
+.badgeProfileLabel,
 .badgeType {
   margin: 0 0 4px;
   color: var(--accent);
@@ -74,11 +74,11 @@ h2 {
   margin-bottom: 8px;
 }
 
-.lead,
-.profilePanel p,
+.badgeLead,
+.badgeProfilePanel p,
 .badgeContent p,
-.supportBox p,
-.emptyState p {
+.badgeSupportBox p,
+.badgeEmptyState p {
   color: var(--muted);
 }
 
@@ -117,7 +117,7 @@ h2 {
   color: #a8322d;
 }
 
-.profilePanel {
+.badgeProfilePanel {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -125,7 +125,7 @@ h2 {
   padding: 18px;
 }
 
-.avatar {
+.badgeAvatar {
   display: grid;
   width: 56px;
   height: 56px;
@@ -172,7 +172,7 @@ h2 {
   padding: 18px;
 }
 
-.progressRow {
+.badgeProgressRow {
   display: flex;
   justify-content: space-between;
   color: var(--muted);
@@ -180,7 +180,7 @@ h2 {
   font-weight: 700;
 }
 
-.progressTrack {
+.badgeProgressTrack {
   height: 10px;
   margin: 8px 0 10px;
   overflow: hidden;
@@ -188,59 +188,59 @@ h2 {
   background: #e8edf3;
 }
 
-.progressFill {
+.badgeProgressFill {
   height: 100%;
   border-radius: inherit;
   background: var(--accent);
 }
 
-.remaining {
+.badgeRemaining {
   color: var(--warning) !important;
   font-weight: 700;
 }
 
-.earnedText {
+.badgeEarnedText {
   color: var(--success) !important;
   font-weight: 700;
 }
 
-.noBadgeText {
+.badgeNoBadgeText {
   color: var(--muted) !important;
   font-weight: 700;
 }
 
-.productMeta {
+.badgeProductMeta {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin: 14px 0 0;
 }
 
-.productMeta div {
+.badgeProductMeta div {
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 10px;
 }
 
-.productMeta dt {
+.badgeProductMeta dt {
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
 }
 
-.productMeta dd {
+.badgeProductMeta dd {
   margin: 2px 0 0;
   font-weight: 700;
 }
 
-.supportBox,
-.emptyState {
+.badgeSupportBox,
+.badgeEmptyState {
   margin-top: 16px;
   padding: 18px;
 }
 
 @media (max-width: 680px) {
-  .hero {
+  .badgeHero {
     display: block;
   }
 
@@ -258,7 +258,13 @@ h2 {
     min-height: 120px;
   }
 
-  .productMeta {
+  .badgeProductMeta {
     grid-template-columns: 1fr;
   }
+}
+
+.badgeProfileMeta {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13px;
 }
