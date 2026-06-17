@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pilot-sony-postgres
+    environment:
+      POSTGRES_USER: sony
+      POSTGRES_PASSWORD: sony
+      POSTGRES_DB: sony_badges
+    ports:
+      - "54339:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sony -d sony_badges"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
