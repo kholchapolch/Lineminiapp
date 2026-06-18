@@ -4,6 +4,7 @@ import { loadAppConfig } from "@/lib/app-config";
 import { getBadgeArtPresentation } from "@/lib/badge-art";
 import { getBadgeResultForLineUuid } from "@/lib/badge-result";
 import { isDebugModeEnabled, toDebugJsonPayload } from "@/lib/debug-mode";
+import { resolveLineUuid } from "@/lib/lineuuid";
 import { toSafeError } from "@/lib/safe-logging";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,11 @@ export default async function BadgePage({
   searchParams?: { lineuuid?: string; entryError?: string; debug?: string };
 }): Promise<JSX.Element> {
   const config = loadAppConfig();
-  const lineuuid = searchParams?.lineuuid?.trim() || config.sonyDemoLineUuid;
+  const resolvedLineUuid = resolveLineUuid({
+    appEnv: config.appEnv,
+    providedLineUuid: searchParams?.lineuuid,
+    demoLineUuid: config.sonyDemoLineUuid,
+  });
   let errorState: { title: string; message: string } | null = null;
   let display = null;
 
@@ -23,9 +28,14 @@ export default async function BadgePage({
       title: "Access blocked",
       message: "This badge page can only open from an approved Sony campaign source.",
     };
+  } else if (!resolvedLineUuid.lineUuid) {
+    errorState = {
+      title: "LINE profile required",
+      message: "Please open this page from the Sony LINE campaign entry point.",
+    };
   } else {
     try {
-      display = await getBadgeResultForLineUuid(lineuuid);
+      display = await getBadgeResultForLineUuid(resolvedLineUuid.lineUuid);
     } catch (error) {
       const safeError = toSafeError(error);
       errorState = {

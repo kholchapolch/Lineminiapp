@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { loadAppConfig } from "@/lib/app-config";
+import { resolveLineUuid } from "@/lib/lineuuid";
 import { evaluateRedirectGuard } from "@/lib/redirect-guard";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,15 @@ export default function EntryPage({ searchParams }: EntryPageProps): never {
     redirect(`/badge?entryError=${guard.reason}`);
   }
 
-  const lineUuid = searchParams?.lineuuid?.trim() || config.sonyDemoLineUuid;
-  redirect(`/badge?lineuuid=${encodeURIComponent(lineUuid)}`);
+  const resolvedLineUuid = resolveLineUuid({
+    appEnv: config.appEnv,
+    providedLineUuid: searchParams?.lineuuid,
+    demoLineUuid: config.sonyDemoLineUuid,
+  });
+
+  if (!resolvedLineUuid.lineUuid) {
+    redirect("/badge?entryError=missingLineUuid");
+  }
+
+  redirect(`/badge?lineuuid=${encodeURIComponent(resolvedLineUuid.lineUuid)}`);
 }
