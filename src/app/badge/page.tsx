@@ -91,6 +91,21 @@ export default async function BadgePage({
             </div>
           </section>
 
+          <section className="badgeShelf" aria-label="Available badge shelf">
+            {display.badgeShelf.map((badge) => (
+              <article
+                className={`badgeShelfItem ${badge.visualState}`}
+                key={badge.code}
+                title={badge.description}
+              >
+                {badge.imageUrl ? (
+                  <img alt={`${badge.title} badge`} src={badge.imageUrl} />
+                ) : null}
+                <span>{badge.label}</span>
+              </article>
+            ))}
+          </section>
+
           <section className="badgeGrid" aria-label="Badge list">
             {display.badges.map((badge) => {
               const art = getBadgeArtPresentation({

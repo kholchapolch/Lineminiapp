@@ -19,6 +19,17 @@ const payload: BadgeResultPayload = {
     },
   ],
   supportMessage: "Support message",
+  badgeShelf: [
+    {
+      code: "alpha-bronze",
+      label: "Bronze",
+      title: "Alpha Collector Bronze",
+      description: "Register one eligible Sony Alpha product.",
+      imageUrl: "https://example.com/bronze.png",
+      status: "achieved",
+      visualState: "color",
+    },
+  ],
   badges: [
     {
       code: "alpha-owner",
@@ -86,6 +97,16 @@ describe("toDebugJsonPayload", () => {
           requiredCount: 1,
           remainingCount: 0,
           imageUrl: "https://example.com/badge.png",
+        },
+      ],
+      badgeShelf: [
+        {
+          code: "alpha-bronze",
+          label: "Bronze",
+          title: "Alpha Collector Bronze",
+          status: "achieved",
+          visualState: "color",
+          imageUrl: "https://example.com/bronze.png",
         },
       ],
       supportMessage: "Support message",

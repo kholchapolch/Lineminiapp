@@ -1,6 +1,7 @@
 import "server-only";
 
 import { calculateBadges } from "@/lib/badge-engine";
+import { buildBadgeShelf } from "@/lib/badge-shelf";
 import { getActiveBadgeRules, getSupportMessage, writeBadgeCalculationLog } from "@/lib/badge-repository";
 import { getMockSonyCustomerProducts, SonyCustomerNotFoundError } from "@/lib/sony-products";
 import { toSafeError } from "@/lib/safe-logging";
@@ -64,6 +65,7 @@ function toBadgeResultPayload(
     products: customerProducts.products,
     supportMessage,
     badges,
+    badgeShelf: buildBadgeShelf(badges),
   };
 }
 
