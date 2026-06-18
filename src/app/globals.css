@@ -25,16 +25,17 @@ body {
 }
 
 .badgePage {
-  width: min(960px, calc(100% - 32px));
+  width: min(960px, calc(100% - 24px));
   margin: 0 auto;
-  padding: 28px 0 48px;
+  padding: 20px 0 40px;
 }
 
 .badgeHero,
 .badgeProfilePanel,
 .badgeCard,
 .badgeSupportBox,
-.badgeEmptyState {
+.badgeEmptyState,
+.badgeDebugPanel {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -43,6 +44,7 @@ body {
 .badgeHero {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 18px;
   padding: 24px;
 }
@@ -89,6 +91,8 @@ h2 {
   padding: 8px 12px;
   font-size: 13px;
   font-weight: 700;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   white-space: nowrap;
 }
 
@@ -144,13 +148,15 @@ h2 {
 
 .badgeCard {
   display: grid;
-  grid-template-columns: 130px minmax(0, 1fr);
+  grid-template-columns: minmax(112px, 130px) minmax(0, 1fr);
   overflow: hidden;
 }
 
 .badgeArt {
+  position: relative;
   display: grid;
   min-height: 190px;
+  overflow: hidden;
   place-items: center;
   color: white;
   font-weight: 800;
@@ -168,7 +174,40 @@ h2 {
   background: #a7b0bc;
 }
 
+.badgeImage {
+  width: 100%;
+  height: 100%;
+  min-height: 190px;
+  object-fit: cover;
+}
+
+.badgeImage.dimmed {
+  filter: grayscale(1);
+  opacity: 0.42;
+}
+
+.badgeArt.dimmed::after {
+  position: absolute;
+  inset: 0;
+  background: rgb(23 32 42 / 35%);
+  content: "";
+}
+
+.badgeArtLabel {
+  position: absolute;
+  z-index: 1;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 999px;
+  background: rgb(23 32 42 / 80%);
+  padding: 5px 9px;
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .badgeContent {
+  min-width: 0;
   padding: 18px;
 }
 
@@ -230,18 +269,41 @@ h2 {
 
 .badgeProductMeta dd {
   margin: 2px 0 0;
+  overflow-wrap: anywhere;
   font-weight: 700;
 }
 
 .badgeSupportBox,
-.badgeEmptyState {
+.badgeEmptyState,
+.badgeDebugPanel {
   margin-top: 16px;
   padding: 18px;
 }
 
+.badgeDebugPanel pre {
+  max-height: 360px;
+  margin: 0;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #101820;
+  padding: 12px;
+  color: #eef5fb;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @media (max-width: 680px) {
+  .badgePage {
+    width: min(100% - 20px, 420px);
+    padding: 12px 0 28px;
+  }
+
   .badgeHero {
     display: block;
+    padding: 18px;
   }
 
   .liffStatus {
@@ -254,8 +316,9 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .badgeArt {
-    min-height: 120px;
+  .badgeArt,
+  .badgeImage {
+    min-height: 132px;
   }
 
   .badgeProductMeta {
