@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isDebugModeEnabled, toDebugJsonPayload } from "@/lib/debug-mode";
+import {
+  isDebugModeEnabled,
+  isDebugTraceEnabled,
+  toDebugJsonPayload,
+} from "@/lib/debug-mode";
 import type { BadgeResultPayload } from "@/types/badge";
 
 const payload: BadgeResultPayload = {
@@ -69,33 +73,54 @@ describe("isDebugModeEnabled", () => {
   });
 });
 
+describe("isDebugTraceEnabled", () => {
+  it("enables trace only from explicit debug query outside production", () => {
+    expect(isDebugTraceEnabled({ appEnv: "local", debugParam: "1" })).toBe(true);
+    expect(isDebugTraceEnabled({ appEnv: "staging", debugParam: "1" })).toBe(true);
+  });
+
+  it("does not use legacy env flag behavior", () => {
+    expect(isDebugTraceEnabled({ appEnv: "local", debugParam: undefined })).toBe(false);
+  });
+
+  it("does not accept truthy aliases for trace", () => {
+    expect(isDebugTraceEnabled({ appEnv: "local", debugParam: "true" })).toBe(false);
+    expect(isDebugTraceEnabled({ appEnv: "local", debugParam: "yes" })).toBe(false);
+  });
+
+  it("blocks trace in production even when requested", () => {
+    expect(isDebugTraceEnabled({ appEnv: "production", debugParam: "1" })).toBe(false);
+  });
+});
+
 describe("toDebugJsonPayload", () => {
   it("returns display-safe customer, product, and badge data", () => {
     expect(toDebugJsonPayload(payload)).toEqual({
       customer: {
-        customerId: "customer-001",
-        displayName: "Nicha Wong",
-        lineDisplayName: "Nicha",
+        customerIdPresent: true,
+        displayNamePresent: true,
+        lineDisplayNamePresent: true,
         lineuuidPresent: true,
+        linePictureUrlPresent: true,
       },
       products: [
         {
           sku: "ILCE-7M4",
-          modelName: "Alpha 7 IV",
-          registeredAt: "2026-05-20",
-          serialNumber: "SN-A7M4-001",
+          modelNamePresent: true,
+          registeredAtPresent: true,
+          serialNumberPresent: true,
         },
       ],
       badges: [
         {
           code: "alpha-owner",
-          name: "Alpha Owner",
           type: "product",
           status: "earned",
           progress: 100,
           matchedCount: 1,
           requiredCount: 1,
           remainingCount: 0,
+          level: null,
           imageUrl: "https://example.com/badge.png",
         },
       ],
@@ -113,10 +138,15 @@ describe("toDebugJsonPayload", () => {
     });
   });
 
-  it("does not expose raw LINE identifiers or profile image URLs", () => {
+  it("does not expose raw customer or product sensitive values", () => {
     const debugPayload = JSON.stringify(toDebugJsonPayload(payload));
 
     expect(debugPayload).not.toContain("line-user-123");
+    expect(debugPayload).not.toContain("customer-001");
+    expect(debugPayload).not.toContain("Nicha");
     expect(debugPayload).not.toContain("profile.png");
+    expect(debugPayload).not.toContain("SN-A7M4-001");
+    expect(debugPayload).not.toContain("Alpha 7 IV");
+    expect(debugPayload).not.toContain("2026-05-20");
   });
 });

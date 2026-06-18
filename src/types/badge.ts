@@ -100,12 +100,88 @@ export type CustomerBadgeDisplay = {
   badges: BadgeDisplayItem[];
 };
 
+
+export type DebugTrace = {
+  dbRules: {
+    rules: Array<{
+      id: number;
+      code: string;
+      name: string;
+      ruleType: BadgeRuleType;
+      sortOrder: number;
+      isActive: boolean;
+      activeFrom: string | null;
+      activeTo: string | null;
+      registrationStart: string | null;
+      registrationEnd: string | null;
+      skus: string[];
+      thresholds: Array<{
+        level: string;
+        displayName: string;
+        requiredCount: number;
+        imageUrl: string | null;
+        lockedImageUrl: string | null;
+      }>;
+    }>;
+  };
+  sonyApiMock: {
+    customer: {
+      lineuuidPresent: boolean;
+      customerIdPresent: boolean;
+      displayNamePresent: boolean;
+      lineDisplayNamePresent: boolean;
+      linePictureUrlPresent: boolean;
+    };
+    products: Array<{
+      sku: string;
+      modelNamePresent: boolean;
+      serialNumberPresent: boolean;
+      registeredAtPresent: boolean;
+    }>;
+  };
+  aggregationResult: {
+    summary: {
+      sourceProductCount: number;
+      badgeShelfCount: number;
+      detailedBadgeCount: number;
+      achievedShelfCount: number;
+    };
+    badgeShelf: BadgeShelfItem[];
+    ruleMatches: Array<{
+      code: string;
+      name: string;
+      status: BadgeStatus;
+      matchedCount: number;
+      requiredCount: number;
+      remainingCount: number;
+      progress: number;
+      level: string | null;
+      serialNumberPresent: boolean;
+      modelNamePresent: boolean;
+      registrationDatePresent: boolean;
+    }>;
+    badges: Array<{
+      code: string;
+      name: string;
+      type: BadgeType;
+      status: BadgeStatus;
+      progress: number;
+      matchedCount: number;
+      requiredCount: number;
+      remainingCount: number;
+      level: string | null;
+      imageUrl: string | null;
+    }>;
+  };
+};
+
 export type BadgeResultPayload = {
   customer: SonyCustomerProfile;
   products: SonyOwnedProduct[];
   supportMessage: string;
   badges: BadgeDisplayItem[];
   badgeShelf: BadgeShelfItem[];
+  debugTrace?: DebugTrace;
 };
 
 export type BadgeDisplayRow = {

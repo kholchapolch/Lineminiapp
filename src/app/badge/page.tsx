@@ -3,11 +3,19 @@ import { LiffStatus } from "@/components/LiffStatus";
 import { loadAppConfig } from "@/lib/app-config";
 import { getBadgeArtPresentation } from "@/lib/badge-art";
 import { getBadgeResultForLineUuid } from "@/lib/badge-result";
-import { isDebugModeEnabled, toDebugJsonPayload } from "@/lib/debug-mode";
+import { isDebugTraceEnabled } from "@/lib/debug-mode";
 import { resolveLineUuid } from "@/lib/lineuuid";
 import { toSafeError } from "@/lib/safe-logging";
 
 export const dynamic = "force-dynamic";
+
+function formatDebugWindow(start: string | null, end: string | null): string {
+  if (!start && !end) {
+    return "Always";
+  }
+
+  return `${start ?? "open"} to ${end ?? "open"}`;
+}
 
 export default async function BadgePage({
   searchParams,
@@ -22,6 +30,10 @@ export default async function BadgePage({
   });
   let errorState: { title: string; message: string } | null = null;
   let display = null;
+  const debugRequested = isDebugTraceEnabled({
+    appEnv: config.appEnv,
+    debugParam: searchParams?.debug,
+  });
 
   if (searchParams?.entryError) {
     errorState = {
@@ -35,7 +47,9 @@ export default async function BadgePage({
     };
   } else {
     try {
-      display = await getBadgeResultForLineUuid(resolvedLineUuid.lineUuid);
+      display = await getBadgeResultForLineUuid(resolvedLineUuid.lineUuid, {
+        includeDebugTrace: debugRequested,
+      });
     } catch (error) {
       const safeError = toSafeError(error);
       errorState = {
@@ -48,13 +62,7 @@ export default async function BadgePage({
     }
   }
 
-  const debugEnabled = display
-    ? isDebugModeEnabled({
-        appEnv: config.appEnv,
-        debugParam: searchParams?.debug,
-        envFlag: process.env.NEXT_PUBLIC_DEBUG_MOCK_JSON,
-      })
-    : false;
+  const debugEnabled = Boolean(display?.debugTrace);
 
   return (
     <main className="badgePage">
@@ -188,10 +196,135 @@ export default async function BadgePage({
             <p className="badgeProfileMeta">Owned products: {display.products.length}</p>
           </section>
 
-          {debugEnabled ? (
-            <section className="badgeDebugPanel" aria-label="Debug JSON">
-              <h2>Debug JSON</h2>
-              <pre>{JSON.stringify(toDebugJsonPayload(display), null, 2)}</pre>
+          {debugEnabled && display.debugTrace ? (
+            <section className="badgeDebugPanel" aria-label="Debug trace">
+              <h2>Debug Trace</h2>
+
+              <section className="debugSection">
+                <h3>Rules From DB</h3>
+                <div className="debugRuleList">
+                  {display.debugTrace.dbRules.rules.map((rule) => (
+                    <article className="debugRuleCard" key={rule.code}>
+                      <header>
+                        <strong>{rule.code}</strong>
+                        <span>{rule.ruleType}</span>
+                        <span>sort {rule.sortOrder}</span>
+                      </header>
+                      <p>{rule.name}</p>
+                      <dl>
+                        <div>
+                          <dt>Active window</dt>
+                          <dd>{formatDebugWindow(rule.activeFrom, rule.activeTo)}</dd>
+                        </div>
+                        <div>
+                          <dt>Registration window</dt>
+                          <dd>
+                            {formatDebugWindow(rule.registrationStart, rule.registrationEnd)}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>SKUs</dt>
+                          <dd>{rule.skus.join(", ") || "None"}</dd>
+                        </div>
+                        <div>
+                          <dt>Thresholds</dt>
+                          <dd>
+                            {rule.thresholds
+                              .map(
+                                (threshold) =>
+                                  `${threshold.level}/${threshold.displayName}: ${threshold.requiredCount}`,
+                              )
+                              .join(", ")}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Image URLs</dt>
+                          <dd>
+                            {rule.thresholds
+                              .map(
+                                (threshold) =>
+                                  `${threshold.displayName}: ${threshold.imageUrl ?? "none"}`,
+                              )
+                              .join(", ")}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt>Locked image URLs</dt>
+                          <dd>
+                            {rule.thresholds
+                              .map(
+                                (threshold) =>
+                                  `${threshold.displayName}: ${threshold.lockedImageUrl ?? "none"}`,
+                              )
+                              .join(", ")}
+                          </dd>
+                        </div>
+                      </dl>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <section className="debugSection">
+                <h3>Sony API Mock JSON</h3>
+                <dl className="debugSummaryGrid">
+                  <div>
+                    <dt>Products</dt>
+                    <dd>{display.debugTrace.sonyApiMock.products.length}</dd>
+                  </div>
+                  <div>
+                    <dt>LINE UUID</dt>
+                    <dd>{display.debugTrace.sonyApiMock.customer.lineuuidPresent ? "Present" : "Missing"}</dd>
+                  </div>
+                </dl>
+                <div className="debugProductList">
+                  {display.debugTrace.sonyApiMock.products.map((product) => (
+                    <article className="debugMiniRow" key={product.sku}>
+                      <strong>{product.sku}</strong>
+                      <span>model {product.modelNamePresent ? "present" : "missing"}</span>
+                      <span>serial {product.serialNumberPresent ? "present" : "missing"}</span>
+                      <span>registered {product.registeredAtPresent ? "present" : "missing"}</span>
+                    </article>
+                  ))}
+                </div>
+                <details className="debugDetails">
+                  <summary>Display-safe Sony JSON</summary>
+                  <pre>{JSON.stringify(display.debugTrace.sonyApiMock, null, 2)}</pre>
+                </details>
+              </section>
+
+              <section className="debugSection">
+                <h3>Aggregation Result</h3>
+                <dl className="debugSummaryGrid">
+                  <div>
+                    <dt>Source products</dt>
+                    <dd>{display.debugTrace.aggregationResult.summary.sourceProductCount}</dd>
+                  </div>
+                  <div>
+                    <dt>Shelf badges</dt>
+                    <dd>{display.debugTrace.aggregationResult.summary.badgeShelfCount}</dd>
+                  </div>
+                  <div>
+                    <dt>Achieved shelf</dt>
+                    <dd>{display.debugTrace.aggregationResult.summary.achievedShelfCount}</dd>
+                  </div>
+                </dl>
+                <div className="debugProductList">
+                  {display.debugTrace.aggregationResult.ruleMatches.map((badge) => (
+                    <article className="debugMiniRow" key={`${badge.code}-${badge.level ?? "none"}`}>
+                      <strong>{badge.code}</strong>
+                      <span>{badge.status}</span>
+                      <span>{badge.matchedCount}/{badge.requiredCount}</span>
+                      <span>{badge.progress}%</span>
+                      <span>{badge.level ?? "no level"}</span>
+                    </article>
+                  ))}
+                </div>
+                <details className="debugDetails">
+                  <summary>Computed badge shelf JSON</summary>
+                  <pre>{JSON.stringify(display.debugTrace.aggregationResult.badgeShelf, null, 2)}</pre>
+                </details>
+              </section>
             </section>
           ) : null}
         </>

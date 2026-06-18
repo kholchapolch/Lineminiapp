@@ -9,26 +9,27 @@ export type DebugModeInput = {
 
 export type DebugJsonPayload = {
   customer: {
-    customerId: string;
-    displayName: string;
-    lineDisplayName: string | null;
+    customerIdPresent: boolean;
+    displayNamePresent: boolean;
+    lineDisplayNamePresent: boolean;
     lineuuidPresent: boolean;
+    linePictureUrlPresent: boolean;
   };
   products: Array<{
     sku: string;
-    modelName: string | null;
-    registeredAt: string;
-    serialNumber: string | null;
+    modelNamePresent: boolean;
+    registeredAtPresent: boolean;
+    serialNumberPresent: boolean;
   }>;
   badges: Array<{
     code: string;
-    name: string;
     type: string;
     status: string;
     progress: number;
     matchedCount: number;
     requiredCount: number;
     remainingCount: number;
+    level: string | null;
     imageUrl: string | null;
   }>;
   badgeShelf: Array<{
@@ -54,29 +55,41 @@ export function isDebugModeEnabled({
   return isTruthy(debugParam) || isTruthy(envFlag);
 }
 
+export function isDebugTraceEnabled({
+  appEnv,
+  debugParam,
+}: Pick<DebugModeInput, "appEnv" | "debugParam">): boolean {
+  if (appEnv === "production") {
+    return false;
+  }
+
+  return debugParam?.trim() === "1";
+}
+
 export function toDebugJsonPayload(payload: BadgeResultPayload): DebugJsonPayload {
   return {
     customer: {
-      customerId: payload.customer.customerId,
-      displayName: payload.customer.displayName,
-      lineDisplayName: payload.customer.lineDisplayName,
+      customerIdPresent: Boolean(payload.customer.customerId),
+      displayNamePresent: Boolean(payload.customer.displayName),
+      lineDisplayNamePresent: Boolean(payload.customer.lineDisplayName),
       lineuuidPresent: Boolean(payload.customer.lineuuid),
+      linePictureUrlPresent: Boolean(payload.customer.linePictureUrl),
     },
     products: payload.products.map((product) => ({
       sku: product.sku,
-      modelName: product.modelName,
-      registeredAt: product.registeredAt,
-      serialNumber: product.serialNumber,
+      modelNamePresent: Boolean(product.modelName),
+      registeredAtPresent: Boolean(product.registeredAt),
+      serialNumberPresent: Boolean(product.serialNumber),
     })),
     badges: payload.badges.map((badge) => ({
       code: badge.code,
-      name: badge.name,
       type: badge.type,
       status: badge.status,
       progress: badge.progress,
       matchedCount: badge.matchedCount,
       requiredCount: badge.requiredCount,
       remainingCount: badge.remainingCount,
+      level: badge.level ?? null,
       imageUrl: badge.imageUrl,
     })),
     badgeShelf: payload.badgeShelf.map((badge) => ({

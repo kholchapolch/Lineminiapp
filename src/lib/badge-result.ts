@@ -1,6 +1,7 @@
 import "server-only";
 
 import { calculateBadges } from "@/lib/badge-engine";
+import { buildDebugTrace } from "@/lib/debug-trace";
 import { buildBadgeShelf } from "@/lib/badge-shelf";
 import { getActiveBadgeRules, getSupportMessage, writeBadgeCalculationLog } from "@/lib/badge-repository";
 import { getMockSonyCustomerProducts, SonyCustomerNotFoundError } from "@/lib/sony-products";
@@ -14,6 +15,7 @@ import type {
 
 export async function getBadgeResultForLineUuid(
   lineuuid: string,
+  options: { includeDebugTrace?: boolean } = {},
 ): Promise<BadgeResultPayload> {
   try {
     const customerProducts = await getSonyCustomerProducts(lineuuid);
@@ -25,6 +27,15 @@ export async function getBadgeResultForLineUuid(
       buildBadgeShelf({ products: customerProducts.products, rules }),
       await getSupportMessage(),
     );
+
+    if (options.includeDebugTrace) {
+      payload.debugTrace = buildDebugTrace({
+        customerProducts,
+        rules,
+        badges: payload.badges,
+        badgeShelf: payload.badgeShelf,
+      });
+    }
 
     await writeBadgeCalculationLog({
       lineuuid,
