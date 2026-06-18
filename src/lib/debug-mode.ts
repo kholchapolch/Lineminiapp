@@ -31,6 +31,14 @@ export type DebugJsonPayload = {
     remainingCount: number;
     imageUrl: string | null;
   }>;
+  badgeShelf: Array<{
+    code: string;
+    label: string;
+    title: string;
+    status: string;
+    visualState: string;
+    imageUrl: string | null;
+  }>;
   supportMessage: string;
 };
 
@@ -69,6 +77,14 @@ export function toDebugJsonPayload(payload: BadgeResultPayload): DebugJsonPayloa
       matchedCount: badge.matchedCount,
       requiredCount: badge.requiredCount,
       remainingCount: badge.remainingCount,
+      imageUrl: badge.imageUrl,
+    })),
+    badgeShelf: payload.badgeShelf.map((badge) => ({
+      code: badge.code,
+      label: badge.label,
+      title: badge.title,
+      status: badge.status,
+      visualState: badge.visualState,
       imageUrl: badge.imageUrl,
     })),
     supportMessage: payload.supportMessage,

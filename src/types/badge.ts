@@ -64,6 +64,16 @@ export type CalculatedBadge = {
   matchedProducts: SonyOwnedProduct[];
 };
 
+export type BadgeShelfItem = {
+  code: string;
+  label: string;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  status: "achieved" | "available";
+  visualState: "color" | "dimmed";
+};
+
 export type BadgeDisplayItem = {
   level?: string | null;
   code: string;
@@ -95,6 +105,7 @@ export type BadgeResultPayload = {
   products: SonyOwnedProduct[];
   supportMessage: string;
   badges: BadgeDisplayItem[];
+  badgeShelf: BadgeShelfItem[];
 };
 
 export type BadgeDisplayRow = {
