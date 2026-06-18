@@ -1,6 +1,9 @@
+/* eslint-disable @next/next/no-img-element -- Badge image URLs are database-configured. */
 import { LiffStatus } from "@/components/LiffStatus";
 import { loadAppConfig } from "@/lib/app-config";
+import { getBadgeArtPresentation } from "@/lib/badge-art";
 import { getBadgeResultForLineUuid } from "@/lib/badge-result";
+import { isDebugModeEnabled, toDebugJsonPayload } from "@/lib/debug-mode";
 import { toSafeError } from "@/lib/safe-logging";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function BadgePage({
   searchParams,
 }: {
-  searchParams?: { lineuuid?: string; entryError?: string };
+  searchParams?: { lineuuid?: string; entryError?: string; debug?: string };
 }): Promise<JSX.Element> {
   const config = loadAppConfig();
   const lineuuid = searchParams?.lineuuid?.trim() || config.sonyDemoLineUuid;
@@ -34,6 +37,14 @@ export default async function BadgePage({
       };
     }
   }
+
+  const debugEnabled = display
+    ? isDebugModeEnabled({
+        appEnv: config.appEnv,
+        debugParam: searchParams?.debug,
+        envFlag: process.env.NEXT_PUBLIC_DEBUG_MOCK_JSON,
+      })
+    : false;
 
   return (
     <main className="badgePage">
@@ -71,18 +82,31 @@ export default async function BadgePage({
           </section>
 
           <section className="badgeGrid" aria-label="Badge list">
-            {display.badges.map((badge) => (
-              <article className="badgeCard" key={badge.code}>
-                <div className={`badgeArt ${badge.status}`}>
-                  <span>
-                    {badge.status === "earned"
-                      ? "Earned"
-                      : badge.status === "locked"
-                        ? "Locked"
-                        : "No badge"}
-                  </span>
-                </div>
-                <div className="badgeContent">
+            {display.badges.map((badge) => {
+              const art = getBadgeArtPresentation({
+                status: badge.status,
+                imageUrl: badge.imageUrl,
+              });
+
+              return (
+                <article className="badgeCard" key={badge.code}>
+                  <div
+                    className={`badgeArt ${badge.status}${art.isDimmed ? " dimmed" : ""}`}
+                  >
+                    {art.imageUrl ? (
+                      <>
+                        <img
+                          alt={`${badge.name} badge`}
+                          className={art.imageClassName ?? undefined}
+                          src={art.imageUrl}
+                        />
+                        <span className="badgeArtLabel">{art.label}</span>
+                      </>
+                    ) : (
+                      <span>{art.label}</span>
+                    )}
+                  </div>
+                  <div className="badgeContent">
                   <p className="badgeType">{badge.type}</p>
                   <h2>{badge.name}</h2>
                   {badge.description ? <p>{badge.description}</p> : null}
@@ -128,8 +152,9 @@ export default async function BadgePage({
                     </div>
                   </dl>
                 </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </section>
 
           <section className="badgeSupportBox">
@@ -137,6 +162,13 @@ export default async function BadgePage({
             <p>{display.supportMessage}</p>
             <p className="badgeProfileMeta">Owned products: {display.products.length}</p>
           </section>
+
+          {debugEnabled ? (
+            <section className="badgeDebugPanel" aria-label="Debug JSON">
+              <h2>Debug JSON</h2>
+              <pre>{JSON.stringify(toDebugJsonPayload(display), null, 2)}</pre>
+            </section>
+          ) : null}
         </>
       )}
     </main>

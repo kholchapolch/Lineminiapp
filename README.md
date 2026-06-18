@@ -46,6 +46,10 @@ Useful sample LINE UUIDs:
 - `http://localhost:3000/badge?lineuuid=demo-line-empty`
 - `http://localhost:3000/badge?lineuuid=demo-line-missing-data`
 
+Debug preview:
+
+- `http://localhost:3000/badge?lineuuid=demo-line-earned&debug=1` shows display-safe mock JSON in local/staging only. Production ignores debug mode.
+
 Badge result API:
 
 - `http://localhost:3000/api/customer-products?lineuuid=demo-line-earned`
@@ -76,6 +80,9 @@ Client-visible setting:
 
 - `NEXT_PUBLIC_LIFF_ID`: required outside local mode. Leave blank locally to use
   preview mode without LINE.
+- `NEXT_PUBLIC_DEBUG_MOCK_JSON`: optional local/staging flag for showing the
+  display-safe debug JSON panel without adding `?debug=1`. Production ignores
+  this flag.
 
 ## Database
 
