@@ -22,6 +22,7 @@ export async function getBadgeResultForLineUuid(
     const payload = toBadgeResultPayload(
       customerProducts,
       badges.map(toDisplayBadge),
+      buildBadgeShelf({ products: customerProducts.products, rules }),
       await getSupportMessage(),
     );
 
@@ -58,6 +59,7 @@ async function getSonyCustomerProducts(lineuuid: string): Promise<SonyCustomerPr
 function toBadgeResultPayload(
   customerProducts: SonyCustomerProducts,
   badges: BadgeDisplayItem[],
+  badgeShelf: ReturnType<typeof buildBadgeShelf>,
   supportMessage: string,
 ): BadgeResultPayload {
   return {
@@ -65,7 +67,7 @@ function toBadgeResultPayload(
     products: customerProducts.products,
     supportMessage,
     badges,
-    badgeShelf: buildBadgeShelf(badges),
+    badgeShelf,
   };
 }
 

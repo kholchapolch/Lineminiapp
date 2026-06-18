@@ -57,6 +57,81 @@ INSERT INTO badge_rules (
     DATE '2026-12-31',
     DATE '2026-05-01',
     DATE '2026-12-31'
+  ),
+  (
+    'camera-starter',
+    'Camera Starter',
+    'quest',
+    'achievement',
+    'Future badge for first camera registration.',
+    'https://placehold.co/240x240?text=Starter',
+    'https://placehold.co/240x240?text=Locked',
+    1,
+    30,
+    DATE '2026-05-01',
+    DATE '2026-12-31',
+    DATE '2026-05-01',
+    DATE '2026-12-31'
+  ),
+  (
+    'lens-lover',
+    'Lens Lover',
+    'quest',
+    'achievement',
+    'Future badge for lens collection behavior.',
+    'https://placehold.co/240x240?text=Lens',
+    'https://placehold.co/240x240?text=Locked',
+    1,
+    40,
+    DATE '2026-05-01',
+    DATE '2026-12-31',
+    DATE '2026-05-01',
+    DATE '2026-12-31'
+  ),
+  (
+    'audio-fan',
+    'Audio Fan',
+    'quest',
+    'achievement',
+    'Future badge for eligible Sony audio products.',
+    'https://placehold.co/240x240?text=Audio',
+    'https://placehold.co/240x240?text=Locked',
+    1,
+    50,
+    DATE '2026-05-01',
+    DATE '2026-12-31',
+    DATE '2026-05-01',
+    DATE '2026-12-31'
+  ),
+  (
+    'creator-pass',
+    'Creator Pass',
+    'quest',
+    'achievement',
+    'Future badge for creator campaign participation.',
+    'https://placehold.co/240x240?text=Creator',
+    'https://placehold.co/240x240?text=Locked',
+    1,
+    60,
+    DATE '2026-05-01',
+    DATE '2026-12-31',
+    DATE '2026-05-01',
+    DATE '2026-12-31'
+  ),
+  (
+    'event-pass',
+    'Event Pass',
+    'quest',
+    'achievement',
+    'Future badge for Sony event attendance.',
+    'https://placehold.co/240x240?text=Event',
+    'https://placehold.co/240x240?text=Locked',
+    1,
+    70,
+    DATE '2026-05-01',
+    DATE '2026-12-31',
+    DATE '2026-05-01',
+    DATE '2026-12-31'
   );
 
 INSERT INTO badge_rule_thresholds (
@@ -91,6 +166,26 @@ SELECT br.id, 'achievement', 'Achievement', 3, 'https://placehold.co/240x240?tex
 FROM badge_rules br
 WHERE br.badge_code = 'pro-achievement';
 
+INSERT INTO badge_rule_thresholds (
+  badge_rule_id,
+  level,
+  display_name,
+  required_count,
+  image_url,
+  locked_image_url,
+  sort_order
+)
+SELECT br.id, future.level, future.display_name, 1, future.image_url, 'https://placehold.co/240x240?text=Locked', 10
+FROM badge_rules br
+JOIN (VALUES
+  ('camera-starter', 'achievement', 'Starter', 'https://placehold.co/240x240?text=Starter'),
+  ('lens-lover', 'achievement', 'Lens', 'https://placehold.co/240x240?text=Lens'),
+  ('audio-fan', 'achievement', 'Audio', 'https://placehold.co/240x240?text=Audio'),
+  ('creator-pass', 'achievement', 'Creator', 'https://placehold.co/240x240?text=Creator'),
+  ('event-pass', 'achievement', 'Event', 'https://placehold.co/240x240?text=Event')
+) AS future(badge_code, level, display_name, image_url)
+  ON future.badge_code = br.badge_code;
+
 INSERT INTO badge_rule_skus (badge_rule_id, sony_sku)
 SELECT id, sku
 FROM badge_rules
@@ -101,6 +196,18 @@ CROSS JOIN LATERAL (
     ('SEL2470GM2')
 ) AS sku_list(sku)
 WHERE badge_code IN ('alpha-tier', 'pro-achievement');
+
+INSERT INTO badge_rule_skus (badge_rule_id, sony_sku)
+SELECT br.id, future.sku
+FROM badge_rules br
+JOIN (VALUES
+  ('camera-starter', 'FUTURE-CAMERA'),
+  ('lens-lover', 'FUTURE-LENS'),
+  ('audio-fan', 'FUTURE-AUDIO'),
+  ('creator-pass', 'FUTURE-CREATOR'),
+  ('event-pass', 'FUTURE-EVENT')
+) AS future(badge_code, sku)
+  ON future.badge_code = br.badge_code;
 
 INSERT INTO customer_badges (
   customer_id,

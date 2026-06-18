@@ -1,124 +1,99 @@
-import type { BadgeDisplayItem, BadgeShelfItem } from "@/types/badge";
+import { normalizeSku } from "@/lib/sony-products";
+import type { BadgeRuleConfig, BadgeShelfItem, SonyOwnedProduct } from "@/types/badge";
 
-type ShelfDefinition = {
-  code: string;
-  sourceCode?: string;
-  level?: string;
-  label: string;
-  title: string;
-  description: string;
-  requiredCount: number;
-  imageUrl: string;
-  lockedImageUrl: string;
+type BuildBadgeShelfInput = {
+  products: SonyOwnedProduct[];
+  rules: BadgeRuleConfig[];
+  now?: Date;
 };
 
-const SHELF_DEFINITIONS: ShelfDefinition[] = [
-  {
-    code: "alpha-bronze",
-    sourceCode: "alpha-tier",
-    level: "bronze",
-    label: "Bronze",
-    title: "Alpha Collector Bronze",
-    description: "Register one eligible Sony Alpha product.",
-    requiredCount: 1,
-    imageUrl: "https://placehold.co/240x240?text=Bronze",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-  {
-    code: "alpha-silver",
-    sourceCode: "alpha-tier",
-    level: "silver",
-    label: "Silver",
-    title: "Alpha Collector Silver",
-    description: "Register two eligible Sony Alpha products.",
-    requiredCount: 2,
-    imageUrl: "https://placehold.co/240x240?text=Silver",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-  {
-    code: "alpha-gold",
-    sourceCode: "alpha-tier",
-    level: "gold",
-    label: "Gold",
-    title: "Alpha Collector Gold",
-    description: "Register three eligible Sony Alpha products.",
-    requiredCount: 3,
-    imageUrl: "https://placehold.co/240x240?text=Gold",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-  {
-    code: "pro-achievement",
-    sourceCode: "pro-achievement",
-    level: "achievement",
-    label: "Achievement",
-    title: "Pro Achievement",
-    description: "Complete the campaign product ownership challenge once.",
-    requiredCount: 3,
-    imageUrl: "https://placehold.co/240x240?text=Achievement",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-  {
-    code: "camera-starter",
-    label: "Starter",
-    title: "Camera Starter",
-    description: "Future badge for first camera registration.",
-    requiredCount: 1,
-    imageUrl: "https://placehold.co/240x240?text=Starter",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-  {
-    code: "lens-lover",
-    label: "Lens",
-    title: "Lens Lover",
-    description: "Future badge for lens collection behavior.",
-    requiredCount: 1,
-    imageUrl: "https://placehold.co/240x240?text=Lens",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-  {
-    code: "audio-fan",
-    label: "Audio",
-    title: "Audio Fan",
-    description: "Future badge for eligible Sony audio products.",
-    requiredCount: 1,
-    imageUrl: "https://placehold.co/240x240?text=Audio",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-  {
-    code: "creator-pass",
-    label: "Creator",
-    title: "Creator Pass",
-    description: "Future badge for creator campaign participation.",
-    requiredCount: 1,
-    imageUrl: "https://placehold.co/240x240?text=Creator",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-  {
-    code: "event-pass",
-    label: "Event",
-    title: "Event Pass",
-    description: "Future badge for Sony event attendance.",
-    requiredCount: 1,
-    imageUrl: "https://placehold.co/240x240?text=Event",
-    lockedImageUrl: "https://placehold.co/240x240?text=Locked",
-  },
-];
+function toDate(value: string | null): Date | null {
+  return value ? new Date(`${value.slice(0, 10)}T00:00:00.000Z`) : null;
+}
 
-export function buildBadgeShelf(badges: BadgeDisplayItem[]): BadgeShelfItem[] {
-  return SHELF_DEFINITIONS.map((definition) => {
-    const sourceBadge = definition.sourceCode
-      ? badges.find((badge) => badge.code === definition.sourceCode)
-      : undefined;
-    const achieved = sourceBadge ? sourceBadge.matchedCount >= definition.requiredCount : false;
+function isRuleActive(rule: BadgeRuleConfig, now: Date): boolean {
+  if (!rule.isActive) {
+    return false;
+  }
 
-    return {
-      code: definition.code,
-      label: definition.label,
-      title: definition.title,
-      description: definition.description,
-      imageUrl: achieved ? definition.imageUrl : definition.lockedImageUrl,
-      status: achieved ? "achieved" : "available",
-      visualState: achieved ? "color" : "dimmed",
-    };
-  });
+  const activeFrom = toDate(rule.activeFrom);
+  const activeTo = toDate(rule.activeTo);
+
+  if (activeFrom && now < activeFrom) {
+    return false;
+  }
+
+  if (activeTo && now > activeTo) {
+    return false;
+  }
+
+  return true;
+}
+
+function isWithinDateWindow(value: string, start: string | null, end: string | null): boolean {
+  const registeredAt = toDate(value);
+  const startsAt = toDate(start);
+  const endsAt = toDate(end);
+
+  if (!registeredAt) {
+    return false;
+  }
+
+  if (startsAt && registeredAt < startsAt) {
+    return false;
+  }
+
+  if (endsAt && registeredAt > endsAt) {
+    return false;
+  }
+
+  return true;
+}
+
+function countMatchedProducts(rule: BadgeRuleConfig, products: SonyOwnedProduct[]): number {
+  const eligibleSkus = new Set(rule.skus.map(normalizeSku));
+  const matchedSkus = new Set<string>();
+
+  for (const product of products) {
+    const normalizedSku = normalizeSku(product.sku);
+
+    if (
+      eligibleSkus.has(normalizedSku) &&
+      isWithinDateWindow(product.registeredAt, rule.registrationStart, rule.registrationEnd)
+    ) {
+      matchedSkus.add(normalizedSku);
+    }
+  }
+
+  return matchedSkus.size;
+}
+
+export function buildBadgeShelf({
+  products,
+  rules,
+  now = new Date(),
+}: BuildBadgeShelfInput): BadgeShelfItem[] {
+  return rules
+    .filter((rule) => isRuleActive(rule, now))
+    .sort((left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name))
+    .flatMap((rule) => {
+      const matchedCount = countMatchedProducts(rule, products);
+
+      return [...rule.thresholds]
+        .sort((left, right) => left.requiredCount - right.requiredCount)
+        .map((threshold) => {
+          const achieved = matchedCount >= threshold.requiredCount;
+          const label = threshold.displayName;
+
+          return {
+            code: `${rule.code}-${threshold.level}`,
+            label,
+            title: `${rule.name} ${label}`,
+            description: rule.description ?? `Unlock ${rule.name} ${label}.`,
+            imageUrl: achieved ? threshold.imageUrl : threshold.lockedImageUrl,
+            status: achieved ? "achieved" : "available",
+            visualState: achieved ? "color" : "dimmed",
+          } satisfies BadgeShelfItem;
+        });
+    });
 }
