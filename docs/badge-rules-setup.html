@@ -566,6 +566,54 @@ COMMIT;</code></pre>
           </table>
         </div>
       </section>
+
+      <section>
+        <h2>Browser Cache และ Rules Version</h2>
+        <p>
+          หน้า Badge ใช้ browser <code>localStorage</code> เพื่อเก็บผลลัพธ์ Badge แบบ display-only.
+          ไม่ใช้ cookie เพราะ cookie จะถูกส่งไปกับทุก request และเพิ่ม bandwidth โดยไม่จำเป็น.
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Cache contract</caption>
+            <thead>
+              <tr>
+                <th>ข้อมูล</th>
+                <th>เก็บที่ไหน</th>
+                <th>เหตุผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>skuHash</code></td>
+                <td>Browser localStorage</td>
+                <td>ใช้เช็คว่า Sony SKU set เปลี่ยนหรือยัง โดยไม่เก็บ raw SKU ใน browser cache</td>
+              </tr>
+              <tr>
+                <td><code>badge_rules_version</code></td>
+                <td><code>app_config</code> และ browser localStorage</td>
+                <td>ถ้า rules version เปลี่ยน ระบบต้องคำนวณ Badge ใหม่</td>
+              </tr>
+              <tr>
+                <td>Badge result</td>
+                <td>Browser localStorage</td>
+                <td>ใช้แสดงผลเร็วเมื่อ server ยืนยันว่า customer, SKU hash, และ rules version ยังตรงกัน</td>
+              </tr>
+              <tr>
+                <td>Active rules</td>
+                <td>Server memory cache + DB</td>
+                <td>ลด DB bandwidth เพราะ rule config เปลี่ยนไม่บ่อย</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>ขั้นตอนเมื่อแก้ rule ใน DB:</strong>
+          หลังแก้ <code>badge_rules</code>, <code>badge_rule_thresholds</code>, หรือ
+          <code>badge_rule_conditions</code> ต้อง update <code>app_config.badge_rules_version</code>
+          เพื่อบังคับให้ browser cache คำนวณใหม่.
+        </div>
+      </section>
     </main>
   </body>
 </html>

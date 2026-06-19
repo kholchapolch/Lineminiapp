@@ -57,6 +57,12 @@ const payload: BadgeResultPayload = {
       registrationDate: "2026-05-20",
     },
   ],
+  cache: {
+    customerCacheKey: "customer-cache-key",
+    skuHash: "sku-hash",
+    rulesVersion: "rules-version",
+    calculatedAt: "2026-06-19T00:00:00.000Z",
+  },
 };
 
 describe("isDebugModeEnabled", () => {

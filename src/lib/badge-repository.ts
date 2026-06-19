@@ -13,6 +13,20 @@ import type {
 
 const FALLBACK_SUPPORT_MESSAGE =
   "Please contact Sony Thailand support if badge data looks incorrect.";
+const FALLBACK_BADGE_RULES_VERSION = "local-fallback";
+const CONFIG_CACHE_TTL_MS = 60_000;
+
+let badgeRuntimeConfigCache:
+  | { databaseUrl: string | undefined; expiresAt: number; value: BadgeRuntimeConfig }
+  | null = null;
+let activeBadgeRulesCache:
+  | { expiresAt: number; version: string; rules: BadgeRuleConfig[] }
+  | null = null;
+
+export type BadgeRuntimeConfig = {
+  supportMessage: string;
+  badgeRulesVersion: string;
+};
 
 const fallbackBadgeRules: BadgeRuleConfig[] = [
   createFallbackRule({
@@ -160,19 +174,61 @@ type DbSchemaColumnRow = {
 };
 
 export async function getSupportMessage(): Promise<string> {
-  if (!process.env.DATABASE_URL) {
-    return FALLBACK_SUPPORT_MESSAGE;
+  return (await getBadgeRuntimeConfig()).supportMessage;
+}
+
+export async function getBadgeRuntimeConfig(): Promise<BadgeRuntimeConfig> {
+  const now = Date.now();
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (
+    badgeRuntimeConfigCache &&
+    badgeRuntimeConfigCache.databaseUrl === databaseUrl &&
+    badgeRuntimeConfigCache.expiresAt > now
+  ) {
+    return badgeRuntimeConfigCache.value;
+  }
+
+  if (!databaseUrl) {
+    const value = {
+      supportMessage: FALLBACK_SUPPORT_MESSAGE,
+      badgeRulesVersion: FALLBACK_BADGE_RULES_VERSION,
+    };
+    badgeRuntimeConfigCache = { databaseUrl, expiresAt: now + CONFIG_CACHE_TTL_MS, value };
+    return value;
   }
 
   const pool = getPool();
-  const result = await pool.query<{ value: string }>(
-    "SELECT value FROM app_config WHERE key = 'support_message' LIMIT 1",
+  const result = await pool.query<{ key: string; value: string }>(
+    "SELECT key, value FROM app_config WHERE key IN ('support_message', 'badge_rules_version')",
   );
+  const values = new Map(result.rows.map((row) => [row.key, row.value]));
+  const value = {
+    supportMessage: values.get("support_message") ?? FALLBACK_SUPPORT_MESSAGE,
+    badgeRulesVersion: values.get("badge_rules_version") ?? FALLBACK_BADGE_RULES_VERSION,
+  };
 
-  return result.rows[0]?.value ?? FALLBACK_SUPPORT_MESSAGE;
+  badgeRuntimeConfigCache = { databaseUrl, expiresAt: now + CONFIG_CACHE_TTL_MS, value };
+  return value;
 }
 
-export async function getActiveBadgeRules(): Promise<BadgeRuleConfig[]> {
+export async function getActiveBadgeRules(options: {
+  version?: string;
+  bypassCache?: boolean;
+} = {}): Promise<BadgeRuleConfig[]> {
+  const now = Date.now();
+  const version = options.version;
+
+  if (
+    version &&
+    !options.bypassCache &&
+    activeBadgeRulesCache &&
+    activeBadgeRulesCache.version === version &&
+    activeBadgeRulesCache.expiresAt > now
+  ) {
+    return activeBadgeRulesCache.rules;
+  }
+
   if (!process.env.DATABASE_URL) {
     return fallbackBadgeRules;
   }
@@ -216,7 +272,17 @@ export async function getActiveBadgeRules(): Promise<BadgeRuleConfig[]> {
     `,
   );
 
-  return mapRuleRows(result.rows);
+  const rules = mapRuleRows(result.rows);
+
+  if (version && !options.bypassCache) {
+    activeBadgeRulesCache = {
+      expiresAt: now + CONFIG_CACHE_TTL_MS,
+      version,
+      rules,
+    };
+  }
+
+  return rules;
 }
 
 export async function getPublicDbSchema(): Promise<DbSchemaColumn[]> {

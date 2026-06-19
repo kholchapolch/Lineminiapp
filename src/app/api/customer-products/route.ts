@@ -4,7 +4,7 @@ import { resolveAuthorizedLineUuid, UnauthorizedError } from "@/lib/auth-session
 import { getBadgeResultForLineUuid, isSonyCustomerNotFound } from "@/lib/badge-result";
 import { isDebugTraceEnabled } from "@/lib/debug-mode";
 import { toSafeError } from "@/lib/safe-logging";
-import type { BadgeResultPayload } from "@/types/badge";
+import type { BadgeApiPayload, BadgeResultPayload } from "@/types/badge";
 
 function getSearchParams(request: Request): URLSearchParams {
   return new URL(request.url).searchParams;
@@ -24,7 +24,15 @@ export async function GET(request: Request): Promise<NextResponse> {
       appEnv: config.appEnv,
       debugParam: searchParams.get("debug"),
     });
-    const payload = await getBadgeResultForLineUuid(lineuuid, { config, includeDebugTrace });
+    const payload = await getBadgeResultForLineUuid(lineuuid, {
+      config,
+      includeDebugTrace,
+      cacheHint: {
+        customerCacheKey: request.headers.get("x-badge-cache-customer-key") ?? undefined,
+        skuHash: request.headers.get("x-badge-cache-sku-hash") ?? undefined,
+        rulesVersion: request.headers.get("x-badge-cache-rules-version") ?? undefined,
+      },
+    });
     return NextResponse.json(toDisplaySafePayload(payload, includeDebugTrace));
   } catch (error) {
     const safeError = toSafeError(error);
@@ -35,16 +43,26 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
 }
 
-function toDisplaySafePayload(payload: BadgeResultPayload, includeDebugTrace: boolean) {
+function toDisplaySafePayload(
+  payload: BadgeResultPayload | Extract<BadgeApiPayload, { cacheStatus: "hit" }>,
+  includeDebugTrace: boolean,
+): BadgeApiPayload {
+  if ("cacheStatus" in payload && payload.cacheStatus === "hit") {
+    return payload;
+  }
+
+  const fullPayload = payload as BadgeResultPayload;
+
   return {
+    cacheStatus: "miss",
     customer: {
-      displayName: payload.customer.displayName,
-      lineDisplayName: payload.customer.lineDisplayName,
-      linePictureUrl: payload.customer.linePictureUrl,
+      displayName: fullPayload.customer.displayName,
+      lineDisplayName: fullPayload.customer.lineDisplayName,
+      linePictureUrl: fullPayload.customer.linePictureUrl,
     },
-    productCount: payload.products.length,
-    supportMessage: payload.supportMessage,
-    badges: payload.badges.map((badge) => ({
+    productCount: fullPayload.products.length,
+    supportMessage: fullPayload.supportMessage,
+    badges: fullPayload.badges.map((badge) => ({
       code: badge.code,
       name: badge.name,
       type: badge.type,
@@ -57,7 +75,8 @@ function toDisplaySafePayload(payload: BadgeResultPayload, includeDebugTrace: bo
       imageUrl: badge.imageUrl,
       level: badge.level ?? null,
     })),
-    badgeShelf: payload.badgeShelf,
-    debugTrace: includeDebugTrace ? payload.debugTrace : undefined,
+    badgeShelf: fullPayload.badgeShelf,
+    cache: fullPayload.cache,
+    debugTrace: includeDebugTrace ? fullPayload.debugTrace : undefined,
   };
 }

@@ -26,6 +26,7 @@ Use this pilot schema:
 - `badge_rules` stores badge identity, grouping, active window, and registration window.
 - `badge_rule_thresholds` stores shelf levels and image URLs.
 - `badge_rule_conditions` stores each condition row with `match_type`, `required_count`, and `sony_skus` JSONB.
+- `app_config.badge_rules_version` stores the rule version used to invalidate browser badge caches.
 
 Keep `badge_rule_thresholds` separate from `badge_rules` because one badge can have many visible tiers.
 
@@ -47,6 +48,8 @@ The condition table can still support composed rules by adding multiple conditio
 The SKU list is stored as JSONB, so SQL cannot enforce one foreign-key row per SKU. This is acceptable for the pilot because Sony SKUs are external identifiers and the debug panel exposes readable SKU labels for review.
 
 The model supports composed rules from `any`, `all`, `min_count`, multiple conditions, multiple thresholds, and date windows. It does not try to be a fully nested boolean expression engine such as `(A OR B) AND (C OR (D AND E))`.
+
+Badge calculation is done in application code because Sony owned products arrive as API JSON at request time. The browser may cache display-only achievement results in `localStorage`, but the server confirms the cache using customer key, normalized SKU hash, and `badge_rules_version` before the browser reuses it. Direct rule updates must bump `badge_rules_version`.
 
 ## Alternatives Considered
 

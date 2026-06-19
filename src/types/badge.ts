@@ -220,4 +220,53 @@ export type BadgeResultPayload = {
   badges: BadgeDisplayItem[];
   badgeShelf: BadgeShelfItem[];
   debugTrace?: DebugTrace;
+  cache: BadgeCacheMetadata;
 };
+
+export type BadgeCacheMetadata = {
+  customerCacheKey: string;
+  skuHash: string;
+  rulesVersion: string;
+  calculatedAt: string;
+};
+
+export type BadgeApiCacheHitPayload = {
+  cacheStatus: "hit";
+  customer: Pick<
+    SonyCustomerProfile,
+    "displayName" | "lineDisplayName" | "linePictureUrl"
+  >;
+  productCount: number;
+  supportMessage: string;
+  cache: BadgeCacheMetadata;
+};
+
+export type BadgeApiMissPayload = {
+  cacheStatus: "miss";
+  customer: Pick<
+    SonyCustomerProfile,
+    "displayName" | "lineDisplayName" | "linePictureUrl"
+  >;
+  productCount: number;
+  supportMessage: string;
+  badges: Array<
+    Pick<
+      BadgeDisplayItem,
+      | "code"
+      | "name"
+      | "type"
+      | "description"
+      | "status"
+      | "progress"
+      | "remainingCount"
+      | "matchedCount"
+      | "requiredCount"
+      | "imageUrl"
+    > & { level: string | null }
+  >;
+  badgeShelf: BadgeShelfItem[];
+  cache: BadgeCacheMetadata;
+  debugTrace?: DebugTrace;
+};
+
+export type BadgeApiPayload = BadgeApiCacheHitPayload | BadgeApiMissPayload;

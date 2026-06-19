@@ -119,6 +119,18 @@ Reset local DB schema/data:
 npm run db:reset
 ```
 
+Rule/cache version:
+
+- `app_config.badge_rules_version` invalidates browser badge caches when badge
+  rules, thresholds, or conditions change.
+- The badge page stores display-only badge results in browser `localStorage`.
+  Raw Sony SKUs are not stored there; the cache key uses a server-generated SKU
+  hash and customer cache key.
+- The server still fetches Sony products per badge load, then skips full rule
+  loading when the browser cache metadata matches the current
+  `badge_rules_version`.
+- Update `badge_rules_version` after any direct rule setup change.
+
 ### Direct Badge Rule Updates
 
 This pilot has no CMS/admin surface. Badge rules are maintained directly in

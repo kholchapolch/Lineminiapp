@@ -54,6 +54,77 @@ describe("GET /api/customer-products", () => {
     expect(payload.debugTrace).toBeUndefined();
   });
 
+  it("returns cache metadata on a cache miss", async () => {
+    stubLocalEnv();
+
+    const response = await GET(
+      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.cacheStatus).toBe("miss");
+    expect(payload.cache).toMatchObject({
+      rulesVersion: "local-fallback",
+    });
+    expect(payload.cache.customerCacheKey).toEqual(expect.any(String));
+    expect(payload.cache.skuHash).toEqual(expect.any(String));
+    expect(payload.cache.calculatedAt).toEqual(expect.any(String));
+  });
+
+  it("returns a lightweight cache hit when customer, SKU hash, and rules version match", async () => {
+    stubLocalEnv();
+
+    const missResponse = await GET(
+      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+    );
+    const missPayload = await missResponse.json();
+    const hitResponse = await GET(
+      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned", {
+        headers: {
+          "x-badge-cache-customer-key": missPayload.cache.customerCacheKey,
+          "x-badge-cache-sku-hash": missPayload.cache.skuHash,
+          "x-badge-cache-rules-version": missPayload.cache.rulesVersion,
+        },
+      }),
+    );
+    const hitPayload = await hitResponse.json();
+
+    expect(hitResponse.status).toBe(200);
+    expect(hitPayload.cacheStatus).toBe("hit");
+    expect(hitPayload.badges).toBeUndefined();
+    expect(hitPayload.badgeShelf).toBeUndefined();
+    expect(hitPayload.cache).toMatchObject({
+      customerCacheKey: missPayload.cache.customerCacheKey,
+      skuHash: missPayload.cache.skuHash,
+      rulesVersion: missPayload.cache.rulesVersion,
+    });
+  });
+
+  it("bypasses cache hits when debug trace is requested", async () => {
+    stubLocalEnv();
+
+    const missResponse = await GET(
+      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+    );
+    const missPayload = await missResponse.json();
+    const debugResponse = await GET(
+      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned&debug=1", {
+        headers: {
+          "x-badge-cache-customer-key": missPayload.cache.customerCacheKey,
+          "x-badge-cache-sku-hash": missPayload.cache.skuHash,
+          "x-badge-cache-rules-version": missPayload.cache.rulesVersion,
+        },
+      }),
+    );
+    const debugPayload = await debugResponse.json();
+
+    expect(debugResponse.status).toBe(200);
+    expect(debugPayload.cacheStatus).toBe("miss");
+    expect(debugPayload.debugTrace).toBeDefined();
+    expect(debugPayload.badgeShelf.length).toBeGreaterThan(0);
+  });
+
   it("uses the local demo lineuuid when no lineuuid is provided locally", async () => {
     stubLocalEnv();
 

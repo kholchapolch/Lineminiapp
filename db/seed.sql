@@ -5,6 +5,7 @@ RESTART IDENTITY CASCADE;
 
 INSERT INTO app_config (key, value) VALUES
   ('campaign_name', 'Sony Badge Pilot'),
+  ('badge_rules_version', '2026-06-19-001'),
   ('support_message', 'Please contact Sony Thailand support if badge data looks incorrect.');
 
 INSERT INTO badge_rules (
