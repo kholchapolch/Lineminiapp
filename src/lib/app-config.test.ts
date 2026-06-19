@@ -21,6 +21,7 @@ describe("loadAppConfig", () => {
       sonyDemoLineUuid: "demo-line-earned",
     });
     expect(config.allowedOrigins).toEqual(["http://localhost:3000"]);
+    expect(config.sonyProductApiBaseUrl).toBe("http://localhost:3000/api/mock/sony");
   });
 
   it("rejects missing production LIFF and Sony API configuration", () => {

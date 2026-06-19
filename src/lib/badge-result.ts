@@ -1,10 +1,18 @@
 import "server-only";
 
+import { loadAppConfig, type AppConfig } from "@/lib/app-config";
 import { calculateBadges } from "@/lib/badge-engine";
 import { buildDebugTrace } from "@/lib/debug-trace";
 import { buildBadgeShelf } from "@/lib/badge-shelf";
-import { getActiveBadgeRules, getSupportMessage, writeBadgeCalculationLog } from "@/lib/badge-repository";
-import { getMockSonyCustomerProducts, SonyCustomerNotFoundError } from "@/lib/sony-products";
+import {
+  getActiveBadgeRules,
+  getDebugDbTables,
+  getPublicDbSchema,
+  getSupportMessage,
+  writeBadgeCalculationLog,
+} from "@/lib/badge-repository";
+import { createSonyProductsClient } from "@/lib/sony-products-client";
+import { SonyCustomerNotFoundError } from "@/lib/sony-products";
 import { toSafeError } from "@/lib/safe-logging";
 import type {
   BadgeDisplayItem,
@@ -15,10 +23,12 @@ import type {
 
 export async function getBadgeResultForLineUuid(
   lineuuid: string,
-  options: { includeDebugTrace?: boolean } = {},
+  options: { config?: AppConfig; includeDebugTrace?: boolean } = {},
 ): Promise<BadgeResultPayload> {
+  const config = options.config ?? loadAppConfig();
+
   try {
-    const customerProducts = await getSonyCustomerProducts(lineuuid);
+    const customerProducts = await createSonyProductsClient(config).getCustomerProducts(lineuuid);
     const rules = await getActiveBadgeRules();
     const badges = calculateBadges({ products: customerProducts.products, rules });
     const payload = toBadgeResultPayload(
@@ -34,10 +44,12 @@ export async function getBadgeResultForLineUuid(
         rules,
         badges: payload.badges,
         badgeShelf: payload.badgeShelf,
+        dbSchema: await getPublicDbSchema(),
+        dbTables: await getDebugDbTables(),
       });
     }
 
-    await writeBadgeCalculationLog({
+    void writeBadgeCalculationLog({
       lineuuid,
       sourceProductCount: customerProducts.products.length,
       matchedSkuCount: payload.badges.reduce((total, badge) => total + badge.matchedCount, 0),
@@ -46,25 +58,20 @@ export async function getBadgeResultForLineUuid(
         status: badge.status,
         matchedCount: badge.matchedCount,
       })),
-    });
+    }).catch(() => undefined);
 
     return payload;
   } catch (error) {
-    await writeBadgeCalculationLog({
+    void writeBadgeCalculationLog({
       lineuuid,
       sourceProductCount: 0,
       matchedSkuCount: 0,
       resultSummary: [],
       errorCode: toSafeError(error).code,
       errorMessage: toSafeError(error).message,
-    });
+    }).catch(() => undefined);
     throw error;
   }
-}
-
-async function getSonyCustomerProducts(lineuuid: string): Promise<SonyCustomerProducts> {
-  // The live Sony adapter will replace this function once endpoint/auth are confirmed.
-  return getMockSonyCustomerProducts(lineuuid);
 }
 
 function toBadgeResultPayload(
@@ -84,7 +91,7 @@ function toBadgeResultPayload(
 
 function toDisplayBadge(badge: CalculatedBadge): BadgeDisplayItem {
   const firstProduct = badge.matchedProducts[0] ?? null;
-  const type = badge.ruleType === "tier" ? "product" : "quest";
+  const type = badge.badgeType;
 
   return {
     code: badge.code,

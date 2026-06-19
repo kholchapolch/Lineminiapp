@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { loadAppConfig } from "@/lib/app-config";
-import { resolveLineUuid } from "@/lib/lineuuid";
+import { resolveAuthorizedLineUuid } from "@/lib/auth-session";
 import { evaluateRedirectGuard } from "@/lib/redirect-guard";
 
 export const dynamic = "force-dynamic";
@@ -14,21 +14,24 @@ type EntryPageProps = {
 
 export default function EntryPage({ searchParams }: EntryPageProps): never {
   const config = loadAppConfig();
-  const guard = evaluateRedirectGuard(headers(), config);
+  const requestHeaders = headers();
+  const guard = evaluateRedirectGuard(requestHeaders, config);
 
   if (!guard.allowed) {
     redirect(`/badge?entryError=${guard.reason}`);
   }
 
-  const resolvedLineUuid = resolveLineUuid({
-    appEnv: config.appEnv,
-    providedLineUuid: searchParams?.lineuuid,
-    demoLineUuid: config.sonyDemoLineUuid,
-  });
+  let lineuuid: string;
 
-  if (!resolvedLineUuid.lineUuid) {
-    redirect("/badge?entryError=missingLineUuid");
+  try {
+    lineuuid = resolveAuthorizedLineUuid({
+      config,
+      headers: requestHeaders,
+      providedLineUuid: searchParams?.lineuuid,
+    });
+  } catch {
+    redirect("/badge?entryError=missingLineSession");
   }
 
-  redirect(`/badge?lineuuid=${encodeURIComponent(resolvedLineUuid.lineUuid)}`);
+  redirect(config.appEnv === "local" ? `/badge?lineuuid=${encodeURIComponent(lineuuid)}` : "/badge");
 }

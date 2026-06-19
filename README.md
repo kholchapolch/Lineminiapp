@@ -42,6 +42,10 @@ Open `http://localhost:3000`.
 Useful sample LINE UUIDs:
 
 - `http://localhost:3000/badge?lineuuid=demo-line-earned`
+- `http://localhost:3000/badge?lineuuid=demo-line-tier-bronze`
+- `http://localhost:3000/badge?lineuuid=demo-line-tier-silver`
+- `http://localhost:3000/badge?lineuuid=demo-line-tier-gold`
+- `http://localhost:3000/badge?lineuuid=demo-line-tier-body-silver-gm-gold`
 - `http://localhost:3000/badge?lineuuid=demo-line-locked`
 - `http://localhost:3000/badge?lineuuid=demo-line-empty`
 - `http://localhost:3000/badge?lineuuid=demo-line-missing-data`
@@ -49,6 +53,10 @@ Useful sample LINE UUIDs:
 Debug preview:
 
 - `http://localhost:3000/badge?lineuuid=demo-line-earned&debug=1` shows display-safe mock JSON in local/staging only. Production ignores debug mode.
+
+Client rule setup guide:
+
+- Open `docs/badge-rules-setup.html` to review how badge rules, conditions, Sony product JSON, and aggregation progress are configured.
 
 Badge result API:
 
@@ -60,8 +68,10 @@ Local LIFF entry preview:
 - `http://localhost:3000/entry?lineuuid=demo-line-locked`
 
 The `/entry` route validates the request source with `Origin` and/or `Referer`
-against `ALLOWED_ORIGINS` and `ALLOWED_REFERRERS` before resolving the
-`lineuuid` into the badge display route.
+against `ALLOWED_ORIGINS` and `ALLOWED_REFERRERS`. In staging/production the
+server must resolve the user from a signed LINE session cookie created after
+server-side LINE ID token verification. Query-string `lineuuid` is local-demo
+only.
 
 ## App Configuration
 
@@ -72,8 +82,13 @@ Required server-side settings:
 - `DATABASE_URL`: server-side Postgres connection string.
 - `ALLOWED_ORIGINS`: comma-separated allowed `Origin` values for `/entry`.
 - `ALLOWED_REFERRERS`: comma-separated allowed `Referer` origins for `/entry`.
+- `LINE_CHANNEL_ID`: LINE Login channel ID used to verify LIFF ID tokens.
+- `APP_SESSION_SECRET`: server-only secret for signed LINE session cookies.
+- `LOG_HASH_SECRET`: optional server-only HMAC secret for log identifiers. Falls
+  back to `APP_SESSION_SECRET`.
 - `SONY_PRODUCT_API_MODE`: `mock` locally, `live` for Sony API integration.
-- `SONY_PRODUCT_API_BASE_URL`: required when `SONY_PRODUCT_API_MODE=live`.
+- `SONY_PRODUCT_API_BASE_URL`: full endpoint URL, including path, required when
+  `SONY_PRODUCT_API_MODE=live`.
 - `SONY_DEMO_LINE_UUID`: local fallback `lineuuid` for preview entry flow.
 
 Client-visible setting:
@@ -81,8 +96,8 @@ Client-visible setting:
 - `NEXT_PUBLIC_LIFF_ID`: required outside local mode. Leave blank locally to use
   preview mode without LINE.
 - `NEXT_PUBLIC_DEBUG_MOCK_JSON`: optional local/staging flag for showing the
-  display-safe debug JSON panel without adding `?debug=1`. Production ignores
-  this flag.
+  display-safe debug JSON panel without adding `?debug=1`. Keep disabled on any
+  customer-accessible staging/UAT. Production ignores this flag.
 
 ## Database
 
@@ -119,21 +134,42 @@ SET
   badge_name = 'Alpha Collector',
   description = 'Collect eligible Sony Alpha camera and G Master lens products.',
   rule_type = 'tier',
-  required_count = 3,
   sort_order = 10,
-  is_active = true,
-  updated_at = now()
+  is_active = true
 WHERE badge_code = 'alpha-tier';
 
-DELETE FROM badge_rule_skus
+DELETE FROM badge_rule_thresholds
 WHERE badge_rule_id = (
   SELECT id FROM badge_rules WHERE badge_code = 'alpha-tier'
 );
 
-INSERT INTO badge_rule_skus (badge_rule_id, sony_sku, is_active)
-SELECT id, sku, true
+INSERT INTO badge_rule_thresholds (
+  badge_rule_id,
+  level,
+  display_name,
+  required_count,
+  achieved_image_url,
+  locked_image_url,
+  sort_order
+)
+SELECT id, 'achievement', 'Alpha Collector', 3, 'https://example.com/alpha.png', NULL, 10
 FROM badge_rules
-CROSS JOIN (VALUES ('ILCE-7M4'), ('ILCE-7CM2')) AS allowed_skus(sku)
+WHERE badge_code = 'alpha-tier';
+
+DELETE FROM badge_rule_conditions
+WHERE badge_rule_id = (
+  SELECT id FROM badge_rules WHERE badge_code = 'alpha-tier'
+);
+
+INSERT INTO badge_rule_conditions (
+  badge_rule_id,
+  condition_label,
+  match_type,
+  required_count,
+  sony_skus
+)
+SELECT id, 'Own any supported Alpha body', 'any', 1, '["ILCE-7M4","ILCE-7CM2"]'::jsonb
+FROM badge_rules
 WHERE badge_code = 'alpha-tier';
 
 COMMIT;
@@ -146,7 +182,7 @@ Operational rules:
 2. Keep `badge_code` stable because the display layer and analytics can depend
    on it.
 3. Prefer setting `is_active = false` over deleting a rule that has already been
-   issued to customers.
+   shown in a campaign.
 4. Do not paste LINE IDs, serial numbers, customer exports, or database secrets
    into GitHub issues, screenshots, or chat logs.
 5. Keep production SQL in a dated, reviewed change note before applying it.

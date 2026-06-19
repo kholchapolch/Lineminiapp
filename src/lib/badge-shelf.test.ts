@@ -22,9 +22,9 @@ const rules: BadgeRuleConfig[] = [
     registrationEnd: null,
     skus: ["ILCE-7M4", "SEL35F14GM", "SEL2470GM2"],
     thresholds: [
-      { level: "bronze", displayName: "Bronze", requiredCount: 1, imageUrl: "bronze.png", lockedImageUrl: "locked.png" },
-      { level: "silver", displayName: "Silver", requiredCount: 2, imageUrl: "silver.png", lockedImageUrl: "locked.png" },
-      { level: "gold", displayName: "Gold", requiredCount: 3, imageUrl: "gold.png", lockedImageUrl: "locked.png" },
+      { level: "bronze", displayName: "Bronze", requiredCount: 1, achievedImageUrl: "bronze.png", lockedImageUrl: "locked.png" },
+      { level: "silver", displayName: "Silver", requiredCount: 2, achievedImageUrl: "silver.png", lockedImageUrl: "locked.png" },
+      { level: "gold", displayName: "Gold", requiredCount: 3, achievedImageUrl: "gold.png", lockedImageUrl: "locked.png" },
     ],
   },
   {
@@ -41,7 +41,7 @@ const rules: BadgeRuleConfig[] = [
     registrationEnd: null,
     skus: ["ILCE-7M4", "SEL35F14GM", "SEL2470GM2"],
     thresholds: [
-      { level: "achievement", displayName: "Achievement", requiredCount: 3, imageUrl: "achievement.png", lockedImageUrl: "locked.png" },
+      { level: "achievement", displayName: "Achievement", requiredCount: 3, achievedImageUrl: "achievement.png", lockedImageUrl: "locked.png" },
     ],
   },
   ...Array.from({ length: 5 }, (_, index): BadgeRuleConfig => ({
@@ -62,7 +62,7 @@ const rules: BadgeRuleConfig[] = [
         level: "achievement",
         displayName: `Future ${index + 1}`,
         requiredCount: 1,
-        imageUrl: `future-${index + 1}.png`,
+        achievedImageUrl: `future-${index + 1}.png`,
         lockedImageUrl: "locked.png",
       },
     ],
@@ -103,5 +103,32 @@ describe("buildBadgeShelf", () => {
 
     expect(shelf).toHaveLength(9);
     expect(shelf.every((item) => item.visualState === "dimmed")).toBe(true);
+  });
+
+  it("uses achieved image as the locked visual when locked image URL is empty", () => {
+    const [shelfItem] = buildBadgeShelf({
+      products: [],
+      now: new Date("2026-06-01"),
+      rules: [
+        {
+          ...rules[0],
+          thresholds: [
+            {
+              level: "bronze",
+              displayName: "Bronze",
+              requiredCount: 1,
+              achievedImageUrl: "bronze.png",
+              lockedImageUrl: null,
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(shelfItem).toMatchObject({
+      status: "available",
+      visualState: "dimmed",
+      imageUrl: "bronze.png",
+    });
   });
 });

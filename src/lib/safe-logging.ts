@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
 
 export type SafeError = {
   code: string;
@@ -17,6 +17,12 @@ const UNKNOWN_SAFE_ERROR: SafeError = {
 };
 
 export function hashLineUuid(lineuuid: string): string {
+  const secret = process.env.LOG_HASH_SECRET ?? process.env.APP_SESSION_SECRET;
+
+  if (secret?.trim()) {
+    return createHmac("sha256", secret.trim()).update(lineuuid).digest("hex");
+  }
+
   return createHash("sha256").update(lineuuid).digest("hex");
 }
 

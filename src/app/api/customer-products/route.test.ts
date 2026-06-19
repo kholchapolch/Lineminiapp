@@ -7,48 +7,78 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
+function stubLocalEnv() {
+  vi.stubEnv("APP_ENV", "local");
+  vi.stubEnv("APP_BASE_URL", "http://localhost:3000");
+  vi.stubEnv("SONY_PRODUCT_API_MODE", "mock");
+}
+
+function stubProductionEnv() {
+  vi.stubEnv("APP_ENV", "production");
+  vi.stubEnv("APP_BASE_URL", "https://campaign.example.com");
+  vi.stubEnv("DATABASE_URL", "postgres://sony:sony@localhost:54339/sony_badges");
+  vi.stubEnv("ALLOWED_ORIGINS", "https://campaign.example.com");
+  vi.stubEnv("ALLOWED_REFERRERS", "https://campaign.example.com");
+  vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "line-liff-id");
+  vi.stubEnv("LINE_CHANNEL_ID", "line-channel-id");
+  vi.stubEnv("APP_SESSION_SECRET", "test-session-secret");
+  vi.stubEnv("SONY_PRODUCT_API_MODE", "mock");
+}
+
 describe("GET /api/customer-products", () => {
   it("returns calculated demo badge data for a known lineuuid", async () => {
+    stubLocalEnv();
+
     const response = await GET(
       new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
     );
     const payload = await response.json();
 
     expect(response.status).toBe(200);
-    expect(payload.customer.lineuuid).toBe("demo-line-earned");
-    expect(payload.customer.customerId).toBe("demo-earned");
-    expect(payload.products).toHaveLength(3);
-    expect(payload.badges[0]).toMatchObject({
-      code: "alpha-tier",
-      status: "earned",
-      level: "gold",
-      matchedCount: 3,
+    expect(payload.customer).toEqual({
+      displayName: "Nicha Wong",
+      lineDisplayName: "Nicha",
+      linePictureUrl: null,
     });
+    expect(payload.productCount).toBe(20);
+    expect(payload.products).toBeUndefined();
+    expect(payload.badges[0]).toMatchObject({
+      code: "ff-camera-owner",
+      status: "earned",
+      level: "achievement",
+      matchedCount: 1,
+    });
+    expect(payload.badges[0].serialNumber).toBeUndefined();
+    expect(payload.badges[0].modelName).toBeUndefined();
+    expect(payload.badges[0].registrationDate).toBeUndefined();
     expect(payload.debugTrace).toBeUndefined();
   });
 
-  it("rejects missing lineuuid", async () => {
+  it("uses the local demo lineuuid when no lineuuid is provided locally", async () => {
+    stubLocalEnv();
+
     const response = await GET(new Request("http://localhost/api/customer-products"));
     const payload = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(payload).toEqual({
-      code: "MISSING_LINEUUID",
-      message: "lineuuid is required.",
-    });
+    expect(response.status).toBe(200);
+    expect(payload.productCount).toBe(20);
   });
 
-  it("rejects legacy customerId-only lookup", async () => {
+  it("rejects production requests without a server-verified session", async () => {
+    stubProductionEnv();
+
     const response = await GET(
-      new Request("http://localhost/api/customer-products?customerId=demo-earned"),
+      new Request("https://campaign.example.com/api/customer-products?lineuuid=demo-line-earned"),
     );
     const payload = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(payload.code).toBe("MISSING_LINEUUID");
+    expect(response.status).toBe(401);
+    expect(payload.code).toBe("UNAUTHORIZED");
   });
 
   it("returns redacted debug trace when debug is enabled locally", async () => {
+    stubLocalEnv();
+
     const response = await GET(
       new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned&debug=1"),
     );
@@ -56,17 +86,19 @@ describe("GET /api/customer-products", () => {
     const serialized = JSON.stringify(payload.debugTrace);
 
     expect(response.status).toBe(200);
-    expect(payload.debugTrace.dbRules.rules.length).toBeGreaterThan(0);
-    expect(payload.debugTrace.sonyApiMock.products).toHaveLength(3);
-    expect(payload.debugTrace.aggregationResult.badgeShelf).toHaveLength(9);
+    expect(payload.debugTrace.dbRules.badgeShelfSetup.length).toBeGreaterThan(0);
+    expect(payload.debugTrace.dbRules.rules).toBeUndefined();
+    expect(payload.debugTrace.sonyApiMock.products).toHaveLength(20);
+    expect(payload.debugTrace.aggregationResult.badgeShelf.length).toBeGreaterThanOrEqual(9);
     expect(serialized).not.toContain("demo-line-earned");
     expect(serialized).not.toContain("demo-earned");
     expect(serialized).not.toContain("SN-A7M4-001");
-    expect(serialized).not.toContain("Alpha 7 IV");
+    expect(serialized).not.toContain("Alpha 7R V");
     expect(serialized).not.toContain("2026-05-20");
   });
 
   it("does not return debug trace from env flag without debug query", async () => {
+    stubLocalEnv();
     vi.stubEnv("NEXT_PUBLIC_DEBUG_MOCK_JSON", "true");
 
     const response = await GET(
@@ -79,14 +111,14 @@ describe("GET /api/customer-products", () => {
   });
 
   it("omits debug trace in production even when requested", async () => {
-    vi.stubEnv("APP_ENV", "production");
+    stubProductionEnv();
 
     const response = await GET(
-      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned&debug=1"),
+      new Request("https://campaign.example.com/api/customer-products?debug=1"),
     );
     const payload = await response.json();
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(401);
     expect(payload.debugTrace).toBeUndefined();
   });
 });

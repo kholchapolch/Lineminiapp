@@ -1,4 +1,4 @@
-import { normalizeSku } from "@/lib/sony-products";
+import { normalizeSku } from "@/lib/sku";
 import type {
   BadgeRuleConfig,
   BadgeThresholdConfig,
@@ -16,7 +16,7 @@ function toDate(value: string | null): Date | null {
   return value ? new Date(`${value.slice(0, 10)}T00:00:00.000Z`) : null;
 }
 
-function isWithinDateWindow(value: string, start: string | null, end: string | null): boolean {
+export function isWithinDateWindow(value: string, start: string | null, end: string | null): boolean {
   const date = toDate(value);
   const startsAt = toDate(start);
   const endsAt = toDate(end);
@@ -36,7 +36,7 @@ function isWithinDateWindow(value: string, start: string | null, end: string | n
   return true;
 }
 
-function isRuleActive(rule: BadgeRuleConfig, now: Date): boolean {
+export function isRuleActive(rule: BadgeRuleConfig, now: Date): boolean {
   if (!rule.isActive) {
     return false;
   }
@@ -56,7 +56,11 @@ function isRuleActive(rule: BadgeRuleConfig, now: Date): boolean {
 }
 
 function sortedThresholds(rule: BadgeRuleConfig): BadgeThresholdConfig[] {
-  return [...rule.thresholds].sort((left, right) => left.requiredCount - right.requiredCount);
+  return [...rule.thresholds].sort(
+    (left, right) =>
+      left.requiredCount - right.requiredCount ||
+      (left.sortOrder ?? 0) - (right.sortOrder ?? 0),
+  );
 }
 
 function clampProgress(matchedCount: number, requiredCount: number): number {
@@ -65,6 +69,60 @@ function clampProgress(matchedCount: number, requiredCount: number): number {
   }
 
   return Math.min(100, Math.round((matchedCount / requiredCount) * 100));
+}
+
+function uniqueEligibleProducts(
+  products: SonyOwnedProduct[],
+  skus: string[],
+  rule: BadgeRuleConfig,
+): SonyOwnedProduct[] {
+  const eligibleSkus = new Set(skus.map(normalizeSku));
+  const matchedBySku = new Map<string, SonyOwnedProduct>();
+
+  for (const product of products) {
+    const normalizedSku = normalizeSku(product.sku);
+
+    if (
+      eligibleSkus.has(normalizedSku) &&
+      isWithinDateWindow(product.registeredAt, rule.registrationStart, rule.registrationEnd) &&
+      !matchedBySku.has(normalizedSku)
+    ) {
+      matchedBySku.set(normalizedSku, product);
+    }
+  }
+
+  return Array.from(matchedBySku.values());
+}
+
+export function calculateRuleMatch(rule: BadgeRuleConfig, products: SonyOwnedProduct[]): {
+  matchedCount: number;
+  matchedProducts: SonyOwnedProduct[];
+} {
+  const conditions = rule.conditions ?? [];
+
+  if (conditions.length === 0) {
+    const matchedProducts = uniqueEligibleProducts(products, rule.skus, rule);
+
+    return { matchedCount: matchedProducts.length, matchedProducts };
+  }
+
+  const matchedBySku = new Map<string, SonyOwnedProduct>();
+  let matchedCount = 0;
+
+  for (const condition of conditions) {
+    const conditionProducts = uniqueEligibleProducts(products, condition.sonySkus, rule);
+    const conditionRequiredCount =
+      condition.matchType === "all" ? condition.sonySkus.length : condition.requiredCount;
+    const cappedConditionCount = Math.min(conditionProducts.length, conditionRequiredCount);
+
+    matchedCount += cappedConditionCount;
+
+    for (const product of conditionProducts) {
+      matchedBySku.set(normalizeSku(product.sku), product);
+    }
+  }
+
+  return { matchedCount, matchedProducts: Array.from(matchedBySku.values()) };
 }
 
 export function calculateBadges({
@@ -76,23 +134,7 @@ export function calculateBadges({
     .filter((rule) => isRuleActive(rule, now))
     .sort((left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name))
     .map((rule) => {
-      const eligibleSkus = new Set(rule.skus.map(normalizeSku));
-      const matchedBySku = new Map<string, SonyOwnedProduct>();
-
-      for (const product of products) {
-        const normalizedSku = normalizeSku(product.sku);
-
-        if (
-          eligibleSkus.has(normalizedSku) &&
-          isWithinDateWindow(product.registeredAt, rule.registrationStart, rule.registrationEnd) &&
-          !matchedBySku.has(normalizedSku)
-        ) {
-          matchedBySku.set(normalizedSku, product);
-        }
-      }
-
-      const matchedProducts = Array.from(matchedBySku.values());
-      const matchedCount = matchedProducts.length;
+      const { matchedCount, matchedProducts } = calculateRuleMatch(rule, products);
       const thresholds = sortedThresholds(rule);
       const earnedThresholds = thresholds.filter(
         (threshold) => matchedCount >= threshold.requiredCount,
@@ -111,6 +153,7 @@ export function calculateBadges({
         code: rule.code,
         name: rule.name,
         ruleType: rule.ruleType,
+        badgeType: rule.badgeType ?? (rule.ruleType === "tier" ? "product" : "quest"),
         description: rule.description,
         status,
         level: threshold?.level ?? null,
@@ -121,8 +164,8 @@ export function calculateBadges({
         progress: clampProgress(matchedCount, requiredCount),
         imageUrl:
           status === "earned"
-            ? (threshold?.imageUrl ?? null)
-            : (threshold?.lockedImageUrl ?? null),
+            ? (threshold?.achievedImageUrl ?? null)
+            : (threshold?.lockedImageUrl ?? threshold?.achievedImageUrl ?? null),
         matchedProducts,
       };
     });

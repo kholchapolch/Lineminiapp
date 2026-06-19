@@ -34,10 +34,16 @@ export type DebugJsonPayload = {
   }>;
   badgeShelf: Array<{
     code: string;
+    ruleCode: string;
+    level: string;
     label: string;
     title: string;
+    ruleConditionText: string;
     status: string;
     visualState: string;
+    matchedCount: number;
+    requiredCount: number;
+    progress: number;
     imageUrl: string | null;
   }>;
   supportMessage: string;
@@ -94,10 +100,16 @@ export function toDebugJsonPayload(payload: BadgeResultPayload): DebugJsonPayloa
     })),
     badgeShelf: payload.badgeShelf.map((badge) => ({
       code: badge.code,
+      ruleCode: badge.ruleCode,
+      level: badge.level,
       label: badge.label,
       title: badge.title,
+      ruleConditionText: badge.ruleConditionText,
       status: badge.status,
       visualState: badge.visualState,
+      matchedCount: badge.matchedCount,
+      requiredCount: badge.requiredCount,
+      progress: badge.progress,
       imageUrl: badge.imageUrl,
     })),
     supportMessage: payload.supportMessage,

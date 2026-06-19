@@ -4,6 +4,8 @@ export type BadgeType = "product" | "quest";
 
 export type BadgeRuleType = "tier" | "achievement";
 
+export type BadgeConditionMatchType = "any" | "all" | "min_count";
+
 export type SonyOwnedProduct = {
   sku: string;
   modelName: string | null;
@@ -27,9 +29,18 @@ export type SonyCustomerProducts = {
 export type BadgeThresholdConfig = {
   level: string;
   requiredCount: number;
-  imageUrl: string | null;
+  achievedImageUrl: string | null;
   lockedImageUrl: string | null;
   displayName: string;
+  sortOrder?: number;
+};
+
+export type BadgeConditionConfig = {
+  id: number;
+  label: string;
+  matchType: BadgeConditionMatchType;
+  requiredCount: number;
+  sonySkus: string[];
 };
 
 export type BadgeRuleConfig = {
@@ -37,6 +48,9 @@ export type BadgeRuleConfig = {
   code: string;
   name: string;
   ruleType: BadgeRuleType;
+  badgeType?: BadgeType;
+  displayCategory?: string;
+  displayGroup?: string | null;
   description: string | null;
   sortOrder: number;
   isActive: boolean;
@@ -46,12 +60,14 @@ export type BadgeRuleConfig = {
   registrationEnd: string | null;
   skus: string[];
   thresholds: BadgeThresholdConfig[];
+  conditions?: BadgeConditionConfig[];
 };
 
 export type CalculatedBadge = {
   code: string;
   name: string;
   ruleType: BadgeRuleType;
+  badgeType: BadgeType;
   description: string | null;
   status: BadgeStatus;
   level: string | null;
@@ -66,12 +82,20 @@ export type CalculatedBadge = {
 
 export type BadgeShelfItem = {
   code: string;
+  ruleCode: string;
+  level: string;
   label: string;
   title: string;
+  category?: string;
+  group?: string | null;
   description: string;
+  ruleConditionText: string;
   imageUrl: string | null;
   status: "achieved" | "available";
   visualState: "color" | "dimmed";
+  matchedCount: number;
+  requiredCount: number;
+  progress: number;
 };
 
 export type BadgeDisplayItem = {
@@ -91,38 +115,51 @@ export type BadgeDisplayItem = {
   registrationDate: string | null;
 };
 
-export type CustomerBadgeDisplay = {
-  customerId: string;
-  displayName: string;
-  lineDisplayName: string | null;
-  linePictureUrl: string | null;
-  supportMessage: string;
-  badges: BadgeDisplayItem[];
+export type DbSchemaColumn = {
+  tableName: string;
+  columnName: string;
+  dataType: string;
+  isNullable: boolean;
+  columnDefault: string | null;
+  ordinalPosition: number;
 };
 
+export type DbDebugValue =
+  | string
+  | number
+  | boolean
+  | null
+  | DbDebugValue[]
+  | { [key: string]: DbDebugValue };
+
+export type DbDebugTable = {
+  tableName: string;
+  rows: Array<Record<string, DbDebugValue>>;
+};
+
+export type DebugBadgeShelfSetupRow = {
+  badgeCode: string;
+  badgeName: string;
+  category: string;
+  group: string | null;
+  level: string;
+  displayName: string;
+  conditionText: string;
+  status: string;
+  progress: number | null;
+  matchedCount: number | null;
+  requiredCount: number;
+  skuAmount: number;
+  logicTooltip: string;
+  achievedImageUrl: string | null;
+  lockedImageUrl: string | null;
+};
 
 export type DebugTrace = {
   dbRules: {
-    rules: Array<{
-      id: number;
-      code: string;
-      name: string;
-      ruleType: BadgeRuleType;
-      sortOrder: number;
-      isActive: boolean;
-      activeFrom: string | null;
-      activeTo: string | null;
-      registrationStart: string | null;
-      registrationEnd: string | null;
-      skus: string[];
-      thresholds: Array<{
-        level: string;
-        displayName: string;
-        requiredCount: number;
-        imageUrl: string | null;
-        lockedImageUrl: string | null;
-      }>;
-    }>;
+    schema: DbSchemaColumn[];
+    tables: DbDebugTable[];
+    badgeShelfSetup: DebugBadgeShelfSetupRow[];
   };
   sonyApiMock: {
     customer: {
@@ -134,6 +171,7 @@ export type DebugTrace = {
     };
     products: Array<{
       sku: string;
+      skuLabel: string;
       modelNamePresent: boolean;
       serialNumberPresent: boolean;
       registeredAtPresent: boolean;
@@ -182,23 +220,4 @@ export type BadgeResultPayload = {
   badges: BadgeDisplayItem[];
   badgeShelf: BadgeShelfItem[];
   debugTrace?: DebugTrace;
-};
-
-export type BadgeDisplayRow = {
-  customer_id: string;
-  display_name: string;
-  line_display_name: string | null;
-  line_picture_url: string | null;
-  support_message: string | null;
-  badge_code: string;
-  badge_name: string;
-  badge_type: BadgeType;
-  description: string | null;
-  image_url: string | null;
-  locked_image_url: string | null;
-  required_count: number;
-  matched_count: number | null;
-  serial_number: string | null;
-  model_name: string | null;
-  registration_date: string | Date | null;
 };

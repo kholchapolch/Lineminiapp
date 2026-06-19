@@ -1,47 +1,63 @@
 import { NextResponse } from "next/server";
-import type { AppEnv } from "@/lib/app-config";
+import { loadAppConfig } from "@/lib/app-config";
+import { resolveAuthorizedLineUuid, UnauthorizedError } from "@/lib/auth-session";
 import { getBadgeResultForLineUuid, isSonyCustomerNotFound } from "@/lib/badge-result";
 import { isDebugTraceEnabled } from "@/lib/debug-mode";
 import { toSafeError } from "@/lib/safe-logging";
+import type { BadgeResultPayload } from "@/types/badge";
 
 function getSearchParams(request: Request): URLSearchParams {
   return new URL(request.url).searchParams;
 }
 
-function resolveLineUuid(searchParams: URLSearchParams): string | null {
-  return searchParams.get("lineuuid")?.trim() || null;
-}
-
-function resolveAppEnv(value: string | undefined): AppEnv {
-  return value === "staging" || value === "production" ? value : "local";
-}
-
 export async function GET(request: Request): Promise<NextResponse> {
   const searchParams = getSearchParams(request);
-  const lineuuid = resolveLineUuid(searchParams);
-
-  if (!lineuuid) {
-    return NextResponse.json(
-      {
-        code: "MISSING_LINEUUID",
-        message: "lineuuid is required.",
-      },
-      { status: 400 },
-    );
-  }
 
   try {
+    const config = loadAppConfig();
+    const lineuuid = resolveAuthorizedLineUuid({
+      config,
+      headers: request.headers,
+      providedLineUuid: searchParams.get("lineuuid"),
+    });
     const includeDebugTrace = isDebugTraceEnabled({
-      appEnv: resolveAppEnv(process.env.APP_ENV),
+      appEnv: config.appEnv,
       debugParam: searchParams.get("debug"),
     });
-    const payload = await getBadgeResultForLineUuid(lineuuid, { includeDebugTrace });
-    return NextResponse.json(payload);
+    const payload = await getBadgeResultForLineUuid(lineuuid, { config, includeDebugTrace });
+    return NextResponse.json(toDisplaySafePayload(payload, includeDebugTrace));
   } catch (error) {
     const safeError = toSafeError(error);
     return NextResponse.json(
       safeError,
-      { status: isSonyCustomerNotFound(error) ? 404 : 500 },
+      { status: error instanceof UnauthorizedError ? 401 : isSonyCustomerNotFound(error) ? 404 : 500 },
     );
   }
+}
+
+function toDisplaySafePayload(payload: BadgeResultPayload, includeDebugTrace: boolean) {
+  return {
+    customer: {
+      displayName: payload.customer.displayName,
+      lineDisplayName: payload.customer.lineDisplayName,
+      linePictureUrl: payload.customer.linePictureUrl,
+    },
+    productCount: payload.products.length,
+    supportMessage: payload.supportMessage,
+    badges: payload.badges.map((badge) => ({
+      code: badge.code,
+      name: badge.name,
+      type: badge.type,
+      description: badge.description,
+      status: badge.status,
+      progress: badge.progress,
+      remainingCount: badge.remainingCount,
+      matchedCount: badge.matchedCount,
+      requiredCount: badge.requiredCount,
+      imageUrl: badge.imageUrl,
+      level: badge.level ?? null,
+    })),
+    badgeShelf: payload.badgeShelf,
+    debugTrace: includeDebugTrace ? payload.debugTrace : undefined,
+  };
 }

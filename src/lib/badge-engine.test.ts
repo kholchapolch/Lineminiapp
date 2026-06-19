@@ -24,9 +24,9 @@ const rules: BadgeRuleConfig[] = [
     registrationEnd: null,
     skus: ["ILCE-7M4", "SEL35F14GM", "SEL2470GM2"],
     thresholds: [
-      { level: "bronze", requiredCount: 1, imageUrl: "bronze.png", lockedImageUrl: "locked.png", displayName: "Bronze" },
-      { level: "silver", requiredCount: 2, imageUrl: "silver.png", lockedImageUrl: "locked.png", displayName: "Silver" },
-      { level: "gold", requiredCount: 3, imageUrl: "gold.png", lockedImageUrl: "locked.png", displayName: "Gold" },
+      { level: "bronze", requiredCount: 1, achievedImageUrl: "bronze.png", lockedImageUrl: "locked.png", displayName: "Bronze" },
+      { level: "silver", requiredCount: 2, achievedImageUrl: "silver.png", lockedImageUrl: "locked.png", displayName: "Silver" },
+      { level: "gold", requiredCount: 3, achievedImageUrl: "gold.png", lockedImageUrl: "locked.png", displayName: "Gold" },
     ],
   },
   {
@@ -43,7 +43,7 @@ const rules: BadgeRuleConfig[] = [
     registrationEnd: null,
     skus: ["ILCE-7M4", "SEL35F14GM", "SEL2470GM2"],
     thresholds: [
-      { level: "achievement", requiredCount: 3, imageUrl: "achievement.png", lockedImageUrl: "locked.png", displayName: "Achievement" },
+      { level: "achievement", requiredCount: 3, achievedImageUrl: "achievement.png", lockedImageUrl: "locked.png", displayName: "Achievement" },
     ],
   },
 ];
@@ -73,6 +73,32 @@ describe("calculateBadges", () => {
     });
   });
 
+  it("falls back to the achieved image when locked image URL is not configured", () => {
+    const [result] = calculateBadges({
+      products: [],
+      now: new Date("2026-06-01"),
+      rules: [
+        {
+          ...rules[0],
+          thresholds: [
+            {
+              level: "bronze",
+              requiredCount: 1,
+              achievedImageUrl: "bronze.png",
+              lockedImageUrl: null,
+              displayName: "Bronze",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      status: "no-badge",
+      imageUrl: "bronze.png",
+    });
+  });
+
   it("applies registration date windows before threshold calculation", () => {
     const [result] = calculateBadges({
       products,
@@ -85,6 +111,124 @@ describe("calculateBadges", () => {
       level: "bronze",
       matchedCount: 1,
       requiredCount: 1,
+    });
+  });
+
+  it("supports all and min_count conditions", () => {
+    const result = calculateBadges({
+      products,
+      now: new Date("2026-06-01"),
+      rules: [
+        {
+          id: 3,
+          code: "trinity-master-gm",
+          name: "Trinity Master GM",
+          ruleType: "achievement",
+          badgeType: "quest",
+          description: "Own the GM trinity lens set.",
+          sortOrder: 30,
+          isActive: true,
+          activeFrom: null,
+          activeTo: null,
+          registrationStart: null,
+          registrationEnd: null,
+          skus: [],
+          thresholds: [
+            { level: "achievement", requiredCount: 3, achievedImageUrl: "gm.png", lockedImageUrl: "locked.png", displayName: "GM" },
+          ],
+          conditions: [
+            {
+              id: 1,
+              label: "Own GM trinity set",
+              matchType: "all",
+              requiredCount: 3,
+              sonySkus: ["ILCE-7M4", "SEL35F14GM", "SEL2470GM2"],
+            },
+          ],
+        },
+        {
+          id: 4,
+          code: "premium-master",
+          name: "Premium Master",
+          ruleType: "achievement",
+          badgeType: "quest",
+          description: "Own two supported lenses.",
+          sortOrder: 40,
+          isActive: true,
+          activeFrom: null,
+          activeTo: null,
+          registrationStart: null,
+          registrationEnd: null,
+          skus: [],
+          thresholds: [
+            { level: "achievement", requiredCount: 2, achievedImageUrl: "premium.png", lockedImageUrl: "locked.png", displayName: "Premium" },
+          ],
+          conditions: [
+            {
+              id: 2,
+              label: "Own any two lenses",
+              matchType: "min_count",
+              requiredCount: 2,
+              sonySkus: ["SEL35F14GM", "SEL2470GM2", "SEL70200GM2"],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result).toMatchObject([
+      { code: "trinity-master-gm", status: "earned", matchedCount: 3 },
+      { code: "premium-master", status: "earned", matchedCount: 2 },
+    ]);
+  });
+
+  it("supports mixed any plus all conditions", () => {
+    const [result] = calculateBadges({
+      products,
+      now: new Date("2026-06-01"),
+      rules: [
+        {
+          id: 5,
+          code: "travel-master",
+          name: "Travel Master",
+          ruleType: "achievement",
+          badgeType: "quest",
+          description: "Own one wide lens and a travel set.",
+          sortOrder: 50,
+          isActive: true,
+          activeFrom: null,
+          activeTo: null,
+          registrationStart: null,
+          registrationEnd: null,
+          skus: [],
+          thresholds: [
+            { level: "achievement", requiredCount: 3, achievedImageUrl: "travel.png", lockedImageUrl: "locked.png", displayName: "Travel" },
+          ],
+          conditions: [
+            {
+              id: 3,
+              label: "Own one wide lens",
+              matchType: "any",
+              requiredCount: 1,
+              sonySkus: ["ILCE-7M4", "SEL20F18G"],
+            },
+            {
+              id: 4,
+              label: "Own travel set",
+              matchType: "all",
+              requiredCount: 2,
+              sonySkus: ["SEL35F14GM", "SEL2470GM2"],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      code: "travel-master",
+      status: "earned",
+      matchedCount: 3,
+      requiredCount: 3,
     });
   });
 });

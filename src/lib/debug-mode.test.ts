@@ -26,12 +26,18 @@ const payload: BadgeResultPayload = {
   badgeShelf: [
     {
       code: "alpha-bronze",
+      ruleCode: "alpha",
+      level: "bronze",
       label: "Bronze",
       title: "Alpha Collector Bronze",
       description: "Register one eligible Sony Alpha product.",
+      ruleConditionText: "Own Alpha gear: own 1 of 3",
       imageUrl: "https://example.com/bronze.png",
       status: "achieved",
       visualState: "color",
+      matchedCount: 1,
+      requiredCount: 1,
+      progress: 100,
     },
   ],
   badges: [
@@ -127,10 +133,16 @@ describe("toDebugJsonPayload", () => {
       badgeShelf: [
         {
           code: "alpha-bronze",
+          ruleCode: "alpha",
+          level: "bronze",
           label: "Bronze",
           title: "Alpha Collector Bronze",
+          ruleConditionText: "Own Alpha gear: own 1 of 3",
           status: "achieved",
           visualState: "color",
+          matchedCount: 1,
+          requiredCount: 1,
+          progress: 100,
           imageUrl: "https://example.com/bronze.png",
         },
       ],

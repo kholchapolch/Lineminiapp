@@ -39,15 +39,26 @@ const rules: BadgeRuleConfig[] = [
         level: "silver",
         displayName: "Silver",
         requiredCount: 2,
-        imageUrl: "silver.png",
+        achievedImageUrl: "silver.png",
         lockedImageUrl: "locked.png",
+        sortOrder: 20,
       },
       {
         level: "bronze",
         displayName: "Bronze",
         requiredCount: 1,
-        imageUrl: "bronze.png",
+        achievedImageUrl: "bronze.png",
         lockedImageUrl: "locked.png",
+        sortOrder: 10,
+      },
+    ],
+    conditions: [
+      {
+        id: 10,
+        label: "Own any key FF model",
+        matchType: "any",
+        requiredCount: 1,
+        sonySkus: ["ILCE-7M4", "ILCE-9M3"],
       },
     ],
   },
@@ -75,35 +86,88 @@ const badges: BadgeDisplayItem[] = [
 const badgeShelf: BadgeShelfItem[] = [
   {
     code: "alpha-tier-bronze",
+    ruleCode: "alpha-tier",
+    level: "bronze",
     label: "Bronze",
     title: "Alpha Collector Bronze",
     description: "Collect eligible Sony Alpha camera and G Master lens products.",
+    ruleConditionText: "Own any key FF model: own any 1 of 2",
     imageUrl: "bronze.png",
     status: "achieved",
     visualState: "color",
+    matchedCount: 1,
+    requiredCount: 1,
+    progress: 100,
   },
 ];
 
 describe("buildDebugTrace", () => {
   it("separates DB rules, Sony API mock input, and aggregation result", () => {
-    const trace = buildDebugTrace({ customerProducts, rules, badges, badgeShelf });
-
-    expect(trace.dbRules.rules[0]).toMatchObject({
-      id: 1,
-      code: "alpha-tier",
-      name: "Alpha Collector",
-      ruleType: "tier",
-      sortOrder: 10,
-      isActive: true,
-      skus: ["ILCE-7M4", "SEL35F14GM"],
+    const trace = buildDebugTrace({
+      customerProducts,
+      rules,
+      badges,
+      badgeShelf,
+      dbSchema: [
+        {
+          tableName: "badge_rules",
+          columnName: "badge_code",
+          dataType: "text",
+          isNullable: false,
+          columnDefault: null,
+          ordinalPosition: 2,
+        },
+      ],
+      dbTables: [
+        {
+          tableName: "badge_rules",
+          rows: [{ id: 1, badge_code: "alpha-tier", is_active: true }],
+        },
+      ],
     });
-    expect(trace.dbRules.rules[0].thresholds).toMatchObject([
-      { level: "bronze", displayName: "Bronze", requiredCount: 1 },
-      { level: "silver", displayName: "Silver", requiredCount: 2 },
+
+    expect(trace.dbRules.schema).toEqual([
+      {
+        tableName: "badge_rules",
+        columnName: "badge_code",
+        dataType: "text",
+        isNullable: false,
+        columnDefault: null,
+        ordinalPosition: 2,
+      },
     ]);
+    expect(trace.dbRules.tables).toEqual([
+      {
+        tableName: "badge_rules",
+        rows: [{ id: 1, badge_code: "alpha-tier", is_active: true }],
+      },
+    ]);
+    expect(trace.dbRules.badgeShelfSetup).toMatchObject([
+      {
+        badgeCode: "alpha-tier",
+        badgeName: "Alpha Collector",
+        level: "bronze",
+        displayName: "Bronze",
+        status: "achieved",
+        progress: 100,
+        matchedCount: 1,
+        requiredCount: 1,
+        skuAmount: 2,
+      },
+      {
+        badgeCode: "alpha-tier",
+        badgeName: "Alpha Collector",
+        level: "silver",
+        displayName: "Silver",
+        requiredCount: 2,
+        skuAmount: 2,
+      },
+    ]);
+    expect("rules" in trace.dbRules).toBe(false);
     expect(trace.sonyApiMock.products).toEqual([
       {
         sku: "ILCE-7M4",
+        skuLabel: "ILCE-7M4",
         modelNamePresent: true,
         serialNumberPresent: true,
         registeredAtPresent: true,

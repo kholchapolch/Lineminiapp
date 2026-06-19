@@ -81,8 +81,53 @@ export function LiffStatus(): JSX.Element {
     <div className={`liffStatus ${state.status}`} aria-live="polite">
       <p>{state.message}</p>
       {state.status === "ready" && state.lineUuid ? (
-        <a href={`/entry?lineuuid=${encodeURIComponent(state.lineUuid)}`}>Continue</a>
+        <LineSessionButton />
       ) : null}
     </div>
+  );
+}
+
+function LineSessionButton(): JSX.Element {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function continueToBadge() {
+    setBusy(true);
+    setError(null);
+
+    try {
+      const liff = (await import("@line/liff")).default;
+      const idToken = liff.getIDToken();
+
+      if (!idToken) {
+        throw new Error("Missing LINE ID token.");
+      }
+
+      const response = await fetch("/api/line-session", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ idToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error("LINE session could not be verified.");
+      }
+
+      window.location.assign("/entry");
+    } catch {
+      setError("LINE session could not be verified.");
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <button type="button" onClick={() => void continueToBadge()} disabled={busy}>
+        {busy ? "Verifying" : "Continue"}
+      </button>
+      {error ? <small>{error}</small> : null}
+    </>
   );
 }

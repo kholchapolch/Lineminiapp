@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sony Badge Rules Setup Guide</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      code {
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      pre {
+        margin: 0;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        line-height: 1.5;
+        font-size: 13px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 860px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .diagram {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .arrow {
+        display: inline-block;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .badgeRow {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+
+      .badgeItem {
+        text-align: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .badgeCircle {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        background: linear-gradient(135deg, #c68b2b, #f2cf72);
+      }
+
+      .dimmed .badgeCircle {
+        filter: grayscale(1);
+        opacity: 0.28;
+      }
+
+      .progress {
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+
+        .diagram,
+        .badgeRow {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Sony Badge Rules Setup Guide</h1>
+        <p class="lede">
+          เอกสารนี้อธิบายวิธีตั้งค่า Badge Shelf จากข้อมูลสินค้า Sony API โดยใช้ schema ปัจจุบัน:
+          <code>badge_rules</code>, <code>badge_rule_thresholds</code>, และ <code>badge_rule_conditions</code>.
+        </p>
+      </header>
+
+      <section>
+        <h2>ภาพรวมการคำนวณ</h2>
+        <div class="diagram">
+          <div class="box">
+            <strong>1. Sony API products</strong>
+            ส่งรายการสินค้าที่ลูกค้ามี เช่น SKU และ registration date. Sony ไม่ต้องส่ง Badge Shelf สำเร็จรูป.
+          </div>
+          <div class="box">
+            <strong>2. Rule tables</strong>
+            ระบบอ่าน Badge rules, thresholds, และ conditions จาก DB แล้ว match ด้วย SKU.
+          </div>
+          <div class="box">
+            <strong>3. Badge Shelf</strong>
+            แสดง Badge ทุกอันที่ลูกค้ารับได้: achieved เป็นสี, ยังไม่ได้เป็น dimmed.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Shelf Setup</h2>
+        <p>
+          Shelf ไม่ได้มาจาก JSON ของ Sony API. Shelf มาจาก rule ในระบบเรา แล้วเอา SKU จาก Sony API มาคำนวณว่าแต่ละ Badge achieved หรือยัง.
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>ข้อมูลที่ควบคุมการแสดงผล Shelf</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Table</th>
+                <th>ใช้ทำอะไร</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>display_category</code></td>
+                <td><code>badge_rules</code></td>
+                <td>หมวดใหญ่ เช่น Product ownership badge หรือ Achievement badge</td>
+              </tr>
+              <tr>
+                <td><code>display_group</code></td>
+                <td><code>badge_rules</code></td>
+                <td>กลุ่มย่อยบน Shelf เช่น Key FF models, By COI, By customer pride</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td><code>badge_rules</code>, <code>badge_rule_thresholds</code></td>
+                <td>ลำดับการแสดง Badge และลำดับ level บน Shelf. ไม่ใส่ใน conditions เพราะ conditions เป็น logic ไม่ใช่ display section</td>
+              </tr>
+              <tr>
+                <td><code>display_name</code></td>
+                <td><code>badge_rule_thresholds</code></td>
+                <td>ชื่อ Badge ที่แสดงใต้รูป เช่น Body Silver</td>
+              </tr>
+              <tr>
+                <td><code>achieved_image_url</code></td>
+                <td><code>badge_rule_thresholds</code></td>
+                <td>รูปสีเมื่อ achieved แล้ว</td>
+              </tr>
+              <tr>
+                <td><code>locked_image_url</code></td>
+                <td><code>badge_rule_thresholds</code></td>
+                <td>รูป locked แบบ optional. ถ้าเป็น NULL ระบบใช้ <code>achieved_image_url</code> แล้ว dim/opaque ให้ดู locked</td>
+              </tr>
+              <tr>
+                <td><code>matched / required / progress</code></td>
+                <td>ผลคำนวณ</td>
+                <td>caption ใต้ Badge เช่น <code>5/10 - 50%</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="badgeRow">
+          <div class="badgeItem">
+            <div class="badgeCircle"></div>
+            <strong>Body Bronze</strong>
+            <div class="progress">1/1 - 100%</div>
+          </div>
+          <div class="badgeItem">
+            <div class="badgeCircle"></div>
+            <strong>Body Silver</strong>
+            <div class="progress">5/5 - 100%</div>
+          </div>
+          <div class="badgeItem dimmed">
+            <div class="badgeCircle"></div>
+            <strong>Body Gold</strong>
+            <div class="progress">5/10 - 50%</div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Current DB Schema</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>3 ตารางหลักสำหรับตั้งค่า Badge</caption>
+            <thead>
+              <tr>
+                <th>Table</th>
+                <th>หน้าที่</th>
+                <th>Column สำคัญ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td>ข้อมูลหลักของ Badge 1 rule</td>
+                <td><code>badge_code</code>, <code>badge_name</code>, <code>badge_type</code>, <code>display_category</code>, <code>display_group</code>, date window</td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_thresholds</code></td>
+                <td>ระดับที่แสดงบน Shelf. 1 rule มีหลาย level ได้</td>
+                <td><code>level</code>, <code>display_name</code>, <code>required_count</code>, <code>achieved_image_url</code>, <code>locked_image_url</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_conditions</code></td>
+                <td>เงื่อนไขการ match SKU. 1 rule มีหลาย condition ได้</td>
+                <td><code>condition_label</code>, <code>match_type</code>, <code>required_count</code>, <code>sony_skus</code> JSONB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>ทำไมไม่แยก condition item แล้ว:</strong>
+          ลูกค้ามักส่ง requirement เป็น “rule + list of SKUs”. การเก็บ SKU list ใน <code>badge_rule_conditions.sony_skus</code>
+          ทำให้ setup และ review ง่ายกว่า และ debug panel แสดง <code>sony_sku_label_map</code>
+          เป็น object แบบ <code>{"SKU": "label"}</code> เพื่อเทียบด้วยตาได้เร็วขึ้น.
+        </div>
+      </section>
+
+      <section>
+        <h2>4 Rule Patterns ขั้นต่ำ</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Pattern ที่ schema ปัจจุบันตั้งค่าได้</caption>
+            <thead>
+              <tr>
+                <th>Pattern</th>
+                <th>วิธีตั้งค่า</th>
+                <th>ตัวอย่างใช้งาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Any 1 in these SKUs</td>
+                <td><code>match_type = 'any'</code>, <code>required_count = 1</code></td>
+                <td>Own any key FF model</td>
+              </tr>
+              <tr>
+                <td>Min N in these SKUs</td>
+                <td><code>match_type = 'min_count'</code>, <code>required_count = N</code></td>
+                <td>Own any 2 wildlife lenses from 5 SKUs</td>
+              </tr>
+              <tr>
+                <td>All required</td>
+                <td><code>match_type = 'all'</code>. ระบบใช้จำนวน SKU ใน list เป็น required ภายใน condition</td>
+                <td>Own full GM trinity set</td>
+              </tr>
+              <tr>
+                <td>Level badge / Tier badge</td>
+                <td>ใช้ condition เดียวหรือหลาย condition แล้วเพิ่มหลาย rows ใน <code>badge_rule_thresholds</code></td>
+                <td>Bronze = 1, Silver = 5, Gold = 10 หรือจะตั้ง 5 tiers ก็ได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Any 1 vs Min 1 ต่างกันอย่างไร</h2>
+        <p>
+          ในผลลัพธ์พื้นฐาน <code>any required_count 1</code> และ <code>min_count required_count 1</code>
+          สามารถให้ผลคล้ายกันได้ แต่ใช้สื่อความหมายต่างกัน.
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>แบบ</th>
+                <th>ควรใช้เมื่อ</th>
+                <th>อ่าน requirement แล้วรู้สึกอย่างไร</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>any</code></td>
+                <td>ต้องการ “มีสัก 1 ตัวในกลุ่มนี้” และไม่คิดจะเพิ่มจำนวนขั้นต่ำ</td>
+                <td>เหมาะกับ badge แบบ entry condition</td>
+              </tr>
+              <tr>
+                <td><code>min_count</code></td>
+                <td>ต้องการ pattern ที่ขยายเป็น 2, 3, 5 ได้ หรือใช้กับ tier rule</td>
+                <td>เหมาะกับ badge ที่นับจำนวนสินค้าเพื่อ progress</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Complex Rules ที่ทำได้</h2>
+        <p>
+          Schema นี้ทำได้มากกว่า 4 pattern เพราะ 1 badge rule มีหลาย condition และหลาย threshold ได้.
+          แต่ยังไม่ใช่ boolean expression engine แบบซ้อนอิสระทุกชั้น.
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>ตัวอย่างที่อธิบายกับลูกค้าได้</caption>
+            <thead>
+              <tr>
+                <th>Rule</th>
+                <th>Conditions</th>
+                <th>Thresholds</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Travel Master</td>
+                <td>Condition 1: any 1 wide lens. Condition 2: all required travel set.</td>
+                <td>Achievement = 5</td>
+              </tr>
+              <tr>
+                <td>Body Collector</td>
+                <td>Condition 1: min_count 10 from 10 body SKUs</td>
+                <td>Bronze 1, Silver 5, Gold 10</td>
+              </tr>
+              <tr>
+                <td>Custom 5 Level Tier</td>
+                <td>Condition 1: min_count 20 from campaign SKUs</td>
+                <td>Level 1 = 1, Level 2 = 3, Level 3 = 5, Level 4 = 10, Level 5 = 20</td>
+              </tr>
+              <tr>
+                <td>Shared SKU Demo</td>
+                <td>Same SKU can appear in Body, GM, and Creator Kit conditions</td>
+                <td>Each rule calculates independently</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <strong>ข้อควรระวัง:</strong>
+          ถ้า client ต้องการ logic ซ้อนแบบ <code>(A OR B) AND (C OR (D AND E))</code>
+          ควรเปิด requirement ใหม่ เพราะ schema ปัจจุบันตั้งใจเป็น composed conditions แบบอ่านง่าย ไม่ใช่ full rule-expression engine.
+        </div>
+      </section>
+
+      <section>
+        <h2>ตัวอย่าง SQL Setup</h2>
+        <pre><code>BEGIN;
+
+INSERT INTO badge_rules (
+  badge_code,
+  badge_name,
+  badge_type,
+  rule_type,
+  display_category,
+  display_group,
+  description,
+  sort_order,
+  active_from,
+  active_to,
+  registration_start,
+  registration_end
+) VALUES (
+  'body-collector',
+  'Body Collector',
+  'product',
+  'tier',
+  'Level badge demo',
+  '10 product tier rules',
+  'Collect eligible Alpha body products.',
+  100,
+  DATE '2026-05-01',
+  DATE '2026-12-31',
+  DATE '2026-05-01',
+  DATE '2026-12-31'
+);
+
+INSERT INTO badge_rule_thresholds (
+  badge_rule_id,
+  level,
+  display_name,
+  required_count,
+  achieved_image_url,
+  locked_image_url,
+  sort_order
+)
+SELECT id, 'bronze', 'Body Bronze', 1, 'https://example.com/body-bronze.png', NULL, 101
+FROM badge_rules WHERE badge_code = 'body-collector'
+UNION ALL
+SELECT id, 'silver', 'Body Silver', 5, 'https://example.com/body-silver.png', NULL, 102
+FROM badge_rules WHERE badge_code = 'body-collector'
+UNION ALL
+SELECT id, 'gold', 'Body Gold', 10, 'https://example.com/body-gold.png', NULL, 103
+FROM badge_rules WHERE badge_code = 'body-collector';
+
+INSERT INTO badge_rule_conditions (
+  badge_rule_id,
+  condition_label,
+  match_type,
+  required_count,
+  sony_skus
+)
+SELECT
+  id,
+  'Own Alpha body tier SKUs',
+  'min_count',
+  10,
+  '["SHARED-TIER-01","BODY-SKU-02","BODY-SKU-03","BODY-SKU-04","BODY-SKU-05","BODY-SKU-06","BODY-SKU-07","BODY-SKU-08","BODY-SKU-09","BODY-SKU-10"]'::jsonb
+FROM badge_rules
+WHERE badge_code = 'body-collector';
+
+COMMIT;</code></pre>
+      </section>
+
+      <section>
+        <h2>Debug Panel ควรดูอะไร</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Section</th>
+                <th>ใช้ตรวจอะไร</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Rules tables as DB</td>
+                <td>ดู actual schema และ actual values จาก DB: thresholds, conditions, SKU JSON, readable SKU labels</td>
+              </tr>
+              <tr>
+                <td>Sony API Mock JSON</td>
+                <td>ดู SKU ที่ Sony ส่งมาแบบ display-safe. ไม่แสดง serial หรือ LINE UUID จริง</td>
+              </tr>
+              <tr>
+                <td>Aggregation result</td>
+                <td>ดูผลหลังเอา Sony products มา match กับ rule tables แล้ว เช่น achieved, progress, matched count</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

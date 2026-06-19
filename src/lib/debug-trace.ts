@@ -2,15 +2,22 @@ import type {
   BadgeDisplayItem,
   BadgeRuleConfig,
   BadgeShelfItem,
+  DbDebugTable,
+  DbSchemaColumn,
+  DebugBadgeShelfSetupRow,
   DebugTrace,
   SonyCustomerProducts,
 } from "@/types/badge";
+import { describeRuleCondition } from "@/lib/badge-shelf";
+import { getReadableSkuLabel } from "@/lib/sku-labels";
 
 export type DebugTraceInput = {
   customerProducts: SonyCustomerProducts;
   rules: BadgeRuleConfig[];
   badges: BadgeDisplayItem[];
   badgeShelf: BadgeShelfItem[];
+  dbSchema?: DbSchemaColumn[];
+  dbTables?: DbDebugTable[];
 };
 
 export function buildDebugTrace({
@@ -18,43 +25,14 @@ export function buildDebugTrace({
   rules,
   badges,
   badgeShelf,
+  dbSchema = [],
+  dbTables = [],
 }: DebugTraceInput): DebugTrace {
   return {
     dbRules: {
-      rules: rules
-        .map((rule) => ({
-          id: rule.id,
-          code: rule.code,
-          name: rule.name,
-          ruleType: rule.ruleType,
-          sortOrder: rule.sortOrder,
-          isActive: rule.isActive,
-          activeFrom: rule.activeFrom,
-          activeTo: rule.activeTo,
-          registrationStart: rule.registrationStart,
-          registrationEnd: rule.registrationEnd,
-          skus: [...rule.skus].sort((left, right) => left.localeCompare(right)),
-          thresholds: [...rule.thresholds]
-            .sort(
-              (left, right) =>
-                left.requiredCount - right.requiredCount ||
-                left.displayName.localeCompare(right.displayName) ||
-                left.level.localeCompare(right.level),
-            )
-            .map((threshold) => ({
-              level: threshold.level,
-              displayName: threshold.displayName,
-              requiredCount: threshold.requiredCount,
-              imageUrl: threshold.imageUrl,
-              lockedImageUrl: threshold.lockedImageUrl,
-            })),
-        }))
-        .sort(
-          (left, right) =>
-            left.sortOrder - right.sortOrder ||
-            left.name.localeCompare(right.name) ||
-            left.code.localeCompare(right.code),
-        ),
+      schema: dbSchema,
+      tables: dbTables,
+      badgeShelfSetup: buildBadgeShelfSetup({ rules, badgeShelf }),
     },
     sonyApiMock: {
       customer: {
@@ -66,6 +44,7 @@ export function buildDebugTrace({
       },
       products: customerProducts.products.map((product) => ({
         sku: product.sku,
+        skuLabel: getReadableSkuLabel(product.sku),
         modelNamePresent: Boolean(product.modelName),
         serialNumberPresent: Boolean(product.serialNumber),
         registeredAtPresent: Boolean(product.registeredAt),
@@ -106,4 +85,57 @@ export function buildDebugTrace({
       })),
     },
   };
+}
+
+function buildBadgeShelfSetup({
+  rules,
+  badgeShelf,
+}: {
+  rules: BadgeRuleConfig[];
+  badgeShelf: BadgeShelfItem[];
+}): DebugBadgeShelfSetupRow[] {
+  return rules.flatMap((rule) => {
+    const thresholds = [...rule.thresholds].sort(
+      (left, right) =>
+        left.requiredCount - right.requiredCount ||
+        left.displayName.localeCompare(right.displayName) ||
+        left.level.localeCompare(right.level),
+    );
+    const skuAmount =
+      (rule.conditions?.length ?? 0) > 0
+        ? rule.conditions?.reduce((total, condition) => total + condition.sonySkus.length, 0) ?? 0
+        : rule.skus.length;
+    const logicTooltip =
+      (rule.conditions?.length ?? 0) > 0
+        ? describeRuleCondition(rule, Math.max(...thresholds.map((threshold) => threshold.requiredCount), 1))
+        : rule.skus.length > 0
+          ? `Match any owned SKU from ${rule.skus.length} configured SKU(s).`
+          : "No conditions configured.";
+
+    return thresholds.map((threshold) => {
+      const shelfItem = badgeShelf.find(
+        (badge) => badge.ruleCode === rule.code && badge.level === threshold.level,
+      );
+
+      return {
+        badgeCode: rule.code,
+        badgeName: rule.name,
+        category:
+          rule.displayCategory ??
+          (rule.badgeType === "product" ? "Product ownership badge" : "Achievement badge"),
+        group: rule.displayGroup ?? null,
+        level: threshold.level,
+        displayName: threshold.displayName,
+        conditionText: shelfItem?.ruleConditionText ?? logicTooltip,
+        status: shelfItem?.status ?? "-",
+        progress: shelfItem?.progress ?? null,
+        matchedCount: shelfItem?.matchedCount ?? null,
+        requiredCount: threshold.requiredCount,
+        skuAmount,
+        logicTooltip,
+        achievedImageUrl: threshold.achievedImageUrl,
+        lockedImageUrl: threshold.lockedImageUrl,
+      };
+    });
+  });
 }

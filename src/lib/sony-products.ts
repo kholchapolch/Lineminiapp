@@ -21,9 +21,15 @@ const mockCustomers: Record<string, SonyCustomerProducts> = {
     },
     products: [
       {
-        sku: "ILCE-7M4",
-        modelName: "Alpha 7 IV",
+        sku: "ILCE-7RM5",
+        modelName: "Alpha 7R V",
         serialNumber: "SN-A7M4-001",
+        registeredAt: "2026-05-20",
+      },
+      {
+        sku: "SEL1635GM2",
+        modelName: "FE 16-35mm F2.8 GM II",
+        serialNumber: "SN-LENS-000",
         registeredAt: "2026-05-20",
       },
       {
@@ -38,7 +44,60 @@ const mockCustomers: Record<string, SonyCustomerProducts> = {
         serialNumber: "SN-LENS-002",
         registeredAt: "2026-05-22",
       },
+      {
+        sku: "SEL70200GM2",
+        modelName: "FE 70-200mm F2.8 GM OSS II",
+        serialNumber: "SN-LENS-003",
+        registeredAt: "2026-05-23",
+      },
+      {
+        sku: "SEL90M28G",
+        modelName: "FE 90mm F2.8 Macro G OSS",
+        serialNumber: "SN-MACRO-001",
+        registeredAt: "2026-05-24",
+      },
+      ...mixedTierProducts(),
     ],
+  },
+  "demo-line-tier-bronze": {
+    customer: {
+      lineuuid: "demo-line-tier-bronze",
+      customerId: "demo-tier-bronze",
+      displayName: "Ben Bronze",
+      lineDisplayName: "Ben",
+      linePictureUrl: null,
+    },
+    products: sharedTierProducts(1),
+  },
+  "demo-line-tier-silver": {
+    customer: {
+      lineuuid: "demo-line-tier-silver",
+      customerId: "demo-tier-silver",
+      displayName: "Sai Silver",
+      lineDisplayName: "Sai",
+      linePictureUrl: null,
+    },
+    products: bodyTierProducts(5),
+  },
+  "demo-line-tier-gold": {
+    customer: {
+      lineuuid: "demo-line-tier-gold",
+      customerId: "demo-tier-gold",
+      displayName: "Gorn Gold",
+      lineDisplayName: "Gorn",
+      linePictureUrl: null,
+    },
+    products: [...bodyTierProducts(10), ...gmTierProducts(10).slice(1)],
+  },
+  "demo-line-tier-body-silver-gm-gold": {
+    customer: {
+      lineuuid: "demo-line-tier-body-silver-gm-gold",
+      customerId: "demo-tier-body-silver-gm-gold",
+      displayName: "Mina Mixed Tier",
+      lineDisplayName: "Mina",
+      linePictureUrl: null,
+    },
+    products: mixedTierProducts(),
   },
   "demo-line-locked": {
     customer: {
@@ -50,8 +109,8 @@ const mockCustomers: Record<string, SonyCustomerProducts> = {
     },
     products: [
       {
-        sku: "ILCE-7M4",
-        modelName: "Alpha 7 IV",
+        sku: "ILCE-7CM2",
+        modelName: "Alpha 7C II",
         serialNumber: "SN-A7M4-LOCKED",
         registeredAt: "2026-05-20",
       },
@@ -67,7 +126,7 @@ const mockCustomers: Record<string, SonyCustomerProducts> = {
     },
     products: [
       {
-        sku: "ILCE-7M4",
+        sku: "ILCE-7CM2",
         modelName: null,
         serialNumber: null,
         registeredAt: "2026-05-20",
@@ -86,8 +145,70 @@ const mockCustomers: Record<string, SonyCustomerProducts> = {
   },
 };
 
-export function normalizeSku(sku: string): string {
-  return sku.trim().toUpperCase();
+function sharedTierProducts(count: number): SonyCustomerProducts["products"] {
+  if (count <= 0) {
+    return [];
+  }
+
+  return [
+    {
+      sku: "SHARED-TIER-01",
+      modelName: "Shared Tier Demo Product 01",
+      serialNumber: "SN-SHARED-TIER-01",
+      registeredAt: "2026-06-01",
+    },
+  ];
+}
+
+function bodyTierProducts(count: number): SonyCustomerProducts["products"] {
+  return tierProducts({
+    count,
+    prefix: "BODY",
+    sharedName: "Shared Tier Demo Product 01",
+    modelPrefix: "Body Tier Demo Product",
+  });
+}
+
+function gmTierProducts(count: number): SonyCustomerProducts["products"] {
+  return tierProducts({
+    count,
+    prefix: "GM",
+    sharedName: "Shared Tier Demo Product 01",
+    modelPrefix: "GM Tier Demo Product",
+  });
+}
+
+function mixedTierProducts(): SonyCustomerProducts["products"] {
+  return [...bodyTierProducts(5), ...gmTierProducts(10).slice(1)];
+}
+
+function tierProducts({
+  count,
+  prefix,
+  sharedName,
+  modelPrefix,
+}: {
+  count: number;
+  prefix: string;
+  sharedName: string;
+  modelPrefix: string;
+}): SonyCustomerProducts["products"] {
+  if (count <= 0) {
+    return [];
+  }
+
+  return Array.from({ length: count }, (_, index) => {
+    const position = index + 1;
+    const suffix = String(position).padStart(2, "0");
+    const shared = position === 1;
+
+    return {
+      sku: shared ? "SHARED-TIER-01" : `${prefix}-SKU-${suffix}`,
+      modelName: shared ? sharedName : `${modelPrefix} ${suffix}`,
+      serialNumber: shared ? "SN-SHARED-TIER-01" : `SN-${prefix}-TIER-${suffix}`,
+      registeredAt: `2026-06-${String(Math.min(position, 28)).padStart(2, "0")}`,
+    };
+  });
 }
 
 export async function getMockSonyCustomerProducts(
