@@ -124,6 +124,10 @@ function buildBadgeShelfSetup({
           rule.displayCategory ??
           (rule.badgeType === "product" ? "Product ownership badge" : "Achievement badge"),
         group: rule.displayGroup ?? null,
+        activeFrom: rule.activeFrom,
+        activeTo: rule.activeTo,
+        registrationStart: rule.registrationStart,
+        registrationEnd: rule.registrationEnd,
         level: threshold.level,
         displayName: threshold.displayName,
         conditionText: shelfItem?.ruleConditionText ?? logicTooltip,

@@ -23,7 +23,7 @@ The client setup workflow is likely to send a rule name plus a list of Sony SKUs
 
 Use this pilot schema:
 
-- `badge_rules` stores badge identity, grouping, active window, and registration window.
+- `badge_rules` stores badge identity, grouping, display window, and product registration earning window.
 - `badge_rule_thresholds` stores shelf levels and image URLs.
 - `badge_rule_conditions` stores each condition row with `match_type`, `required_count`, and `sony_skus` JSONB.
 - `app_config.badge_rules_version` stores the rule version used to invalidate browser badge caches.
@@ -44,6 +44,8 @@ If `locked_image_url` is null, the app uses `achieved_image_url` and dims it in 
 The schema keeps tier badges clean without duplicating badge metadata.
 
 The condition table can still support composed rules by adding multiple condition rows under the same badge rule. For example, Travel Master can use one `any` condition for wide lenses plus one `all` condition for the required travel set.
+
+Limited-period campaign badges use `registration_start` and `registration_end` as the earning window for Sony product `registeredAt`. A user who registered a qualifying product inside that window can still see the achieved badge later. `active_from` and `active_to` are display controls only; keep `active_to` null unless the badge should disappear from the shelf.
 
 The SKU list is stored as JSONB, so SQL cannot enforce one foreign-key row per SKU. This is acceptable for the pilot because Sony SKUs are external identifiers and the debug panel exposes readable SKU labels for review.
 

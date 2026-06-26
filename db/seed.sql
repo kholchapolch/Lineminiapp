@@ -22,18 +22,18 @@ INSERT INTO badge_rules (
   registration_start,
   registration_end
 ) VALUES
-  ('ff-camera-owner', 'Key FF Models', 'product', 'achievement', 'Product ownership badge', 'Key FF models', 'Own one supported Sony full-frame camera body.', 10, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('key-lens-owner', 'Key Lens Models', 'product', 'achievement', 'Product ownership badge', 'Key Lens models', 'Own one supported Sony GM lens.', 20, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('portrait-master', 'Portrait Master', 'quest', 'achievement', 'Achievement badge', 'By COI', 'Own portrait GM lens coverage across 50mm, 85mm, and 135mm.', 30, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('travel-master', 'Travel Master', 'quest', 'achievement', 'Achievement badge', 'By COI', 'Own one wide travel lens and the required travel GM/G lens set.', 40, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('bird-wildlife-master', 'Bird & Wildlife Master', 'quest', 'achievement', 'Achievement badge', 'By COI', 'Own two supported wildlife lenses.', 50, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('trinity-master-gm', 'Trinity Master GM', 'quest', 'achievement', 'Achievement badge', 'By customer pride', 'Own the GM trinity lens set.', 60, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('trinity-master-g', 'Trinity Master G', 'quest', 'achievement', 'Achievement badge', 'By customer pride', 'Own the G trinity lens set.', 70, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('premium-master', 'Premium Master', 'quest', 'achievement', 'Achievement badge', 'By customer pride', 'Own two supported F2 premium lenses.', 80, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('first-macro-lens', 'First Macro Lens', 'quest', 'achievement', 'Achievement badge', 'By customer pride', 'Own one supported macro lens.', 90, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('alpha-body-collector', 'Alpha Body Collector', 'product', 'tier', 'Level badge demo', '10 product tier rules', 'Collect eligible Alpha body products. Bronze 1, Silver 5, Gold 10.', 100, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('gm-lens-collector', 'GM Lens Collector', 'product', 'tier', 'Level badge demo', '10 product tier rules', 'Collect eligible GM lens products. Bronze 1, Silver 5, Gold 10.', 110, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31'),
-  ('creator-kit-collector', 'Creator Kit Collector', 'quest', 'tier', 'Level badge demo', 'Shared SKU across many rules', 'Collect eligible creator kit products. Bronze 1, Silver 5, Gold 10.', 120, DATE '2026-05-01', DATE '2026-12-31', DATE '2026-05-01', DATE '2026-12-31');
+  ('ff-camera-owner', 'Key FF Models', 'product', 'achievement', 'Product ownership badge', 'Key FF models', 'Own one supported Sony full-frame camera body.', 10, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('key-lens-owner', 'Key Lens Models', 'product', 'achievement', 'Product ownership badge', 'Key Lens models', 'Own one supported Sony GM lens.', 20, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('portrait-master', 'Portrait Master', 'quest', 'achievement', 'Achievement badge', 'By COI', 'Own portrait GM lens coverage across 50mm, 85mm, and 135mm.', 30, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('travel-master', 'Travel Master', 'quest', 'achievement', 'Achievement badge', 'By COI', 'Own one wide travel lens and the required travel GM/G lens set.', 40, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('bird-wildlife-master', 'Bird & Wildlife Master', 'quest', 'achievement', 'Achievement badge', 'By COI', 'Own two supported wildlife lenses.', 50, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('trinity-master-gm', 'Trinity Master GM', 'quest', 'achievement', 'Achievement badge', 'By customer pride', 'Own the GM trinity lens set.', 60, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('trinity-master-g', 'Trinity Master G', 'quest', 'achievement', 'Achievement badge', 'By customer pride', 'Own the G trinity lens set.', 70, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('premium-master', 'Premium Master', 'quest', 'achievement', 'Achievement badge', 'By customer pride', 'Own two supported F2 premium lenses.', 80, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('first-macro-lens', 'First Macro Lens', 'quest', 'achievement', 'Achievement badge', 'By customer pride', 'Own one supported macro lens.', 90, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('alpha-body-collector', 'Alpha Body Collector', 'product', 'tier', 'Level badge demo', '10 product tier rules', 'Collect eligible Alpha body products. Bronze 1, Silver 5, Gold 10.', 100, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('gm-lens-collector', 'GM Lens Collector', 'product', 'tier', 'Level badge demo', '10 product tier rules', 'Collect eligible GM lens products. Bronze 1, Silver 5, Gold 10.', 110, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31'),
+  ('creator-kit-collector', 'Creator Kit Collector', 'quest', 'tier', 'Level badge demo', 'Shared SKU across many rules', 'Collect eligible creator kit products. Bronze 1, Silver 5, Gold 10.', 120, DATE '2026-05-01', NULL, DATE '2026-05-01', DATE '2026-12-31');
 
 INSERT INTO badge_rule_thresholds (badge_rule_id, level, display_name, required_count, achieved_image_url, locked_image_url, sort_order)
 SELECT br.id, achievement.level, achievement.display_name, achievement.required_count, achievement.achieved_image_url, achievement.locked_image_url, br.sort_order

@@ -14,6 +14,8 @@ export type AppConfig = {
   logHashSecret?: string;
   sonyProductApiMode: SonyProductApiMode;
   sonyProductApiBaseUrl: string;
+  sonyProductApiSubscriptionKey?: string;
+  sonyProductApiCountryCode: string;
   sonyDemoLineUuid: string;
 };
 
@@ -36,6 +38,8 @@ export function loadAppConfig(env: EnvInput = process.env): AppConfig {
     env.SONY_PRODUCT_API_BASE_URL,
     "full-url",
   );
+  const sonyProductApiSubscriptionKey = blankToUndefined(env.SONY_PRODUCT_API_SUBSCRIPTION_KEY);
+  const sonyProductApiCountryCode = blankToUndefined(env.SONY_PRODUCT_API_COUNTRY_CODE) ?? "th";
   const liffId = blankToUndefined(env.NEXT_PUBLIC_LIFF_ID);
   const lineChannelId = blankToUndefined(env.LINE_CHANNEL_ID);
   const appSessionSecret = blankToUndefined(env.APP_SESSION_SECRET);
@@ -64,6 +68,10 @@ export function loadAppConfig(env: EnvInput = process.env): AppConfig {
     throw new Error("SONY_PRODUCT_API_BASE_URL is required when SONY_PRODUCT_API_MODE=live.");
   }
 
+  if (sonyProductApiMode === "live" && !sonyProductApiSubscriptionKey) {
+    throw new Error("SONY_PRODUCT_API_SUBSCRIPTION_KEY is required when SONY_PRODUCT_API_MODE=live.");
+  }
+
   return {
     appEnv,
     appBaseUrl,
@@ -77,6 +85,8 @@ export function loadAppConfig(env: EnvInput = process.env): AppConfig {
     logHashSecret,
     sonyProductApiMode,
     sonyProductApiBaseUrl: sonyProductApiBaseUrl ?? `${appBaseUrl}/api/mock/sony`,
+    sonyProductApiSubscriptionKey,
+    sonyProductApiCountryCode,
     sonyDemoLineUuid: blankToUndefined(env.SONY_DEMO_LINE_UUID) ?? DEFAULT_DEMO_LINE_UUID,
   };
 }

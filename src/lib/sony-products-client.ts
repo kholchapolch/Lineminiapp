@@ -9,6 +9,16 @@ export type SonyProductsClient = {
 };
 
 type LiveSonyApiResponse = Partial<SonyCustomerProducts>;
+type SonyWarrantyProduct = {
+  lineId?: unknown;
+  serialNumber?: unknown;
+  modelName?: unknown;
+  registrationDate?: unknown;
+  warrantyExpiryDate?: unknown;
+};
+type SonyWarrantyApiResponse = {
+  prodDetails?: unknown;
+};
 
 class SonyProductApiError extends Error {
   code = "SONY_PRODUCT_API_ERROR";
@@ -22,7 +32,11 @@ class SonyProductApiError extends Error {
 
 export function createSonyProductsClient(config: AppConfig): SonyProductsClient {
   if (config.sonyProductApiMode === "live") {
-    return new LiveSonyProductsClient(config.sonyProductApiBaseUrl);
+    return new LiveSonyProductsClient({
+      endpointUrl: config.sonyProductApiBaseUrl,
+      subscriptionKey: config.sonyProductApiSubscriptionKey,
+      countryCode: config.sonyProductApiCountryCode,
+    });
   }
 
   return {
@@ -31,16 +45,30 @@ export function createSonyProductsClient(config: AppConfig): SonyProductsClient 
 }
 
 class LiveSonyProductsClient implements SonyProductsClient {
-  constructor(private readonly endpointUrl: string) {}
+  constructor(
+    private readonly options: {
+      endpointUrl: string;
+      subscriptionKey?: string;
+      countryCode: string;
+    },
+  ) {}
 
   async getCustomerProducts(lineuuid: string): Promise<SonyCustomerProducts> {
-    const url = new URL(this.endpointUrl);
-    url.searchParams.set("lineuuid", lineuuid);
+    if (!this.options.subscriptionKey) {
+      throw new SonyProductApiError("Sony product API subscription key is not configured.");
+    }
 
-    const response = await fetch(url, {
+    const response = await fetch(this.options.endpointUrl, {
+      method: "POST",
       headers: {
         accept: "application/json",
+        "content-type": "application/json",
+        "Ocp-Apim-Subscription-Key": this.options.subscriptionKey,
       },
+      body: JSON.stringify({
+        countryCode: this.options.countryCode,
+        lineId: lineuuid,
+      }),
       cache: "no-store",
     });
 
@@ -52,9 +80,55 @@ class LiveSonyProductsClient implements SonyProductsClient {
       throw new SonyProductApiError(`Sony product API returned ${response.status}.`);
     }
 
-    const payload = await response.json() as LiveSonyApiResponse;
-    return assertSonyCustomerProducts(payload);
+    const payload = await response.json() as LiveSonyApiResponse | SonyWarrantyApiResponse;
+    return normalizeLiveSonyApiResponse(payload, lineuuid);
   }
+}
+
+function normalizeLiveSonyApiResponse(
+  payload: LiveSonyApiResponse | SonyWarrantyApiResponse,
+  lineuuid: string,
+): SonyCustomerProducts {
+  if (Array.isArray((payload as SonyWarrantyApiResponse).prodDetails)) {
+    return normalizeSonyWarrantyResponse(payload as SonyWarrantyApiResponse, lineuuid);
+  }
+
+  return assertSonyCustomerProducts(payload as LiveSonyApiResponse);
+}
+
+function normalizeSonyWarrantyResponse(
+  payload: SonyWarrantyApiResponse,
+  lineuuid: string,
+): SonyCustomerProducts {
+  if (!Array.isArray(payload.prodDetails)) {
+    throw new SonyProductApiError("Sony warranty API response is missing prodDetails.");
+  }
+
+  return {
+    customer: {
+      lineuuid,
+      customerId: lineuuid,
+      displayName: "Sony Customer",
+      lineDisplayName: null,
+      linePictureUrl: null,
+    },
+    products: payload.prodDetails.map(assertSonyWarrantyProduct),
+  };
+}
+
+function assertSonyWarrantyProduct(product: unknown): SonyOwnedProduct {
+  const candidate = product as SonyWarrantyProduct;
+
+  if (typeof candidate.modelName !== "string" || typeof candidate.registrationDate !== "string") {
+    throw new SonyProductApiError("Sony warranty API response has invalid product fields.");
+  }
+
+  return {
+    sku: candidate.modelName,
+    modelName: candidate.modelName,
+    serialNumber: nullableString(candidate.serialNumber),
+    registeredAt: candidate.registrationDate,
+  };
 }
 
 function assertSonyCustomerProducts(payload: LiveSonyApiResponse): SonyCustomerProducts {

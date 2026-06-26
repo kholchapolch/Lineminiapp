@@ -36,4 +36,15 @@ describe("loadAppConfig", () => {
       }),
     ).toThrow(/NEXT_PUBLIC_LIFF_ID/);
   });
+
+  it("requires a subscription key for live Sony APIM mode", () => {
+    expect(() =>
+      loadAppConfig({
+        APP_ENV: "local",
+        APP_BASE_URL: "http://localhost:3000",
+        SONY_PRODUCT_API_MODE: "live",
+        SONY_PRODUCT_API_BASE_URL: "https://apim-rcap-dev.azure-api.net/mysony-api/QueryWarrantyMySonyByLine",
+      }),
+    ).toThrow(/SONY_PRODUCT_API_SUBSCRIPTION_KEY/);
+  });
 });

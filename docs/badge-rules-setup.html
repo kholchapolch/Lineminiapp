@@ -229,7 +229,7 @@
         <div class="diagram">
           <div class="box">
             <strong>1. Sony API products</strong>
-            ส่งรายการสินค้าที่ลูกค้ามี เช่น SKU และ registration date. Sony ไม่ต้องส่ง Badge Shelf สำเร็จรูป.
+            ส่งรายการสินค้าที่ลูกค้ามี เช่น model name, serial number, และ registration date. Sony ไม่ต้องส่ง Badge Shelf สำเร็จรูป.
           </div>
           <div class="box">
             <strong>2. Rule tables</strong>
@@ -247,6 +247,12 @@
         <p>
           Shelf ไม่ได้มาจาก JSON ของ Sony API. Shelf มาจาก rule ในระบบเรา แล้วเอา SKU จาก Sony API มาคำนวณว่าแต่ละ Badge achieved หรือยัง.
         </p>
+        <div class="note">
+          <strong>Current Sony APIM mapping:</strong>
+          API ปัจจุบันส่ง <code>prodDetails[].modelName</code> แต่ยังไม่มี field SKU แยก.
+          ดังนั้น <code>badge_rule_conditions.sony_skus</code> ต้องใส่ค่าที่ match กับ <code>modelName</code>
+          แบบ normalized เช่น <code>SEL70200GM2QSYX</code> จนกว่า Sony จะเพิ่ม canonical SKU/model-code field.
+        </div>
         <div class="tableWrap">
           <table>
             <caption>ข้อมูลที่ควบคุมการแสดงผล Shelf</caption>
@@ -272,6 +278,16 @@
                 <td><code>sort_order</code></td>
                 <td><code>badge_rules</code>, <code>badge_rule_thresholds</code></td>
                 <td>ลำดับการแสดง Badge และลำดับ level บน Shelf. ไม่ใส่ใน conditions เพราะ conditions เป็น logic ไม่ใช่ display section</td>
+              </tr>
+              <tr>
+                <td><code>registration_start</code> / <code>registration_end</code></td>
+                <td><code>badge_rules</code></td>
+                <td>ช่วงเวลาที่สินค้าใน Sony API ต้องถูก registered ถึงจะนับว่า earn Badge นี้ได้</td>
+              </tr>
+              <tr>
+                <td><code>active_from</code> / <code>active_to</code></td>
+                <td><code>badge_rules</code></td>
+                <td>ช่วงเวลาที่แสดง Badge บน Shelf. ถ้าต้องการให้คนที่ qualify แล้วเห็น Badge ต่อหลัง campaign ให้ตั้ง <code>active_to</code> เป็น NULL</td>
               </tr>
               <tr>
                 <td><code>display_name</code></td>
@@ -312,6 +328,12 @@
             <strong>Body Gold</strong>
             <div class="progress">5/10 - 50%</div>
           </div>
+        </div>
+        <div class="note">
+          <strong>Limited-period badge:</strong>
+          ถ้า Badge earn ได้เฉพาะช่วง campaign ให้ใช้ <code>registration_start/end</code>.
+          ตัวอย่าง สินค้า registered วันที่ 2026-06-15 จะได้ Badge แต่ registered วันที่ 2026-07-01 จะไม่ได้
+          เมื่อ rule กำหนด <code>registration_end = 2026-06-30</code>.
         </div>
       </section>
 
@@ -497,7 +519,7 @@ INSERT INTO badge_rules (
   'Collect eligible Alpha body products.',
   100,
   DATE '2026-05-01',
-  DATE '2026-12-31',
+  NULL,
   DATE '2026-05-01',
   DATE '2026-12-31'
 );
@@ -537,6 +559,12 @@ FROM badge_rules
 WHERE badge_code = 'body-collector';
 
 COMMIT;</code></pre>
+        <div class="note">
+          <strong>ความหมายของวันที่ในตัวอย่าง:</strong>
+          <code>registration_start/end</code> คือช่วงวันที่จาก Sony product <code>registeredAt</code>
+          ที่เอามาคิดสิทธิ์ Badge. ส่วน <code>active_to = NULL</code> แปลว่า Badge ยังอยู่บน Shelf หลังจบช่วง earn ได้
+          เพื่อให้ลูกค้าที่ qualify แล้วเห็น Badge ต่อไป.
+        </div>
       </section>
 
       <section>
@@ -552,7 +580,7 @@ COMMIT;</code></pre>
             <tbody>
               <tr>
                 <td>Rules tables as DB</td>
-                <td>ดู actual schema และ actual values จาก DB: thresholds, conditions, SKU JSON, readable SKU labels</td>
+                <td>ดู actual schema และ actual values จาก DB: thresholds, conditions, SKU JSON, readable SKU labels, display window, และ earning window</td>
               </tr>
               <tr>
                 <td>Sony API Mock JSON</td>

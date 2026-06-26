@@ -142,6 +142,10 @@ export type DebugBadgeShelfSetupRow = {
   badgeName: string;
   category: string;
   group: string | null;
+  activeFrom: string | null;
+  activeTo: string | null;
+  registrationStart: string | null;
+  registrationEnd: string | null;
   level: string;
   displayName: string;
   conditionText: string;

@@ -53,6 +53,25 @@ describe("getMockSonyCustomerProducts", () => {
     expect(result.products.filter((product) => product.sku === "SHARED-TIER-01")).toHaveLength(1);
   });
 
+  it("returns a mock customer using the Sony warranty API sample shape", async () => {
+    const result = await getMockSonyCustomerProducts("demo-line-sony-warranty-contract");
+
+    expect(result.products).toEqual([
+      {
+        sku: "ZV-E10M2/BQ AP2",
+        modelName: "ZV-E10M2/BQ AP2",
+        serialNumber: "1000003",
+        registeredAt: "2026-03-25",
+      },
+      {
+        sku: "SEL70200GM2QSYX",
+        modelName: "SEL70200GM2QSYX",
+        serialNumber: "2000004",
+        registeredAt: "2026-03-25",
+      },
+    ]);
+  });
+
   it("returns missing metadata while preserving matchable SKU data", async () => {
     const result = await getMockSonyCustomerProducts("demo-line-missing-data");
 

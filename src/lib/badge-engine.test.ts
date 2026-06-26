@@ -114,6 +114,73 @@ describe("calculateBadges", () => {
     });
   });
 
+  it("keeps a badge earned after the earning period when product registration qualified", () => {
+    const [result] = calculateBadges({
+      products,
+      now: new Date("2026-08-01"),
+      rules: [
+        {
+          ...rules[0],
+          activeTo: null,
+          registrationStart: "2026-05-01",
+          registrationEnd: "2026-06-30",
+        },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      status: "earned",
+      level: "gold",
+      matchedCount: 3,
+      requiredCount: 3,
+    });
+  });
+
+  it("does not award a limited-period badge from products registered after the earning period", () => {
+    const [result] = calculateBadges({
+      products: [
+        {
+          sku: "ILCE-7M4",
+          modelName: "Alpha 7 IV",
+          serialNumber: "SN5",
+          registeredAt: "2026-07-01",
+        },
+      ],
+      now: new Date("2026-08-01"),
+      rules: [
+        {
+          ...rules[0],
+          activeTo: null,
+          registrationStart: "2026-05-01",
+          registrationEnd: "2026-06-30",
+        },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      status: "no-badge",
+      matchedCount: 0,
+      requiredCount: 1,
+    });
+  });
+
+  it("hides the badge only when the display active window has expired", () => {
+    const result = calculateBadges({
+      products,
+      now: new Date("2026-08-01"),
+      rules: [
+        {
+          ...rules[0],
+          activeTo: "2026-06-30",
+          registrationStart: "2026-05-01",
+          registrationEnd: "2026-06-30",
+        },
+      ],
+    });
+
+    expect(result).toEqual([]);
+  });
+
   it("supports all and min_count conditions", () => {
     const result = calculateBadges({
       products,

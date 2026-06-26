@@ -99,6 +99,29 @@ const mockCustomers: Record<string, SonyCustomerProducts> = {
     },
     products: mixedTierProducts(),
   },
+  "demo-line-sony-warranty-contract": {
+    customer: {
+      lineuuid: "demo-line-sony-warranty-contract",
+      customerId: "demo-sony-warranty-contract",
+      displayName: "Sony Warranty Contract Sample",
+      lineDisplayName: "Sony Demo",
+      linePictureUrl: null,
+    },
+    products: [
+      {
+        sku: "ZV-E10M2/BQ AP2",
+        modelName: "ZV-E10M2/BQ AP2",
+        serialNumber: "1000003",
+        registeredAt: "2026-03-25",
+      },
+      {
+        sku: "SEL70200GM2QSYX",
+        modelName: "SEL70200GM2QSYX",
+        serialNumber: "2000004",
+        registeredAt: "2026-03-25",
+      },
+    ],
+  },
   "demo-line-locked": {
     customer: {
       lineuuid: "demo-line-locked",

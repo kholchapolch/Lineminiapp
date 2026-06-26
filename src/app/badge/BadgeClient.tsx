@@ -100,6 +100,14 @@ function formatDebugValue(value: DbDebugValue): string {
   return String(value);
 }
 
+function formatDateWindow(start: string | null, end: string | null): string {
+  if (!start && !end) {
+    return "Always";
+  }
+
+  return `${start ?? "Any"} to ${end ?? "Any"}`;
+}
+
 function readBadgeCache(): BadgeCacheEntry | null {
   try {
     const raw = window.localStorage.getItem(BADGE_CACHE_KEY);
@@ -375,33 +383,6 @@ function DebugPanel({ debugTrace }: { debugTrace: DebugTrace }): JSX.Element {
 
       <section className="debugSection">
         <h3>Rules From DB</h3>
-        <div className="debugTableWrap">
-          <table className="debugTable">
-            <caption>actual_public_db_schema</caption>
-            <thead>
-              <tr>
-                <th>table_name</th>
-                <th>column_name</th>
-                <th>data_type</th>
-                <th>nullable</th>
-                <th>default</th>
-                <th>ordinal_position</th>
-              </tr>
-            </thead>
-            <tbody>
-              {debugTrace.dbRules.schema.map((column) => (
-                <tr key={`${column.tableName}-${column.ordinalPosition}`}>
-                  <td>{column.tableName}</td>
-                  <td>{column.columnName}</td>
-                  <td>{column.dataType}</td>
-                  <td>{column.isNullable ? "YES" : "NO"}</td>
-                  <td>{column.columnDefault ?? "-"}</td>
-                  <td>{column.ordinalPosition}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
         {debugTrace.dbRules.tables.map((table) => {
           const columns = getDebugTableColumns(table);
 
@@ -440,6 +421,8 @@ function DebugPanel({ debugTrace }: { debugTrace: DebugTrace }): JSX.Element {
                 <th>badge_name</th>
                 <th>category</th>
                 <th>group</th>
+                <th>display_window</th>
+                <th>earning_window</th>
                 <th>level</th>
                 <th>display_name</th>
                 <th>condition_text</th>
@@ -460,6 +443,8 @@ function DebugPanel({ debugTrace }: { debugTrace: DebugTrace }): JSX.Element {
                   <td>{row.badgeName}</td>
                   <td>{row.category}</td>
                   <td>{row.group ?? "-"}</td>
+                  <td>{formatDateWindow(row.activeFrom, row.activeTo)}</td>
+                  <td>{formatDateWindow(row.registrationStart, row.registrationEnd)}</td>
                   <td>{row.level}</td>
                   <td>{row.displayName}</td>
                   <td>{row.conditionText}</td>

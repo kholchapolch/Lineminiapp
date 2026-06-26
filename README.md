@@ -46,6 +46,7 @@ Useful sample LINE UUIDs:
 - `http://localhost:3000/badge?lineuuid=demo-line-tier-silver`
 - `http://localhost:3000/badge?lineuuid=demo-line-tier-gold`
 - `http://localhost:3000/badge?lineuuid=demo-line-tier-body-silver-gm-gold`
+- `http://localhost:3000/badge?lineuuid=demo-line-sony-warranty-contract`
 - `http://localhost:3000/badge?lineuuid=demo-line-locked`
 - `http://localhost:3000/badge?lineuuid=demo-line-empty`
 - `http://localhost:3000/badge?lineuuid=demo-line-missing-data`
@@ -89,6 +90,11 @@ Required server-side settings:
 - `SONY_PRODUCT_API_MODE`: `mock` locally, `live` for Sony API integration.
 - `SONY_PRODUCT_API_BASE_URL`: full endpoint URL, including path, required when
   `SONY_PRODUCT_API_MODE=live`.
+- `SONY_PRODUCT_API_SUBSCRIPTION_KEY`: server-only Azure APIM subscription key
+  sent as `Ocp-Apim-Subscription-Key` in live mode. Do not expose it through
+  `NEXT_PUBLIC_*`.
+- `SONY_PRODUCT_API_COUNTRY_CODE`: request country code for Sony APIM. Defaults
+  to `th`.
 - `SONY_DEMO_LINE_UUID`: local fallback `lineuuid` for preview entry flow.
 
 Client-visible setting:
@@ -98,6 +104,43 @@ Client-visible setting:
 - `NEXT_PUBLIC_DEBUG_MOCK_JSON`: optional local/staging flag for showing the
   display-safe debug JSON panel without adding `?debug=1`. Keep disabled on any
   customer-accessible staging/UAT. Production ignores this flag.
+
+### Sony APIM Warranty API
+
+Live mode calls Sony's warranty endpoint server-side:
+
+- Method: `POST`
+- URL: `https://apim-rcap-dev.azure-api.net/mysony-api/QueryWarrantyMySonyByLine`
+- Header: `Ocp-Apim-Subscription-Key: <server-side secret>`
+- Body:
+
+```json
+{
+  "countryCode": "th",
+  "lineId": "<LINE user ID>"
+}
+```
+
+The current response shape is:
+
+```json
+{
+  "prodDetails": [
+    {
+      "lineId": "U...",
+      "serialNumber": "1000003",
+      "modelName": "ZV-E10M2/BQ AP2",
+      "registrationDate": "2026-03-25",
+      "warrantyExpiryDate": "2027-06-23"
+    }
+  ]
+}
+```
+
+The adapter maps `prodDetails[].modelName` to the internal match key `sku`
+because the current API response does not provide a separate canonical SKU
+field. Badge rule `sony_skus` values must therefore match normalized
+`modelName` values until Sony provides a dedicated SKU/model-code field.
 
 ## Database
 
@@ -150,6 +193,16 @@ SET
   is_active = true
 WHERE badge_code = 'alpha-tier';
 
+-- registration_start/end controls the product registration period that can earn the badge.
+-- active_to is only a display expiry. Keep it NULL when achieved badges should remain visible.
+UPDATE badge_rules
+SET
+  active_from = DATE '2026-05-01',
+  active_to = NULL,
+  registration_start = DATE '2026-05-01',
+  registration_end = DATE '2026-06-30'
+WHERE badge_code = 'alpha-tier';
+
 DELETE FROM badge_rule_thresholds
 WHERE badge_rule_id = (
   SELECT id FROM badge_rules WHERE badge_code = 'alpha-tier'
@@ -195,9 +248,12 @@ Operational rules:
    on it.
 3. Prefer setting `is_active = false` over deleting a rule that has already been
    shown in a campaign.
-4. Do not paste LINE IDs, serial numbers, customer exports, or database secrets
+4. Use `registration_start` and `registration_end` for limited-period earning.
+   A product registered inside this window can still show an achieved badge
+   later. Use `active_to` only when the badge should disappear from the shelf.
+5. Do not paste LINE IDs, serial numbers, customer exports, or database secrets
    into GitHub issues, screenshots, or chat logs.
-5. Keep production SQL in a dated, reviewed change note before applying it.
+6. Keep production SQL in a dated, reviewed change note before applying it.
 
 ## Supabase Path
 
