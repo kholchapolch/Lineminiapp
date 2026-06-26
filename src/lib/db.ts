@@ -1,6 +1,6 @@
 import "server-only";
 
-import { Pool } from "pg";
+import mysql, { type Pool } from "mysql2/promise";
 
 let pool: Pool | null = null;
 
@@ -11,9 +11,20 @@ export function getPool(): Pool {
     throw new Error("DATABASE_URL is not configured");
   }
 
-  pool ??= new Pool({
-    connectionString,
-  });
+  if (!pool) {
+    const url = new URL(connectionString);
+
+    pool = mysql.createPool({
+      host: url.hostname,
+      port: Number(url.port || 3306),
+      user: decodeURIComponent(url.username),
+      password: decodeURIComponent(url.password),
+      database: url.pathname.replace(/^\//, ""),
+      waitForConnections: true,
+      connectionLimit: 10,
+      dateStrings: true,
+    });
+  }
 
   return pool;
 }

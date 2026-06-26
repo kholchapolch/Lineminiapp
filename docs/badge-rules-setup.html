@@ -363,7 +363,7 @@
               <tr>
                 <td><code>badge_rule_conditions</code></td>
                 <td>เงื่อนไขการ match SKU. 1 rule มีหลาย condition ได้</td>
-                <td><code>condition_label</code>, <code>match_type</code>, <code>required_count</code>, <code>sony_skus</code> JSONB</td>
+                <td><code>condition_label</code>, <code>match_type</code>, <code>required_count</code>, <code>sony_skus</code> JSON</td>
               </tr>
             </tbody>
           </table>
@@ -493,72 +493,51 @@
       </section>
 
       <section>
-        <h2>ตัวอย่าง SQL Setup</h2>
-        <pre><code>BEGIN;
+        <h2>ตัวอย่าง Code-Based Setup</h2>
+        <p>
+          ตอนนี้ default setup ใช้ MySQL และ seed จากไฟล์ <code>scripts/db/seed-data.mjs</code>
+          เพื่อให้ review ได้ใน Git และไม่ต้อง paste SQL เข้า DB โดยตรง.
+        </p>
+        <pre><code>export const badgeRules = [
+  {
+    code: "body-collector",
+    name: "Body Collector",
+    badgeType: "product",
+    ruleType: "tier",
+    displayCategory: "Level badge demo",
+    displayGroup: "10 product tier rules",
+    description: "Collect eligible Alpha body products.",
+    sortOrder: 100,
+    activeFrom: "2026-05-01",
+    activeTo: null,
+    registrationStart: "2026-05-01",
+    registrationEnd: "2026-12-31",
+  },
+];
 
-INSERT INTO badge_rules (
-  badge_code,
-  badge_name,
-  badge_type,
-  rule_type,
-  display_category,
-  display_group,
-  description,
-  sort_order,
-  active_from,
-  active_to,
-  registration_start,
-  registration_end
-) VALUES (
-  'body-collector',
-  'Body Collector',
-  'product',
-  'tier',
-  'Level badge demo',
-  '10 product tier rules',
-  'Collect eligible Alpha body products.',
-  100,
-  DATE '2026-05-01',
-  NULL,
-  DATE '2026-05-01',
-  DATE '2026-12-31'
-);
+export const badgeThresholds = [
+  {
+    ruleCode: "body-collector",
+    level: "bronze",
+    displayName: "Body Bronze",
+    requiredCount: 1,
+    achievedImageUrl: "https://example.com/body-bronze.png",
+    lockedImageUrl: null,
+    sortOrder: 101,
+  },
+];
 
-INSERT INTO badge_rule_thresholds (
-  badge_rule_id,
-  level,
-  display_name,
-  required_count,
-  achieved_image_url,
-  locked_image_url,
-  sort_order
-)
-SELECT id, 'bronze', 'Body Bronze', 1, 'https://example.com/body-bronze.png', NULL, 101
-FROM badge_rules WHERE badge_code = 'body-collector'
-UNION ALL
-SELECT id, 'silver', 'Body Silver', 5, 'https://example.com/body-silver.png', NULL, 102
-FROM badge_rules WHERE badge_code = 'body-collector'
-UNION ALL
-SELECT id, 'gold', 'Body Gold', 10, 'https://example.com/body-gold.png', NULL, 103
-FROM badge_rules WHERE badge_code = 'body-collector';
-
-INSERT INTO badge_rule_conditions (
-  badge_rule_id,
-  condition_label,
-  match_type,
-  required_count,
-  sony_skus
-)
-SELECT
-  id,
-  'Own Alpha body tier SKUs',
-  'min_count',
-  10,
-  '["SHARED-TIER-01","BODY-SKU-02","BODY-SKU-03","BODY-SKU-04","BODY-SKU-05","BODY-SKU-06","BODY-SKU-07","BODY-SKU-08","BODY-SKU-09","BODY-SKU-10"]'::jsonb
-FROM badge_rules
-WHERE badge_code = 'body-collector';
-
-COMMIT;</code></pre>
+export const badgeConditions = [
+  {
+    ruleCode: "body-collector",
+    label: "Own Alpha body tier SKUs",
+    matchType: "min_count",
+    requiredCount: 10,
+    sonySkus: ["SHARED-TIER-01", "BODY-SKU-02", "BODY-SKU-03"],
+  },
+];</code></pre>
+        <pre><code>npm run db:reset
+npm run db:verify</code></pre>
         <div class="note">
           <strong>ความหมายของวันที่ในตัวอย่าง:</strong>
           <code>registration_start/end</code> คือช่วงวันที่จาก Sony product <code>registeredAt</code>

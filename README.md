@@ -6,15 +6,15 @@ Pilot implementation repo for the Sony Thailand LINE LIFF badge display.
 
 - One Next.js LIFF web app.
 - Server-side database query for badge display data.
-- Local Postgres for development and tests.
-- SQL migrations compatible with a future Supabase project.
-- No CMS/admin in this pilot. Badge/config data is maintained directly in the database.
+- Local MySQL for development and tests.
+- Code-based MySQL migration and seed scripts.
+- No CMS/admin in this pilot. Badge/config data is maintained through reviewed seed/config code or controlled DB changes.
 
 ## GitHub Issues
 
 - #1 Scaffold Next.js LIFF app
-- #2 Set up local Postgres and database migrations
-- #3 Prepare Supabase integration path
+- #2 Set up local MySQL and database migrations
+- #3 Prepare code-based rule seed workflow
 - #4 Implement server-side badge data access
 - #5 Implement LIFF initialization and session states
 - #6 Build badge display page
@@ -32,7 +32,7 @@ Pilot implementation repo for the Sony Thailand LINE LIFF badge display.
 npm install
 cp .env.example .env.local
 docker compose up -d
-export DATABASE_URL=postgres://sony:sony@localhost:54339/sony_badges
+export DATABASE_URL=mysql://sony:sony@127.0.0.1:3307/sony_badges
 npm run db:reset
 npm run dev
 ```
@@ -80,7 +80,7 @@ Required server-side settings:
 
 - `APP_ENV`: `local`, `staging`, or `production`.
 - `APP_BASE_URL`: canonical app origin, for example `http://localhost:3000`.
-- `DATABASE_URL`: server-side Postgres connection string.
+- `DATABASE_URL`: server-side MySQL connection string.
 - `ALLOWED_ORIGINS`: comma-separated allowed `Origin` values for `/entry`.
 - `ALLOWED_REFERRERS`: comma-separated allowed `Referer` origins for `/entry`.
 - `LINE_CHANNEL_ID`: LINE Login channel ID used to verify LIFF ID tokens.
@@ -150,7 +150,7 @@ Migration:
 npm run db:migrate
 ```
 
-Seed:
+Seed from code:
 
 ```bash
 npm run db:seed
@@ -160,6 +160,12 @@ Reset local DB schema/data:
 
 ```bash
 npm run db:reset
+```
+
+Verify seed counts and `badge_rules_version`:
+
+```bash
+npm run db:verify
 ```
 
 Rule/cache version:
@@ -174,75 +180,18 @@ Rule/cache version:
   `badge_rules_version`.
 - Update `badge_rules_version` after any direct rule setup change.
 
-### Direct Badge Rule Updates
+### Badge Rule Updates
 
-This pilot has no CMS/admin surface. Badge rules are maintained directly in
-Postgres until an admin workflow is approved.
+This pilot has no CMS/admin surface. The default setup path is code-based:
 
-Use a reviewed SQL transaction for every badge rule change:
-
-```sql
-BEGIN;
-
-UPDATE badge_rules
-SET
-  badge_name = 'Alpha Collector',
-  description = 'Collect eligible Sony Alpha camera and G Master lens products.',
-  rule_type = 'tier',
-  sort_order = 10,
-  is_active = true
-WHERE badge_code = 'alpha-tier';
-
--- registration_start/end controls the product registration period that can earn the badge.
--- active_to is only a display expiry. Keep it NULL when achieved badges should remain visible.
-UPDATE badge_rules
-SET
-  active_from = DATE '2026-05-01',
-  active_to = NULL,
-  registration_start = DATE '2026-05-01',
-  registration_end = DATE '2026-06-30'
-WHERE badge_code = 'alpha-tier';
-
-DELETE FROM badge_rule_thresholds
-WHERE badge_rule_id = (
-  SELECT id FROM badge_rules WHERE badge_code = 'alpha-tier'
-);
-
-INSERT INTO badge_rule_thresholds (
-  badge_rule_id,
-  level,
-  display_name,
-  required_count,
-  achieved_image_url,
-  locked_image_url,
-  sort_order
-)
-SELECT id, 'achievement', 'Alpha Collector', 3, 'https://example.com/alpha.png', NULL, 10
-FROM badge_rules
-WHERE badge_code = 'alpha-tier';
-
-DELETE FROM badge_rule_conditions
-WHERE badge_rule_id = (
-  SELECT id FROM badge_rules WHERE badge_code = 'alpha-tier'
-);
-
-INSERT INTO badge_rule_conditions (
-  badge_rule_id,
-  condition_label,
-  match_type,
-  required_count,
-  sony_skus
-)
-SELECT id, 'Own any supported Alpha body', 'any', 1, '["ILCE-7M4","ILCE-7CM2"]'::jsonb
-FROM badge_rules
-WHERE badge_code = 'alpha-tier';
-
-COMMIT;
-```
+- Edit `scripts/db/seed-data.mjs`.
+- Run `npm run db:reset` locally.
+- Review `/badge?lineuuid=...&debug=1`.
+- Commit the seed change with the implementation.
 
 Operational rules:
 
-1. Run the SQL in staging first, then verify the affected customer examples at
+1. Run the seed in staging first, then verify the affected customer examples at
    `/badge?lineuuid=...` and `/api/customer-products?lineuuid=...`.
 2. Keep `badge_code` stable because the display layer and analytics can depend
    on it.
@@ -253,26 +202,7 @@ Operational rules:
    later. Use `active_to` only when the badge should disappear from the shelf.
 5. Do not paste LINE IDs, serial numbers, customer exports, or database secrets
    into GitHub issues, screenshots, or chat logs.
-6. Keep production SQL in a dated, reviewed change note before applying it.
-
-## Supabase Path
-
-The SQL in `db/migrations/001_initial_schema.sql` is standard Postgres and can be applied to Supabase later.
-
-When a hosted Supabase project is ready:
-
-1. Create a Supabase project in the approved organization.
-2. Apply `db/migrations/001_initial_schema.sql`.
-3. Apply `db/seed.sql` only to development/staging projects.
-4. Store the hosted Postgres connection string in server-side environment variables.
-5. Never expose Supabase service role keys to browser code or `NEXT_PUBLIC_*` values.
-6. Add Row Level Security before exposing any direct browser reads.
-
-Environment placeholders for future hosted Supabase usage are documented in `.env.example`:
-
-- `SUPABASE_URL` and `SUPABASE_ANON_KEY` are safe only for public client use when Row Level Security is correctly configured.
-- `SUPABASE_SERVICE_ROLE_KEY` must stay server-side only and must never be placed in `NEXT_PUBLIC_*`.
-- `DATABASE_URL` remains the preferred server-side connection setting for this pilot because the app queries the database from server code.
+6. Keep production seed/config changes in a dated, reviewed change note before applying them.
 
 ## LIFF Setup
 
@@ -304,7 +234,7 @@ For database-related issues, also verify:
 
 ```bash
 docker compose up -d
-export DATABASE_URL=postgres://sony:sony@localhost:54339/sony_badges
+export DATABASE_URL=mysql://sony:sony@127.0.0.1:3307/sony_badges
 npm run db:reset
 ```
 

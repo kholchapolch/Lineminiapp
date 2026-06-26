@@ -6,7 +6,7 @@ describe("loadAppConfig", () => {
     const config = loadAppConfig({
       APP_ENV: "local",
       APP_BASE_URL: "http://localhost:3000",
-      DATABASE_URL: "postgres://sony:sony@localhost:54339/sony_badges",
+      DATABASE_URL: "mysql://sony:sony@127.0.0.1:3307/sony_badges",
       ALLOWED_ORIGINS: "http://localhost:3000",
       ALLOWED_REFERRERS: "http://localhost:3000",
       SONY_PRODUCT_API_MODE: "mock",
@@ -29,7 +29,7 @@ describe("loadAppConfig", () => {
       loadAppConfig({
         APP_ENV: "production",
         APP_BASE_URL: "https://campaign.example.com",
-        DATABASE_URL: "postgres://example",
+        DATABASE_URL: "mysql://example:example@localhost:3306/example",
         ALLOWED_ORIGINS: "https://campaign.example.com",
         ALLOWED_REFERRERS: "https://campaign.example.com",
         SONY_PRODUCT_API_MODE: "live",

@@ -12,7 +12,7 @@ function productionConfig() {
   return loadAppConfig({
     APP_ENV: "production",
     APP_BASE_URL: "https://campaign.example.com",
-    DATABASE_URL: "postgres://sony:sony@localhost:54339/sony_badges",
+    DATABASE_URL: "mysql://sony:sony@127.0.0.1:3307/sony_badges",
     NEXT_PUBLIC_LIFF_ID: "line-liff-id",
     LINE_CHANNEL_ID: "line-channel-id",
     APP_SESSION_SECRET: "test-session-secret",

@@ -10,13 +10,14 @@ afterEach(() => {
 function stubLocalEnv() {
   vi.stubEnv("APP_ENV", "local");
   vi.stubEnv("APP_BASE_URL", "http://localhost:3000");
+  vi.stubEnv("DATABASE_URL", "");
   vi.stubEnv("SONY_PRODUCT_API_MODE", "mock");
 }
 
 function stubProductionEnv() {
   vi.stubEnv("APP_ENV", "production");
   vi.stubEnv("APP_BASE_URL", "https://campaign.example.com");
-  vi.stubEnv("DATABASE_URL", "postgres://sony:sony@localhost:54339/sony_badges");
+  vi.stubEnv("DATABASE_URL", "mysql://sony:sony@127.0.0.1:3307/sony_badges");
   vi.stubEnv("ALLOWED_ORIGINS", "https://campaign.example.com");
   vi.stubEnv("ALLOWED_REFERRERS", "https://campaign.example.com");
   vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "line-liff-id");

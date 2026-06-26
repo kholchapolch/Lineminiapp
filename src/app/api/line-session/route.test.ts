@@ -12,7 +12,7 @@ afterEach(() => {
 function stubProductionEnv() {
   vi.stubEnv("APP_ENV", "production");
   vi.stubEnv("APP_BASE_URL", "https://campaign.example.com");
-  vi.stubEnv("DATABASE_URL", "postgres://sony:sony@localhost:54339/sony_badges");
+  vi.stubEnv("DATABASE_URL", "mysql://sony:sony@127.0.0.1:3307/sony_badges");
   vi.stubEnv("NEXT_PUBLIC_LIFF_ID", "line-liff-id");
   vi.stubEnv("LINE_CHANNEL_ID", "line-channel-id");
   vi.stubEnv("APP_SESSION_SECRET", "test-session-secret");

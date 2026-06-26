@@ -1,5 +1,6 @@
 import "server-only";
 
+import type { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { getPool } from "@/lib/db";
 import { hashLineUuid } from "@/lib/safe-logging";
 import { getReadableSkuLabel } from "@/lib/sku-labels";
@@ -136,7 +137,12 @@ function createFallbackRule(input: FallbackRuleInput): BadgeRuleConfig {
   };
 }
 
-type RuleRow = {
+type ConfigRow = RowDataPacket & {
+  key: string;
+  value: string;
+};
+
+type RuleRow = RowDataPacket & {
   badge_rule_id: number;
   badge_code: string;
   badge_name: string;
@@ -146,7 +152,7 @@ type RuleRow = {
   display_group: string | null;
   description: string | null;
   sort_order: number;
-  is_active: boolean;
+  is_active: boolean | number;
   active_from: string | Date | null;
   active_to: string | Date | null;
   registration_start: string | Date | null;
@@ -161,10 +167,10 @@ type RuleRow = {
   condition_label: string | null;
   condition_match_type: "any" | "all" | "min_count" | null;
   condition_required_count: number | null;
-  condition_skus: string[] | null;
+  condition_skus: unknown;
 };
 
-type DbSchemaColumnRow = {
+type DbSchemaColumnRow = RowDataPacket & {
   table_name: string;
   column_name: string;
   data_type: string;
@@ -199,10 +205,10 @@ export async function getBadgeRuntimeConfig(): Promise<BadgeRuntimeConfig> {
   }
 
   const pool = getPool();
-  const result = await pool.query<{ key: string; value: string }>(
-    "SELECT key, value FROM app_config WHERE key IN ('support_message', 'badge_rules_version')",
+  const [rows] = await pool.execute<ConfigRow[]>(
+    "SELECT `key`, `value` FROM app_config WHERE `key` IN ('support_message', 'badge_rules_version')",
   );
-  const values = new Map(result.rows.map((row) => [row.key, row.value]));
+  const values = new Map(rows.map((row) => [row.key, row.value]));
   const value = {
     supportMessage: values.get("support_message") ?? FALLBACK_SUPPORT_MESSAGE,
     badgeRulesVersion: values.get("badge_rules_version") ?? FALLBACK_BADGE_RULES_VERSION,
@@ -234,7 +240,7 @@ export async function getActiveBadgeRules(options: {
   }
 
   const pool = getPool();
-  const result = await pool.query<RuleRow>(
+  const [rows] = await pool.query<RuleRow[]>(
     `
       SELECT
         br.id AS badge_rule_id,
@@ -272,7 +278,7 @@ export async function getActiveBadgeRules(options: {
     `,
   );
 
-  const rules = mapRuleRows(result.rows);
+  const rules = mapRuleRows(rows);
 
   if (version && !options.bypassCache) {
     activeBadgeRulesCache = {
@@ -291,7 +297,7 @@ export async function getPublicDbSchema(): Promise<DbSchemaColumn[]> {
   }
 
   const pool = getPool();
-  const result = await pool.query<DbSchemaColumnRow>(
+  const [rows] = await pool.execute<DbSchemaColumnRow[]>(
     `
       SELECT
         table_name,
@@ -301,12 +307,12 @@ export async function getPublicDbSchema(): Promise<DbSchemaColumn[]> {
         column_default,
         ordinal_position
       FROM information_schema.columns
-      WHERE table_schema = 'public'
+      WHERE table_schema = DATABASE()
       ORDER BY table_name ASC, ordinal_position ASC
     `,
   );
 
-  return result.rows.map((row) => ({
+  return rows.map((row) => ({
     tableName: row.table_name,
     columnName: row.column_name,
     dataType: row.data_type,
@@ -329,8 +335,8 @@ export async function getDebugDbTables(): Promise<DbDebugTable[]> {
     badgeRuleConditions,
     badgeCalculationLogs,
   ] = await Promise.all([
-    pool.query("SELECT key, value FROM app_config ORDER BY key ASC"),
-    pool.query(`
+    pool.execute<RowDataPacket[]>("SELECT `key`, `value` FROM app_config ORDER BY `key` ASC"),
+    pool.query<RowDataPacket[]>(`
       SELECT
         id,
         badge_code,
@@ -349,7 +355,7 @@ export async function getDebugDbTables(): Promise<DbDebugTable[]> {
       FROM badge_rules
       ORDER BY sort_order ASC, id ASC
     `),
-    pool.query(`
+    pool.query<RowDataPacket[]>(`
       SELECT
         id,
         badge_rule_id,
@@ -362,7 +368,7 @@ export async function getDebugDbTables(): Promise<DbDebugTable[]> {
       FROM badge_rule_thresholds
       ORDER BY badge_rule_id ASC, sort_order ASC, id ASC
     `),
-    pool.query(`
+    pool.query<RowDataPacket[]>(`
       SELECT
         id,
         badge_rule_id,
@@ -373,7 +379,7 @@ export async function getDebugDbTables(): Promise<DbDebugTable[]> {
       FROM badge_rule_conditions
       ORDER BY badge_rule_id ASC, id ASC
     `),
-    pool.query(`
+    pool.query<RowDataPacket[]>(`
       SELECT
         id,
         customer_line_uuid_hash,
@@ -388,28 +394,36 @@ export async function getDebugDbTables(): Promise<DbDebugTable[]> {
       LIMIT 10
     `),
   ]);
+  const [appConfigRows] = appConfig;
+  const [badgeRuleRows] = badgeRules;
+  const [badgeRuleThresholdRows] = badgeRuleThresholds;
+  const [badgeRuleConditionRows] = badgeRuleConditions;
+  const [badgeCalculationLogRows] = badgeCalculationLogs;
 
   return [
-    { tableName: "app_config", rows: appConfig.rows.map(toDebugRow) },
-    { tableName: "badge_rules", rows: badgeRules.rows.map(toDebugRow) },
-    { tableName: "badge_rule_thresholds", rows: badgeRuleThresholds.rows.map(toDebugRow) },
+    { tableName: "app_config", rows: appConfigRows.map(toDebugRow) },
+    { tableName: "badge_rules", rows: badgeRuleRows.map(toDebugRow) },
+    { tableName: "badge_rule_thresholds", rows: badgeRuleThresholdRows.map(toDebugRow) },
     {
       tableName: "badge_rule_conditions",
-      rows: badgeRuleConditions.rows.map((row) =>
-        toDebugRow({
+      rows: badgeRuleConditionRows.map((row) => {
+        const sonySkus = parseJsonArray(row.sony_skus);
+
+        return toDebugRow({
           ...row,
-          sony_sku_label_map: Array.isArray(row.sony_skus)
+          sony_skus: sonySkus,
+          sony_sku_label_map: sonySkus.length > 0
             ? Object.fromEntries(
-                row.sony_skus.map((sku: unknown) => [
+                sonySkus.map((sku: unknown) => [
                   String(sku),
                   getReadableSkuLabel(String(sku)),
                 ]),
               )
             : {},
-        }),
-      ),
+        });
+      }),
     },
-    { tableName: "badge_calculation_logs_recent", rows: badgeCalculationLogs.rows.map(toDebugRow) },
+    { tableName: "badge_calculation_logs_recent", rows: badgeCalculationLogRows.map(toDebugRow) },
   ];
 }
 
@@ -469,7 +483,7 @@ function mapRuleRows(rows: RuleRow[]): BadgeRuleConfig[] {
         displayGroup: row.display_group,
         description: row.description,
         sortOrder: row.sort_order,
-        isActive: row.is_active,
+        isActive: Boolean(row.is_active),
         activeFrom: formatDate(row.active_from),
         activeTo: formatDate(row.active_to),
         registrationStart: formatDate(row.registration_start),
@@ -504,9 +518,9 @@ function mapRuleRows(rows: RuleRow[]): BadgeRuleConfig[] {
       row.condition_required_count !== null
     ) {
       const conditions = rule.conditions ?? [];
-      const sonySkus = Array.isArray(row.condition_skus)
-        ? row.condition_skus.filter((sku): sku is string => typeof sku === "string")
-        : [];
+      const sonySkus = parseJsonArray(row.condition_skus).filter(
+        (sku): sku is string => typeof sku === "string",
+      );
       const conditionExists = conditions.some(
         (condition) => condition.id === row.condition_id,
       );
@@ -557,6 +571,20 @@ function formatDate(value: string | Date | null): string | null {
   return value.slice(0, 10);
 }
 
+function parseJsonArray(value: unknown): unknown[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = JSON.parse(value) as unknown;
+
+    return Array.isArray(parsed) ? parsed : [];
+  }
+
+  return [];
+}
+
 function deriveSkus(rule: BadgeRuleConfig): string[] {
   const conditionSkus = (rule.conditions ?? []).flatMap((condition) => condition.sonySkus);
 
@@ -578,7 +606,7 @@ export async function writeBadgeCalculationLog(input: BadgeCalculationLogInput):
   }
 
   const pool = getPool();
-  await pool.query(
+  await pool.execute<ResultSetHeader>(
     `
       INSERT INTO badge_calculation_logs (
         customer_line_uuid_hash,
@@ -587,7 +615,7 @@ export async function writeBadgeCalculationLog(input: BadgeCalculationLogInput):
         earned_badges_json,
         error_code,
         error_message
-      ) VALUES ($1, $2, $3, $4, $5, $6)
+      ) VALUES (?, ?, ?, ?, ?, ?)
     `,
     [
       hashLineUuid(input.lineuuid),
