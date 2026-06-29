@@ -13,7 +13,7 @@ describe("getMockSonyCustomerProducts", () => {
     const result = await getMockSonyCustomerProducts("demo-line-earned");
 
     expect(result.customer.lineuuid).toBe("demo-line-earned");
-    expect(result.products).toHaveLength(20);
+    expect(result.products).toHaveLength(26);
     expect(result.products[0]).toMatchObject({
       sku: "ILCE-7RM5",
       modelName: "Alpha 7R V",
@@ -22,6 +22,8 @@ describe("getMockSonyCustomerProducts", () => {
     });
     expect(result.products.some((product) => product.sku === "SHARED-TIER-01")).toBe(true);
     expect(result.products.some((product) => product.sku === "GM-SKU-10")).toBe(true);
+    expect(result.products.some((product) => product.sku === "SEL2070G")).toBe(true);
+    expect(result.products.some((product) => product.sku === "SEL50150GM")).toBe(true);
   });
 
   it("returns a locked scenario for a demo customer with one product", async () => {

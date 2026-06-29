@@ -58,6 +58,7 @@ Debug preview:
 Client rule setup guide:
 
 - Open `docs/badge-rules-setup.html` to review how badge rules, conditions, Sony product JSON, and aggregation progress are configured.
+- Open `docs/client-badge-rule-confirmation.html` to review the client Excel rule interpretation that should be confirmed with Sony before production setup.
 
 Badge result API:
 

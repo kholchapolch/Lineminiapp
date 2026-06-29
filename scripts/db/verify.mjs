@@ -1,9 +1,9 @@
 import { withConnection } from "./mysql-connection.mjs";
 
 const expected = {
-  badge_rules: 12,
-  badge_rule_thresholds: 18,
-  badge_rule_conditions: 13,
+  badge_rules: 13,
+  badge_rule_thresholds: 19,
+  badge_rule_conditions: 15,
 };
 
 await withConnection(async (pool) => {

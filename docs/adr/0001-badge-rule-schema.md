@@ -43,7 +43,7 @@ If `locked_image_url` is null, the app uses `achieved_image_url` and dims it in 
 
 The schema keeps tier badges clean without duplicating badge metadata.
 
-The condition table can still support composed rules by adding multiple condition rows under the same badge rule. For example, Travel Master can use one `any` condition for wide lenses plus one `all` condition for the required travel set.
+The condition table can still support composed rules by adding multiple condition rows under the same badge rule. For example, Trinity Master can use three `any` conditions so each lens family accepts version alternatives while the badge still requires all three families.
 
 Limited-period campaign badges use `registration_start` and `registration_end` as the earning window for Sony product `registeredAt`. A user who registered a qualifying product inside that window can still see the achieved badge later. `active_from` and `active_to` are display controls only; keep `active_to` null unless the badge should disappear from the shelf.
 

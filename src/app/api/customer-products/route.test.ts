@@ -41,7 +41,7 @@ describe("GET /api/customer-products", () => {
       lineDisplayName: "Nicha",
       linePictureUrl: null,
     });
-    expect(payload.productCount).toBe(20);
+    expect(payload.productCount).toBe(26);
     expect(payload.products).toBeUndefined();
     expect(payload.badges[0]).toMatchObject({
       code: "ff-camera-owner",
@@ -133,7 +133,7 @@ describe("GET /api/customer-products", () => {
     const payload = await response.json();
 
     expect(response.status).toBe(200);
-    expect(payload.productCount).toBe(20);
+    expect(payload.productCount).toBe(26);
   });
 
   it("rejects production requests without a server-verified session", async () => {
@@ -160,7 +160,7 @@ describe("GET /api/customer-products", () => {
     expect(response.status).toBe(200);
     expect(payload.debugTrace.dbRules.badgeShelfSetup.length).toBeGreaterThan(0);
     expect(payload.debugTrace.dbRules.rules).toBeUndefined();
-    expect(payload.debugTrace.sonyApiMock.products).toHaveLength(20);
+    expect(payload.debugTrace.sonyApiMock.products).toHaveLength(26);
     expect(payload.debugTrace.aggregationResult.badgeShelf.length).toBeGreaterThanOrEqual(9);
     expect(serialized).not.toContain("demo-line-earned");
     expect(serialized).not.toContain("demo-earned");

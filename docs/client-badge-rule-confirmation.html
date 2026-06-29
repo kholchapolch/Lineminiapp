@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sony Badge Rule Confirmation</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182230;
+        --muted: #667085;
+        --line: #d0d5dd;
+        --panel: #ffffff;
+        --soft: #f8fafc;
+        --accent: #155eef;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f3f6fa;
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 32px));
+        margin: 32px auto;
+      }
+
+      header,
+      section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 18px;
+      }
+
+      h1,
+      h2 {
+        margin: 0 0 12px;
+        line-height: 1.2;
+      }
+
+      h1 {
+        font-size: clamp(28px, 4vw, 44px);
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      .meta,
+      .note {
+        color: var(--muted);
+      }
+
+      .pillRow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .pill {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--soft);
+        padding: 6px 10px;
+        font-size: 13px;
+        color: #344054;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 980px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef4ff;
+        color: #172554;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+
+      td {
+        font-size: 14px;
+      }
+
+      code {
+        background: #eef2f6;
+        border-radius: 4px;
+        padding: 2px 5px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      li + li {
+        margin-top: 8px;
+      }
+
+      .confirmBox {
+        border-left: 4px solid var(--accent);
+        background: #eff6ff;
+        padding: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="meta">Client confirmation draft</p>
+        <h1>Sony Digital Badge Rule Understanding</h1>
+        <p>
+          เอกสารนี้สรุปความเข้าใจของทีมต่อข้อมูล Badge rules จาก Excel ของลูกค้า
+          เพื่อใช้ยืนยัน logic ก่อนนำไปตั้งค่าในฐานข้อมูลและทดสอบกับ Sony API จริง
+        </p>
+        <div class="pillRow">
+          <span class="pill">Quest Badge rules</span>
+          <span class="pill">Case-insensitive SKU matching</span>
+          <span class="pill">Database-configured rules</span>
+          <span class="pill">No schema change required</span>
+        </div>
+      </header>
+
+      <section>
+        <h2>Summary For Confirmation</h2>
+        <div class="confirmBox">
+          <ul>
+            <li>ถ้า Excel ระบุแค่รายชื่อ SKU โดยไม่มีเงื่อนไขอื่น ทีมจะตีความว่า “มีสินค้าใดสินค้าหนึ่งใน list ก็ได้รับ Badge”</li>
+            <li>ระบบจะ match SKU แบบไม่สนตัวพิมพ์เล็ก/ใหญ่ แต่จะเก็บข้อความ SKU ตามที่ลูกค้าส่งมาเพื่อให้อ่านเทียบกับ Excel ได้ง่าย</li>
+            <li>Trinity Master จะต้องมีสินค้าอย่างน้อย 1 ชิ้นจากแต่ละกลุ่ม: 16-35 GM, 24-70 GM, และ 70-200 GM</li>
+            <li>All Rounder จะต้องมีสินค้า 3 รุ่นจากทั้งหมด 4 รุ่นที่ระบุ ไม่จำเป็นต้องครบทั้ง 4 รุ่น</li>
+            <li>ถ้า SKU จาก Sony API จริงไม่ตรงกับ Excel ต้องยืนยันว่าจะใช้ SKU จาก API เป็น source of truth หรือเพิ่ม mapping ภายหลัง</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>Badge Rule Table</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Excel Badge</th>
+                <th>Display Name</th>
+                <th>Plain-language Condition</th>
+                <th>Technical Logic</th>
+                <th>SKU / Group Setup</th>
+                <th>Need Client Confirm?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Portrait Master</td>
+                <td>Portrait Master</td>
+                <td>มีเลนส์ Portrait Master รุ่นใดรุ่นหนึ่ง</td>
+                <td><code>any</code>, required 1</td>
+                <td>SEL35F14GM, SEL50F14GM, SEL50F12GM, SEL85F14GM, SEL85F14GM2, SEL135F18GM</td>
+                <td>Confirm “any 1” interpretation</td>
+              </tr>
+              <tr>
+                <td>Wide Architect</td>
+                <td>Wide Architect</td>
+                <td>มีเลนส์ Wide Architect รุ่นใดรุ่นหนึ่ง</td>
+                <td><code>any</code>, required 1</td>
+                <td>SEL1224GM, SEL14F18GM, SEL16F18G, SEL20F18G, SEL1625G, SEL1635GM, SEL1635GM2, SEL1635Z, SEL2470GM, SEL2470GM2, SEL2450G, SELC1635G, SEL1655G, SEL2070G, SEL24105G, SEL2470Z, SEL24F14GM, SEL24F28G, SEL2870GM, SEL35F14GM, SEL35F18F, SELP1635G, SELP18110G, SELP28135G</td>
+                <td>Confirm full SKU list and “any 1” interpretation</td>
+              </tr>
+              <tr>
+                <td>Sharp Shooter / The Visionary</td>
+                <td>The Visionary</td>
+                <td>มีเลนส์ Tele/Wildlife รุ่นใดรุ่นหนึ่ง</td>
+                <td><code>any</code>, required 1</td>
+                <td>SEL100400GM, SEL400800G, SEL200600G, SEL300F28GM, SEL400F28GM, SEL600F40GM</td>
+                <td>Confirm display name and “any 1” interpretation</td>
+              </tr>
+              <tr>
+                <td>Trinity Master</td>
+                <td>Trinity Master</td>
+                <td>ต้องมีครบ 3 กลุ่ม โดยเลือกได้หนึ่งรุ่นจากแต่ละ family</td>
+                <td>3 conditions, each <code>any</code> required 1; badge threshold required 3</td>
+                <td>16-35 GM: SEL1635GM/SEL1635GM2; 24-70 GM: SEL2470GM/SEL2470GM2; 70-200 GM: SEL70200GM/SEL70200GM2</td>
+                <td>Confirm version-family grouping</td>
+              </tr>
+              <tr>
+                <td>Trinity Junior / Trinity Active</td>
+                <td>Trinity Active</td>
+                <td>ต้องมีครบทั้ง 3 รุ่นที่ระบุ</td>
+                <td><code>all</code>, required 3</td>
+                <td>SEL2450G, SEL1625G, SEL70200G2</td>
+                <td>Confirm final display name</td>
+              </tr>
+              <tr>
+                <td>All Rounder</td>
+                <td>All Rounder</td>
+                <td>มี 3 รุ่นจาก 4 รุ่นที่ระบุ</td>
+                <td><code>min_count</code>, required 3</td>
+                <td>SEL2070G, SELP1635G, SEL1635Z, SEL70200G</td>
+                <td>Confirm “3 of 4” interpretation</td>
+              </tr>
+              <tr>
+                <td>F2 Mighty / F2 Master</td>
+                <td>F2 Master</td>
+                <td>ต้องมีครบทั้ง 2 รุ่นที่ระบุ</td>
+                <td><code>all</code>, required 2</td>
+                <td>SEL2870GM, SEL50150GM</td>
+                <td>Confirm final display name and SKU spelling</td>
+              </tr>
+              <tr>
+                <td>The Magnifier</td>
+                <td>The Magnifier</td>
+                <td>มี Macro lens รุ่นใดรุ่นหนึ่ง</td>
+                <td><code>any</code>, required 1</td>
+                <td>SEL100M28GM, SEL90M28G</td>
+                <td>Confirm “any 1” interpretation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Implementation Note</h2>
+        <p>
+          Rules above will be stored in database tables, not hard-coded in the calculation logic.
+          The application calculates Badge achievement from Sony API owned-product JSON by matching SKU lists in
+          <code>badge_rule_conditions</code> and progress thresholds in <code>badge_rule_thresholds</code>.
+        </p>
+        <p class="note">
+          ก่อน production ควรยืนยันตัวอย่าง response จาก Sony API จริงว่า field ที่ใช้เป็น SKU ตรงกับรหัสใน Excel
+          หรือจำเป็นต้องทำ alias/mapping เพิ่ม
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

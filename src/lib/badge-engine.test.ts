@@ -48,6 +48,47 @@ const rules: BadgeRuleConfig[] = [
   },
 ];
 
+function questRule(
+  code: string,
+  conditions: NonNullable<BadgeRuleConfig["conditions"]>,
+  requiredCount: number,
+): BadgeRuleConfig {
+  return {
+    id: 100,
+    code,
+    name: code,
+    ruleType: "achievement",
+    badgeType: "quest",
+    description: null,
+    sortOrder: 100,
+    isActive: true,
+    activeFrom: null,
+    activeTo: null,
+    registrationStart: null,
+    registrationEnd: null,
+    skus: [],
+    thresholds: [
+      {
+        level: "achievement",
+        requiredCount,
+        achievedImageUrl: `${code}.png`,
+        lockedImageUrl: "locked.png",
+        displayName: code,
+      },
+    ],
+    conditions,
+  };
+}
+
+function product(sku: string): SonyOwnedProduct {
+  return {
+    sku,
+    modelName: sku,
+    serialNumber: `SN-${sku}`,
+    registeredAt: "2026-05-20",
+  };
+}
+
 describe("calculateBadges", () => {
   it("dedupes owned SKUs and awards the highest eligible tier", () => {
     const result = calculateBadges({ products, rules, now: new Date("2026-06-01") });
@@ -188,8 +229,8 @@ describe("calculateBadges", () => {
       rules: [
         {
           id: 3,
-          code: "trinity-master-gm",
-          name: "Trinity Master GM",
+          code: "all-required-demo",
+          name: "All Required Demo",
           ruleType: "achievement",
           badgeType: "quest",
           description: "Own the GM trinity lens set.",
@@ -215,8 +256,8 @@ describe("calculateBadges", () => {
         },
         {
           id: 4,
-          code: "premium-master",
-          name: "Premium Master",
+          code: "min-count-demo",
+          name: "Min Count Demo",
           ruleType: "achievement",
           badgeType: "quest",
           description: "Own two supported lenses.",
@@ -244,8 +285,8 @@ describe("calculateBadges", () => {
     });
 
     expect(result).toMatchObject([
-      { code: "trinity-master-gm", status: "earned", matchedCount: 3 },
-      { code: "premium-master", status: "earned", matchedCount: 2 },
+      { code: "all-required-demo", status: "earned", matchedCount: 3 },
+      { code: "min-count-demo", status: "earned", matchedCount: 2 },
     ]);
   });
 
@@ -256,8 +297,8 @@ describe("calculateBadges", () => {
       rules: [
         {
           id: 5,
-          code: "travel-master",
-          name: "Travel Master",
+          code: "mixed-condition-demo",
+          name: "Mixed Condition Demo",
           ruleType: "achievement",
           badgeType: "quest",
           description: "Own one wide lens and a travel set.",
@@ -292,10 +333,143 @@ describe("calculateBadges", () => {
     });
 
     expect(result).toMatchObject({
-      code: "travel-master",
+      code: "mixed-condition-demo",
       status: "earned",
       matchedCount: 3,
       requiredCount: 3,
     });
+  });
+
+  it("supports client Excel any-1 quest badges with case-insensitive SKU matching", () => {
+    const [result] = calculateBadges({
+      products: [product(" sel85f14gm2 ")],
+      now: new Date("2026-06-01"),
+      rules: [
+        questRule(
+          "portrait-master",
+          [
+            {
+              id: 1,
+              label: "Own any one Portrait Master lens",
+              matchType: "any",
+              requiredCount: 1,
+              sonySkus: ["SEL35F14GM", "SEL50F14GM", "SEL85F14GM2"],
+            },
+          ],
+          1,
+        ),
+      ],
+    });
+
+    expect(result).toMatchObject({
+      code: "portrait-master",
+      status: "earned",
+      matchedCount: 1,
+      requiredCount: 1,
+    });
+  });
+
+  it("supports Trinity Master grouped version alternatives", () => {
+    const rule = questRule(
+      "trinity-master",
+      [
+        {
+          id: 1,
+          label: "Own one 16-35 GM family lens",
+          matchType: "any",
+          requiredCount: 1,
+          sonySkus: ["SEL1635GM", "SEL1635GM2"],
+        },
+        {
+          id: 2,
+          label: "Own one 24-70 GM family lens",
+          matchType: "any",
+          requiredCount: 1,
+          sonySkus: ["SEL2470GM", "SEL2470GM2"],
+        },
+        {
+          id: 3,
+          label: "Own one 70-200 GM family lens",
+          matchType: "any",
+          requiredCount: 1,
+          sonySkus: ["SEL70200GM", "SEL70200GM2"],
+        },
+      ],
+      3,
+    );
+
+    const [earned] = calculateBadges({
+      products: [product("SEL1635GM"), product("SEL2470GM2"), product("SEL70200GM")],
+      now: new Date("2026-06-01"),
+      rules: [rule],
+    });
+    const [missingFamily] = calculateBadges({
+      products: [product("SEL1635GM"), product("SEL2470GM2")],
+      now: new Date("2026-06-01"),
+      rules: [rule],
+    });
+
+    expect(earned).toMatchObject({ status: "earned", matchedCount: 3, requiredCount: 3 });
+    expect(missingFamily).toMatchObject({ status: "locked", matchedCount: 2, requiredCount: 3 });
+  });
+
+  it("supports All Rounder as any three of four listed SKUs", () => {
+    const rule = questRule(
+      "all-rounder",
+      [
+        {
+          id: 1,
+          label: "Own any three All Rounder lenses",
+          matchType: "min_count",
+          requiredCount: 3,
+          sonySkus: ["SEL2070G", "SELP1635G", "SEL1635Z", "SEL70200G"],
+        },
+      ],
+      3,
+    );
+
+    const [earned] = calculateBadges({
+      products: [product("SEL2070G"), product("SELP1635G"), product("SEL70200G")],
+      now: new Date("2026-06-01"),
+      rules: [rule],
+    });
+    const [locked] = calculateBadges({
+      products: [product("SEL2070G"), product("SELP1635G")],
+      now: new Date("2026-06-01"),
+      rules: [rule],
+    });
+
+    expect(earned).toMatchObject({ status: "earned", matchedCount: 3, requiredCount: 3 });
+    expect(locked).toMatchObject({ status: "locked", matchedCount: 2, requiredCount: 3 });
+  });
+
+  it("supports client Excel all-required quest badges", () => {
+    const rule = questRule(
+      "f2-master",
+      [
+        {
+          id: 1,
+          label: "Own both F2 Master lenses",
+          matchType: "all",
+          requiredCount: 2,
+          sonySkus: ["SEL2870GM", "SEL50150GM"],
+        },
+      ],
+      2,
+    );
+
+    const [earned] = calculateBadges({
+      products: [product("SEL2870GM"), product("SEL50150GM")],
+      now: new Date("2026-06-01"),
+      rules: [rule],
+    });
+    const [locked] = calculateBadges({
+      products: [product("SEL2870GM")],
+      now: new Date("2026-06-01"),
+      rules: [rule],
+    });
+
+    expect(earned).toMatchObject({ status: "earned", matchedCount: 2, requiredCount: 2 });
+    expect(locked).toMatchObject({ status: "locked", matchedCount: 1, requiredCount: 2 });
   });
 });
