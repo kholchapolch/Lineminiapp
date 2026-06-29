@@ -59,6 +59,7 @@ Client rule setup guide:
 
 - Open `docs/badge-rules-setup.html` to review how badge rules, conditions, Sony product JSON, and aggregation progress are configured.
 - Open `docs/client-badge-rule-confirmation.html` to review the client Excel rule interpretation that should be confirmed with Sony before production setup.
+- Open `docs/mock-data-and-live-usage.html` to review all mock `lineuuid` values, mock SKUs, debug mode behavior, and live Sony API usage.
 
 Badge result API:
 
@@ -73,7 +74,8 @@ The `/entry` route validates the request source with `Origin` and/or `Referer`
 against `ALLOWED_ORIGINS` and `ALLOWED_REFERRERS`. In staging/production the
 server must resolve the user from a signed LINE session cookie created after
 server-side LINE ID token verification. Query-string `lineuuid` is local-demo
-only.
+only and must not be trusted in production because users can edit URL
+parameters.
 
 ## App Configuration
 
