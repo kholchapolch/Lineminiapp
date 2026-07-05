@@ -77,6 +77,11 @@ server-side LINE ID token verification. Query-string `lineuuid` is local-demo
 only and must not be trusted in production because users can edit URL
 parameters.
 
+If a user opens `/badge` directly without a valid session, the badge page tries
+to initialize LIFF, submit `liff.getIDToken()` to `/api/line-session`, and retry
+badge loading automatically. If the page is not running inside LINE, it shows a
+LINE session error instead of trusting a URL `lineuuid`.
+
 ## App Configuration
 
 Required server-side settings:
@@ -219,9 +224,12 @@ NEXT_PUBLIC_LIFF_ID=<liff-id>
 
 The LIFF endpoint must be HTTPS in staging/production.
 
-When LIFF runs inside LINE, the client reads `liff.getProfile().userId` and
-passes it to `/entry?lineuuid=...`. The server entry route keeps redirect
-validation server-side before sending the user to the badge display route.
+When LIFF runs inside LINE, the client uses `liff.getIDToken()` and sends that
+token to `/api/line-session`. The server verifies the ID token with LINE and
+stores the LINE user ID in a signed, HTTP-only session cookie. `/entry` keeps
+redirect validation server-side before sending the user to the badge display
+route, and `/badge` can also create the same session automatically if it detects
+that the session is missing.
 
 ## Verification Before Closing Issues
 

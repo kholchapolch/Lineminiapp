@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { LiffStatus } from "@/components/LiffStatus";
 import { getBadgeArtPresentation } from "@/lib/badge-art";
+import { createLineSessionFromCurrentLiff } from "@/lib/liff-session";
 import type {
   BadgeApiPayload,
   BadgeCacheMetadata,
@@ -196,8 +197,10 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
 
     let active = true;
 
-    async function loadBadgeData() {
-      const cacheEntry = debugRequested ? null : readBadgeCache();
+    async function fetchBadgePayload(cacheEntry: BadgeCacheEntry | null): Promise<{
+      response: Response;
+      payload: BadgeApiPayload | { code: string; message: string };
+    }> {
       const searchParams = new URLSearchParams();
 
       if (lineuuid) {
@@ -216,12 +219,26 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
         headers.set("x-badge-cache-rules-version", cacheEntry.cache.rulesVersion);
       }
 
+      const response = await fetch(`/api/customer-products?${searchParams.toString()}`, {
+        headers,
+        cache: "no-store",
+      });
+      const payload = (await response.json()) as BadgeApiPayload | { code: string; message: string };
+
+      return { response, payload };
+    }
+
+    async function loadBadgeData() {
+      const cacheEntry = debugRequested ? null : readBadgeCache();
+
       try {
-        const response = await fetch(`/api/customer-products?${searchParams.toString()}`, {
-          headers,
-          cache: "no-store",
-        });
-        const payload = (await response.json()) as BadgeApiPayload | { code: string; message: string };
+        let { response, payload } = await fetchBadgePayload(cacheEntry);
+
+        if (response.status === 401) {
+          window.localStorage.removeItem(BADGE_CACHE_KEY);
+          await createLineSessionFromCurrentLiff();
+          ({ response, payload } = await fetchBadgePayload(null));
+        }
 
         if (!response.ok) {
           throw new Error("message" in payload ? payload.message : "Badge data unavailable.");

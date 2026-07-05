@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createLineSessionFromCurrentLiff, getCurrentLiffClient } from "@/lib/liff-session";
 
 type LiffState =
   | { status: "loading"; message: string }
@@ -26,7 +27,6 @@ export function LiffStatus(): JSX.Element {
       return;
     }
 
-    const configuredLiffId = liffId;
     let active = true;
 
     setState({
@@ -36,15 +36,14 @@ export function LiffStatus(): JSX.Element {
 
     async function initLiff() {
       try {
-        const liff = (await import("@line/liff")).default;
-        await liff.init({ liffId: configuredLiffId });
+        const liff = await getCurrentLiffClient();
 
         if (!active) {
           return;
         }
 
         const isInClient = liff.isInClient();
-        const profile = isInClient ? await liff.getProfile() : undefined;
+        const profile = isInClient && liff.getProfile ? await liff.getProfile() : undefined;
 
         setState(
           isInClient
@@ -96,25 +95,7 @@ function LineSessionButton(): JSX.Element {
     setError(null);
 
     try {
-      const liff = (await import("@line/liff")).default;
-      const idToken = liff.getIDToken();
-
-      if (!idToken) {
-        throw new Error("Missing LINE ID token.");
-      }
-
-      const response = await fetch("/api/line-session", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ idToken }),
-      });
-
-      if (!response.ok) {
-        throw new Error("LINE session could not be verified.");
-      }
-
+      await createLineSessionFromCurrentLiff();
       window.location.assign("/entry");
     } catch {
       setError("LINE session could not be verified.");

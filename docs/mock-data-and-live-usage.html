@@ -354,7 +354,8 @@
         <div class="callout warning">
           <p>
             Production should resolve <code>lineId</code> from the signed LINE session created by the
-            <code>/entry</code> flow, not from <code>?lineuuid=...</code>.
+            <code>/entry</code> flow or by <code>/badge</code> automatic LIFF recovery, not from
+            <code>?lineuuid=...</code>.
           </p>
           <p>
             URL parameters can be edited by users. Accepting production LINE IDs from URL params
@@ -368,11 +369,15 @@
         <ol>
           <li>User opens the LIFF/LINE Mini App entry URL from an approved Sony source.</li>
           <li>The <code>/entry</code> route validates <code>Origin</code>/<code>Referer</code> against the configured allowlist.</li>
-          <li>LIFF obtains a LINE ID token from the LINE client.</li>
-          <li>The server verifies the LINE ID token with LINE and stores the LINE user ID in a signed session cookie.</li>
+          <li>LIFF obtains a LINE ID token from the LINE client and sends it to <code>/api/line-session</code>.</li>
+          <li>The server verifies the LINE ID token with LINE and stores the LINE user ID in a signed, HTTP-only session cookie.</li>
           <li>The badge page calls <code>/api/customer-products</code> without trusting a URL <code>lineuuid</code>.</li>
           <li>The server calls Sony APIM with the verified LINE user ID and calculates badges from DB rules.</li>
         </ol>
+        <p class="note">
+          If a user lands directly on <code>/badge</code> and the session is missing, the page attempts the same
+          LIFF ID-token session creation automatically, then retries badge loading once.
+        </p>
       </section>
     </main>
   </body>
