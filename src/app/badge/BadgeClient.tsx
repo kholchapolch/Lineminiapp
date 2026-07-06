@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { LiffStatus } from "@/components/LiffStatus";
 import { getBadgeArtPresentation } from "@/lib/badge-art";
-import { createLineSessionFromCurrentLiff } from "@/lib/liff-session";
+import { createLineSessionFromCurrentLiff, type LineProfile } from "@/lib/liff-session";
 import type {
   BadgeApiPayload,
   BadgeCacheMetadata,
@@ -189,6 +189,8 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
       : { status: "loading" },
   );
   const debugRequested = debug === "1";
+  const isDebugMockSample = debugRequested && Boolean(lineuuid);
+  const [lineProfile, setLineProfile] = useState<LineProfile | null>(null);
 
   useEffect(() => {
     if (entryError) {
@@ -203,7 +205,7 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
     }> {
       const searchParams = new URLSearchParams();
 
-      if (lineuuid) {
+      if (isDebugMockSample && lineuuid) {
         searchParams.set("lineuuid", lineuuid);
       }
 
@@ -232,11 +234,21 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
       const cacheEntry = debugRequested ? null : readBadgeCache();
 
       try {
+        if (!isDebugMockSample && process.env.NEXT_PUBLIC_LIFF_ID) {
+          const session = await createLineSessionFromCurrentLiff();
+          if (active && session.profile) {
+            setLineProfile(session.profile);
+          }
+        }
+
         let { response, payload } = await fetchBadgePayload(cacheEntry);
 
-        if (response.status === 401) {
+        if (response.status === 401 && process.env.NEXT_PUBLIC_LIFF_ID) {
           window.localStorage.removeItem(BADGE_CACHE_KEY);
-          await createLineSessionFromCurrentLiff();
+          const session = await createLineSessionFromCurrentLiff();
+          if (active && session.profile) {
+            setLineProfile(session.profile);
+          }
           ({ response, payload } = await fetchBadgePayload(null));
         }
 
@@ -289,10 +301,13 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
     return () => {
       active = false;
     };
-  }, [debugRequested, entryError, lineuuid]);
+  }, [debugRequested, entryError, isDebugMockSample, lineuuid]);
 
   const display = state.status === "ready" ? state.display : null;
   const debugEnabled = Boolean(display?.debugTrace);
+  const profileName = lineProfile?.displayName ?? display?.customer.lineDisplayName ?? display?.customer.displayName;
+  const profileSubtitle =
+    lineProfile?.displayName && display ? display.customer.displayName : display?.customer.displayName;
   const groupedShelf = useMemo(
     () => (display ? groupBadgeShelf(display.badgeShelf) : []),
     [display],
@@ -323,15 +338,19 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
       ) : (
         <>
           <section className="badgeProfilePanel">
-            <div className="badgeAvatar" aria-hidden="true">
-              {(display.customer.lineDisplayName ?? display.customer.displayName).slice(0, 1)}
-            </div>
+            {lineProfile?.pictureUrl ? (
+              <img className="badgeAvatar" src={lineProfile.pictureUrl} alt="" />
+            ) : (
+              <div className="badgeAvatar" aria-hidden="true">
+                {(profileName ?? "S").slice(0, 1)}
+              </div>
+            )}
             <div>
               <p className="badgeProfileLabel">Profile</p>
-              <h2>{display.customer.lineDisplayName ?? display.customer.displayName}</h2>
-              <p>{display.customer.displayName}</p>
+              <h2>{profileName}</h2>
+              <p>{profileSubtitle}</p>
               <p className="badgeProfileMeta">
-                LINE profile connected · cache {display.cacheStatus}
+                {lineProfile ? "LINE SDK profile connected" : "Sony profile connected"} · cache {display.cacheStatus}
               </p>
             </div>
           </section>

@@ -44,7 +44,7 @@ describe("LINE session authorization", () => {
     ).toBe("demo-line-earned");
   });
 
-  it("keeps local query lineuuid support for demo review", () => {
+  it("keeps local query lineuuid support only when demo mock mode is explicitly allowed", () => {
     const config = loadAppConfig({
       APP_ENV: "local",
       APP_BASE_URL: "http://localhost:3000",
@@ -56,7 +56,24 @@ describe("LINE session authorization", () => {
         config,
         headers: new Headers(),
         providedLineUuid: "demo-line-locked",
+        allowDemoLineUuid: true,
       }),
     ).toBe("demo-line-locked");
+  });
+
+  it("rejects local query lineuuid when demo mock mode is not explicitly allowed", () => {
+    const config = loadAppConfig({
+      APP_ENV: "local",
+      APP_BASE_URL: "http://localhost:3000",
+      SONY_PRODUCT_API_MODE: "mock",
+    });
+
+    expect(() =>
+      resolveAuthorizedLineUuid({
+        config,
+        headers: new Headers(),
+        providedLineUuid: "demo-line-locked",
+      }),
+    ).toThrow(UnauthorizedError);
   });
 });

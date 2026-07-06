@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { createLineSessionCookie } from "@/lib/auth-session";
+import { loadAppConfig } from "@/lib/app-config";
 import { GET } from "./route";
 
 vi.mock("server-only", () => ({}));
@@ -26,12 +28,17 @@ function stubProductionEnv() {
   vi.stubEnv("SONY_PRODUCT_API_MODE", "mock");
 }
 
+function localSessionHeaders(lineuuid = "demo-line-earned") {
+  const cookie = createLineSessionCookie({ config: loadAppConfig(), lineuuid });
+  return { cookie };
+}
+
 describe("GET /api/customer-products", () => {
-  it("returns calculated demo badge data for a known lineuuid", async () => {
+  it("returns calculated demo badge data for an explicit local debug mock lineuuid", async () => {
     stubLocalEnv();
 
     const response = await GET(
-      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned&debug=1"),
     );
     const payload = await response.json();
 
@@ -52,14 +59,16 @@ describe("GET /api/customer-products", () => {
     expect(payload.badges[0].serialNumber).toBeUndefined();
     expect(payload.badges[0].modelName).toBeUndefined();
     expect(payload.badges[0].registrationDate).toBeUndefined();
-    expect(payload.debugTrace).toBeUndefined();
+    expect(payload.debugTrace).toBeDefined();
   });
 
   it("returns cache metadata on a cache miss", async () => {
     stubLocalEnv();
 
     const response = await GET(
-      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+      new Request("http://localhost/api/customer-products", {
+        headers: localSessionHeaders(),
+      }),
     );
     const payload = await response.json();
 
@@ -77,12 +86,15 @@ describe("GET /api/customer-products", () => {
     stubLocalEnv();
 
     const missResponse = await GET(
-      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+      new Request("http://localhost/api/customer-products", {
+        headers: localSessionHeaders(),
+      }),
     );
     const missPayload = await missResponse.json();
     const hitResponse = await GET(
-      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned", {
+      new Request("http://localhost/api/customer-products", {
         headers: {
+          ...localSessionHeaders(),
           "x-badge-cache-customer-key": missPayload.cache.customerCacheKey,
           "x-badge-cache-sku-hash": missPayload.cache.skuHash,
           "x-badge-cache-rules-version": missPayload.cache.rulesVersion,
@@ -106,7 +118,7 @@ describe("GET /api/customer-products", () => {
     stubLocalEnv();
 
     const missResponse = await GET(
-      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned&debug=1"),
     );
     const missPayload = await missResponse.json();
     const debugResponse = await GET(
@@ -126,14 +138,26 @@ describe("GET /api/customer-products", () => {
     expect(debugPayload.badgeShelf.length).toBeGreaterThan(0);
   });
 
-  it("uses the local demo lineuuid when no lineuuid is provided locally", async () => {
+  it("rejects local requests without a LINE session instead of silently using a demo lineuuid", async () => {
     stubLocalEnv();
 
     const response = await GET(new Request("http://localhost/api/customer-products"));
     const payload = await response.json();
 
-    expect(response.status).toBe(200);
-    expect(payload.productCount).toBe(26);
+    expect(response.status).toBe(401);
+    expect(payload.code).toBe("UNAUTHORIZED");
+  });
+
+  it("rejects local lineuuid query params unless debug mock mode is explicit", async () => {
+    stubLocalEnv();
+
+    const response = await GET(
+      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(payload.code).toBe("UNAUTHORIZED");
   });
 
   it("rejects production requests without a server-verified session", async () => {
@@ -174,7 +198,9 @@ describe("GET /api/customer-products", () => {
     vi.stubEnv("NEXT_PUBLIC_DEBUG_MOCK_JSON", "true");
 
     const response = await GET(
-      new Request("http://localhost/api/customer-products?lineuuid=demo-line-earned"),
+      new Request("http://localhost/api/customer-products", {
+        headers: localSessionHeaders(),
+      }),
     );
     const payload = await response.json();
 

@@ -41,19 +41,22 @@ Open `http://localhost:3000`.
 
 Useful sample LINE UUIDs:
 
-- `http://localhost:3000/badge?lineuuid=demo-line-earned`
-- `http://localhost:3000/badge?lineuuid=demo-line-tier-bronze`
-- `http://localhost:3000/badge?lineuuid=demo-line-tier-silver`
-- `http://localhost:3000/badge?lineuuid=demo-line-tier-gold`
-- `http://localhost:3000/badge?lineuuid=demo-line-tier-body-silver-gm-gold`
-- `http://localhost:3000/badge?lineuuid=demo-line-sony-warranty-contract`
-- `http://localhost:3000/badge?lineuuid=demo-line-locked`
-- `http://localhost:3000/badge?lineuuid=demo-line-empty`
-- `http://localhost:3000/badge?lineuuid=demo-line-missing-data`
+Mock `lineuuid` query strings are accepted only for explicit local debug
+samples. Do not configure these URLs in LINE Developers.
+
+- `http://localhost:3000/badge?lineuuid=demo-line-earned&debug=1`
+- `http://localhost:3000/badge?lineuuid=demo-line-tier-bronze&debug=1`
+- `http://localhost:3000/badge?lineuuid=demo-line-tier-silver&debug=1`
+- `http://localhost:3000/badge?lineuuid=demo-line-tier-gold&debug=1`
+- `http://localhost:3000/badge?lineuuid=demo-line-tier-body-silver-gm-gold&debug=1`
+- `http://localhost:3000/badge?lineuuid=demo-line-sony-warranty-contract&debug=1`
+- `http://localhost:3000/badge?lineuuid=demo-line-locked&debug=1`
+- `http://localhost:3000/badge?lineuuid=demo-line-empty&debug=1`
+- `http://localhost:3000/badge?lineuuid=demo-line-missing-data&debug=1`
 
 Debug preview:
 
-- `http://localhost:3000/badge?lineuuid=demo-line-earned&debug=1` shows display-safe mock JSON in local/staging only. Production ignores debug mode.
+- `http://localhost:3000/badge?lineuuid=demo-line-earned&debug=1` shows display-safe mock JSON in local only. Production ignores debug mode.
 
 Client rule setup guide:
 
@@ -61,21 +64,19 @@ Client rule setup guide:
 - Open `docs/client-badge-rule-confirmation.html` to review the client Excel rule interpretation that should be confirmed with Sony before production setup.
 - Open `docs/mock-data-and-live-usage.html` to review all mock `lineuuid` values, mock SKUs, debug mode behavior, and live Sony API usage.
 
-Badge result API:
+Badge result API mock sample:
 
-- `http://localhost:3000/api/customer-products?lineuuid=demo-line-earned`
+- `http://localhost:3000/api/customer-products?lineuuid=demo-line-earned&debug=1`
 
-Local LIFF entry preview:
+LINE Mini App entry:
 
-- `http://localhost:3000/entry?lineuuid=demo-line-earned`
-- `http://localhost:3000/entry?lineuuid=demo-line-locked`
+- `http://localhost:3000/badge`
 
 The `/entry` route validates the request source with `Origin` and/or `Referer`
 against `ALLOWED_ORIGINS` and `ALLOWED_REFERRERS`. In staging/production the
 server must resolve the user from a signed LINE session cookie created after
-server-side LINE ID token verification. Query-string `lineuuid` is local-demo
-only and must not be trusted in production because users can edit URL
-parameters.
+server-side LINE ID token verification. Query-string `lineuuid` is accepted only
+for explicit local debug mock samples because users can edit URL parameters.
 
 If a user opens `/badge` directly without a valid session, the badge page tries
 to initialize LIFF, submit `liff.getIDToken()` to `/api/line-session`, and retry
@@ -103,7 +104,8 @@ Required server-side settings:
   `NEXT_PUBLIC_*`.
 - `SONY_PRODUCT_API_COUNTRY_CODE`: request country code for Sony APIM. Defaults
   to `th`.
-- `SONY_DEMO_LINE_UUID`: local fallback `lineuuid` for preview entry flow.
+- `SONY_DEMO_LINE_UUID`: sample mock customer identifier used by local tooling;
+  the runtime does not silently fall back to it when a LINE session is missing.
 
 Client-visible setting:
 
@@ -194,13 +196,14 @@ This pilot has no CMS/admin surface. The default setup path is code-based:
 
 - Edit `scripts/db/seed-data.mjs`.
 - Run `npm run db:reset` locally.
-- Review `/badge?lineuuid=...&debug=1`.
+- Review `/badge?lineuuid=...&debug=1` only as an explicit local debug mock.
 - Commit the seed change with the implementation.
 
 Operational rules:
 
 1. Run the seed in staging first, then verify the affected customer examples at
-   `/badge?lineuuid=...` and `/api/customer-products?lineuuid=...`.
+   `/badge` through LINE SDK/session flow. Use local debug mock URLs only for
+   sample data review.
 2. Keep `badge_code` stable because the display layer and analytics can depend
    on it.
 3. Prefer setting `is_active = false` over deleting a rule that has already been
@@ -214,7 +217,9 @@ Operational rules:
 
 ## LIFF Setup
 
-Local development works without a LIFF ID and shows local preview mode.
+Local mock samples work without a LIFF ID only when `lineuuid` and `debug=1`
+are both present. Normal LINE testing should set the LIFF ID and open `/badge`
+without URL identity parameters.
 
 For LINE testing, set:
 
@@ -230,6 +235,9 @@ stores the LINE user ID in a signed, HTTP-only session cookie. `/entry` keeps
 redirect validation server-side before sending the user to the badge display
 route, and `/badge` can also create the same session automatically if it detects
 that the session is missing.
+
+The LINE Developers endpoint URL should be `/badge`, not a URL containing
+`lineuuid` or `debug`.
 
 ## Verification Before Closing Issues
 

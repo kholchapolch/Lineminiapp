@@ -6,13 +6,7 @@ import { evaluateRedirectGuard } from "@/lib/redirect-guard";
 
 export const dynamic = "force-dynamic";
 
-type EntryPageProps = {
-  searchParams?: {
-    lineuuid?: string;
-  };
-};
-
-export default function EntryPage({ searchParams }: EntryPageProps): never {
+export default function EntryPage(): never {
   const config = loadAppConfig();
   const requestHeaders = headers();
   const guard = evaluateRedirectGuard(requestHeaders, config);
@@ -21,17 +15,14 @@ export default function EntryPage({ searchParams }: EntryPageProps): never {
     redirect(`/badge?entryError=${guard.reason}`);
   }
 
-  let lineuuid: string;
-
   try {
-    lineuuid = resolveAuthorizedLineUuid({
+    resolveAuthorizedLineUuid({
       config,
       headers: requestHeaders,
-      providedLineUuid: searchParams?.lineuuid,
     });
   } catch {
     redirect("/badge?entryError=missingLineSession");
   }
 
-  redirect(config.appEnv === "local" ? `/badge?lineuuid=${encodeURIComponent(lineuuid)}` : "/badge");
+  redirect("/badge");
 }

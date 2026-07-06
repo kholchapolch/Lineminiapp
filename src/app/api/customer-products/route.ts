@@ -15,14 +15,15 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   try {
     const config = loadAppConfig();
+    const includeDebugTrace = isDebugTraceEnabled({
+      appEnv: config.appEnv,
+      debugParam: searchParams.get("debug"),
+    });
     const lineuuid = resolveAuthorizedLineUuid({
       config,
       headers: request.headers,
       providedLineUuid: searchParams.get("lineuuid"),
-    });
-    const includeDebugTrace = isDebugTraceEnabled({
-      appEnv: config.appEnv,
-      debugParam: searchParams.get("debug"),
+      allowDemoLineUuid: includeDebugTrace && config.sonyProductApiMode === "mock",
     });
     const payload = await getBadgeResultForLineUuid(lineuuid, {
       config,

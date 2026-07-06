@@ -4,7 +4,17 @@ type LiffSessionClient = {
   init(input: { liffId: string }): Promise<void>;
   isInClient(): boolean;
   getIDToken(): string | null;
-  getProfile?(): Promise<{ userId?: string }>;
+  getProfile?(): Promise<LineProfile>;
+};
+
+export type LineProfile = {
+  userId?: string;
+  displayName?: string;
+  pictureUrl?: string;
+};
+
+export type LineSessionResult = {
+  profile?: LineProfile;
 };
 
 type CreateLineSessionInput = {
@@ -38,10 +48,10 @@ export async function getCurrentLiffClient(): Promise<LiffSessionClient> {
   return liffInitPromise;
 }
 
-export async function createLineSessionFromCurrentLiff(): Promise<void> {
+export async function createLineSessionFromCurrentLiff(): Promise<LineSessionResult> {
   const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
 
-  await createLineSessionFromLiff({
+  return createLineSessionFromLiff({
     liffId,
     liff: await getCurrentLiffClient(),
   });
@@ -51,7 +61,7 @@ export async function createLineSessionFromLiff({
   liffId,
   liff,
   fetchImpl = fetch,
-}: CreateLineSessionInput): Promise<void> {
+}: CreateLineSessionInput): Promise<LineSessionResult> {
   if (!liffId) {
     throw new Error("LINE LIFF is not configured.");
   }
@@ -66,6 +76,8 @@ export async function createLineSessionFromLiff({
     throw new Error("Missing LINE ID token.");
   }
 
+  const profile = liff.getProfile ? await liff.getProfile() : undefined;
+
   const response = await fetchImpl("/api/line-session", {
     method: "POST",
     headers: {
@@ -77,4 +89,6 @@ export async function createLineSessionFromLiff({
   if (!response.ok) {
     throw new Error("LINE session could not be verified.");
   }
+
+  return { profile };
 }

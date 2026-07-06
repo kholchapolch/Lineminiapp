@@ -33,12 +33,14 @@ export function resolveAuthorizedLineUuid({
   config,
   headers,
   providedLineUuid,
+  allowDemoLineUuid = false,
 }: {
   config: AppConfig;
   headers: Headers;
   providedLineUuid?: string | null;
+  allowDemoLineUuid?: boolean;
 }): string {
-  if (config.appEnv === "local" && providedLineUuid?.trim()) {
+  if (allowDemoLineUuid && config.appEnv === "local" && providedLineUuid?.trim()) {
     return providedLineUuid.trim();
   }
 
@@ -46,10 +48,6 @@ export function resolveAuthorizedLineUuid({
 
   if (session) {
     return session.lineuuid;
-  }
-
-  if (config.appEnv === "local") {
-    return config.sonyDemoLineUuid;
   }
 
   throw new UnauthorizedError();

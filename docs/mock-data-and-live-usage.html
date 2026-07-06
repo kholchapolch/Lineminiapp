@@ -332,13 +332,14 @@
       <section>
         <h2>Local Demo URLs</h2>
         <ul>
-          <li><code>/badge?lineuuid=demo-line-earned</code> normal mock UI</li>
-          <li><code>/badge?lineuuid=demo-line-earned&amp;debug=1</code> mock UI with debug panel</li>
-          <li><code>/api/customer-products?lineuuid=demo-line-earned&amp;debug=1</code> API payload with debug trace in local/staging</li>
+          <li><code>/badge?lineuuid=demo-line-earned&amp;debug=1</code> explicit local mock UI with debug panel</li>
+          <li><code>/api/customer-products?lineuuid=demo-line-earned&amp;debug=1</code> API payload with debug trace in local mode</li>
+          <li><code>/badge</code> LINE SDK/session flow for real Mini App testing</li>
         </ul>
         <p class="note">
-          If <code>lineuuid</code> is omitted in local mode, the app uses
-          <code>SONY_DEMO_LINE_UUID</code>, defaulting to <code>demo-line-earned</code>.
+          Local mock <code>lineuuid</code> values are accepted only when <code>debug=1</code> is present.
+          If <code>lineuuid</code> is omitted, the app must use the LINE SDK/session flow instead of
+          silently falling back to <code>SONY_DEMO_LINE_UUID</code>.
         </p>
       </section>
 
@@ -353,8 +354,8 @@
         </ul>
         <div class="callout warning">
           <p>
-            Production should resolve <code>lineId</code> from the signed LINE session created by the
-            <code>/entry</code> flow or by <code>/badge</code> automatic LIFF recovery, not from
+            Real usage should resolve <code>lineId</code> from the signed LINE session created by
+            <code>/badge</code> automatic LIFF recovery or the guarded <code>/entry</code> flow, not from
             <code>?lineuuid=...</code>.
           </p>
           <p>
@@ -367,7 +368,7 @@
       <section>
         <h2>Production Flow</h2>
         <ol>
-          <li>User opens the LIFF/LINE Mini App entry URL from an approved Sony source.</li>
+          <li>User opens the LIFF/LINE Mini App URL configured to the clean <code>/badge</code> endpoint.</li>
           <li>The <code>/entry</code> route validates <code>Origin</code>/<code>Referer</code> against the configured allowlist.</li>
           <li>LIFF obtains a LINE ID token from the LINE client and sends it to <code>/api/line-session</code>.</li>
           <li>The server verifies the LINE ID token with LINE and stores the LINE user ID in a signed, HTTP-only session cookie.</li>

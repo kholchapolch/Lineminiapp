@@ -4,14 +4,17 @@ import { createLineSessionFromLiff } from "@/lib/liff-session";
 function liffClient({
   inClient = true,
   idToken = "line-id-token",
+  profile = { userId: "line-user-001", displayName: "Real LINE User", pictureUrl: "https://example.com/line.png" },
 }: {
   inClient?: boolean;
   idToken?: string | null;
+  profile?: { userId?: string; displayName?: string; pictureUrl?: string };
 } = {}) {
   return {
     init: vi.fn(),
     isInClient: vi.fn(() => inClient),
     getIDToken: vi.fn(() => idToken),
+    getProfile: vi.fn(async () => profile),
   };
 }
 
@@ -19,7 +22,7 @@ describe("createLineSessionFromLiff", () => {
   it("posts the LINE ID token to create a server-verified session", async () => {
     const fetchImpl = vi.fn(async () => Response.json({ ok: true }));
 
-    await createLineSessionFromLiff({
+    const result = await createLineSessionFromLiff({
       liffId: "liff-id",
       liff: liffClient(),
       fetchImpl,
@@ -31,6 +34,11 @@ describe("createLineSessionFromLiff", () => {
         "content-type": "application/json",
       },
       body: JSON.stringify({ idToken: "line-id-token" }),
+    });
+    expect(result.profile).toEqual({
+      userId: "line-user-001",
+      displayName: "Real LINE User",
+      pictureUrl: "https://example.com/line.png",
     });
   });
 
