@@ -1,0 +1,156 @@
+name: Deploy Sony Badge to Azure App Service
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      run_migrations:
+        description: "Run MySQL schema migration before deploy"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: azure-app-service-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: ${{ vars.NODE_VERSION || '22.x' }}
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+  AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+  AZURE_SLOT_NAME: ${{ vars.AZURE_SLOT_NAME }}
+
+  APP_ENV: ${{ vars.APP_ENV || 'production' }}
+  APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+  ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS }}
+  ALLOWED_REFERRERS: ${{ vars.ALLOWED_REFERRERS }}
+  NEXT_PUBLIC_LIFF_ID: ${{ vars.NEXT_PUBLIC_LIFF_ID }}
+  LINE_CHANNEL_ID: ${{ vars.LINE_CHANNEL_ID }}
+  NEXT_PUBLIC_DEBUG_MOCK_JSON: ${{ vars.NEXT_PUBLIC_DEBUG_MOCK_JSON || 'false' }}
+
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  APP_SESSION_SECRET: ${{ secrets.APP_SESSION_SECRET }}
+  LOG_HASH_SECRET: ${{ secrets.LOG_HASH_SECRET }}
+
+  SONY_PRODUCT_API_MODE: ${{ vars.SONY_PRODUCT_API_MODE || 'live' }}
+  SONY_PRODUCT_API_BASE_URL: ${{ vars.SONY_PRODUCT_API_BASE_URL }}
+  SONY_PRODUCT_API_SUBSCRIPTION_KEY: ${{ secrets.SONY_PRODUCT_API_SUBSCRIPTION_KEY }}
+  SONY_PRODUCT_API_COUNTRY_CODE: ${{ vars.SONY_PRODUCT_API_COUNTRY_CODE || 'th' }}
+
+jobs:
+  build-test-deploy:
+    name: Build, test, and deploy
+    runs-on: ubuntu-latest
+    environment: ${{ vars.APP_ENV || 'production' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Configure Azure App Service settings
+        run: |
+          slot_args=()
+          if [ -n "$AZURE_SLOT_NAME" ]; then
+            slot_args+=(--slot "$AZURE_SLOT_NAME")
+          fi
+
+          az webapp config appsettings set \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_WEBAPP_NAME" \
+            "${slot_args[@]}" \
+            --settings \
+              NODE_ENV="production" \
+              SCM_DO_BUILD_DURING_DEPLOYMENT="true" \
+              APP_ENV="$APP_ENV" \
+              APP_BASE_URL="$APP_BASE_URL" \
+              ALLOWED_ORIGINS="$ALLOWED_ORIGINS" \
+              ALLOWED_REFERRERS="$ALLOWED_REFERRERS" \
+              NEXT_PUBLIC_LIFF_ID="$NEXT_PUBLIC_LIFF_ID" \
+              LINE_CHANNEL_ID="$LINE_CHANNEL_ID" \
+              NEXT_PUBLIC_DEBUG_MOCK_JSON="$NEXT_PUBLIC_DEBUG_MOCK_JSON" \
+              DATABASE_URL="$DATABASE_URL" \
+              APP_SESSION_SECRET="$APP_SESSION_SECRET" \
+              LOG_HASH_SECRET="$LOG_HASH_SECRET" \
+              SONY_PRODUCT_API_MODE="$SONY_PRODUCT_API_MODE" \
+              SONY_PRODUCT_API_BASE_URL="$SONY_PRODUCT_API_BASE_URL" \
+              SONY_PRODUCT_API_SUBSCRIPTION_KEY="$SONY_PRODUCT_API_SUBSCRIPTION_KEY" \
+              SONY_PRODUCT_API_COUNTRY_CODE="$SONY_PRODUCT_API_COUNTRY_CODE"
+
+          az webapp config set \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$AZURE_WEBAPP_NAME" \
+            "${slot_args[@]}" \
+            --startup-file "npm run start"
+
+      - name: Run database migration
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.run_migrations == 'true'
+        run: npm run db:migrate
+
+      - name: Prepare deployment package
+        run: |
+          mkdir -p deploy
+          rsync -a --delete ./ deploy/ \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='.next' \
+            --exclude='node_modules' \
+            --exclude='coverage' \
+            --exclude='docs' \
+            --exclude='deploy' \
+            --exclude='.DS_Store' \
+            --exclude='tsconfig.tsbuildinfo'
+
+      - name: Deploy to Azure App Service
+        if: env.AZURE_SLOT_NAME == ''
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: deploy
+
+      - name: Deploy to Azure App Service slot
+        if: env.AZURE_SLOT_NAME != ''
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          slot-name: ${{ env.AZURE_SLOT_NAME }}
+          package: deploy
+
+      - name: Azure logout
+        if: always()
+        run: az logout
