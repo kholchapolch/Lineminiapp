@@ -80,4 +80,30 @@ export const en: Messages = {
     viewAll: "View all",
     close: "Close",
   },
+  myProducts: {
+    meta: {
+      title: "My product badges",
+      description: "View all product badges earned from Sony product registration",
+    },
+    title: "My product badges",
+    description:
+      "Product badges are earned when you register eligible Sony products. Each badge reflects the lens or camera category you own.",
+    filterLabel: "Filter by product type",
+    backToMyBadges: "Back to my badges",
+    filters: {
+      all: "All",
+      "full-frame-camera": "Full Frame Camera",
+      "prime-lens": "Prime Lens",
+      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
+      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
+      "macro-lens": "Macro Lens",
+    },
+    categories: {
+      "full-frame-camera": "Full Frame Camera",
+      "prime-lens": "Prime Lens",
+      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
+      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
+      "macro-lens": "Macro Lens",
+    },
+  },
 };

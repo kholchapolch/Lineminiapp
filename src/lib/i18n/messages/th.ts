@@ -80,4 +80,30 @@ export const th: Messages = {
     viewAll: "ดูทั้งหมด",
     close: "ปิด",
   },
+  myProducts: {
+    meta: {
+      title: "เหรียญโปรดักต์ของฉัน",
+      description: "ดูเหรียญโปรดักต์ทั้งหมดที่คุณได้รับจากการลงทะเบียนสินค้า Sony",
+    },
+    title: "เหรียญโปรดักต์ของฉัน",
+    description:
+      "เหรียญโปรดักต์คือเหรียญที่ได้รับจากการลงทะเบียนสินค้า Sony ที่เข้าร่วมรายการ โดยแต่ละเหรียญจะแสดงตามประเภทของเลนส์หรือกล้องที่คุณเป็นเจ้าของ",
+    filterLabel: "กรองตามประเภทสินค้า",
+    backToMyBadges: "กลับหน้าหลัก",
+    filters: {
+      all: "ทั้งหมด",
+      "full-frame-camera": "Full Frame Camera",
+      "prime-lens": "Prime Lens",
+      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
+      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
+      "macro-lens": "Macro Lens",
+    },
+    categories: {
+      "full-frame-camera": "Full Frame Camera",
+      "prime-lens": "Prime Lens",
+      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
+      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
+      "macro-lens": "Macro Lens",
+    },
+  },
 };

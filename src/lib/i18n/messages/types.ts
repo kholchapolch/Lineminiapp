@@ -78,4 +78,29 @@ export type Messages = {
     viewAll: string;
     close: string;
   };
+  myProducts: {
+    meta: {
+      title: string;
+      description: string;
+    };
+    title: string;
+    description: string;
+    filterLabel: string;
+    backToMyBadges: string;
+    filters: {
+      all: string;
+      "full-frame-camera": string;
+      "prime-lens": string;
+      "wide-normal-zoom-lens": string;
+      "telephoto-super-telephoto-lens": string;
+      "macro-lens": string;
+    };
+    categories: {
+      "full-frame-camera": string;
+      "prime-lens": string;
+      "wide-normal-zoom-lens": string;
+      "telephoto-super-telephoto-lens": string;
+      "macro-lens": string;
+    };
+  };
 };

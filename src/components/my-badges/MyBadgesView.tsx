@@ -37,7 +37,7 @@ export function MyBadgesView({
         <BadgeCollectionSection
           title={messages.myBadges.myProductBadges}
           viewAllLabel={messages.myBadges.viewAll}
-          viewAllHref={localizedPath(locale, "badges")}
+          viewAllHref={localizedPath(locale, "my-products")}
           badges={productBadges}
         />
 
