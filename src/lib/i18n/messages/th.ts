@@ -62,4 +62,10 @@ export const th: Messages = {
     th: "ไทย",
     en: "English",
   },
+  bottomBar: {
+    ariaLabel: "เมนูหลัก",
+    home: "หน้าแรก",
+    register: "ลงทะเบียนสินค้า",
+    inquiry: "สอบถามข้อมูล",
+  },
 };

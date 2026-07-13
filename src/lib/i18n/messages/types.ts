@@ -60,4 +60,10 @@ export type Messages = {
     th: string;
     en: string;
   };
+  bottomBar: {
+    ariaLabel: string;
+    home: string;
+    register: string;
+    inquiry: string;
+  };
 };

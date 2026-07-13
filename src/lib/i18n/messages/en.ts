@@ -62,4 +62,10 @@ export const en: Messages = {
     th: "ไทย",
     en: "English",
   },
+  bottomBar: {
+    ariaLabel: "Main navigation",
+    home: "Home",
+    register: "Register product",
+    inquiry: "Contact us",
+  },
 };

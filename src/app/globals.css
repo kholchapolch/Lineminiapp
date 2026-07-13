@@ -11,6 +11,10 @@
   --sony-campaign: #d34006;
   --product-badge-bg: #2f2f2f;
   --product-badge-placeholder: #1f1f1f;
+  --bottom-bar-bg: #121212;
+  --bottom-bar-fg: #ffffff;
+  --bottom-bar-muted: #8f8f8f;
+  --bottom-bar-indicator: #6b6b6b;
 }
 
 * {
@@ -769,5 +773,70 @@ h2 {
   font-weight: 600;
   line-height: 1.35;
   text-align: center;
+}
+
+.bottomBar {
+  width: 100%;
+  padding: 10px 12px 0;
+  background: var(--bottom-bar-bg);
+  color: var(--bottom-bar-fg);
+}
+
+.bottomBar__items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.bottomBar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 56px;
+  padding: 6px 4px 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bottomBar__item.isActive .bottomBar__icon,
+.bottomBar__item.isActive .bottomBar__label {
+  color: var(--bottom-bar-fg);
+}
+
+.bottomBar__item:not(.isActive) .bottomBar__icon,
+.bottomBar__item:not(.isActive) .bottomBar__label {
+  color: var(--bottom-bar-fg);
+  opacity: 0.92;
+}
+
+.bottomBar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.bottomBar__label {
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.bottomBar__homeIndicator {
+  width: 134px;
+  height: 5px;
+  margin: 8px auto 6px;
+  border-radius: 999px;
+  background: var(--bottom-bar-indicator);
 }
 
