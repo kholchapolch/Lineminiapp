@@ -1,5 +1,6 @@
 .myProductsPage {
-  --my-products-bg: #121212;
+  --my-products-bg: var(--dark-page-bg-bottom);
+  --my-products-bg-gradient: var(--dark-page-bg-gradient);
   --my-products-text: #ffffff;
   --my-products-muted: #b0b0b0;
   --my-products-surface: #1f1f1f;
@@ -9,7 +10,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: var(--my-products-bg);
+  background: var(--my-products-bg-gradient);
   color: var(--my-products-text);
 }
 

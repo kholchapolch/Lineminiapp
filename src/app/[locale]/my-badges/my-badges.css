@@ -1,5 +1,6 @@
 .myBadgesPage {
-  --my-badges-bg: #121212;
+  --my-badges-bg: var(--dark-page-bg-bottom);
+  --my-badges-bg-gradient: var(--dark-page-bg-gradient);
   --my-badges-surface: #1c1c1c;
   --my-badges-text: #ffffff;
   --my-badges-muted: #9a9a9a;
@@ -9,7 +10,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: var(--my-badges-bg);
+  background: var(--my-badges-bg-gradient);
   color: var(--my-badges-text);
 }
 

@@ -23,6 +23,15 @@
   --bottom-bar-fg: #ffffff;
   --bottom-bar-muted: #8f8f8f;
   --bottom-bar-indicator: #6b6b6b;
+  --dark-page-bg-top: #323337;
+  --dark-page-bg-bottom: #161819;
+  --dark-page-bg-solid-height: 100px;
+  --dark-page-bg-gradient: linear-gradient(
+    180deg,
+    var(--dark-page-bg-top) 0,
+    var(--dark-page-bg-top) var(--dark-page-bg-solid-height),
+    var(--dark-page-bg-bottom) 100%
+  );
 }
 
 * {

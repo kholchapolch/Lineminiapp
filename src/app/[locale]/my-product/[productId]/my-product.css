@@ -1,11 +1,12 @@
 .myProductPage {
-  --my-product-bg: #121212;
+  --my-product-bg: var(--dark-page-bg-bottom);
+  --my-product-bg-gradient: var(--dark-page-bg-gradient);
   --my-product-text: #ffffff;
   --my-product-muted: #b0b0b0;
   --my-product-accent: #c4551d;
 
   min-height: 100dvh;
-  background: var(--my-product-bg);
+  background: var(--my-product-bg-gradient);
   color: var(--my-product-text);
 }
 
