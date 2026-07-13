@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createLineSessionFromCurrentLiff, getCurrentLiffClient } from "@/lib/liff-session";
+import {
+  createLineSessionFromCurrentLiff,
+  getCurrentLiffClient,
+} from "@/lib/liff-session";
+import type { Locale } from "@/lib/i18n/locales";
+import type { Messages } from "@/lib/i18n/messages/types";
+import { localizedPath } from "@/lib/i18n/paths";
 
 type LiffState =
   | { status: "loading"; message: string }
@@ -10,10 +16,15 @@ type LiffState =
   | { status: "unsupported"; message: string }
   | { status: "error"; message: string };
 
-export function LiffStatus(): JSX.Element {
+type LiffStatusProps = {
+  locale: Locale;
+  messages: Messages;
+};
+
+export function LiffStatus({ locale, messages }: LiffStatusProps): JSX.Element {
   const [state, setState] = useState<LiffState>({
     status: "loading",
-    message: "Checking LIFF session",
+    message: messages.liff.checkingSession,
   });
 
   useEffect(() => {
@@ -22,7 +33,7 @@ export function LiffStatus(): JSX.Element {
     if (!liffId) {
       setState({
         status: "mock",
-        message: "Local preview mode. Set NEXT_PUBLIC_LIFF_ID to test LINE LIFF.",
+        message: messages.liff.mockMode,
       });
       return;
     }
@@ -31,7 +42,7 @@ export function LiffStatus(): JSX.Element {
 
     setState({
       status: "loading",
-      message: "Initializing LIFF session",
+      message: messages.liff.initializing,
     });
 
     async function initLiff() {
@@ -43,20 +54,14 @@ export function LiffStatus(): JSX.Element {
         }
 
         const isInClient = liff.isInClient();
-        const profile = isInClient && liff.getProfile ? await liff.getProfile() : undefined;
+        const profile =
+          isInClient && liff.getProfile ? await liff.getProfile() : undefined;
 
-        setState(
-          isInClient
-            ? {
-                status: "ready",
-                message: "Running inside LINE",
-                lineUuid: profile?.userId,
-              }
-            : {
-                status: "unsupported",
-                message: "LIFF initialized outside LINE for preview only",
-              },
-        );
+        setState({
+          status: "ready",
+          message: messages.liff.runningInLine,
+          lineUuid: profile?.userId,
+        });
       } catch {
         if (!active) {
           return;
@@ -64,7 +69,7 @@ export function LiffStatus(): JSX.Element {
 
         setState({
           status: "error",
-          message: "LIFF could not initialize. Check LIFF ID and endpoint URL.",
+          message: messages.liff.initError,
         });
       }
     }
@@ -74,19 +79,25 @@ export function LiffStatus(): JSX.Element {
     return () => {
       active = false;
     };
-  }, []);
+  }, [messages.liff]);
 
   return (
     <div className={`liffStatus ${state.status}`} aria-live="polite">
       <p>{state.message}</p>
       {state.status === "ready" && state.lineUuid ? (
-        <LineSessionButton />
+        <LineSessionButton locale={locale} messages={messages} />
       ) : null}
     </div>
   );
 }
 
-function LineSessionButton(): JSX.Element {
+function LineSessionButton({
+  locale,
+  messages,
+}: {
+  locale: Locale;
+  messages: Messages;
+}): JSX.Element {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,17 +107,21 @@ function LineSessionButton(): JSX.Element {
 
     try {
       await createLineSessionFromCurrentLiff();
-      window.location.assign("/entry");
+      window.location.assign(localizedPath(locale, "entry"));
     } catch {
-      setError("LINE session could not be verified.");
+      setError(messages.liff.sessionError);
       setBusy(false);
     }
   }
 
   return (
     <>
-      <button type="button" onClick={() => void continueToBadge()} disabled={busy}>
-        {busy ? "Verifying" : "Continue"}
+      <button
+        type="button"
+        onClick={() => void continueToBadge()}
+        disabled={busy}
+      >
+        {busy ? messages.liff.verifying : messages.liff.continue}
       </button>
       {error ? <small>{error}</small> : null}
     </>
