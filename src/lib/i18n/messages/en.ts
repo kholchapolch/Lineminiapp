@@ -68,4 +68,16 @@ export const en: Messages = {
     register: "Register product",
     inquiry: "Contact us",
   },
+  myBadges: {
+    meta: {
+      title: "My Badges",
+      description: "View your product and mission badges",
+    },
+    productBadges: "Product badges",
+    missionBadges: "Mission badges",
+    myProductBadges: "My product badges",
+    myMissionBadges: "My mission badges",
+    viewAll: "View all",
+    close: "Close",
+  },
 };

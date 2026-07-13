@@ -66,4 +66,16 @@ export type Messages = {
     register: string;
     inquiry: string;
   };
+  myBadges: {
+    meta: {
+      title: string;
+      description: string;
+    };
+    productBadges: string;
+    missionBadges: string;
+    myProductBadges: string;
+    myMissionBadges: string;
+    viewAll: string;
+    close: string;
+  };
 };

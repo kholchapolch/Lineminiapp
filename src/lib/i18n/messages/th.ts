@@ -68,4 +68,16 @@ export const th: Messages = {
     register: "ลงทะเบียนสินค้า",
     inquiry: "สอบถามข้อมูล",
   },
+  myBadges: {
+    meta: {
+      title: "เหรียญตราของฉัน",
+      description: "ดูเหรียญโปรดักต์และเหรียญภารกิจของคุณ",
+    },
+    productBadges: "เหรียญโปรดักต์",
+    missionBadges: "เหรียญภารกิจ",
+    myProductBadges: "เหรียญโปรดักต์ของฉัน",
+    myMissionBadges: "เหรียญภารกิจของฉัน",
+    viewAll: "ดูทั้งหมด",
+    close: "ปิด",
+  },
 };
