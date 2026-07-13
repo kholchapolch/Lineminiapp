@@ -2,8 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { defaultLocale, isLocale } from "@/lib/i18n/locales";
 
 const LOCALE_HEADER = "x-locale";
+const MY_BADGES_PATH = "/my-badges";
 
-function withLocaleHeader(response: NextResponse, locale: string): NextResponse {
+function withLocaleHeader(
+  response: NextResponse,
+  locale: string,
+): NextResponse {
   response.headers.set(LOCALE_HEADER, locale);
   return response;
 }
@@ -19,12 +23,15 @@ export function middleware(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/") {
-    return redirectTo(request, `/${defaultLocale}/badges`);
+    return redirectTo(request, `/${defaultLocale}${MY_BADGES_PATH}`);
   }
 
-  if (pathname === "/badge" || pathname.startsWith("/badge/")) {
-    const suffix = pathname.slice("/badge".length);
-    const target = `/${defaultLocale}/badges${suffix === "/" ? "" : suffix}`;
+  if (
+    pathname === MY_BADGES_PATH ||
+    pathname.startsWith(`${MY_BADGES_PATH}/`)
+  ) {
+    const suffix = pathname.slice(MY_BADGES_PATH.length);
+    const target = `/${defaultLocale}${MY_BADGES_PATH}${suffix === "/" ? "" : suffix}`;
     return redirectTo(request, target);
   }
 
