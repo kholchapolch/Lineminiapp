@@ -22,6 +22,10 @@ export function localizedPath(
   return query ? `${path}?${query}` : path;
 }
 
+export function localizedProductPath(locale: Locale, productId: string): string {
+  return `/${locale}/my-product/${productId}`;
+}
+
 export function defaultBadgesPath(searchParams?: Record<string, string | undefined>): string {
   return localizedPath(defaultLocale, "badges", searchParams);
 }

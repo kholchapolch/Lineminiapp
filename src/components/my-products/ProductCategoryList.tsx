@@ -1,4 +1,7 @@
+import Link from "next/link";
 import { ProductBadgeCard } from "@/components/ProductBadgeCard";
+import type { Locale } from "@/lib/i18n/locales";
+import { localizedProductPath } from "@/lib/i18n/paths";
 import type { MyProductCategory } from "@/lib/my-products/types";
 
 export type ProductCategoryView = MyProductCategory & {
@@ -6,10 +9,14 @@ export type ProductCategoryView = MyProductCategory & {
 };
 
 type ProductCategoryListProps = {
+  locale: Locale;
   categories: ProductCategoryView[];
 };
 
-export function ProductCategoryList({ categories }: ProductCategoryListProps): JSX.Element {
+export function ProductCategoryList({
+  locale,
+  categories,
+}: ProductCategoryListProps): JSX.Element {
   if (categories.length === 0) {
     return <></>;
   }
@@ -24,12 +31,17 @@ export function ProductCategoryList({ categories }: ProductCategoryListProps): J
             style={{ gridTemplateColumns: `repeat(${category.columns}, minmax(0, 1fr))` }}
           >
             {category.items.map((item) => (
-              <ProductBadgeCard
+              <Link
                 key={item.id}
-                className="productBadgeCard--catalog"
-                title={item.title}
-                imageUrl={item.imageUrl}
-              />
+                className="productCategoryList__cardLink"
+                href={localizedProductPath(locale, item.id)}
+              >
+                <ProductBadgeCard
+                  className="productBadgeCard--catalog"
+                  title={item.title}
+                  imageUrl={item.imageUrl}
+                />
+              </Link>
             ))}
           </div>
         </section>

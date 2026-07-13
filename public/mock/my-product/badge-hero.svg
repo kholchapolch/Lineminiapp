@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420" fill="none">
+  <defs>
+    <linearGradient id="frame" x1="160" y1="24" x2="160" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f2f4f7"/>
+      <stop offset="0.45" stop-color="#b8bec7"/>
+      <stop offset="1" stop-color="#7d8794"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="160" y1="70" x2="160" y2="350" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3a4048"/>
+      <stop offset="1" stop-color="#1d2127"/>
+    </linearGradient>
+  </defs>
+  <path d="M48 58 78 34h164l30 24v304l-30 24H78L48 362V58Z" fill="url(#frame)" stroke="#eceff3" stroke-width="2"/>
+  <path d="M68 78h184v264H68V78Z" fill="url(#panel)"/>
+  <circle cx="160" cy="118" r="16" fill="#d4a017" stroke="#f6df9b" stroke-width="2"/>
+  <text x="160" y="124" fill="#1d2127" font-size="14" font-weight="700" text-anchor="middle">G</text>
+  <text x="160" y="156" fill="#d7dde5" font-size="12" font-weight="700" text-anchor="middle">SEL1224GM</text>
+  <ellipse cx="160" cy="220" rx="54" ry="36" fill="#8f98a3"/>
+  <ellipse cx="160" cy="220" rx="30" ry="20" fill="#d2d8df"/>
+  <path d="M92 286c18-18 118-18 136 0" stroke="#9aa3ad" stroke-width="3" stroke-linecap="round"/>
+  <text x="160" y="318" fill="#c7ccd3" font-size="11" font-weight="600" text-anchor="middle">FE 12-24mm F2.8 GM</text>
+  <text x="160" y="336" fill="#9aa3ad" font-size="10" font-weight="600" text-anchor="middle">G MASTER</text>
+</svg>

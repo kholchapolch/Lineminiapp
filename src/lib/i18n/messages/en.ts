@@ -106,4 +106,16 @@ export const en: Messages = {
       "macro-lens": "Macro Lens",
     },
   },
+  myProduct: {
+    meta: {
+      title: "Share product badge",
+      description: "View details and share your product badge",
+    },
+    shareTitle: "Share product badge",
+    receivedTitle: "Product badge received",
+    unlockedOn: "Unlocked on",
+    quantity: "Quantity",
+    share: "Share with friends",
+    backToMyBadges: "Back to my badges",
+  },
 };

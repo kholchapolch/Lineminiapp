@@ -61,7 +61,7 @@ export function MyProductsClient({
           onChange={(value) => setFilterId(value as ProductFilterId)}
         />
 
-        <ProductCategoryList categories={visibleCategories} />
+        <ProductCategoryList locale={locale} categories={visibleCategories} />
 
         <div className="myProductsPage__footer">
           <Link

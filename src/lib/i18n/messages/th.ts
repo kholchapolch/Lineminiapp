@@ -106,4 +106,16 @@ export const th: Messages = {
       "macro-lens": "Macro Lens",
     },
   },
+  myProduct: {
+    meta: {
+      title: "แชร์เหรียญโปรดักต์",
+      description: "ดูรายละเอียดและแชร์เหรียญโปรดักต์ของคุณ",
+    },
+    shareTitle: "แชร์เหรียญโปรดักต์",
+    receivedTitle: "เหรียญโปรดักต์ที่ได้รับ",
+    unlockedOn: "ปลดล็อคเมื่อ",
+    quantity: "จำนวนที่มี",
+    share: "แชร์ให้เพื่อน",
+    backToMyBadges: "กลับหน้าหลัก",
+  },
 };

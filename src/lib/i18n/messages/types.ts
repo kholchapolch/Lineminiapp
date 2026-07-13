@@ -103,4 +103,16 @@ export type Messages = {
       "macro-lens": string;
     };
   };
+  myProduct: {
+    meta: {
+      title: string;
+      description: string;
+    };
+    shareTitle: string;
+    receivedTitle: string;
+    unlockedOn: string;
+    quantity: string;
+    share: string;
+    backToMyBadges: string;
+  };
 };
