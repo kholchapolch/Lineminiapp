@@ -9,8 +9,16 @@
   --success: #10785f;
   --warning: #9a5b00;
   --sony-campaign: #d34006;
-  --product-badge-bg: #2f2f2f;
-  --product-badge-placeholder: #1f1f1f;
+  --product-badge-bg: #1a1a1a;
+  --product-badge-placeholder: #141414;
+  --product-badge-border-width: 1.5px;
+  --product-badge-border-gradient: linear-gradient(
+    180deg,
+    rgba(220, 228, 236, 0.95) 0%,
+    rgba(132, 140, 150, 0.5) 36%,
+    rgba(52, 56, 62, 0.24) 68%,
+    rgba(12, 14, 16, 0.08) 100%
+  );
   --bottom-bar-bg: #121212;
   --bottom-bar-fg: #ffffff;
   --bottom-bar-muted: #8f8f8f;
@@ -731,16 +739,39 @@ h2 {
 }
 
 .productBadgeCard {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: min(100%, 220px);
   overflow: hidden;
-  border-radius: 20px;
+  border-radius: 32px;
   background: var(--product-badge-bg);
   color: #d7d7d7;
+  box-shadow: 0 10px 24px rgb(0 0 0 / 28%);
+  isolation: isolate;
+}
+
+.productBadgeCard::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--product-badge-border-width);
+  background: var(--product-badge-border-gradient);
+  content: "";
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
 }
 
 .productBadgeCard__media {
+  position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
   min-height: 180px;
@@ -765,6 +796,8 @@ h2 {
 }
 
 .productBadgeCard__title {
+  position: relative;
+  z-index: 1;
   margin: 0;
   padding: 12px 14px 18px;
   color: #b8b8b8;

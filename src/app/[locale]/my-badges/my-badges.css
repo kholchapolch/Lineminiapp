@@ -165,8 +165,6 @@
 
 .myBadgesPage .productBadgeCard--collection {
   width: 100%;
-  border: 1px solid #3a3a3a;
-  background: linear-gradient(180deg, #343434 0%, #262626 100%);
 }
 
 .myBadgesPage .productBadgeCard--collection .productBadgeCard__title {
