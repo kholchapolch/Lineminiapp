@@ -26,10 +26,12 @@ export const mockMyBadgesByLocale: Record<Locale, Omit<MyBadgesData, "fetchedAt"
     productBadges: [
       { id: "sel70200gm", title: "SEL70200GM", imageUrl: PRODUCT_BADGE_LENS },
       { id: "sel1224gm", title: "SEL1224GM", imageUrl: PRODUCT_BADGE_WIDE },
+      { id: "sel2470gm", title: "SEL2470GM", imageUrl: PRODUCT_BADGE_LENS },
     ],
     missionBadges: [
       { id: "portrait-master", title: "Portrait Master", imageUrl: MISSION_PORTRAIT },
       { id: "wide-architect", title: "Wide Architect", imageUrl: MISSION_WIDE },
+      { id: "street-storyteller", title: "Street Storyteller", imageUrl: MISSION_PORTRAIT },
     ],
   },
   en: {
@@ -37,10 +39,12 @@ export const mockMyBadgesByLocale: Record<Locale, Omit<MyBadgesData, "fetchedAt"
     productBadges: [
       { id: "sel70200gm", title: "SEL70200GM", imageUrl: PRODUCT_BADGE_LENS },
       { id: "sel1224gm", title: "SEL1224GM", imageUrl: PRODUCT_BADGE_WIDE },
+      { id: "sel2470gm", title: "SEL2470GM", imageUrl: PRODUCT_BADGE_LENS },
     ],
     missionBadges: [
       { id: "portrait-master", title: "Portrait Master", imageUrl: MISSION_PORTRAIT },
       { id: "wide-architect", title: "Wide Architect", imageUrl: MISSION_WIDE },
+      { id: "street-storyteller", title: "Street Storyteller", imageUrl: MISSION_PORTRAIT },
     ],
   },
 };

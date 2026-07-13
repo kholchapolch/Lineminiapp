@@ -2,11 +2,14 @@ import Link from "next/link";
 import { ProductBadgeCard } from "@/components/ProductBadgeCard";
 import type { MyBadgeItem } from "@/lib/my-badges/types";
 
+export const MY_BADGES_SECTION_PREVIEW_LIMIT = 3;
+
 type BadgeCollectionSectionProps = {
   title: string;
   viewAllLabel: string;
   viewAllHref: string;
   badges: MyBadgeItem[];
+  previewLimit?: number;
 };
 
 export function BadgeCollectionSection({
@@ -14,7 +17,10 @@ export function BadgeCollectionSection({
   viewAllLabel,
   viewAllHref,
   badges,
+  previewLimit = MY_BADGES_SECTION_PREVIEW_LIMIT,
 }: BadgeCollectionSectionProps): JSX.Element {
+  const previewBadges = badges.slice(0, previewLimit);
+
   return (
     <section className="badgeCollectionSection">
       <div className="badgeCollectionSection__header">
@@ -24,7 +30,7 @@ export function BadgeCollectionSection({
         </Link>
       </div>
       <div className="badgeCollectionSection__grid">
-        {badges.map((badge) => (
+        {previewBadges.map((badge) => (
           <ProductBadgeCard
             key={badge.id}
             className="productBadgeCard--collection"
