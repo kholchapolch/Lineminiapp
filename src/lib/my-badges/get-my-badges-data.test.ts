@@ -6,8 +6,8 @@ describe("getMyBadgesData", () => {
     const data = await getMyBadgesData("th");
 
     expect(data.profile.displayName).toBe("Katty Robin");
-    expect(data.productBadges).toHaveLength(2);
-    expect(data.missionBadges).toHaveLength(2);
+    expect(data.productBadges).toHaveLength(3);
+    expect(data.missionBadges).toHaveLength(3);
     expect(data.fetchedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 

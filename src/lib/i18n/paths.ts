@@ -1,6 +1,6 @@
 import { defaultLocale, type Locale } from "@/lib/i18n/locales";
 
-export type LocalizedRoute = "badges" | "entry" | "my-badges" | "my-products";
+export type LocalizedRoute = "badges" | "entry" | "my-badges" | "my-products" | "my-missions";
 
 export function localizedPath(
   locale: Locale,

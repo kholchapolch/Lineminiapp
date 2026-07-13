@@ -115,4 +115,23 @@ export type Messages = {
     share: string;
     backToMyBadges: string;
   };
+  myMissions: {
+    meta: {
+      title: string;
+      description: string;
+    };
+    title: string;
+    description: string;
+    backToMyBadges: string;
+    sections: {
+      "portrait-master": {
+        title: string;
+        description: string;
+      };
+      "wide-architect": {
+        title: string;
+        description: string;
+      };
+    };
+  };
 };

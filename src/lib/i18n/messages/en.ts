@@ -118,4 +118,26 @@ export const en: Messages = {
     share: "Share with friends",
     backToMyBadges: "Back to my badges",
   },
+  myMissions: {
+    meta: {
+      title: "My mission badges",
+      description: "View mission badge progress and tier goals",
+    },
+    title: "My mission badges",
+    description:
+      "Mission badges are earned by completing category quests. Each mission has multiple tiers to unlock.",
+    backToMyBadges: "Back to my badges",
+    sections: {
+      "portrait-master": {
+        title: "Portrait Master",
+        description:
+          "Collect mission badges by registering portrait lenses that match each tier requirement.",
+      },
+      "wide-architect": {
+        title: "Wide Architect",
+        description:
+          "Collect mission badges by registering wide-angle lenses that match each tier requirement.",
+      },
+    },
+  },
 };
