@@ -1,5 +1,7 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import { MissionSection } from "@/components/my-missions/MissionSection";
+import { MissionSectionSpacer } from "@/components/my-missions/MissionSectionSpacer";
 import type { Locale } from "@/lib/i18n/locales";
 import type { Messages } from "@/lib/i18n/messages/types";
 import { localizedPath } from "@/lib/i18n/paths";
@@ -21,14 +23,23 @@ export function MyMissionsView({ locale, messages, data }: MyMissionsViewProps):
         </header>
 
         <div className="myMissionsPage__sections">
-          {data.sections.map((section) => (
-            <MissionSection
-              key={section.id}
-              section={section}
-              title={messages.myMissions.sections[section.id].title}
-              description={messages.myMissions.sections[section.id].description}
-            />
-          ))}
+          {data.sections.map((section, index) => {
+            const isFirst = index === 0;
+            const isLast = index === data.sections.length - 1;
+
+            return (
+              <Fragment key={section.id}>
+                {index > 0 ? <MissionSectionSpacer /> : null}
+                <MissionSection
+                  section={section}
+                  title={messages.myMissions.sections[section.id].title}
+                  description={messages.myMissions.sections[section.id].description}
+                  showTopEdge={isFirst}
+                  showBottomEdge={isLast}
+                />
+              </Fragment>
+            );
+          })}
         </div>
 
         <div className="myMissionsPage__footer">
