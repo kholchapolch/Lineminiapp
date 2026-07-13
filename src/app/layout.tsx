@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import { sukhumvitSet } from "@/lib/fonts";
 import { defaultLocale } from "@/lib/i18n/locales";
 
 export const metadata: Metadata = {
@@ -16,8 +17,8 @@ export default function RootLayout({
   const locale = headers().get("x-locale") ?? defaultLocale;
 
   return (
-    <html lang={locale}>
-      <body>{children}</body>
+    <html lang={locale} className={sukhumvitSet.variable}>
+      <body className={sukhumvitSet.className}>{children}</body>
     </html>
   );
 }

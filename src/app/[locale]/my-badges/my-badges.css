@@ -70,8 +70,8 @@
 }
 
 .myBadgesProfileCard__avatar {
-  width: 96px;
-  height: 96px;
+  width: 100px;
+  height: 100px;
   border: 3px solid #fff;
   border-radius: 50%;
   object-fit: cover;
@@ -116,7 +116,7 @@
 
 .myBadgesStats__value {
   margin: 0 0 4px;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   line-height: 1.1;
 }
@@ -147,13 +147,13 @@
 
 .badgeCollectionSection__header h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
 }
 
 .badgeCollectionSection__viewAll {
   color: var(--my-badges-muted);
-  font-size: 13px;
+  font-size: 14px;
   text-decoration: none;
 }
 
