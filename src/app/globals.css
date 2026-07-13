@@ -8,6 +8,9 @@
   --accent-strong: #16467e;
   --success: #10785f;
   --warning: #9a5b00;
+  --sony-campaign: #d34006;
+  --product-badge-bg: #2f2f2f;
+  --product-badge-placeholder: #1f1f1f;
 }
 
 * {
@@ -667,3 +670,104 @@ h2 {
     height: 50px;
   }
 }
+
+.sonyButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.sonyButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sonyButton--solid {
+  background: var(--sony-campaign);
+}
+
+.sonyButton--solid:hover:not(:disabled) {
+  background: #b83605;
+}
+
+.sonyButton--outline {
+  background: transparent;
+  border-color: var(--sony-campaign);
+}
+
+.sonyButton--outline:hover:not(:disabled) {
+  background: rgb(211 64 6 / 12%);
+}
+
+.sonyButton__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.sonyButton__label {
+  display: inline-block;
+}
+
+.productBadgeCard {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 220px);
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--product-badge-bg);
+  color: #d7d7d7;
+}
+
+.productBadgeCard__media {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  padding: 16px 16px 8px;
+}
+
+.productBadgeCard__image {
+  width: 100%;
+  max-height: 150px;
+  object-fit: contain;
+}
+
+.productBadgeCard__placeholder {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--product-badge-placeholder);
+}
+
+.productBadgeCard--empty .productBadgeCard__media {
+  min-height: 200px;
+}
+
+.productBadgeCard__title {
+  margin: 0;
+  padding: 12px 14px 18px;
+  color: #b8b8b8;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+}
+
