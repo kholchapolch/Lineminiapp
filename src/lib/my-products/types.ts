@@ -20,7 +20,6 @@ export type MyProductBadgeItem = {
 
 export type MyProductCategory = {
   id: ProductCategoryId;
-  columns: 2 | 3;
   items: MyProductBadgeItem[];
 };
 

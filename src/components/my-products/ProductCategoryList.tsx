@@ -26,10 +26,7 @@ export function ProductCategoryList({
       {categories.map((category) => (
         <section className="productCategoryList__section" key={category.id}>
           <h2 className="productCategoryList__title">{category.title}</h2>
-          <div
-            className="productCategoryList__grid"
-            style={{ gridTemplateColumns: `repeat(${category.columns}, minmax(0, 1fr))` }}
-          >
+          <div className="productCategoryList__grid">
             {category.items.map((item) => (
               <Link
                 key={item.id}

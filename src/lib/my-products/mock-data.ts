@@ -43,27 +43,22 @@ export const mockMyProductsCatalog: Omit<MyProductsData, "fetchedAt"> = {
   categories: [
     {
       id: "macro-lens",
-      columns: 2,
       items: withCategory(macroItems, "macro-lens"),
     },
     {
       id: "prime-lens",
-      columns: 3,
       items: withCategory(primeItems, "prime-lens"),
     },
     {
       id: "full-frame-camera",
-      columns: 2,
       items: withCategory(fullFrameItems, "full-frame-camera"),
     },
     {
       id: "wide-normal-zoom-lens",
-      columns: 2,
       items: withCategory(wideZoomItems, "wide-normal-zoom-lens"),
     },
     {
       id: "telephoto-super-telephoto-lens",
-      columns: 2,
       items: withCategory(telephotoItems, "telephoto-super-telephoto-lens"),
     },
   ],
