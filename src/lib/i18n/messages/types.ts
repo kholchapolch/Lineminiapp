@@ -134,4 +134,20 @@ export type Messages = {
       };
     };
   };
+  myMission: {
+    meta: {
+      title: string;
+      description: string;
+    };
+    receivedTitle: string;
+    unlockedOn: string;
+    share: string;
+    backToHome: string;
+    registerProduct: string;
+    ticketMissionTitle: string;
+    productCode: string;
+    completed: string;
+    details: string;
+    back: string;
+  };
 };

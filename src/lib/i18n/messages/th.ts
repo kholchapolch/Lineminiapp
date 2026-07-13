@@ -140,4 +140,20 @@ export const th: Messages = {
       },
     },
   },
+  myMission: {
+    meta: {
+      title: "เหรียญภารกิจ",
+      description: "ดูรายละเอียดและความคืบหน้าเหรียญภารกิจ",
+    },
+    receivedTitle: "เหรียญภารกิจที่ได้รับ",
+    unlockedOn: "ปลดล็อคเมื่อ",
+    share: "แชร์ให้เพื่อน",
+    backToHome: "กลับหน้าหลัก",
+    registerProduct: "ลงทะเบียนสินค้า",
+    ticketMissionTitle: "ภารกิจเก็บ Ticket ของคุณ",
+    productCode: "รหัสสินค้า",
+    completed: "สำเร็จ",
+    details: "รายละเอียด",
+    back: "ย้อนกลับ",
+  },
 };

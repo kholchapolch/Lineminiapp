@@ -31,6 +31,7 @@ export function MyMissionsView({ locale, messages, data }: MyMissionsViewProps):
               <Fragment key={section.id}>
                 {index > 0 ? <MissionSectionSpacer /> : null}
                 <MissionSection
+                  locale={locale}
                   section={section}
                   title={messages.myMissions.sections[section.id].title}
                   description={messages.myMissions.sections[section.id].description}

@@ -140,4 +140,20 @@ export const en: Messages = {
       },
     },
   },
+  myMission: {
+    meta: {
+      title: "Mission badge",
+      description: "View mission badge details and progress",
+    },
+    receivedTitle: "Mission badge received",
+    unlockedOn: "Unlocked on",
+    share: "Share with friends",
+    backToHome: "Back to home",
+    registerProduct: "Register product",
+    ticketMissionTitle: "Your ticket collection mission",
+    productCode: "Product code",
+    completed: "Completed",
+    details: "Details",
+    back: "Back",
+  },
 };

@@ -1,0 +1,231 @@
+.myMissionPage {
+  --my-mission-bg-gradient: var(--dark-page-bg-gradient);
+  --my-mission-text: #ffffff;
+  --my-mission-muted: #b0b0b0;
+  --my-mission-accent: #c4551d;
+  --my-mission-surface: #1f1f1f;
+  --my-mission-success: #4caf7d;
+
+  min-height: 100dvh;
+  background: var(--my-mission-bg-gradient);
+  color: var(--my-mission-text);
+}
+
+.myMissionPage__content {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+.myMissionPage__content--completed {
+  text-align: center;
+}
+
+.myMissionPage__header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.myMissionPage__header h1 {
+  margin: 0;
+  font-size: clamp(24px, 8vw, 28px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.myMissionPage__details {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.myMissionPage__details h1 {
+  margin: 0 0 14px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.myMissionPage__meta {
+  margin: 0;
+  color: var(--my-mission-accent);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.myMissionPage__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.myMissionPage__back {
+  text-decoration: none;
+}
+
+.myMissionSummaryCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+  padding: 16px;
+  border-radius: 24px;
+  background: var(--my-mission-surface);
+  isolation: isolate;
+}
+
+.myMissionSummaryCard::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--product-badge-border-width);
+  background: var(--product-badge-border-gradient);
+  content: "";
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.myMissionSummaryCard__badge {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+}
+
+.myMissionSummaryCard__badge img {
+  width: 100%;
+  max-width: 92px;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.myMissionSummaryCard__body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.myMissionSummaryCard__body h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.myMissionSummaryCard__body > p {
+  margin: 0 0 10px;
+  color: var(--my-mission-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.myMissionSummaryCard__progress {
+  position: relative;
+  margin: 0 0 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #24272b;
+  color: #d2d2d2;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  isolation: isolate;
+}
+
+.myMissionSummaryCard__progress::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--product-badge-border-width);
+  background: var(--product-badge-border-gradient);
+  content: "";
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.myMissionSummaryCard__register {
+  width: 100%;
+}
+
+.myMissionTicketList {
+  margin-bottom: 28px;
+}
+
+.myMissionTicketList h2 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.myMissionTicketList ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #2f3236;
+}
+
+.myMissionTicketList__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 0;
+  border-bottom: 1px solid #2f3236;
+}
+
+.myMissionTicketList__product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: var(--my-mission-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.myMissionTicketList__product img {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.myMissionTicketList__status {
+  flex-shrink: 0;
+  color: var(--my-mission-success);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.myMissionTicketList__details {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--sony-campaign);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--my-mission-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}

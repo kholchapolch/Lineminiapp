@@ -22,6 +22,10 @@ export function localizedPath(
   return query ? `${path}?${query}` : path;
 }
 
+export function localizedMissionPath(locale: Locale, missionId: string): string {
+  return `/${locale}/my-missions/${missionId}`;
+}
+
 export function localizedProductPath(locale: Locale, productId: string): string {
   return `/${locale}/my-product/${productId}`;
 }

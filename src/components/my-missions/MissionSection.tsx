@@ -1,7 +1,9 @@
 import { MissionTierTrack } from "@/components/my-missions/MissionTierTrack";
+import type { Locale } from "@/lib/i18n/locales";
 import type { MissionSection as MissionSectionData } from "@/lib/my-missions/types";
 
 type MissionSectionProps = {
+  locale: Locale;
   section: MissionSectionData;
   title: string;
   description: string;
@@ -10,6 +12,7 @@ type MissionSectionProps = {
 };
 
 export function MissionSection({
+  locale,
   section,
   title,
   description,
@@ -24,7 +27,7 @@ export function MissionSection({
       <div className="missionSection__content">
         <h2>{title}</h2>
         <p>{description}</p>
-        <MissionTierTrack tiers={section.tiers} />
+        <MissionTierTrack locale={locale} tiers={section.tiers} />
       </div>
       {showBottomEdge ? (
         <div className="missionSection__edge missionSection__edge--bottom" aria-hidden="true" />

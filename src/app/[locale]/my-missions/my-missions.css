@@ -111,6 +111,8 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
+  color: inherit;
+  text-decoration: none;
 }
 
 .missionBadgeNode__art {
