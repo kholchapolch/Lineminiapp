@@ -138,6 +138,36 @@ export const th: Messages = {
         description:
           "สะสมเหรียญภารกิจจากการลงทะเบียนเลนส์มุมกว้าง ตามเงื่อนไขของแต่ละระดับ",
       },
+      "the-visionary": {
+        title: "The Visionary",
+        description:
+          "สะสมเหรียญภารกิจจากการลงทะเบียนเลนส์ telephoto ตามเงื่อนไขของแต่ละระดับ",
+      },
+      "trinity-master": {
+        title: "Trinity Master",
+        description:
+          "สะสมเหรียญภารกิจจากการลงทะเบียนเลนส์ Trinity GM (16-35 / 24-70 / 70-200) ตามเงื่อนไขของแต่ละระดับ",
+      },
+      "trinity-junior": {
+        title: "Trinity Junior",
+        description:
+          "สะสมเหรียญภารกิจจากการลงทะเบียนเลนส์ Trinity Junior ตามเงื่อนไขของแต่ละระดับ",
+      },
+      "all-rounder": {
+        title: "All Rounder",
+        description:
+          "สะสมเหรียญภารกิจจากการลงทะเบียนเลนส์อเนกประสงค์ ตามเงื่อนไขของแต่ละระดับ",
+      },
+      "f2-master": {
+        title: "F2 Master",
+        description:
+          "สะสมเหรียญภารกิจจากการลงทะเบียนเลนส์ F2 Master ตามเงื่อนไขของแต่ละระดับ",
+      },
+      "the-magnifier": {
+        title: "The Magnifier",
+        description:
+          "สะสมเหรียญภารกิจจากการลงทะเบียนเลนส์มาโคร ตามเงื่อนไขของแต่ละระดับ",
+      },
     },
   },
   myMission: {

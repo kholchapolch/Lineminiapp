@@ -132,6 +132,30 @@ export type Messages = {
         title: string;
         description: string;
       };
+      "the-visionary": {
+        title: string;
+        description: string;
+      };
+      "trinity-master": {
+        title: string;
+        description: string;
+      };
+      "trinity-junior": {
+        title: string;
+        description: string;
+      };
+      "all-rounder": {
+        title: string;
+        description: string;
+      };
+      "f2-master": {
+        title: string;
+        description: string;
+      };
+      "the-magnifier": {
+        title: string;
+        description: string;
+      };
     };
   };
   myMission: {

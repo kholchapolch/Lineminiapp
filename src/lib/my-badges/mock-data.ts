@@ -9,9 +9,9 @@ const MISSION_WIDE = "/mock/my-badges/mission-wide.svg";
 
 const sharedProfile = {
   channelName: "sony-thailand",
-  displayName: "Katty Robin",
+  lineDisplayName: "Katty Robin",
+  linePictureUrl: MOCK_AVATAR,
   handle: "@katty_sony_enthusiast",
-  avatarUrl: MOCK_AVATAR,
   isVerified: true,
   isOnline: true,
   productBadgeCount: 2,

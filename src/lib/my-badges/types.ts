@@ -6,9 +6,9 @@ export type MyBadgeItem = {
 
 export type MyBadgesProfile = {
   channelName: string;
-  displayName: string;
+  lineDisplayName: string;
+  linePictureUrl: string | null;
   handle: string;
-  avatarUrl: string;
   isVerified: boolean;
   isOnline: boolean;
   productBadgeCount: number;

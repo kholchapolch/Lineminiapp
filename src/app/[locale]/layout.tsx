@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { LineSessionProvider } from "@/components/LineSessionProvider";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, locales, type Locale } from "@/lib/i18n/locales";
 
@@ -30,5 +31,5 @@ export default function LocaleLayout({ children, params }: LocaleLayoutProps): J
     notFound();
   }
 
-  return <>{children}</>;
+  return <LineSessionProvider>{children}</LineSessionProvider>;
 }

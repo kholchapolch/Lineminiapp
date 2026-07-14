@@ -1,4 +1,12 @@
-export type MissionSectionId = "portrait-master" | "wide-architect";
+export type MissionSectionId =
+  | "portrait-master"
+  | "wide-architect"
+  | "the-visionary"
+  | "trinity-master"
+  | "trinity-junior"
+  | "all-rounder"
+  | "f2-master"
+  | "the-magnifier";
 
 export type MissionTierStatus = "achieved" | "in-progress" | "locked";
 

@@ -6,11 +6,18 @@ const TIER_IMAGES = [
   "/mock/my-missions/tier-frame.svg",
 ] as const;
 
-function buildTiers(prefix: string, progressValues: [number, number, number]): MissionSection["tiers"] {
+function buildTiers(
+  prefix: string,
+  progressValues: [number, number, number],
+): MissionSection["tiers"] {
   return progressValues.map((progress, index) => {
     const target = 5;
     const status =
-      progress >= target ? "achieved" : progress > 0 ? "in-progress" : ("locked" as const);
+      progress >= target
+        ? "achieved"
+        : progress > 0
+          ? "in-progress"
+          : ("locked" as const);
 
     return {
       id: `${prefix}-tier-${index + 1}`,
@@ -31,6 +38,30 @@ export const mockMyMissionsCatalog: Omit<MyMissionsData, "fetchedAt"> = {
     {
       id: "wide-architect",
       tiers: buildTiers("wide-architect", [5, 1, 0]),
+    },
+    {
+      id: "the-visionary",
+      tiers: buildTiers("the-visionary", [5, 1, 0]),
+    },
+    {
+      id: "trinity-master",
+      tiers: buildTiers("trinity-master", [5, 1, 0]),
+    },
+    {
+      id: "trinity-junior",
+      tiers: buildTiers("trinity-junior", [5, 1, 0]),
+    },
+    {
+      id: "all-rounder",
+      tiers: buildTiers("all-rounder", [5, 1, 0]),
+    },
+    {
+      id: "f2-master",
+      tiers: buildTiers("f2-master", [5, 1, 0]),
+    },
+    {
+      id: "the-magnifier",
+      tiers: buildTiers("the-magnifier", [5, 1, 0]),
     },
   ],
 };

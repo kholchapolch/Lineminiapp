@@ -138,6 +138,36 @@ export const en: Messages = {
         description:
           "Collect mission badges by registering wide-angle lenses that match each tier requirement.",
       },
+      "the-visionary": {
+        title: "The Visionary",
+        description:
+          "Collect mission badges by registering telephoto lenses that match each tier requirement.",
+      },
+      "trinity-master": {
+        title: "Trinity Master",
+        description:
+          "Collect mission badges by registering Trinity GM lenses (16-35 / 24-70 / 70-200) that match each tier requirement.",
+      },
+      "trinity-junior": {
+        title: "Trinity Junior",
+        description:
+          "Collect mission badges by registering Trinity Junior lenses that match each tier requirement.",
+      },
+      "all-rounder": {
+        title: "All Rounder",
+        description:
+          "Collect mission badges by registering all-rounder lenses that match each tier requirement.",
+      },
+      "f2-master": {
+        title: "F2 Master",
+        description:
+          "Collect mission badges by registering F2 Master lenses that match each tier requirement.",
+      },
+      "the-magnifier": {
+        title: "The Magnifier",
+        description:
+          "Collect mission badges by registering macro lenses that match each tier requirement.",
+      },
     },
   },
   myMission: {
