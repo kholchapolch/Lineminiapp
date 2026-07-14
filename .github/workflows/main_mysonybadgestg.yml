@@ -13,7 +13,7 @@ concurrency:
 jobs:
   build:
     name: Validate and package
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read
 
@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: 24.x
           cache: npm
 
       - name: Install dependencies
@@ -39,12 +39,26 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Prepare production server package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path deploy | Out-Null
+          Copy-Item -Path .next -Destination deploy/.next -Recurse -Force
+          Copy-Item -Path public -Destination deploy/public -Recurse -Force
+          Copy-Item -Path server.js -Destination deploy/server.js -Force
+          Copy-Item -Path package.json -Destination deploy/package.json -Force
+          Copy-Item -Path package-lock.json -Destination deploy/package-lock.json -Force
+          Copy-Item -Path next.config.mjs -Destination deploy/next.config.mjs -Force
+          Copy-Item -Path web.config -Destination deploy/web.config -Force
+          npm ci --omit=dev --prefix deploy
+
       - name: Upload deployment package
         uses: actions/upload-artifact@v4
         with:
-          name: nextjs-static-export
-          path: out
+          name: nextjs-production-server
+          path: deploy
           if-no-files-found: error
+          include-hidden-files: true
 
   deploy:
     name: Deploy and verify
@@ -56,7 +70,7 @@ jobs:
       - name: Download deployment package
         uses: actions/download-artifact@v4
         with:
-          name: nextjs-static-export
+          name: nextjs-production-server
           path: deploy
 
       - name: Deploy to Azure App Service
@@ -77,6 +91,12 @@ jobs:
             | grep --fixed-strings \
                 "Framework dependencies are ready for source integration." \
                 > /dev/null
+          curl --fail --silent --show-error \
+            --retry 12 \
+            --retry-all-errors \
+            --retry-delay 10 \
+            https://stglineminiapp.sony.co.th/api/health \
+            | grep --fixed-strings '"runtime":"nodejs"' > /dev/null
           curl --fail --silent --show-error \
             --retry 12 \
             --retry-all-errors \
