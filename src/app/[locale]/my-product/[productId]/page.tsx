@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: MyProductPageProps): Promise<
   const messages = getDictionary(params.locale);
 
   return {
-    title: `${data.product.title} | ${messages.myProduct.meta.title}`,
+    title: messages.meta.title,
     description: messages.myProduct.meta.description,
   };
 }

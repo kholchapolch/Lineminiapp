@@ -2,7 +2,7 @@ import type { Messages } from "@/lib/i18n/messages/types";
 
 export const en: Messages = {
   meta: {
-    title: "Sony Badge Pilot",
+    title: "Sony Thailand",
     description: "Sony Thailand LIFF badge display pilot",
   },
   hero: {

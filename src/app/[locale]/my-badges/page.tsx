@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: MyBadgesPageProps): Promise<M
   const messages = getDictionary(params.locale);
 
   return {
-    title: messages.myBadges.meta.title,
+    title: messages.meta.title,
     description: messages.myBadges.meta.description,
   };
 }

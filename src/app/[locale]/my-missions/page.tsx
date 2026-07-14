@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: MyMissionsPageProps): Promise
   const messages = getDictionary(params.locale);
 
   return {
-    title: messages.myMissions.meta.title,
+    title: messages.meta.title,
     description: messages.myMissions.meta.description,
   };
 }

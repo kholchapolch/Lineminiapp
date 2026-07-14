@@ -5,7 +5,7 @@ import { sukhumvitSet } from "@/lib/fonts";
 import { defaultLocale } from "@/lib/i18n/locales";
 
 export const metadata: Metadata = {
-  title: "Sony Badge Pilot",
+  title: "Sony Thailand",
   description: "Sony Thailand LIFF badge display pilot",
 };
 

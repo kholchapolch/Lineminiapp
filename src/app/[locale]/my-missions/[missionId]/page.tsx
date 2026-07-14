@@ -31,10 +31,9 @@ export async function generateMetadata({ params }: MyMissionPageProps): Promise<
   }
 
   const messages = getDictionary(params.locale);
-  const sectionMessages = messages.myMissions.sections[data.mission.sectionId];
 
   return {
-    title: `${sectionMessages.title} | ${messages.myMission.meta.title}`,
+    title: messages.meta.title,
     description: messages.myMission.meta.description,
   };
 }
