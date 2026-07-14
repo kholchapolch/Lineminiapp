@@ -1,10 +1,14 @@
-name: Deploy UAT smoke page
+name: Deploy Next.js UAT site
 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+
+concurrency:
+  group: deploy-nextjs-uat
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -35,17 +39,11 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Prepare static smoke package
-        run: |
-          mkdir -p deploy
-          cp public/deployment-check.html deploy/index.html
-          cp public/deployment-check.html deploy/deployment-check.html
-
       - name: Upload deployment package
         uses: actions/upload-artifact@v4
         with:
-          name: uat-smoke-page
-          path: deploy
+          name: nextjs-static-export
+          path: out
           if-no-files-found: error
 
   deploy:
@@ -58,7 +56,7 @@ jobs:
       - name: Download deployment package
         uses: actions/download-artifact@v4
         with:
-          name: uat-smoke-page
+          name: nextjs-static-export
           path: deploy
 
       - name: Deploy to Azure App Service
@@ -75,4 +73,13 @@ jobs:
             --retry 12 \
             --retry-all-errors \
             --retry-delay 10 \
-            https://stglineminiapp.sony.co.th/deployment-check.html
+            https://stglineminiapp.sony.co.th/ \
+            | grep --fixed-strings \
+                "Framework dependencies are ready for source integration." \
+                > /dev/null
+          curl --fail --silent --show-error \
+            --retry 12 \
+            --retry-all-errors \
+            --retry-delay 10 \
+            https://stglineminiapp.sony.co.th/deployment-check.html \
+            | grep --fixed-strings "Deployment smoke test passed." > /dev/null
