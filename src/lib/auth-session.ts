@@ -119,6 +119,13 @@ export function createLineSessionCookie({
   ].filter(Boolean).join("; ");
 }
 
+export function readLineSessionFromHeaders(
+  headers: Headers,
+  config: AppConfig,
+): LineSession | null {
+  return readLineSession(headers, getSessionSecret(config));
+}
+
 function readLineSession(headers: Headers, secret: string): LineSession | null {
   const value = readCookie(headers.get("cookie"), LINE_SESSION_COOKIE);
 

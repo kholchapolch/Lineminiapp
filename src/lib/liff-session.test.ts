@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createLineSessionFromLiff } from "@/lib/liff-session";
+import { createLineSessionFromLiff, getLineProfileFromLiff } from "@/lib/liff-session";
 
 function liffClient({
   inClient = true,
@@ -70,5 +70,35 @@ describe("createLineSessionFromLiff", () => {
         fetchImpl: vi.fn(async () => Response.json({ code: "UNAUTHORIZED" }, { status: 401 })),
       }),
     ).rejects.toThrow(/could not be verified/);
+  });
+});
+
+describe("getLineProfileFromLiff", () => {
+  it("returns the LINE profile when opened inside the LINE client", async () => {
+    await expect(
+      getLineProfileFromLiff({
+        liffId: "liff-id",
+        liff: liffClient(),
+      }),
+    ).resolves.toEqual({
+      userId: "line-user-001",
+      displayName: "Real LINE User",
+      pictureUrl: "https://example.com/line.png",
+    });
+  });
+
+  it("returns null outside the LINE client or without LIFF config", async () => {
+    await expect(
+      getLineProfileFromLiff({
+        liffId: "liff-id",
+        liff: liffClient({ inClient: false }),
+      }),
+    ).resolves.toBeNull();
+
+    await expect(
+      getLineProfileFromLiff({
+        liff: liffClient(),
+      }),
+    ).resolves.toBeNull();
   });
 });

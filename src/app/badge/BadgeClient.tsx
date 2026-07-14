@@ -1,10 +1,13 @@
 "use client";
 
 /* eslint-disable @next/next/no-img-element -- Badge image URLs are database-configured. */
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { LiffStatus } from "@/components/LiffStatus";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { getBadgeArtPresentation } from "@/lib/badge-art";
 import { createLineSessionFromCurrentLiff, type LineProfile } from "@/lib/liff-session";
+import type { Locale } from "@/lib/i18n/locales";
+import type { Messages } from "@/lib/i18n/messages/types";
 import type {
   BadgeApiPayload,
   BadgeCacheMetadata,
@@ -17,6 +20,8 @@ import type {
 const BADGE_CACHE_KEY = "sonyBadgeCache:v1";
 
 type BadgeClientProps = {
+  locale: Locale;
+  messages: Messages;
   lineuuid?: string;
   debug?: string;
   entryError?: string;
@@ -46,15 +51,18 @@ type LoadState =
   | { status: "error"; title: string; message: string }
   | { status: "ready"; display: BadgeDisplayState };
 
-function groupBadgeShelf(badges: BadgeShelfItem[]): Array<{
+function groupBadgeShelf(
+  badges: BadgeShelfItem[],
+  fallbacks: Pick<Messages["shelf"], "fallbackCategory" | "fallbackGroup">,
+): Array<{
   category: string;
   groups: Array<{ label: string; badges: BadgeShelfItem[] }>;
 }> {
   const categories = new Map<string, Map<string, BadgeShelfItem[]>>();
 
   for (const badge of badges) {
-    const category = badge.category ?? "Achievement badge";
-    const group = badge.group ?? "Badges";
+    const category = badge.category ?? fallbacks.fallbackCategory;
+    const group = badge.group ?? fallbacks.fallbackGroup;
 
     if (!categories.has(category)) {
       categories.set(category, new Map());
@@ -101,12 +109,16 @@ function formatDebugValue(value: DbDebugValue): string {
   return String(value);
 }
 
-function formatDateWindow(start: string | null, end: string | null): string {
+function formatDateWindow(
+  start: string | null,
+  end: string | null,
+  labels: Messages["dateWindow"],
+): string {
   if (!start && !end) {
-    return "Always";
+    return labels.always;
   }
 
-  return `${start ?? "Any"} to ${end ?? "Any"}`;
+  return `${start ?? labels.any} ${labels.to} ${end ?? labels.any}`;
 }
 
 function readBadgeCache(): BadgeCacheEntry | null {
@@ -178,13 +190,19 @@ function toDisplayState(payload: BadgeApiPayload, cacheEntry: BadgeCacheEntry | 
   };
 }
 
-export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): JSX.Element {
+export function BadgeClient({
+  locale,
+  messages,
+  lineuuid,
+  debug,
+  entryError,
+}: BadgeClientProps): JSX.Element {
   const [state, setState] = useState<LoadState>(() =>
     entryError
       ? {
           status: "error",
-          title: "Access blocked",
-          message: "This badge page can only open from an approved Sony campaign source.",
+          title: messages.errors.accessBlocked.title,
+          message: messages.errors.accessBlocked.message,
         }
       : { status: "loading" },
   );
@@ -253,7 +271,9 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
         }
 
         if (!response.ok) {
-          throw new Error("message" in payload ? payload.message : "Badge data unavailable.");
+          throw new Error(
+            "message" in payload ? payload.message : messages.errors.dataUnavailable.fallback,
+          );
         }
 
         const display = toDisplayState(payload as BadgeApiPayload, cacheEntry);
@@ -267,7 +287,7 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
         }
 
         if (!display) {
-          throw new Error("Badge cache could not be validated.");
+          throw new Error(messages.errors.cacheValidation);
         }
 
         if (display.cacheStatus === "miss" && !debugRequested) {
@@ -290,8 +310,8 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
 
         setState({
           status: "error",
-          title: "Badge data unavailable",
-          message: error instanceof Error ? error.message : "We could not load badge data.",
+          title: messages.errors.dataUnavailable.title,
+          message: error instanceof Error ? error.message : messages.errors.dataUnavailable.message,
         });
       }
     }
@@ -301,7 +321,7 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
     return () => {
       active = false;
     };
-  }, [debugRequested, entryError, isDebugMockSample, lineuuid]);
+  }, [debugRequested, entryError, isDebugMockSample, lineuuid, messages.errors]);
 
   const display = state.status === "ready" ? state.display : null;
   const debugEnabled = Boolean(display?.debugTrace);
@@ -309,30 +329,37 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
   const profileSubtitle =
     lineProfile?.displayName && display ? display.customer.displayName : display?.customer.displayName;
   const groupedShelf = useMemo(
-    () => (display ? groupBadgeShelf(display.badgeShelf) : []),
-    [display],
+    () =>
+      display
+        ? groupBadgeShelf(display.badgeShelf, {
+            fallbackCategory: messages.shelf.fallbackCategory,
+            fallbackGroup: messages.shelf.fallbackGroup,
+          })
+        : [],
+    [display, messages.shelf.fallbackCategory, messages.shelf.fallbackGroup],
   );
 
   return (
     <main className="badgePage">
       <section className="badgeHero">
         <div>
-          <p className="badgeEyebrow">Sony Thailand</p>
-          <h1>My Badge</h1>
-          <p className="badgeLead">
-            Product and quest badges for registered Sony products.
-          </p>
+          <p className="badgeEyebrow">{messages.hero.eyebrow}</p>
+          <h1>{messages.hero.title}</h1>
+          <p className="badgeLead">{messages.hero.lead}</p>
+          <Suspense fallback={null}>
+            <LocaleSwitcher locale={locale} messages={messages} />
+          </Suspense>
         </div>
-        <LiffStatus />
+        <LiffStatus locale={locale} messages={messages} />
       </section>
 
       {!display ? (
         <section className="badgeEmptyState">
-          <h2>{state.status === "error" ? state.title : "Loading badge data"}</h2>
+          <h2>{state.status === "error" ? state.title : messages.loading.title}</h2>
           <p>
             {state.status === "error"
               ? state.message
-              : "Checking Sony products and local badge cache."}
+              : messages.loading.message}
           </p>
         </section>
       ) : (
@@ -346,16 +373,17 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
               </div>
             )}
             <div>
-              <p className="badgeProfileLabel">Profile</p>
+              <p className="badgeProfileLabel">{messages.profile.label}</p>
               <h2>{profileName}</h2>
               <p>{profileSubtitle}</p>
               <p className="badgeProfileMeta">
-                {lineProfile ? "LINE SDK profile connected" : "Sony profile connected"} · cache {display.cacheStatus}
+                {lineProfile ? messages.profile.lineConnected : messages.profile.sonyConnected} ·{" "}
+                {messages.profile.cache} {display.cacheStatus}
               </p>
             </div>
           </section>
 
-          <section className="badgeShelfPanel" aria-label="Available badge shelf">
+          <section className="badgeShelfPanel" aria-label={messages.shelf.ariaLabel}>
             {groupedShelf.map((category) => (
               <section className="badgeShelfSection" key={category.category}>
                 <h2>{category.category}</h2>
@@ -377,7 +405,10 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
                               title={badge.description}
                             >
                               {art.imageUrl ? (
-                                <img alt={`${badge.title} badge`} src={art.imageUrl} />
+                                <img
+                                  alt={messages.shelf.badgeAlt.replace("{title}", badge.title)}
+                                  src={art.imageUrl}
+                                />
                               ) : (
                                 <span className="badgeShelfFallback">{badge.label.slice(0, 1)}</span>
                               )}
@@ -398,13 +429,15 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
           </section>
 
           <section className="badgeSupportBox">
-            <h2>Support</h2>
+            <h2>{messages.support.title}</h2>
             <p>{display.supportMessage}</p>
-            <p className="badgeProfileMeta">Owned products: {display.productCount}</p>
+            <p className="badgeProfileMeta">
+              {messages.support.ownedProducts}: {display.productCount}
+            </p>
           </section>
 
           {debugEnabled && display.debugTrace ? (
-            <DebugPanel debugTrace={display.debugTrace} />
+            <DebugPanel debugTrace={display.debugTrace} dateWindowLabels={messages.dateWindow} />
           ) : null}
         </>
       )}
@@ -412,7 +445,13 @@ export function BadgeClient({ lineuuid, debug, entryError }: BadgeClientProps): 
   );
 }
 
-function DebugPanel({ debugTrace }: { debugTrace: DebugTrace }): JSX.Element {
+function DebugPanel({
+  debugTrace,
+  dateWindowLabels,
+}: {
+  debugTrace: DebugTrace;
+  dateWindowLabels: Messages["dateWindow"];
+}): JSX.Element {
   return (
     <section className="badgeDebugPanel" aria-label="Debug trace">
       <h2>Debug Trace</h2>
@@ -479,8 +518,8 @@ function DebugPanel({ debugTrace }: { debugTrace: DebugTrace }): JSX.Element {
                   <td>{row.badgeName}</td>
                   <td>{row.category}</td>
                   <td>{row.group ?? "-"}</td>
-                  <td>{formatDateWindow(row.activeFrom, row.activeTo)}</td>
-                  <td>{formatDateWindow(row.registrationStart, row.registrationEnd)}</td>
+                  <td>{formatDateWindow(row.activeFrom, row.activeTo, dateWindowLabels)}</td>
+                  <td>{formatDateWindow(row.registrationStart, row.registrationEnd, dateWindowLabels)}</td>
                   <td>{row.level}</td>
                   <td>{row.displayName}</td>
                   <td>{row.conditionText}</td>

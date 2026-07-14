@@ -1,0 +1,219 @@
+.myBadgesPage {
+  --my-badges-bg: var(--dark-page-bg-bottom);
+  --my-badges-bg-gradient: var(--dark-page-bg-gradient);
+  --my-badges-surface: #1c1c1c;
+  --my-badges-text: #ffffff;
+  --my-badges-muted: #9a9a9a;
+  --my-badges-line: #2f2f2f;
+  --my-badges-online: #1db954;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--my-badges-bg-gradient);
+  color: var(--my-badges-text);
+}
+
+.myBadgesPage__content {
+  flex: 1;
+  width: min(100%, 480px);
+  margin: 0 auto;
+  padding: 12px 16px 24px;
+}
+
+.myBadgesTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.myBadgesTopBar__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--my-badges-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.myBadgesTopBar__verified {
+  flex-shrink: 0;
+}
+
+.myBadgesTopBar__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--my-badges-text);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.myBadgesProfileCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.myBadgesProfileCard__avatarWrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.myBadgesProfileCard__avatar {
+  width: 100px;
+  height: 100px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.myBadgesProfileCard__avatar--placeholder {
+  display: grid;
+  place-items: center;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.myBadgesProfileCard__online {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--my-badges-bg);
+  border-radius: 50%;
+  background: var(--my-badges-online);
+}
+
+.myBadgesProfileCard__name {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.myBadgesProfileCard__handle {
+  margin: 0;
+  color: var(--my-badges-muted);
+  font-size: 14px;
+}
+
+.myBadgesStats {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: 28px;
+  padding: 16px 0;
+  border-block: 1px solid var(--my-badges-line);
+}
+
+.myBadgesStats__item {
+  text-align: center;
+}
+
+.myBadgesStats__value {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.myBadgesStats__label {
+  margin: 0;
+  color: var(--my-badges-muted);
+  font-size: 12px;
+}
+
+.myBadgesStats__divider {
+  width: 1px;
+  height: 40px;
+  background: var(--my-badges-line);
+}
+
+.badgeCollectionSection+.badgeCollectionSection {
+  margin-top: 28px;
+}
+
+.badgeCollectionSection__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.badgeCollectionSection__header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.badgeCollectionSection__viewAll {
+  color: var(--my-badges-muted);
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.badgeCollectionSection__grid {
+  display: grid;
+  gap: 10px;
+}
+
+.myBadgesPage .badgeCollectionSection__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.myBadgesPage .productBadgeCard--collection {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  border-radius: 20px;
+  background:
+    linear-gradient(168.53deg, rgba(234, 255, 254, 0.3) 0%, rgba(205, 201, 241, 0.3) 97.46%),
+    rgba(0, 0, 0, 0.8);
+  box-shadow: 40px 40px 100px rgba(24, 48, 63, 0.2);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.myBadgesPage .productBadgeCard--collection .productBadgeCard__media {
+  min-height: 96px;
+  padding: 10px 8px 4px;
+}
+
+.myBadgesPage .productBadgeCard--collection .productBadgeCard__image {
+  width: 100%;
+  max-height: 72px;
+}
+
+.myBadgesPage .productBadgeCard--collection .productBadgeCard__placeholder {
+  width: 48px;
+  height: 48px;
+}
+
+.myBadgesPage .productBadgeCard--collection .productBadgeCard__title {
+  color: #d7d7d7;
+  padding: 8px 6px 12px;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.myBadgesBottomBar {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+}

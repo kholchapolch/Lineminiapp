@@ -57,6 +57,41 @@ export async function createLineSessionFromCurrentLiff(): Promise<LineSessionRes
   });
 }
 
+type GetLineProfileInput = {
+  liffId?: string;
+  liff: LiffSessionClient;
+};
+
+export async function getLineProfileFromLiff({
+  liffId,
+  liff,
+}: GetLineProfileInput): Promise<LineProfile | null> {
+  if (!liffId) {
+    return null;
+  }
+
+  if (!liff.isInClient() || !liff.getProfile) {
+    return null;
+  }
+
+  return liff.getProfile();
+}
+
+export async function getLineProfileFromCurrentLiff(): Promise<LineProfile | null> {
+  const liffId = process.env.NEXT_PUBLIC_LIFF_ID;
+
+  if (!liffId) {
+    return null;
+  }
+
+  try {
+    const liff = await getCurrentLiffClient();
+    return getLineProfileFromLiff({ liffId, liff });
+  } catch {
+    return null;
+  }
+}
+
 export async function createLineSessionFromLiff({
   liffId,
   liff,
