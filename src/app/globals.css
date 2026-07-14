@@ -12,13 +12,11 @@
   --product-badge-bg: #1a1a1a;
   --product-badge-placeholder: #141414;
   --product-badge-border-width: 1.5px;
-  --product-badge-border-gradient: linear-gradient(
-    180deg,
-    rgba(220, 228, 236, 0.95) 0%,
-    rgba(132, 140, 150, 0.5) 36%,
-    rgba(52, 56, 62, 0.24) 68%,
-    rgba(12, 14, 16, 0.08) 100%
-  );
+  --product-badge-border-gradient: linear-gradient(180deg,
+      rgba(220, 228, 236, 0.95) 0%,
+      rgba(132, 140, 150, 0.5) 36%,
+      rgba(52, 56, 62, 0.24) 68%,
+      rgba(12, 14, 16, 0.08) 100%);
   --bottom-bar-bg: #121212;
   --bottom-bar-fg: #ffffff;
   --bottom-bar-muted: #8f8f8f;
@@ -26,12 +24,10 @@
   --dark-page-bg-top: #323337;
   --dark-page-bg-bottom: #161819;
   --dark-page-bg-solid-height: 100px;
-  --dark-page-bg-gradient: linear-gradient(
-    180deg,
-    var(--dark-page-bg-top) 0,
-    var(--dark-page-bg-top) var(--dark-page-bg-solid-height),
-    var(--dark-page-bg-bottom) 100%
-  );
+  --dark-page-bg-gradient: linear-gradient(180deg,
+      var(--dark-page-bg-top) 0,
+      var(--dark-page-bg-top) var(--dark-page-bg-solid-height),
+      var(--dark-page-bg-bottom) 100%);
 }
 
 * {
