@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/Button";
-import { BackArrowIcon } from "@/components/icons/BackArrowIcon";
-import { FacebookIcon } from "@/components/icons/FacebookIcon";
+import { FacebookShareAction } from "@/components/FacebookShareAction";
 import { ProductBadgeHero } from "@/components/my-product/ProductBadgeHero";
 import { formatUnlockedDate } from "@/lib/my-product/format-unlocked-date";
 import type { Locale } from "@/lib/i18n/locales";
@@ -39,9 +37,7 @@ export function MyMissionCompletedView({
       </section>
 
       <div className="myMissionPage__actions">
-        <Button variant="solid" icon={<FacebookIcon />} type="button">
-          {messages.myMission.share}
-        </Button>
+        <FacebookShareAction label={messages.myMission.share} hashtag="#SonyThailand" />
         <Link className="sonyButton sonyButton--outline myMissionPage__back" href={backHref}>
           {messages.myMission.backToHome}
         </Link>
