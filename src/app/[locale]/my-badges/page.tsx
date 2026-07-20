@@ -14,7 +14,9 @@ type MyBadgesPageProps = {
   params: { locale: string };
 };
 
-export async function generateMetadata({ params }: MyBadgesPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: MyBadgesPageProps): Promise<Metadata> {
   if (!isLocale(params.locale)) {
     return {};
   }
@@ -27,7 +29,9 @@ export async function generateMetadata({ params }: MyBadgesPageProps): Promise<M
   };
 }
 
-export default async function MyBadgesPage({ params }: MyBadgesPageProps): Promise<JSX.Element> {
+export default async function MyBadgesPage({
+  params,
+}: MyBadgesPageProps): Promise<JSX.Element> {
   if (!isLocale(params.locale)) {
     notFound();
   }
@@ -44,5 +48,6 @@ export default async function MyBadgesPage({ params }: MyBadgesPageProps): Promi
     getMyBadgesData(locale, lineuuid),
   ]);
 
+  console.log(data);
   return <MyBadgesView locale={locale} messages={messages} data={data} />;
 }

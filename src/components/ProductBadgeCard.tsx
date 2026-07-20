@@ -15,7 +15,11 @@ export function ProductBadgeCard({
   className,
 }: ProductBadgeCardProps): JSX.Element {
   const hasImage = Boolean(imageUrl);
-  const classes = ["productBadgeCard", !hasImage ? "productBadgeCard--empty" : null, className]
+  const classes = [
+    "productBadgeCard",
+    !hasImage ? "productBadgeCard--empty" : null,
+    className,
+  ]
     .filter(Boolean)
     .join(" ");
 

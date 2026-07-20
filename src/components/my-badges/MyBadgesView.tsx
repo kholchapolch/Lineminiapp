@@ -3,7 +3,11 @@ import { MyBadgesBottomBar } from "@/components/my-badges/MyBadgesBottomBar";
 import { MyBadgesProfileCard } from "@/components/my-badges/MyBadgesHeader";
 import type { Locale } from "@/lib/i18n/locales";
 import type { Messages } from "@/lib/i18n/messages/types";
-import { localizedMissionPath, localizedPath, localizedProductPath } from "@/lib/i18n/paths";
+import {
+  localizedMissionPath,
+  localizedPath,
+  localizedProductPath,
+} from "@/lib/i18n/paths";
 import type { MyBadgesData } from "@/lib/my-badges/types";
 
 type MyBadgesViewProps = {
