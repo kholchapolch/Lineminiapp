@@ -113,8 +113,6 @@ export function LineSessionProvider({
     [lineProfile, lineUuid, status],
   );
 
-  console.log("Status", status);
-
   return (
     <LineSessionContext.Provider value={value}>
       {children}

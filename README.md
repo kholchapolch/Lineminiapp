@@ -39,6 +39,18 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+When `APP_ENV=local` and `SONY_PRODUCT_API_MODE=mock`, the badge entry skips
+LIFF and opens the new design with `SONY_DEMO_LINE_UUID`.
+
+To render the new design from specific SKUs, use the local-only SKU mock mode:
+
+- `http://localhost:3000/th/badges?mock=1&sku=SEL2470GM2&sku=SEL70200GM2`
+- Comma-separated SKUs are also accepted.
+- Repeat a SKU to simulate multiple serial registrations for the same model.
+
+The supplied products still pass through the database-backed badge rules. This
+mode is unavailable outside local mock configuration.
+
 Useful sample LINE UUIDs:
 
 Mock `lineuuid` query strings are accepted only for explicit local debug
@@ -217,9 +229,11 @@ Operational rules:
 
 ## LIFF Setup
 
-Local mock samples work without a LIFF ID only when `lineuuid` and `debug=1`
-are both present. Normal LINE testing should set the LIFF ID and open `/badge`
-without URL identity parameters.
+Local mock mode bypasses LIFF when `APP_ENV=local` and
+`SONY_PRODUCT_API_MODE=mock`. Use `mock=1&sku=...` to build a custom product
+scenario, or `lineuuid` with `debug=1` for the legacy diagnostic view. Normal
+LINE testing should set the LIFF ID and open `/badge` without URL identity
+parameters.
 
 For LINE testing, set:
 

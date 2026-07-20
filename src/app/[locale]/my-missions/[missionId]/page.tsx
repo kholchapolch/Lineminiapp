@@ -33,7 +33,7 @@ export default async function MyMissionPage({ params }: MyMissionPageProps): Pro
   }
 
   const locale = params.locale as Locale;
-  const lineuuid = await getServerLineUuid();
+  const lineuuid = await getServerLineUuid({ allowLocalPreview: true });
 
   if (!lineuuid) {
     redirect(localizedPath(locale, "badges"));

@@ -33,7 +33,7 @@ export default async function MyBadgesPage({ params }: MyBadgesPageProps): Promi
   }
 
   const locale = params.locale as Locale;
-  const lineuuid = await getServerLineUuid();
+  const lineuuid = await getServerLineUuid({ allowLocalPreview: true });
 
   if (!lineuuid) {
     redirect(localizedPath(locale, "badges"));

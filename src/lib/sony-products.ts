@@ -1,4 +1,5 @@
 import type { SonyCustomerProducts } from "@/types/badge";
+import { getMockProductsFromLineUuid } from "@/lib/sku-mock";
 
 export class SonyCustomerNotFoundError extends Error {
   code = "CUSTOMER_NOT_FOUND";
@@ -273,7 +274,7 @@ function tierProducts({
 export async function getMockSonyCustomerProducts(
   lineuuid: string,
 ): Promise<SonyCustomerProducts> {
-  const customerProducts = mockCustomers[lineuuid];
+  const customerProducts = getMockProductsFromLineUuid(lineuuid) ?? mockCustomers[lineuuid];
 
   if (!customerProducts) {
     throw new SonyCustomerNotFoundError();
