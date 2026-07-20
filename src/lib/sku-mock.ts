@@ -2,7 +2,7 @@ import { normalizeSku } from "@/lib/sku";
 import type { SonyCustomerProducts } from "@/types/badge";
 
 const MOCK_SKU_PREFIX = "local-sku-mock:";
-const MAX_MOCK_PRODUCTS = 20;
+const MAX_MOCK_PRODUCTS = 64;
 const MAX_SKU_LENGTH = 80;
 
 export function parseMockSkuValues(values: string[]): string[] {

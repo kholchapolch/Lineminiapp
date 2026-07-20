@@ -30,4 +30,10 @@ describe("SKU mock mode", () => {
   it("does not interpret ordinary LINE identities as SKU mocks", () => {
     expect(getMockProductsFromLineUuid("real-line-user")).toBeNull();
   });
+
+  it("supports the complete badge catalog in one local scenario", () => {
+    const skus = Array.from({ length: 70 }, (_, index) => `SKU-${index + 1}`);
+
+    expect(parseMockSkuValues(skus)).toHaveLength(64);
+  });
 });
