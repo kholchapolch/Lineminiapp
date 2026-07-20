@@ -12,8 +12,13 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
+    "docs:badge-rules": "node scripts/docs/generate-badge-rules-guide.mjs",
+    "docs:badge-rules:check": "node scripts/docs/generate-badge-rules-guide.mjs --check",
     "db:migrate": "node scripts/db/migrate.mjs",
     "db:seed": "node scripts/db/seed.mjs",
+    "db:seed:all": "node scripts/db/seed-all-rules.mjs",
+    "db:seed:sql": "node scripts/db/generate-seed-sql.mjs",
+    "db:seed:sql:check": "node scripts/db/generate-seed-sql.mjs --check",
     "db:reset": "node scripts/db/reset.mjs",
     "db:verify": "node scripts/db/verify.mjs"
   },

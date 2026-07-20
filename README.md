@@ -37,6 +37,15 @@ npm run db:reset
 npm run dev
 ```
 
+Badge database seed options:
+
+- `npm run db:seed:all` applies the schema, seeds every configured rule, and verifies row counts.
+- `npm run db:seed:sql` regenerates `scripts/db/seed-all-rules.sql` from `seed-data.mjs`.
+- `npm run db:seed:sql:check` fails when the checked-in manual SQL is stale.
+- Manual MySQL: `mysql -u <user> -p <database> < scripts/db/seed-all-rules.sql` after running the migration.
+- `npm run docs:badge-rules` regenerates the client-readable rules, migration, and mock-testing guide.
+- `npm run docs:badge-rules:check` verifies that the checked-in HTML guide matches the rule source.
+
 Open `http://localhost:3000`.
 
 When `APP_ENV=local` and `SONY_PRODUCT_API_MODE=mock`, the badge entry skips
