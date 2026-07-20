@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { MyProductsClient } from "@/components/my-products/MyProductsClient";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
-import {
-  getMyProductsData,
-  MY_PRODUCTS_REVALIDATE_SECONDS,
-} from "@/lib/my-products/get-my-products-data";
+import { getMyProductsData } from "@/lib/my-products/get-my-products-data";
+import { localizedPath } from "@/lib/i18n/paths";
+import { getServerLineUuid } from "@/lib/line-session-server";
 import "./my-products.css";
 
-export const revalidate = MY_PRODUCTS_REVALIDATE_SECONDS;
+export const dynamic = "force-dynamic";
 
 type MyProductsPageProps = {
   params: { locale: string };
@@ -36,9 +35,15 @@ export default async function MyProductsPage({
   }
 
   const locale = params.locale as Locale;
+  const lineuuid = await getServerLineUuid();
+
+  if (!lineuuid) {
+    redirect(localizedPath(locale, "badges"));
+  }
+
   const [messages, data] = await Promise.all([
     Promise.resolve(getDictionary(locale)),
-    getMyProductsData(),
+    getMyProductsData(lineuuid),
   ]);
 
   return <MyProductsClient locale={locale} messages={messages} data={data} />;

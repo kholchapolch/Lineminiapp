@@ -31,6 +31,21 @@ export function MyProductView({ locale, messages, data }: MyProductViewProps): J
           <p className="myProductPage__meta">
             {messages.myProduct.quantity}: {product.quantity}
           </p>
+          {product.registrations?.length ? (
+            <div className="myProductPage__registrations">
+              <h2>{messages.myProduct.serialNumbers}</h2>
+              <ul>
+                {product.registrations.map((registration) => (
+                  <li key={registration.serialNumber}>
+                    <span>{registration.serialNumber}</span>
+                    <time dateTime={registration.registeredAt}>
+                      {formatUnlockedDate(registration.registeredAt, locale)}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </section>
 
         <MyProductActions

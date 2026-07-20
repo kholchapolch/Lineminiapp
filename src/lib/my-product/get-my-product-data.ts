@@ -1,17 +1,26 @@
-import { mockMyProductDetails } from "@/lib/my-product/mock-data";
+import { getBadgeExperienceForLineUuid } from "@/lib/badge-experience-server";
 import type { MyProductDetailData } from "@/lib/my-product/types";
 
-export const MY_PRODUCT_REVALIDATE_SECONDS = 300;
+export async function getMyProductData(
+  productId: string,
+  lineuuid: string,
+): Promise<MyProductDetailData | null> {
+  const experience = await getBadgeExperienceForLineUuid(lineuuid);
+  const product = experience.productBadges.find((badge) => badge.id === productId);
 
-export async function getMyProductData(productId: string): Promise<MyProductDetailData | null> {
-  const product = mockMyProductDetails.get(productId);
-
-  if (!product) {
+  if (!product || product.status !== "unlocked" || !product.earnedAt || !product.imageUrl) {
     return null;
   }
 
   return {
-    product,
-    fetchedAt: new Date().toISOString(),
+    product: {
+      id: product.id,
+      title: product.title,
+      badgeImageUrl: product.imageUrl,
+      unlockedAt: product.earnedAt,
+      quantity: product.quantity,
+      registrations: product.registrations,
+    },
+    fetchedAt: experience.fetchedAt,
   };
 }

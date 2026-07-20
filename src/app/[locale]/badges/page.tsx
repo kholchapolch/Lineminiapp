@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { BadgeClient } from "@/app/badge/BadgeClient";
+import { BadgeSessionBootstrap } from "@/app/badge/BadgeSessionBootstrap";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
 
@@ -17,6 +18,16 @@ export default function BadgesPage({ params, searchParams }: BadgesPageProps): J
 
   const locale = params.locale as Locale;
   const messages = getDictionary(locale);
+
+  if (searchParams?.debug !== "1") {
+    return (
+      <BadgeSessionBootstrap
+        locale={locale}
+        messages={messages}
+        entryError={searchParams?.entryError}
+      />
+    );
+  }
 
   return (
     <BadgeClient

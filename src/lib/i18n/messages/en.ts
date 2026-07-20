@@ -115,6 +115,7 @@ export const en: Messages = {
     receivedTitle: "Product badge received",
     unlockedOn: "Unlocked on",
     quantity: "Quantity",
+    serialNumbers: "Serial numbers",
     share: "Share with friends",
     backToMyBadges: "Back to my badges",
   },

@@ -42,7 +42,9 @@ export function MyBadgesProfileCard({
         ) : null}
       </div>
       <h1 className="myBadgesProfileCard__name">{lineDisplayName}</h1>
-      <p className="myBadgesProfileCard__handle">{fallbackProfile.handle}</p>
+      {fallbackProfile.handle ? (
+        <p className="myBadgesProfileCard__handle">{fallbackProfile.handle}</p>
+      ) : null}
     </section>
   );
 }

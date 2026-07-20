@@ -1,9 +1,16 @@
 import { withConnection } from "./mysql-connection.mjs";
+import {
+  badgeConditions,
+  badgeDisplayGroups,
+  badgeRules,
+  badgeThresholds,
+} from "./seed-data.mjs";
 
 const expected = {
-  badge_rules: 13,
-  badge_rule_thresholds: 19,
-  badge_rule_conditions: 15,
+  badge_display_groups: badgeDisplayGroups.length,
+  badge_rules: badgeRules.length,
+  badge_rule_thresholds: badgeThresholds.length,
+  badge_rule_conditions: badgeConditions.length,
 };
 
 await withConnection(async (pool) => {

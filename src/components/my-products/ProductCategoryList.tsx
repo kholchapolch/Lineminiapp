@@ -27,19 +27,29 @@ export function ProductCategoryList({
         <section className="productCategoryList__section" key={category.id}>
           <h2 className="productCategoryList__title">{category.title}</h2>
           <div className="productCategoryList__grid">
-            {category.items.map((item) => (
-              <Link
-                key={item.id}
-                className="productCategoryList__cardLink"
-                href={localizedProductPath(locale, item.id)}
-              >
+            {category.items.map((item) => {
+              const card = (
                 <ProductBadgeCard
                   className="productBadgeCard--catalog"
                   title={item.title}
-                  imageUrl={item.imageUrl}
+                  imageUrl={item.status === "unlocked" ? item.imageUrl : null}
                 />
-              </Link>
-            ))}
+              );
+
+              return item.status === "unlocked" ? (
+                <Link
+                  key={item.id}
+                  className="productCategoryList__cardLink"
+                  href={localizedProductPath(locale, item.id)}
+                >
+                  {card}
+                </Link>
+              ) : (
+                <div key={item.id} className="productCategoryList__cardLink" aria-disabled="true">
+                  {card}
+                </div>
+              );
+            })}
           </div>
         </section>
       ))}

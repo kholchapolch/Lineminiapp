@@ -118,6 +118,7 @@ export const th: Messages = {
     receivedTitle: "เหรียญโปรดักต์ที่ได้รับ",
     unlockedOn: "ปลดล็อคเมื่อ",
     quantity: "จำนวนที่มี",
+    serialNumbers: "หมายเลขซีเรียล",
     share: "แชร์ให้เพื่อน",
     backToMyBadges: "กลับหน้าหลัก",
   },

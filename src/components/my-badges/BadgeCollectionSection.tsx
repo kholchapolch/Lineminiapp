@@ -10,6 +10,7 @@ type BadgeCollectionSectionProps = {
   viewAllHref: string;
   badges: MyBadgeItem[];
   previewLimit?: number;
+  getBadgeHref?: (badgeId: string) => string;
 };
 
 export function BadgeCollectionSection({
@@ -18,6 +19,7 @@ export function BadgeCollectionSection({
   viewAllHref,
   badges,
   previewLimit = MY_BADGES_SECTION_PREVIEW_LIMIT,
+  getBadgeHref,
 }: BadgeCollectionSectionProps): JSX.Element {
   const previewBadges = badges.slice(0, previewLimit);
 
@@ -30,14 +32,23 @@ export function BadgeCollectionSection({
         </Link>
       </div>
       <div className="badgeCollectionSection__grid">
-        {previewBadges.map((badge) => (
-          <ProductBadgeCard
-            key={badge.id}
-            className="productBadgeCard--collection"
-            title={badge.title}
-            imageUrl={badge.imageUrl}
-          />
-        ))}
+        {previewBadges.map((badge) => {
+          const card = (
+            <ProductBadgeCard
+              className="productBadgeCard--collection"
+              title={badge.title}
+              imageUrl={badge.imageUrl}
+            />
+          );
+
+          return getBadgeHref ? (
+            <Link key={badge.id} href={getBadgeHref(badge.id)}>
+              {card}
+            </Link>
+          ) : (
+            <div key={badge.id}>{card}</div>
+          );
+        })}
       </div>
     </section>
   );

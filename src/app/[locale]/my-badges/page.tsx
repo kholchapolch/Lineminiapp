@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { MyBadgesView } from "@/components/my-badges/MyBadgesView";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
-import {
-  getMyBadgesData,
-  MY_BADGES_REVALIDATE_SECONDS,
-} from "@/lib/my-badges/get-my-badges-data";
+import { getMyBadgesData } from "@/lib/my-badges/get-my-badges-data";
+import { getServerLineUuid } from "@/lib/line-session-server";
+import { localizedPath } from "@/lib/i18n/paths";
 import "./my-badges.css";
 
-export const revalidate = MY_BADGES_REVALIDATE_SECONDS;
+export const dynamic = "force-dynamic";
 
 type MyBadgesPageProps = {
   params: { locale: string };
@@ -34,9 +33,15 @@ export default async function MyBadgesPage({ params }: MyBadgesPageProps): Promi
   }
 
   const locale = params.locale as Locale;
+  const lineuuid = await getServerLineUuid();
+
+  if (!lineuuid) {
+    redirect(localizedPath(locale, "badges"));
+  }
+
   const [messages, data] = await Promise.all([
     Promise.resolve(getDictionary(locale)),
-    getMyBadgesData(locale),
+    getMyBadgesData(locale, lineuuid),
   ]);
 
   return <MyBadgesView locale={locale} messages={messages} data={data} />;

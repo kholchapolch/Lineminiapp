@@ -112,6 +112,7 @@ export type Messages = {
     receivedTitle: string;
     unlockedOn: string;
     quantity: string;
+    serialNumbers: string;
     share: string;
     backToMyBadges: string;
   };

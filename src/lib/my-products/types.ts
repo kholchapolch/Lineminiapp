@@ -16,6 +16,7 @@ export type MyProductBadgeItem = {
   title: string;
   imageUrl: string | null;
   categoryId: ProductCategoryId;
+  status?: "locked" | "unlocked";
 };
 
 export type MyProductCategory = {

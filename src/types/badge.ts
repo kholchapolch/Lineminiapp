@@ -31,6 +31,7 @@ export type BadgeThresholdConfig = {
   requiredCount: number;
   achievedImageUrl: string | null;
   lockedImageUrl: string | null;
+  shareImageUrl?: string | null;
   displayName: string;
   sortOrder?: number;
 };
@@ -51,6 +52,9 @@ export type BadgeRuleConfig = {
   badgeType?: BadgeType;
   displayCategory?: string;
   displayGroup?: string | null;
+  displayGroupCode?: string | null;
+  productModelCode?: string | null;
+  productUrl?: string | null;
   description: string | null;
   sortOrder: number;
   isActive: boolean;

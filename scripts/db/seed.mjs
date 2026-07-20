@@ -1,5 +1,11 @@
 import { withConnection } from "./mysql-connection.mjs";
-import { appConfig, badgeConditions, badgeRules, badgeThresholds } from "./seed-data.mjs";
+import {
+  appConfig,
+  badgeConditions,
+  badgeDisplayGroups,
+  badgeRules,
+  badgeThresholds,
+} from "./seed-data.mjs";
 
 async function upsertAppConfig(connection) {
   for (const [key, value] of appConfig) {
@@ -10,6 +16,26 @@ async function upsertAppConfig(connection) {
         ON DUPLICATE KEY UPDATE \`value\` = VALUES(\`value\`)
       `,
       [key, value],
+    );
+  }
+}
+
+async function replaceBadgeDisplayGroups(connection) {
+  await connection.execute("DELETE FROM badge_display_groups");
+
+  for (const group of badgeDisplayGroups) {
+    await connection.execute(
+      `
+        INSERT INTO badge_display_groups (
+          group_code,
+          badge_type,
+          display_name,
+          sort_order,
+          is_active
+        )
+        VALUES (?, ?, ?, ?, TRUE)
+      `,
+      [group.code, group.badgeType, group.displayName, group.sortOrder],
     );
   }
 }
@@ -27,6 +53,9 @@ async function upsertBadgeRules(connection) {
           rule_type,
           display_category,
           display_group,
+          display_group_code,
+          product_model_code,
+          product_url,
           description,
           sort_order,
           is_active,
@@ -35,7 +64,7 @@ async function upsertBadgeRules(connection) {
           registration_start,
           registration_end
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE
           id = LAST_INSERT_ID(id),
           badge_name = VALUES(badge_name),
@@ -43,6 +72,9 @@ async function upsertBadgeRules(connection) {
           rule_type = VALUES(rule_type),
           display_category = VALUES(display_category),
           display_group = VALUES(display_group),
+          display_group_code = VALUES(display_group_code),
+          product_model_code = VALUES(product_model_code),
+          product_url = VALUES(product_url),
           description = VALUES(description),
           sort_order = VALUES(sort_order),
           is_active = VALUES(is_active),
@@ -58,6 +90,9 @@ async function upsertBadgeRules(connection) {
         rule.ruleType,
         rule.displayCategory,
         rule.displayGroup,
+        rule.displayGroupCode,
+        rule.productModelCode,
+        rule.productUrl,
         rule.description,
         rule.sortOrder,
         rule.activeFrom,
@@ -93,9 +128,10 @@ async function replaceThresholds(connection, ruleIds) {
           required_count,
           achieved_image_url,
           locked_image_url,
+          share_image_url,
           sort_order
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         ruleIds.get(threshold.ruleCode),
@@ -104,6 +140,7 @@ async function replaceThresholds(connection, ruleIds) {
         threshold.requiredCount,
         threshold.achievedImageUrl,
         threshold.lockedImageUrl,
+        threshold.shareImageUrl,
         threshold.sortOrder,
       ],
     );
@@ -139,6 +176,13 @@ async function replaceConditions(connection, ruleIds) {
   }
 }
 
+async function removeObsoleteBadgeRules(connection, ruleIds) {
+  await connection.execute(
+    `DELETE FROM badge_rules WHERE id NOT IN (${placeholders(ruleIds.size)})`,
+    Array.from(ruleIds.values()),
+  );
+}
+
 function placeholders(count) {
   if (count <= 0) {
     throw new Error("Expected at least one seeded badge rule.");
@@ -153,9 +197,11 @@ await withConnection(async (pool) => {
   try {
     await connection.beginTransaction();
     await upsertAppConfig(connection);
+    await replaceBadgeDisplayGroups(connection);
     const ruleIds = await upsertBadgeRules(connection);
     await replaceThresholds(connection, ruleIds);
     await replaceConditions(connection, ruleIds);
+    await removeObsoleteBadgeRules(connection, ruleIds);
     await connection.commit();
 
     console.log(

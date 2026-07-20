@@ -7,6 +7,7 @@ await withConnection(async (pool) => {
   await pool.query("DROP TABLE IF EXISTS badge_rule_conditions");
   await pool.query("DROP TABLE IF EXISTS badge_rule_thresholds");
   await pool.query("DROP TABLE IF EXISTS badge_rules");
+  await pool.query("DROP TABLE IF EXISTS badge_display_groups");
   await pool.query("DROP TABLE IF EXISTS app_config");
   await pool.query("SET FOREIGN_KEY_CHECKS = 1");
 });

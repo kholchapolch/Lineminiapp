@@ -1,32 +1,21 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { MyMissionView } from "@/components/my-mission/MyMissionView";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
-import { isLocale, locales, type Locale } from "@/lib/i18n/locales";
-import { getMyMissionData, MY_MISSION_REVALIDATE_SECONDS } from "@/lib/my-mission/get-my-mission-data";
-import { getMockMyMissionIds } from "@/lib/my-mission/mock-data";
+import { isLocale, type Locale } from "@/lib/i18n/locales";
+import { getMyMissionData } from "@/lib/my-mission/get-my-mission-data";
+import { localizedPath } from "@/lib/i18n/paths";
+import { getServerLineUuid } from "@/lib/line-session-server";
 import "./my-mission.css";
 
-export const revalidate = MY_MISSION_REVALIDATE_SECONDS;
+export const dynamic = "force-dynamic";
 
 type MyMissionPageProps = {
   params: { locale: string; missionId: string };
 };
 
-export function generateStaticParams(): Array<{ locale: Locale; missionId: string }> {
-  return locales.flatMap((locale) =>
-    getMockMyMissionIds().map((missionId) => ({ locale, missionId })),
-  );
-}
-
 export async function generateMetadata({ params }: MyMissionPageProps): Promise<Metadata> {
   if (!isLocale(params.locale)) {
-    return {};
-  }
-
-  const data = await getMyMissionData(params.missionId);
-
-  if (!data) {
     return {};
   }
 
@@ -44,9 +33,15 @@ export default async function MyMissionPage({ params }: MyMissionPageProps): Pro
   }
 
   const locale = params.locale as Locale;
+  const lineuuid = await getServerLineUuid();
+
+  if (!lineuuid) {
+    redirect(localizedPath(locale, "badges"));
+  }
+
   const [messages, data] = await Promise.all([
     Promise.resolve(getDictionary(locale)),
-    getMyMissionData(params.missionId),
+    getMyMissionData(params.missionId, lineuuid),
   ]);
 
   if (!data) {

@@ -4,6 +4,10 @@ export type MyProductDetail = {
   badgeImageUrl: string;
   unlockedAt: string;
   quantity: number;
+  registrations?: Array<{
+    serialNumber: string | null;
+    registeredAt: string;
+  }>;
 };
 
 export type MyProductDetailData = {

@@ -61,6 +61,39 @@
   line-height: 1.5;
 }
 
+.myProductPage__registrations {
+  margin: 24px auto 0;
+  max-width: 360px;
+  text-align: left;
+}
+
+.myProductPage__registrations h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.myProductPage__registrations ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.myProductPage__registrations li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+  border-top: 1px solid rgb(255 255 255 / 14%);
+  color: var(--my-product-muted);
+  font-size: 13px;
+}
+
+.myProductPage__registrations span {
+  color: var(--my-product-text);
+  font-weight: 600;
+}
+
 .myProductPage__actions {
   display: flex;
   flex-direction: column;

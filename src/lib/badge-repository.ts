@@ -151,6 +151,9 @@ type RuleRow = RowDataPacket & {
   rule_type: "tier" | "achievement";
   display_category: string;
   display_group: string | null;
+  display_group_code: string | null;
+  product_model_code: string | null;
+  product_url: string | null;
   description: string | null;
   sort_order: number;
   is_active: boolean | number;
@@ -163,6 +166,7 @@ type RuleRow = RowDataPacket & {
   threshold_required_count: number | null;
   threshold_achieved_image_url: string | null;
   threshold_locked_image_url: string | null;
+  threshold_share_image_url: string | null;
   threshold_sort_order: number | null;
   condition_id: number | null;
   condition_label: string | null;
@@ -251,6 +255,9 @@ export async function getActiveBadgeRules(options: {
         br.rule_type,
         br.display_category,
         br.display_group,
+        br.display_group_code,
+        br.product_model_code,
+        br.product_url,
         br.description,
         br.sort_order,
         br.is_active,
@@ -263,6 +270,7 @@ export async function getActiveBadgeRules(options: {
         brt.required_count AS threshold_required_count,
         brt.achieved_image_url AS threshold_achieved_image_url,
         brt.locked_image_url AS threshold_locked_image_url,
+        brt.share_image_url AS threshold_share_image_url,
         brt.sort_order AS threshold_sort_order,
         brc.id AS condition_id,
         brc.condition_label AS condition_label,
@@ -346,6 +354,9 @@ export async function getDebugDbTables(): Promise<DbDebugTable[]> {
         rule_type,
         display_category,
         display_group,
+        display_group_code,
+        product_model_code,
+        product_url,
         description,
         sort_order,
         is_active,
@@ -365,6 +376,7 @@ export async function getDebugDbTables(): Promise<DbDebugTable[]> {
         required_count,
         achieved_image_url,
         locked_image_url,
+        share_image_url,
         sort_order
       FROM badge_rule_thresholds
       ORDER BY badge_rule_id ASC, sort_order ASC, id ASC
@@ -482,6 +494,9 @@ function mapRuleRows(rows: RuleRow[]): BadgeRuleConfig[] {
         ruleType: row.rule_type,
         displayCategory: row.display_category,
         displayGroup: row.display_group,
+        displayGroupCode: row.display_group_code,
+        productModelCode: row.product_model_code,
+        productUrl: row.product_url,
         description: row.description,
         sortOrder: row.sort_order,
         isActive: Boolean(row.is_active),
@@ -508,6 +523,7 @@ function mapRuleRows(rows: RuleRow[]): BadgeRuleConfig[] {
         requiredCount: row.threshold_required_count,
         achievedImageUrl: row.threshold_achieved_image_url,
         lockedImageUrl: row.threshold_locked_image_url,
+        shareImageUrl: row.threshold_share_image_url,
         sortOrder: row.threshold_sort_order ?? 0,
       });
     }

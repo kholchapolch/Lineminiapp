@@ -26,6 +26,10 @@ export function middleware(request: NextRequest): NextResponse {
     return redirectTo(request, `/${defaultLocale}${MY_BADGES_PATH}`);
   }
 
+  if (pathname === "/badge" || pathname === "/badge/") {
+    return redirectTo(request, `/${defaultLocale}/badges`);
+  }
+
   if (
     pathname === MY_BADGES_PATH ||
     pathname.startsWith(`${MY_BADGES_PATH}/`)
