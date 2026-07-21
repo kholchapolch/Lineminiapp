@@ -1,51 +1,45 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+"use client";
+
 import { MyMissionView } from "@/components/my-mission/MyMissionView";
+import { PageError } from "@/components/page-error/PageError";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
-import { getMyMissionData } from "@/lib/my-mission/get-my-mission-data";
-import { localizedPath } from "@/lib/i18n/paths";
-import { getServerLineUuid } from "@/lib/line-session-server";
+import type { MyMissionDetailData } from "@/lib/my-mission/types";
+import { useLineSessionData } from "@/lib/use-line-session-data";
 import "./my-mission.css";
-
-export const dynamic = "force-dynamic";
 
 type MyMissionPageProps = {
   params: { locale: string; missionId: string };
 };
 
-export async function generateMetadata({ params }: MyMissionPageProps): Promise<Metadata> {
-  if (!isLocale(params.locale)) {
-    return {};
+export default function MyMissionPage({
+  params,
+}: MyMissionPageProps): JSX.Element {
+  const locale: Locale = isLocale(params.locale) ? params.locale : "th";
+  const messages = getDictionary(locale);
+  const { data, error } = useLineSessionData<MyMissionDetailData>(
+    `/api/my-missions/${encodeURIComponent(params.missionId)}`,
+    messages.errors.accessBlocked.message,
+  );
+
+  if (error) {
+    return (
+      <PageError
+        title={messages.errors.accessBlocked.title}
+        message={error}
+      />
+    );
   }
-
-  const messages = getDictionary(params.locale);
-
-  return {
-    title: messages.meta.title,
-    description: messages.myMission.meta.description,
-  };
-}
-
-export default async function MyMissionPage({ params }: MyMissionPageProps): Promise<JSX.Element> {
-  if (!isLocale(params.locale)) {
-    notFound();
-  }
-
-  const locale = params.locale as Locale;
-  const lineuuid = await getServerLineUuid({ allowLocalPreview: true });
-
-  if (!lineuuid) {
-    redirect(localizedPath(locale, "badges"));
-  }
-
-  const [messages, data] = await Promise.all([
-    Promise.resolve(getDictionary(locale)),
-    getMyMissionData(params.missionId, lineuuid),
-  ]);
 
   if (!data) {
-    notFound();
+    return (
+      <main className="container">
+        <section className="panel" role="status">
+          <h1>{messages.loading.title}</h1>
+          <p>{messages.loading.message}</p>
+        </section>
+      </main>
+    );
   }
 
   return <MyMissionView locale={locale} messages={messages} data={data} />;

@@ -1,50 +1,46 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+"use client";
+
 import { MyMissionsView } from "@/components/my-missions/MyMissionsView";
+import { PageError } from "@/components/page-error/PageError";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
-import { getMyMissionsData } from "@/lib/my-missions/get-my-missions-data";
-import { localizedPath } from "@/lib/i18n/paths";
-import { getServerLineUuid } from "@/lib/line-session-server";
+import type { MyMissionsData } from "@/lib/my-missions/types";
+import { useLineSessionData } from "@/lib/use-line-session-data";
 import "./my-missions.css";
-
-export const dynamic = "force-dynamic";
 
 type MyMissionsPageProps = {
   params: { locale: string };
 };
 
-export async function generateMetadata({ params }: MyMissionsPageProps): Promise<Metadata> {
-  if (!isLocale(params.locale)) {
-    return {};
-  }
-
-  const messages = getDictionary(params.locale);
-
-  return {
-    title: messages.meta.title,
-    description: messages.myMissions.meta.description,
-  };
-}
-
-export default async function MyMissionsPage({
+export default function MyMissionsPage({
   params,
-}: MyMissionsPageProps): Promise<JSX.Element> {
-  if (!isLocale(params.locale)) {
-    notFound();
+}: MyMissionsPageProps): JSX.Element {
+  const locale: Locale = isLocale(params.locale) ? params.locale : "th";
+  const messages = getDictionary(locale);
+  const { data, error } = useLineSessionData<MyMissionsData>(
+    "/api/my-missions",
+    messages.errors.accessBlocked.message,
+  );
+
+  if (error) {
+    return (
+      <PageError
+        title={messages.errors.accessBlocked.title}
+        message={error}
+      />
+    );
   }
 
-  const locale = params.locale as Locale;
-  const lineuuid = await getServerLineUuid({ allowLocalPreview: true });
-
-  if (!lineuuid) {
-    redirect(localizedPath(locale, "badges"));
+  if (!data) {
+    return (
+      <main className="container">
+        <section className="panel" role="status">
+          <h1>{messages.loading.title}</h1>
+          <p>{messages.loading.message}</p>
+        </section>
+      </main>
+    );
   }
-
-  const [messages, data] = await Promise.all([
-    Promise.resolve(getDictionary(locale)),
-    getMyMissionsData(lineuuid),
-  ]);
 
   return <MyMissionsView locale={locale} messages={messages} data={data} />;
 }

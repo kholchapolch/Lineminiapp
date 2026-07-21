@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useLineSession } from "@/components/LineSessionProvider";
 import { MyBadgesView } from "@/components/my-badges/MyBadgesView";
+import { PageError } from "@/components/page-error/PageError";
+import { PageLoading } from "@/components/page-loading/PageLoading";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
 import type { MyBadgesData } from "@/lib/my-badges/types";
@@ -74,24 +76,15 @@ export default function MyBadgesPage({
 
   if (error) {
     return (
-      <main className="container">
-        <section className="panel" role="alert">
-          <h1>{messages.errors.accessBlocked.title}</h1>
-          <p>{error}</p>
-        </section>
-      </main>
+      <PageError
+        title={messages.errors.accessBlocked.title}
+        message={error}
+      />
     );
   }
 
   if (status === "idle" || status === "loading" || !lineUuid || !data) {
-    return (
-      <main className="container">
-        <section className="panel" role="status">
-          <h1>{messages.loading.title}</h1>
-          <p>{messages.loading.message}</p>
-        </section>
-      </main>
-    );
+    return <PageLoading variant="my-badges" />;
   }
 
   return <MyBadgesView locale={locale} messages={messages} data={data} />;

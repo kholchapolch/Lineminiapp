@@ -1,53 +1,45 @@
-import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+"use client";
+
 import { MyProductView } from "@/components/my-product/MyProductView";
+import { PageError } from "@/components/page-error/PageError";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
-import { getMyProductData } from "@/lib/my-product/get-my-product-data";
-import { localizedPath } from "@/lib/i18n/paths";
-import { getServerLineUuid } from "@/lib/line-session-server";
+import type { MyProductDetailData } from "@/lib/my-product/types";
+import { useLineSessionData } from "@/lib/use-line-session-data";
 import "./my-product.css";
-
-export const dynamic = "force-dynamic";
 
 type MyProductPageProps = {
   params: { locale: string; productId: string };
 };
 
-export async function generateMetadata({ params }: MyProductPageProps): Promise<Metadata> {
-  if (!isLocale(params.locale)) {
-    return {};
-  }
-
-  const messages = getDictionary(params.locale);
-
-  return {
-    title: messages.meta.title,
-    description: messages.myProduct.meta.description,
-  };
-}
-
-export default async function MyProductPage({
+export default function MyProductPage({
   params,
-}: MyProductPageProps): Promise<JSX.Element> {
-  if (!isLocale(params.locale)) {
-    notFound();
+}: MyProductPageProps): JSX.Element {
+  const locale: Locale = isLocale(params.locale) ? params.locale : "th";
+  const messages = getDictionary(locale);
+  const { data, error } = useLineSessionData<MyProductDetailData>(
+    `/api/my-products/${encodeURIComponent(params.productId)}`,
+    messages.errors.accessBlocked.message,
+  );
+
+  if (error) {
+    return (
+      <PageError
+        title={messages.errors.accessBlocked.title}
+        message={error}
+      />
+    );
   }
-
-  const locale = params.locale as Locale;
-  const lineuuid = await getServerLineUuid({ allowLocalPreview: true });
-
-  if (!lineuuid) {
-    redirect(localizedPath(locale, "badges"));
-  }
-
-  const [messages, data] = await Promise.all([
-    Promise.resolve(getDictionary(locale)),
-    getMyProductData(params.productId, lineuuid),
-  ]);
 
   if (!data) {
-    notFound();
+    return (
+      <main className="container">
+        <section className="panel" role="status">
+          <h1>{messages.loading.title}</h1>
+          <p>{messages.loading.message}</p>
+        </section>
+      </main>
+    );
   }
 
   return <MyProductView locale={locale} messages={messages} data={data} />;
