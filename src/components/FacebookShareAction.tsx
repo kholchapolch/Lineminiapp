@@ -19,6 +19,7 @@ export function FacebookShareAction({
   className,
 }: FacebookShareActionProps): JSX.Element {
   const [shareUrl, setShareUrl] = useState(url ?? "");
+  // console.log({ shareUrl });
 
   useEffect(() => {
     if (url) {
@@ -29,7 +30,9 @@ export function FacebookShareAction({
     setShareUrl(window.location.href);
   }, [url]);
 
-  const classes = ["sonyButton", "sonyButton--solid", className].filter(Boolean).join(" ");
+  const classes = ["sonyButton", "sonyButton--solid", className]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <ReactShareFacebookButton
