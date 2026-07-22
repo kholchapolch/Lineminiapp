@@ -44,6 +44,7 @@
   color: #b0b0b0;
   font-size: 14px;
   line-height: 1.55;
+  white-space: pre-line;
 }
 
 .myMissionsPage__sections {
