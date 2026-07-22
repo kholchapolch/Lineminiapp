@@ -36,11 +36,17 @@ class SonyProductApiError extends Error {
 export function createSonyProductsClient(
   config: AppConfig,
 ): SonyProductsClient {
-  return new LiveSonyProductsClient({
-    endpointUrl: config.sonyProductApiBaseUrl,
-    subscriptionKey: config.sonyProductApiSubscriptionKey,
-    countryCode: config.sonyProductApiCountryCode,
-  });
+  if (config.sonyProductApiMode === "live") {
+    return new LiveSonyProductsClient({
+      endpointUrl: config.sonyProductApiBaseUrl,
+      subscriptionKey: config.sonyProductApiSubscriptionKey,
+      countryCode: config.sonyProductApiCountryCode,
+    });
+  }
+
+  return {
+    getCustomerProducts: getMockSonyCustomerProducts,
+  };
 }
 
 class LiveSonyProductsClient implements SonyProductsClient {
@@ -53,18 +59,18 @@ class LiveSonyProductsClient implements SonyProductsClient {
   ) {}
 
   async getCustomerProducts(lineuuid: string): Promise<SonyCustomerProducts> {
-    // if (!this.options.subscriptionKey) {
-    //   throw new SonyProductApiError(
-    //     "Sony product API subscription key is not configured.",
-    //   );
-    // }
+    if (!this.options.subscriptionKey) {
+      throw new SonyProductApiError(
+        "Sony product API subscription key is not configured.",
+      );
+    }
 
     const response = await fetch(this.options.endpointUrl, {
       method: "POST",
       headers: {
         accept: "application/json",
         "content-type": "application/json",
-        "Ocp-Apim-Subscription-Key": "308b5b0ad6d1451cb387f3a2c6f76dd2",
+        "Ocp-Apim-Subscription-Key": this.options.subscriptionKey,
       },
       body: JSON.stringify({
         countryCode: this.options.countryCode,
