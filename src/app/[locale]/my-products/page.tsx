@@ -7,6 +7,7 @@ import { isLocale, type Locale } from "@/lib/i18n/locales";
 import type { MyProductsData } from "@/lib/my-products/types";
 import { useLineSessionData } from "@/lib/use-line-session-data";
 import "./my-products.css";
+import { PageLoading } from "@/components/page-loading/PageLoading";
 
 type MyProductsPageProps = {
   params: { locale: string };
@@ -24,22 +25,12 @@ export default function MyProductsPage({
 
   if (error) {
     return (
-      <PageError
-        title={messages.errors.accessBlocked.title}
-        message={error}
-      />
+      <PageError title={messages.errors.accessBlocked.title} message={error} />
     );
   }
 
   if (!data) {
-    return (
-      <main className="container">
-        <section className="panel" role="status">
-          <h1>{messages.loading.title}</h1>
-          <p>{messages.loading.message}</p>
-        </section>
-      </main>
-    );
+    return <PageLoading variant="my-products" />;
   }
 
   return <MyProductsClient locale={locale} messages={messages} data={data} />;
