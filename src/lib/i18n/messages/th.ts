@@ -95,7 +95,7 @@ export const th: Messages = {
     filterLabel: "กรองตามประเภทสินค้า",
     backToMyBadges: "กลับหน้าหลัก",
     filters: {
-      all: "ทั้งหมด",
+      all: "All",
       "full-frame-camera": "Full Frame Camera",
       "prime-lens": "Prime Lens",
       "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
