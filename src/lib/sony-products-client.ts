@@ -36,17 +36,11 @@ class SonyProductApiError extends Error {
 export function createSonyProductsClient(
   config: AppConfig,
 ): SonyProductsClient {
-  if (config.sonyProductApiMode === "live") {
-    return new LiveSonyProductsClient({
-      endpointUrl: config.sonyProductApiBaseUrl,
-      subscriptionKey: config.sonyProductApiSubscriptionKey,
-      countryCode: config.sonyProductApiCountryCode,
-    });
-  }
-
-  return {
-    getCustomerProducts: getMockSonyCustomerProducts,
-  };
+  return new LiveSonyProductsClient({
+    endpointUrl: config.sonyProductApiBaseUrl,
+    subscriptionKey: config.sonyProductApiSubscriptionKey,
+    countryCode: config.sonyProductApiCountryCode,
+  });
 }
 
 class LiveSonyProductsClient implements SonyProductsClient {
@@ -59,18 +53,18 @@ class LiveSonyProductsClient implements SonyProductsClient {
   ) {}
 
   async getCustomerProducts(lineuuid: string): Promise<SonyCustomerProducts> {
-    if (!this.options.subscriptionKey) {
-      throw new SonyProductApiError(
-        "Sony product API subscription key is not configured.",
-      );
-    }
+    // if (!this.options.subscriptionKey) {
+    //   throw new SonyProductApiError(
+    //     "Sony product API subscription key is not configured.",
+    //   );
+    // }
 
     const response = await fetch(this.options.endpointUrl, {
       method: "POST",
       headers: {
         accept: "application/json",
         "content-type": "application/json",
-        "Ocp-Apim-Subscription-Key": this.options.subscriptionKey,
+        "Ocp-Apim-Subscription-Key": "308b5b0ad6d1451cb387f3a2c6f76dd2",
       },
       body: JSON.stringify({
         countryCode: this.options.countryCode,
@@ -78,8 +72,6 @@ class LiveSonyProductsClient implements SonyProductsClient {
       }),
       cache: "no-store",
     });
-
-    console.log({ response });
 
     if (response.status === 404) {
       throw new SonyCustomerNotFoundError();
@@ -94,6 +86,7 @@ class LiveSonyProductsClient implements SonyProductsClient {
     const payload = (await response.json()) as
       | LiveSonyApiResponse
       | SonyWarrantyApiResponse;
+
     return normalizeLiveSonyApiResponse(payload, lineuuid);
   }
 }

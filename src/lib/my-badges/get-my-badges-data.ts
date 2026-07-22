@@ -2,9 +2,13 @@ import type { Locale } from "@/lib/i18n/locales";
 import { getBadgeExperienceForLineUuid } from "@/lib/badge-experience-server";
 import type { MyBadgesData } from "@/lib/my-badges/types";
 
-export async function getMyBadgesData(locale: Locale, lineuuid: string): Promise<MyBadgesData> {
+export async function getMyBadgesData(
+  locale: Locale,
+  lineuuid: string,
+): Promise<MyBadgesData> {
   const experience = await getBadgeExperienceForLineUuid(lineuuid);
-  const displayName = experience.customer.lineDisplayName ?? experience.customer.displayName;
+  const displayName =
+    experience.customer.lineDisplayName ?? experience.customer.displayName;
 
   return {
     profile: {
