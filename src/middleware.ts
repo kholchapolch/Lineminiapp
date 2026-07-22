@@ -27,7 +27,7 @@ export function middleware(request: NextRequest): NextResponse {
   }
 
   if (pathname === "/badge" || pathname === "/badge/") {
-    return redirectTo(request, `/${defaultLocale}/badges`);
+    return redirectTo(request, `/${defaultLocale}/${MY_BADGES_PATH}`);
   }
 
   if (

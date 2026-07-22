@@ -8,48 +8,60 @@ type BadgeCollectionSectionProps = {
   title: string;
   viewAllLabel: string;
   viewAllHref: string;
+  emptyLabel: string;
   badges: MyBadgeItem[];
   previewLimit?: number;
   getBadgeHref?: (badgeId: string) => string;
+  interactive?: boolean;
 };
 
 export function BadgeCollectionSection({
   title,
   viewAllLabel,
   viewAllHref,
+  emptyLabel,
   badges,
   previewLimit = MY_BADGES_SECTION_PREVIEW_LIMIT,
   getBadgeHref,
+  interactive = true,
 }: BadgeCollectionSectionProps): JSX.Element {
   const previewBadges = badges.slice(0, previewLimit);
+  const canNavigate = interactive && Boolean(getBadgeHref);
+  const isEmpty = previewBadges.length === 0;
 
   return (
     <section className="badgeCollectionSection">
       <div className="badgeCollectionSection__header">
         <h2>{title}</h2>
-        <Link className="badgeCollectionSection__viewAll" href={viewAllHref}>
-          {viewAllLabel}
-        </Link>
+        {interactive && !isEmpty ? (
+          <Link className="badgeCollectionSection__viewAll" href={viewAllHref}>
+            {viewAllLabel}
+          </Link>
+        ) : null}
       </div>
-      <div className="badgeCollectionSection__grid">
-        {previewBadges.map((badge) => {
-          const card = (
-            <ProductBadgeCard
-              className="productBadgeCard--collection"
-              title={badge.title}
-              imageUrl={badge.imageUrl}
-            />
-          );
+      {isEmpty ? (
+        <p className="badgeCollectionSection__empty">{emptyLabel}</p>
+      ) : (
+        <div className="badgeCollectionSection__grid">
+          {previewBadges.map((badge) => {
+            const card = (
+              <ProductBadgeCard
+                className="productBadgeCard--collection"
+                title={badge.title}
+                imageUrl={badge.imageUrl}
+              />
+            );
 
-          return getBadgeHref ? (
-            <Link key={badge.id} href={getBadgeHref(badge.id)}>
-              {card}
-            </Link>
-          ) : (
-            <div key={badge.id}>{card}</div>
-          );
-        })}
-      </div>
+            return canNavigate && getBadgeHref ? (
+              <Link key={badge.id} href={getBadgeHref(badge.id)}>
+                {card}
+              </Link>
+            ) : (
+              <div key={badge.id}>{card}</div>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }

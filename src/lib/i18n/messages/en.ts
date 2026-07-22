@@ -78,6 +78,7 @@ export const en: Messages = {
     myProductBadges: "My product badges",
     myMissionBadges: "My mission badges",
     viewAll: "View all",
+    empty: "No badges yet",
     close: "Close",
   },
   myProducts: {

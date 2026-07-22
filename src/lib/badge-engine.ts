@@ -1,4 +1,4 @@
-import { normalizeSku } from "@/lib/sku";
+import { matchesEligibleSku, normalizeSku } from "@/lib/sku";
 import type {
   BadgeRuleConfig,
   BadgeThresholdConfig,
@@ -76,14 +76,13 @@ function uniqueEligibleProducts(
   skus: string[],
   rule: BadgeRuleConfig,
 ): SonyOwnedProduct[] {
-  const eligibleSkus = new Set(skus.map(normalizeSku));
   const matchedBySku = new Map<string, SonyOwnedProduct>();
 
   for (const product of products) {
     const normalizedSku = normalizeSku(product.sku);
 
     if (
-      eligibleSkus.has(normalizedSku) &&
+      matchesEligibleSku(product.sku, skus) &&
       isWithinDateWindow(product.registeredAt, rule.registrationStart, rule.registrationEnd) &&
       !matchedBySku.has(normalizedSku)
     ) {

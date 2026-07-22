@@ -23,12 +23,15 @@ type EnvInput = Record<string, string | undefined>;
 
 const DEFAULT_LOCAL_BASE_URL = "http://localhost:3000";
 const DEFAULT_DEMO_LINE_UUID = "demo-line-earned";
-const DEFAULT_LINE_VERIFY_ID_TOKEN_URL = "https://api.line.me/oauth2/v2.1/verify";
+const DEFAULT_LINE_VERIFY_ID_TOKEN_URL =
+  "https://api.line.me/oauth2/v2.1/verify";
 
 export function loadAppConfig(env: EnvInput = process.env): AppConfig {
   const appEnv = parseAppEnv(env.APP_ENV);
+
   const appBaseUrl = normalizeRequiredUrl(
-    env.APP_BASE_URL ?? (appEnv === "local" ? DEFAULT_LOCAL_BASE_URL : undefined),
+    env.APP_BASE_URL ??
+      (appEnv === "local" ? DEFAULT_LOCAL_BASE_URL : undefined),
     "APP_BASE_URL",
     "origin",
   );
@@ -38,8 +41,11 @@ export function loadAppConfig(env: EnvInput = process.env): AppConfig {
     env.SONY_PRODUCT_API_BASE_URL,
     "full-url",
   );
-  const sonyProductApiSubscriptionKey = blankToUndefined(env.SONY_PRODUCT_API_SUBSCRIPTION_KEY);
-  const sonyProductApiCountryCode = blankToUndefined(env.SONY_PRODUCT_API_COUNTRY_CODE) ?? "th";
+  const sonyProductApiSubscriptionKey = blankToUndefined(
+    env.SONY_PRODUCT_API_SUBSCRIPTION_KEY,
+  );
+  const sonyProductApiCountryCode =
+    blankToUndefined(env.SONY_PRODUCT_API_COUNTRY_CODE) ?? "th";
   const liffId = blankToUndefined(env.NEXT_PUBLIC_LIFF_ID);
   const lineChannelId = blankToUndefined(env.LINE_CHANNEL_ID);
   const appSessionSecret = blankToUndefined(env.APP_SESSION_SECRET);
@@ -65,12 +71,22 @@ export function loadAppConfig(env: EnvInput = process.env): AppConfig {
   }
 
   if (sonyProductApiMode === "live" && !sonyProductApiBaseUrl) {
-    throw new Error("SONY_PRODUCT_API_BASE_URL is required when SONY_PRODUCT_API_MODE=live.");
+    throw new Error(
+      "SONY_PRODUCT_API_BASE_URL is required when SONY_PRODUCT_API_MODE=live.",
+    );
   }
 
   if (sonyProductApiMode === "live" && !sonyProductApiSubscriptionKey) {
-    throw new Error("SONY_PRODUCT_API_SUBSCRIPTION_KEY is required when SONY_PRODUCT_API_MODE=live.");
+    throw new Error(
+      "SONY_PRODUCT_API_SUBSCRIPTION_KEY is required when SONY_PRODUCT_API_MODE=live.",
+    );
   }
+
+  // console.log({
+  //   sonyProductApiMode,
+  //   sonyProductApiBaseUrl,
+  //   sonyProductApiSubscriptionKey,
+  // });
 
   return {
     appEnv,
@@ -84,10 +100,12 @@ export function loadAppConfig(env: EnvInput = process.env): AppConfig {
     appSessionSecret,
     logHashSecret,
     sonyProductApiMode,
-    sonyProductApiBaseUrl: sonyProductApiBaseUrl ?? `${appBaseUrl}/api/mock/sony`,
+    sonyProductApiBaseUrl:
+      sonyProductApiBaseUrl ?? `${appBaseUrl}/api/mock/sony`,
     sonyProductApiSubscriptionKey,
     sonyProductApiCountryCode,
-    sonyDemoLineUuid: blankToUndefined(env.SONY_DEMO_LINE_UUID) ?? DEFAULT_DEMO_LINE_UUID,
+    sonyDemoLineUuid:
+      blankToUndefined(env.SONY_DEMO_LINE_UUID) ?? DEFAULT_DEMO_LINE_UUID,
   };
 }
 
@@ -101,7 +119,9 @@ function parseAppEnv(value: string | undefined): AppEnv {
   throw new Error("APP_ENV must be one of local, staging, or production.");
 }
 
-function parseSonyProductApiMode(value: string | undefined): SonyProductApiMode {
+function parseSonyProductApiMode(
+  value: string | undefined,
+): SonyProductApiMode {
   const mode = blankToUndefined(value) ?? "mock";
 
   if (mode === "mock" || mode === "live") {

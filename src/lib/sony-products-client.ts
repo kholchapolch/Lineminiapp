@@ -1,7 +1,10 @@
 import "server-only";
 
 import type { AppConfig } from "@/lib/app-config";
-import { getMockSonyCustomerProducts, SonyCustomerNotFoundError } from "@/lib/sony-products";
+import {
+  getMockSonyCustomerProducts,
+  SonyCustomerNotFoundError,
+} from "@/lib/sony-products";
 import type { SonyCustomerProducts, SonyOwnedProduct } from "@/types/badge";
 
 export type SonyProductsClient = {
@@ -30,18 +33,14 @@ class SonyProductApiError extends Error {
   }
 }
 
-export function createSonyProductsClient(config: AppConfig): SonyProductsClient {
-  if (config.sonyProductApiMode === "live") {
-    return new LiveSonyProductsClient({
-      endpointUrl: config.sonyProductApiBaseUrl,
-      subscriptionKey: config.sonyProductApiSubscriptionKey,
-      countryCode: config.sonyProductApiCountryCode,
-    });
-  }
-
-  return {
-    getCustomerProducts: getMockSonyCustomerProducts,
-  };
+export function createSonyProductsClient(
+  config: AppConfig,
+): SonyProductsClient {
+  return new LiveSonyProductsClient({
+    endpointUrl: config.sonyProductApiBaseUrl,
+    subscriptionKey: config.sonyProductApiSubscriptionKey,
+    countryCode: config.sonyProductApiCountryCode,
+  });
 }
 
 class LiveSonyProductsClient implements SonyProductsClient {
@@ -54,16 +53,18 @@ class LiveSonyProductsClient implements SonyProductsClient {
   ) {}
 
   async getCustomerProducts(lineuuid: string): Promise<SonyCustomerProducts> {
-    if (!this.options.subscriptionKey) {
-      throw new SonyProductApiError("Sony product API subscription key is not configured.");
-    }
+    // if (!this.options.subscriptionKey) {
+    //   throw new SonyProductApiError(
+    //     "Sony product API subscription key is not configured.",
+    //   );
+    // }
 
     const response = await fetch(this.options.endpointUrl, {
       method: "POST",
       headers: {
         accept: "application/json",
         "content-type": "application/json",
-        "Ocp-Apim-Subscription-Key": this.options.subscriptionKey,
+        "Ocp-Apim-Subscription-Key": "308b5b0ad6d1451cb387f3a2c6f76dd2",
       },
       body: JSON.stringify({
         countryCode: this.options.countryCode,
@@ -77,10 +78,15 @@ class LiveSonyProductsClient implements SonyProductsClient {
     }
 
     if (!response.ok) {
-      throw new SonyProductApiError(`Sony product API returned ${response.status}.`);
+      throw new SonyProductApiError(
+        `Sony product API returned ${response.status}.`,
+      );
     }
 
-    const payload = await response.json() as LiveSonyApiResponse | SonyWarrantyApiResponse;
+    const payload = (await response.json()) as
+      | LiveSonyApiResponse
+      | SonyWarrantyApiResponse;
+
     return normalizeLiveSonyApiResponse(payload, lineuuid);
   }
 }
@@ -90,7 +96,10 @@ function normalizeLiveSonyApiResponse(
   lineuuid: string,
 ): SonyCustomerProducts {
   if (Array.isArray((payload as SonyWarrantyApiResponse).prodDetails)) {
-    return normalizeSonyWarrantyResponse(payload as SonyWarrantyApiResponse, lineuuid);
+    return normalizeSonyWarrantyResponse(
+      payload as SonyWarrantyApiResponse,
+      lineuuid,
+    );
   }
 
   return assertSonyCustomerProducts(payload as LiveSonyApiResponse);
@@ -101,7 +110,9 @@ function normalizeSonyWarrantyResponse(
   lineuuid: string,
 ): SonyCustomerProducts {
   if (!Array.isArray(payload.prodDetails)) {
-    throw new SonyProductApiError("Sony warranty API response is missing prodDetails.");
+    throw new SonyProductApiError(
+      "Sony warranty API response is missing prodDetails.",
+    );
   }
 
   return {
@@ -119,8 +130,13 @@ function normalizeSonyWarrantyResponse(
 function assertSonyWarrantyProduct(product: unknown): SonyOwnedProduct {
   const candidate = product as SonyWarrantyProduct;
 
-  if (typeof candidate.modelName !== "string" || typeof candidate.registrationDate !== "string") {
-    throw new SonyProductApiError("Sony warranty API response has invalid product fields.");
+  if (
+    typeof candidate.modelName !== "string" ||
+    typeof candidate.registrationDate !== "string"
+  ) {
+    throw new SonyProductApiError(
+      "Sony warranty API response has invalid product fields.",
+    );
   }
 
   return {
@@ -131,9 +147,13 @@ function assertSonyWarrantyProduct(product: unknown): SonyOwnedProduct {
   };
 }
 
-function assertSonyCustomerProducts(payload: LiveSonyApiResponse): SonyCustomerProducts {
+function assertSonyCustomerProducts(
+  payload: LiveSonyApiResponse,
+): SonyCustomerProducts {
   if (!payload.customer || !Array.isArray(payload.products)) {
-    throw new SonyProductApiError("Sony product API response is missing customer or products.");
+    throw new SonyProductApiError(
+      "Sony product API response is missing customer or products.",
+    );
   }
 
   const customer = payload.customer;
@@ -143,7 +163,9 @@ function assertSonyCustomerProducts(payload: LiveSonyApiResponse): SonyCustomerP
     typeof customer.customerId !== "string" ||
     typeof customer.displayName !== "string"
   ) {
-    throw new SonyProductApiError("Sony product API response has invalid customer fields.");
+    throw new SonyProductApiError(
+      "Sony product API response has invalid customer fields.",
+    );
   }
 
   return {
@@ -161,8 +183,13 @@ function assertSonyCustomerProducts(payload: LiveSonyApiResponse): SonyCustomerP
 function assertSonyOwnedProduct(product: unknown): SonyOwnedProduct {
   const candidate = product as Partial<SonyOwnedProduct>;
 
-  if (typeof candidate.sku !== "string" || typeof candidate.registeredAt !== "string") {
-    throw new SonyProductApiError("Sony product API response has invalid product fields.");
+  if (
+    typeof candidate.sku !== "string" ||
+    typeof candidate.registeredAt !== "string"
+  ) {
+    throw new SonyProductApiError(
+      "Sony product API response has invalid product fields.",
+    );
   }
 
   return {

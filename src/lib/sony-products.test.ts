@@ -1,10 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { getMockSonyCustomerProducts } from "@/lib/sony-products";
-import { normalizeSku } from "@/lib/sku";
+import { matchesEligibleSku, normalizeSku } from "@/lib/sku";
 
 describe("normalizeSku", () => {
   it("normalizes whitespace and case for indexed matching", () => {
     expect(normalizeSku(" ilce-7m4 ")).toBe("ILCE-7M4");
+  });
+});
+
+describe("matchesEligibleSku", () => {
+  it("matches exact SKUs after normalization", () => {
+    expect(matchesEligibleSku("sel2450g", ["SEL2450G"])).toBe(true);
+  });
+
+  it("matches Sony model names that include the rule SKU", () => {
+    expect(matchesEligibleSku("SEL2450G//Z SYX", ["SEL2450G"])).toBe(true);
+    expect(matchesEligibleSku("SEL70200G2/CSYX", ["SEL70200G2"])).toBe(true);
+  });
+
+  it("does not match unrelated SKUs", () => {
+    expect(matchesEligibleSku("SEL1635GM2", ["SEL2450G"])).toBe(false);
   });
 });
 

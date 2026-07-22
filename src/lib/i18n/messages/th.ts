@@ -80,6 +80,7 @@ export const th: Messages = {
     myProductBadges: "เหรียญโปรดักต์ของฉัน",
     myMissionBadges: "เหรียญภารกิจของฉัน",
     viewAll: "ดูทั้งหมด",
+    empty: "ยังไม่มีเหรียญ",
     close: "ปิด",
   },
   myProducts: {

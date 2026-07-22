@@ -13,7 +13,11 @@ export function generateStaticParams(): Array<{ locale: Locale }> {
   return locales.map((locale) => ({ locale }));
 }
 
-export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
+export function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Metadata {
   if (!isLocale(params.locale)) {
     return {};
   }
@@ -26,7 +30,10 @@ export function generateMetadata({ params }: { params: { locale: string } }): Me
   };
 }
 
-export default function LocaleLayout({ children, params }: LocaleLayoutProps): JSX.Element {
+export default function LocaleLayout({
+  children,
+  params,
+}: LocaleLayoutProps): JSX.Element {
   if (!isLocale(params.locale)) {
     notFound();
   }

@@ -12,21 +12,31 @@ type MyProductViewProps = {
   data: MyProductDetailData;
 };
 
-export function MyProductView({ locale, messages, data }: MyProductViewProps): JSX.Element {
+export function MyProductView({
+  locale,
+  messages,
+  data,
+}: MyProductViewProps): JSX.Element {
   const { product } = data;
 
   return (
     <div className="myProductPage">
       <main className="myProductPage__content">
-        <p className="myProductPage__eyebrow">{messages.myProduct.shareTitle}</p>
+        <p className="myProductPage__eyebrow">
+          {messages.myProduct.shareTitle}
+        </p>
 
-        <ProductBadgeHero imageUrl={product.badgeImageUrl} title={product.title} />
+        <ProductBadgeHero
+          imageUrl={product.badgeImageUrl}
+          title={product.title}
+        />
 
         <section className="myProductPage__details">
           <h1>{messages.myProduct.receivedTitle}</h1>
           <p className="myProductPage__title">{product.title}</p>
           <p className="myProductPage__meta">
-            {messages.myProduct.unlockedOn}: {formatUnlockedDate(product.unlockedAt, locale)}
+            {messages.myProduct.unlockedOn}:{" "}
+            {formatUnlockedDate(product.unlockedAt, locale)}
           </p>
           <p className="myProductPage__meta">
             {messages.myProduct.quantity}: {product.quantity}
