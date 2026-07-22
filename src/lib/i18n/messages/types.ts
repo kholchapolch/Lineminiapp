@@ -76,6 +76,7 @@ export type Messages = {
     myProductBadges: string;
     myMissionBadges: string;
     viewAll: string;
+    empty: string;
     close: string;
   };
   myProducts: {

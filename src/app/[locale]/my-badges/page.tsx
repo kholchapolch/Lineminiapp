@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useLineSession } from "@/components/LineSessionProvider";
 import { MyBadgesView } from "@/components/my-badges/MyBadgesView";
-import { PageError } from "@/components/page-error/PageError";
 import { PageLoading } from "@/components/page-loading/PageLoading";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
@@ -14,6 +13,24 @@ type MyBadgesPageProps = {
   params: { locale: string };
 };
 
+const EMPTY_MY_BADGES_DATA: MyBadgesData = {
+  profile: {
+    channelName: "",
+    lineDisplayName: "",
+    linePictureUrl: null,
+    handle: "",
+    isVerified: false,
+    isOnline: false,
+    productBadgeCount: 0,
+    productBadgeTotal: 0,
+    missionBadgeCount: 0,
+    missionBadgeTotal: 0,
+  },
+  productBadges: [],
+  missionBadges: [],
+  fetchedAt: "",
+};
+
 export default function MyBadgesPage({
   params,
 }: MyBadgesPageProps): JSX.Element {
@@ -21,7 +38,7 @@ export default function MyBadgesPage({
   const messages = getDictionary(locale);
   const { lineUuid, status } = useLineSession();
   const [data, setData] = useState<MyBadgesData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (status === "idle" || status === "loading") {
@@ -30,14 +47,14 @@ export default function MyBadgesPage({
 
     if (!lineUuid) {
       setData(null);
-      setError(messages.errors.accessBlocked.message);
+      setError(true);
       return;
     }
 
     const controller = new AbortController();
 
     setData(null);
-    setError(null);
+    setError(false);
 
     async function loadBadges() {
       try {
@@ -50,20 +67,17 @@ export default function MyBadgesPage({
         );
 
         if (!response.ok) {
-          throw new Error(messages.errors.accessBlocked.message);
+          throw new Error("Failed to load badges");
         }
 
         setData((await response.json()) as MyBadgesData);
-      } catch (cause: unknown) {
+        setError(false);
+      } catch {
         if (controller.signal.aborted) {
           return;
         }
 
-        setError(
-          cause instanceof Error
-            ? cause.message
-            : messages.errors.accessBlocked.message,
-        );
+        setError(true);
       }
     }
 
@@ -72,18 +86,24 @@ export default function MyBadgesPage({
     return () => {
       controller.abort();
     };
-  }, [lineUuid, locale, messages.errors.accessBlocked.message, status]);
+  }, [lineUuid, locale, status]);
+
+  if (status === "idle" || status === "loading") {
+    return <PageLoading variant="my-badges" />;
+  }
 
   if (error) {
     return (
-      <PageError
-        title={messages.errors.accessBlocked.title}
-        message={error}
+      <MyBadgesView
+        locale={locale}
+        messages={messages}
+        data={EMPTY_MY_BADGES_DATA}
+        interactive={false}
       />
     );
   }
 
-  if (status === "idle" || status === "loading" || !lineUuid || !data) {
+  if (!lineUuid || !data) {
     return <PageLoading variant="my-badges" />;
   }
 

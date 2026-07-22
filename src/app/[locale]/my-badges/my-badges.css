@@ -117,8 +117,7 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   margin-bottom: 28px;
-  padding: 16px 0;
-  border-block: 1px solid var(--my-badges-line);
+  padding: 8px 0 4px;
 }
 
 .myBadgesStats__item {
@@ -166,6 +165,15 @@
   color: var(--my-badges-muted);
   font-size: 14px;
   text-decoration: none;
+}
+
+.badgeCollectionSection__empty {
+  margin: 0;
+  padding: 20px 12px;
+  color: var(--my-badges-muted);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .badgeCollectionSection__grid {

@@ -18,10 +18,14 @@ export async function getMyBadgesData(
       handle: "",
       isVerified: true,
       isOnline: true,
-      productBadgeCount: 0,
-      productBadgeTotal: 0,
-      missionBadgeCount: 0,
-      missionBadgeTotal: 0,
+      productBadgeCount: experience.productBadges.filter(
+        (badge) => badge.status === "unlocked",
+      ).length,
+      productBadgeTotal: experience.productBadges.length,
+      missionBadgeCount: experience.questBadges.filter((badge) =>
+        Boolean(badge.highestEarnedTier),
+      ).length,
+      missionBadgeTotal: experience.questBadges.length,
     },
     productBadges: experience.recentProductBadges.map((badge) => ({
       id: badge.id,
