@@ -1,5 +1,5 @@
 import { calculateRuleMatch, isRuleActive, isWithinDateWindow } from "@/lib/badge-engine";
-import { normalizeSku } from "@/lib/sku";
+import { matchesEligibleSku } from "@/lib/sku";
 import type {
   BadgeRuleConfig,
   SonyCustomerProducts,
@@ -106,11 +106,10 @@ function buildProductBadge(
   rule: BadgeRuleConfig,
   products: SonyOwnedProduct[],
 ): ProductBadgeExperience {
-  const eligibleSkus = new Set(rule.skus.map(normalizeSku));
   const registrations = products
     .filter(
       (product) =>
-        eligibleSkus.has(normalizeSku(product.sku)) &&
+        matchesEligibleSku(product.sku, rule.skus) &&
         isWithinDateWindow(product.registeredAt, rule.registrationStart, rule.registrationEnd),
     )
     .sort((left, right) => left.registeredAt.localeCompare(right.registeredAt))
