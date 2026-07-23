@@ -1,9 +1,19 @@
-import { getBadgeExperienceForLineUuid } from "@/lib/badge-experience-server";
+import {
+  getBadgeExperienceForLineUuid,
+  getLockedBadgeExperience,
+} from "@/lib/badge-experience-server";
+import type { BadgeExperience } from "@/lib/badge-experience";
 import type { MyMissionsData } from "@/lib/my-missions/types";
 
 export async function getMyMissionsData(lineuuid: string): Promise<MyMissionsData> {
-  const experience = await getBadgeExperienceForLineUuid(lineuuid);
+  return mapExperienceToMyMissions(await getBadgeExperienceForLineUuid(lineuuid));
+}
 
+export async function getMyMissionsLockedData(): Promise<MyMissionsData> {
+  return mapExperienceToMyMissions(await getLockedBadgeExperience());
+}
+
+function mapExperienceToMyMissions(experience: BadgeExperience): MyMissionsData {
   return {
     sections: experience.questBadges.map((quest) => ({
       id: quest.id as MyMissionsData["sections"][number]["id"],

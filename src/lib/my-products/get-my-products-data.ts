@@ -1,9 +1,20 @@
-import { getBadgeExperienceForLineUuid } from "@/lib/badge-experience-server";
+import {
+  getBadgeExperienceForLineUuid,
+  getLockedBadgeExperience,
+} from "@/lib/badge-experience-server";
+import type { BadgeExperience } from "@/lib/badge-experience";
 import type { MyProductsData } from "@/lib/my-products/types";
 import { PRODUCT_FILTER_IDS, type ProductCategoryId } from "@/lib/my-products/types";
 
 export async function getMyProductsData(lineuuid: string): Promise<MyProductsData> {
-  const experience = await getBadgeExperienceForLineUuid(lineuuid);
+  return mapExperienceToMyProducts(await getBadgeExperienceForLineUuid(lineuuid));
+}
+
+export async function getMyProductsLockedData(): Promise<MyProductsData> {
+  return mapExperienceToMyProducts(await getLockedBadgeExperience());
+}
+
+function mapExperienceToMyProducts(experience: BadgeExperience): MyProductsData {
   const categoryIds = PRODUCT_FILTER_IDS.filter(
     (id): id is ProductCategoryId => id !== "all",
   );

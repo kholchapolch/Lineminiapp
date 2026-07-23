@@ -1,13 +1,12 @@
 "use client";
 
 import { MyMissionsView } from "@/components/my-missions/MyMissionsView";
-import { PageError } from "@/components/page-error/PageError";
+import { PageLoading } from "@/components/page-loading/PageLoading";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
 import type { MyMissionsData } from "@/lib/my-missions/types";
 import { useLineSessionData } from "@/lib/use-line-session-data";
 import "./my-missions.css";
-import { PageLoading } from "@/components/page-loading/PageLoading";
 
 type MyMissionsPageProps = {
   params: { locale: string };
@@ -18,18 +17,12 @@ export default function MyMissionsPage({
 }: MyMissionsPageProps): JSX.Element {
   const locale: Locale = isLocale(params.locale) ? params.locale : "th";
   const messages = getDictionary(locale);
-  const { data, error } = useLineSessionData<MyMissionsData>(
+  const { data, isLoading } = useLineSessionData<MyMissionsData>(
     "/api/my-missions",
     messages.errors.accessBlocked.message,
   );
 
-  if (error) {
-    return (
-      <PageError title={messages.errors.accessBlocked.title} message={error} />
-    );
-  }
-
-  if (!data) {
+  if (isLoading || !data) {
     return <PageLoading variant="my-missions" />;
   }
 

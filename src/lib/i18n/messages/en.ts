@@ -91,6 +91,7 @@ export const en: Messages = {
       "Buy eligible Sony lenses and register\nyour products under the campaign terms to earn Badges\nand start collecting your achievements",
     filterLabel: "Filter by product type",
     backToMyBadges: "Back to my badges",
+    empty: "No badges yet",
     filters: {
       all: "All",
       "full-frame-camera": "Full Frame Camera",
@@ -129,6 +130,7 @@ export const en: Messages = {
     description:
       "Buy eligible Sony lenses and register\nyour products under the campaign terms to earn Badges\nand start collecting your achievements",
     backToMyBadges: "Back to my badges",
+    empty: "No mission badges yet",
     sections: {
       "portrait-master": {
         title: "Portrait Master",

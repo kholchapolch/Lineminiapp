@@ -22,28 +22,21 @@ export function useLineSessionData<T>(
       return;
     }
 
-    if (!lineUuid) {
-      setData(null);
-      setError(errorMessage);
-      return;
-    }
-
-    const resolvedLineUuid = lineUuid;
     const controller = new AbortController();
     const separator = endpoint.includes("?") ? "&" : "?";
+    const url = lineUuid
+      ? `${endpoint}${separator}lineuuid=${encodeURIComponent(lineUuid)}`
+      : endpoint;
 
     setData(null);
     setError(null);
 
     async function loadData() {
       try {
-        const response = await fetch(
-          `${endpoint}${separator}lineuuid=${encodeURIComponent(resolvedLineUuid)}`,
-          {
-            cache: "no-store",
-            signal: controller.signal,
-          },
-        );
+        const response = await fetch(url, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
 
         if (!response.ok) {
           throw new Error(errorMessage);
@@ -70,8 +63,6 @@ export function useLineSessionData<T>(
     data,
     error,
     isLoading:
-      status === "idle" ||
-      status === "loading" ||
-      (!error && (!lineUuid || !data)),
+      status === "idle" || status === "loading" || (!error && !data),
   };
 }
