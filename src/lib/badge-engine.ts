@@ -109,14 +109,18 @@ export function calculateRuleMatch(rule: BadgeRuleConfig, products: SonyOwnedPro
   let matchedCount = 0;
 
   for (const condition of conditions) {
-    const conditionProducts = uniqueEligibleProducts(products, condition.sonySkus, rule);
+    const conditionProducts = uniqueEligibleProducts(products, condition.sonySkus, rule).sort(
+      (left, right) => left.registeredAt.localeCompare(right.registeredAt),
+    );
     const conditionRequiredCount =
       condition.matchType === "all" ? condition.sonySkus.length : condition.requiredCount;
     const cappedConditionCount = Math.min(conditionProducts.length, conditionRequiredCount);
+    // Only keep products that contribute to matchedCount (e.g. any/1 → one SKU).
+    const countedProducts = conditionProducts.slice(0, cappedConditionCount);
 
     matchedCount += cappedConditionCount;
 
-    for (const product of conditionProducts) {
+    for (const product of countedProducts) {
       matchedBySku.set(normalizeSku(product.sku), product);
     }
   }
