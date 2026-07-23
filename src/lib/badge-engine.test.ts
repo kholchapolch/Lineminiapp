@@ -413,6 +413,53 @@ describe("calculateBadges", () => {
     expect(missingFamily).toMatchObject({ status: "locked", matchedCount: 2, requiredCount: 3 });
   });
 
+  it("counts only one product for Trinity Master any-family when both versions are owned", () => {
+    const rule = questRule(
+      "trinity-master",
+      [
+        {
+          id: 1,
+          label: "Own one 16-35 GM family lens",
+          matchType: "any",
+          requiredCount: 1,
+          sonySkus: ["SEL1635GM", "SEL1635GM2"],
+        },
+        {
+          id: 2,
+          label: "Own one 24-70 GM family lens",
+          matchType: "any",
+          requiredCount: 1,
+          sonySkus: ["SEL2470GM", "SEL2470GM2"],
+        },
+        {
+          id: 3,
+          label: "Own one 70-200 GM family lens",
+          matchType: "any",
+          requiredCount: 1,
+          sonySkus: ["SEL70200GM", "SEL70200GM2"],
+        },
+      ],
+      3,
+    );
+
+    const [result] = calculateBadges({
+      products: [
+        product("SEL1635GM"),
+        { ...product("SEL1635GM2"), registeredAt: "2026-05-21" },
+      ],
+      now: new Date("2026-06-01"),
+      rules: [rule],
+    });
+
+    expect(result).toMatchObject({
+      status: "locked",
+      matchedCount: 1,
+      requiredCount: 3,
+    });
+    expect(result.matchedProducts).toHaveLength(1);
+    expect(result.matchedProducts[0]?.sku).toBe("SEL1635GM");
+  });
+
   it("supports All Rounder as any three of four listed SKUs", () => {
     const rule = questRule(
       "all-rounder",

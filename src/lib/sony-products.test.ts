@@ -13,9 +13,19 @@ describe("matchesEligibleSku", () => {
     expect(matchesEligibleSku("sel2450g", ["SEL2450G"])).toBe(true);
   });
 
-  it("matches Sony model names that include the rule SKU", () => {
+  it("matches Sony model names that append a regional suffix to the rule SKU", () => {
     expect(matchesEligibleSku("SEL2450G//Z SYX", ["SEL2450G"])).toBe(true);
     expect(matchesEligibleSku("SEL70200G2/CSYX", ["SEL70200G2"])).toBe(true);
+    expect(matchesEligibleSku("SEL70200GM/QSYX", ["SEL70200GM"])).toBe(true);
+    expect(matchesEligibleSku("SEL70200GM2QSYX", ["SEL70200GM2"])).toBe(true);
+    expect(matchesEligibleSku("SEL1635GM   SYX", ["SEL1635GM"])).toBe(true);
+  });
+
+  it("does not match shorter sibling model codes", () => {
+    expect(matchesEligibleSku("SEL70200GM/QSYX", ["SEL70200G"])).toBe(false);
+    expect(matchesEligibleSku("SEL70200GM2QSYX", ["SEL70200GM"])).toBe(false);
+    expect(matchesEligibleSku("SEL70200GM2QSYX", ["SEL70200G"])).toBe(false);
+    expect(matchesEligibleSku("SEL70200G2/CSYX", ["SEL70200G"])).toBe(false);
   });
 
   it("does not match unrelated SKUs", () => {
