@@ -88,6 +88,7 @@ export type Messages = {
     description: string;
     filterLabel: string;
     backToMyBadges: string;
+    empty: string;
     filters: {
       all: string;
       "full-frame-camera": string;
@@ -125,6 +126,7 @@ export type Messages = {
     title: string;
     description: string;
     backToMyBadges: string;
+    empty: string;
     sections: {
       "portrait-master": {
         title: string;

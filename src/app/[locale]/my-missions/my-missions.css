@@ -53,6 +53,14 @@
   gap: 0;
 }
 
+.myMissionsPage__empty {
+  margin: 24px 16px;
+  color: #b0b0b0;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
 .missionSection {
   background: var(--my-missions-section-bg);
 }

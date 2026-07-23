@@ -94,6 +94,7 @@ export const th: Messages = {
       "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
     filterLabel: "กรองตามประเภทสินค้า",
     backToMyBadges: "กลับหน้าหลัก",
+    empty: "ยังไม่มีเหรียญ",
     filters: {
       all: "All",
       "full-frame-camera": "Full Frame Camera",
@@ -132,6 +133,7 @@ export const th: Messages = {
     description:
       "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
     backToMyBadges: "กลับหน้าหลัก",
+    empty: "ยังไม่มีเหรียญภารกิจ",
     sections: {
       "portrait-master": {
         title: "Portrait Master",

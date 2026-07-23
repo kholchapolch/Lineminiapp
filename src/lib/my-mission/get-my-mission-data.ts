@@ -1,11 +1,30 @@
-import { getBadgeExperienceForLineUuid } from "@/lib/badge-experience-server";
+import {
+  getBadgeExperienceForLineUuid,
+  getLockedBadgeExperience,
+} from "@/lib/badge-experience-server";
+import type { BadgeExperience } from "@/lib/badge-experience";
 import type { MyMissionDetailData } from "@/lib/my-mission/types";
 
 export async function getMyMissionData(
   missionId: string,
   lineuuid: string,
 ): Promise<MyMissionDetailData | null> {
-  const experience = await getBadgeExperienceForLineUuid(lineuuid);
+  return mapExperienceToMyMission(
+    await getBadgeExperienceForLineUuid(lineuuid),
+    missionId,
+  );
+}
+
+export async function getMyMissionLockedData(
+  missionId: string,
+): Promise<MyMissionDetailData | null> {
+  return mapExperienceToMyMission(await getLockedBadgeExperience(), missionId);
+}
+
+function mapExperienceToMyMission(
+  experience: BadgeExperience,
+  missionId: string,
+): MyMissionDetailData | null {
   const quest = experience.questBadges.find((candidate) =>
     candidate.tiers.some((tier) => tier.id === missionId),
   );

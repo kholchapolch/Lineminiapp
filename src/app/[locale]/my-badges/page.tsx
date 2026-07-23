@@ -98,7 +98,7 @@ export default function MyBadgesPage({
         locale={locale}
         messages={messages}
         data={EMPTY_MY_BADGES_DATA}
-        interactive={false}
+        interactive
       />
     );
   }

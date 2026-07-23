@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { getMyMissionData } from "@/lib/my-mission/get-my-mission-data";
+import {
+  getMyMissionData,
+  getMyMissionLockedData,
+} from "@/lib/my-mission/get-my-mission-data";
 import { toSafeError } from "@/lib/safe-logging";
 
 type MyMissionRouteContext = {
@@ -10,9 +13,12 @@ export async function GET(
   request: Request,
   { params }: MyMissionRouteContext,
 ): Promise<NextResponse> {
+  const lineuuid = new URL(request.url).searchParams.get("lineuuid")?.trim() ?? "";
+
   try {
-    const lineuuid = new URL(request.url).searchParams.get("lineuuid") ?? "";
-    const data = await getMyMissionData(params.missionId, lineuuid);
+    const data = lineuuid
+      ? await getMyMissionData(params.missionId, lineuuid)
+      : await getMyMissionLockedData(params.missionId);
 
     if (!data) {
       return NextResponse.json(
@@ -23,6 +29,16 @@ export async function GET(
 
     return NextResponse.json(data);
   } catch (error) {
+    try {
+      const locked = await getMyMissionLockedData(params.missionId);
+
+      if (locked) {
+        return NextResponse.json(locked);
+      }
+    } catch {
+      // fall through
+    }
+
     return NextResponse.json(toSafeError(error), { status: 500 });
   }
 }

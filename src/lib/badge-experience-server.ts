@@ -24,7 +24,27 @@ export async function getBadgeExperienceForLineUuid(
     version: runtimeConfig.badgeRulesVersion,
   });
 
-  const data = buildBadgeExperience({ customerProducts, rules });
+  return buildBadgeExperience({ customerProducts, rules });
+}
 
-  return data;
+/** All badges/quests as locked — no Sony customer lookup. */
+export async function getLockedBadgeExperience(): Promise<BadgeExperience> {
+  const runtimeConfig = await getBadgeRuntimeConfig();
+  const rules = await getActiveBadgeRules({
+    version: runtimeConfig.badgeRulesVersion,
+  });
+
+  return buildBadgeExperience({
+    customerProducts: {
+      customer: {
+        lineuuid: "",
+        customerId: "",
+        displayName: "",
+        lineDisplayName: null,
+        linePictureUrl: null,
+      },
+      products: [],
+    },
+    rules,
+  });
 }
