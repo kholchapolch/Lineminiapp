@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { FacebookShareAction } from "@/components/FacebookShareAction";
 import { ProductBadgeHero } from "@/components/my-product/ProductBadgeHero";
+import { getClientOrigin } from "@/lib/absolute-url";
 import { formatUnlockedDate } from "@/lib/my-product/format-unlocked-date";
 import type { Locale } from "@/lib/i18n/locales";
 import type { Messages } from "@/lib/i18n/messages/types";
+import { localizedMissionSharePath } from "@/lib/i18n/paths";
 import type { MyMissionDetailData } from "@/lib/my-mission/types";
 
 type MyMissionCompletedViewProps = {
@@ -22,6 +24,7 @@ export function MyMissionCompletedView({
   backHref,
 }: MyMissionCompletedViewProps): JSX.Element {
   const { mission } = data;
+  const shareUrl = `${getClientOrigin()}${localizedMissionSharePath(locale, mission.id)}`;
 
   return (
     <main className="myMissionPage__content myMissionPage__content--completed">
@@ -37,7 +40,11 @@ export function MyMissionCompletedView({
       </section>
 
       <div className="myMissionPage__actions">
-        <FacebookShareAction label={messages.myMission.share} hashtag="#SonyThailand" />
+        <FacebookShareAction
+          label={messages.myMission.share}
+          url={shareUrl}
+          hashtag="#SonyThailand"
+        />
         <Link className="sonyButton sonyButton--outline myMissionPage__back" href={backHref}>
           {messages.myMission.backToHome}
         </Link>

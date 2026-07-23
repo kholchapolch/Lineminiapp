@@ -13,6 +13,7 @@ type BadgeCollectionSectionProps = {
   previewLimit?: number;
   getBadgeHref?: (badgeId: string) => string;
   interactive?: boolean;
+  overlapImage?: boolean;
 };
 
 export function BadgeCollectionSection({
@@ -24,13 +25,26 @@ export function BadgeCollectionSection({
   previewLimit = MY_BADGES_SECTION_PREVIEW_LIMIT,
   getBadgeHref,
   interactive = true,
+  overlapImage = false,
 }: BadgeCollectionSectionProps): JSX.Element {
   const previewBadges = badges.slice(0, previewLimit);
   const canNavigate = interactive && Boolean(getBadgeHref);
   const isEmpty = previewBadges.length === 0;
+  const sectionClassName = [
+    "badgeCollectionSection",
+    overlapImage ? "badgeCollectionSection--overlap" : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const cardClassName = [
+    "productBadgeCard--collection",
+    overlapImage ? "productBadgeCard--overlap" : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <section className="badgeCollectionSection">
+    <section className={sectionClassName}>
       <div className="badgeCollectionSection__header">
         <h2>{title}</h2>
         {interactive && !isEmpty ? (
@@ -46,7 +60,7 @@ export function BadgeCollectionSection({
           {previewBadges.map((badge) => {
             const card = (
               <ProductBadgeCard
-                className="productBadgeCard--collection"
+                className={cardClassName}
                 title={badge.title}
                 imageUrl={badge.imageUrl}
               />
