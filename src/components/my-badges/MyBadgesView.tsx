@@ -47,6 +47,7 @@ export function MyBadgesView({
           emptyLabel={messages.myBadges.empty}
           badges={productBadges}
           interactive={interactive}
+          overlapImage
           getBadgeHref={
             interactive
               ? (badgeId) => localizedProductPath(locale, badgeId)

@@ -91,11 +91,11 @@ export const th: Messages = {
     },
     title: "เหรียญโปรดักต์ของฉัน",
     description:
-      "เหรียญโปรดักต์คือเหรียญที่ได้รับจากการลงทะเบียนสินค้า Sony ที่เข้าร่วมรายการ โดยแต่ละเหรียญจะแสดงตามประเภทของเลนส์หรือกล้องที่คุณเป็นเจ้าของ",
+      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
     filterLabel: "กรองตามประเภทสินค้า",
     backToMyBadges: "กลับหน้าหลัก",
     filters: {
-      all: "ทั้งหมด",
+      all: "All",
       "full-frame-camera": "Full Frame Camera",
       "prime-lens": "Prime Lens",
       "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
@@ -130,7 +130,7 @@ export const th: Messages = {
     },
     title: "เหรียญภารกิจของฉัน",
     description:
-      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน ผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge และเริ่มสะสมความสำเร็จของคุณ",
+      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
     backToMyBadges: "กลับหน้าหลัก",
     sections: {
       "portrait-master": {

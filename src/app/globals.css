@@ -748,7 +748,7 @@ h2 {
   display: flex;
   flex-direction: column;
   width: min(100%, 220px);
-  overflow: hidden;
+  overflow: visible;
   border-radius: 32px;
   background: var(--product-badge-bg);
   color: #d7d7d7;
@@ -781,12 +781,16 @@ h2 {
   place-items: center;
   min-height: 180px;
   padding: 16px 16px 8px;
+  overflow: visible;
 }
 
 .productBadgeCard__image {
-  width: 100%;
+  display: block;
+  width: auto;
+  max-width: 100%;
   max-height: 150px;
   object-fit: contain;
+  object-position: center;
 }
 
 .productBadgeCard__placeholder {

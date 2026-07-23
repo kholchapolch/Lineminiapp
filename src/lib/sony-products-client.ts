@@ -65,6 +65,8 @@ class LiveSonyProductsClient implements SonyProductsClient {
       );
     }
 
+    console.log("getCustomerProducts", lineuuid);
+
     const response = await fetch(this.options.endpointUrl, {
       method: "POST",
       headers: {

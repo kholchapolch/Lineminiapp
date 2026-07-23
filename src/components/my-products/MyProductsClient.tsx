@@ -51,7 +51,9 @@ export function MyProductsClient({
       <main className="myProductsPage__content">
         <header className="myProductsPage__header">
           <h1>{messages.myProducts.title}</h1>
-          <p>{messages.myProducts.description}</p>
+          <div className="myProductsPage__description">
+            <p>{messages.myProducts.description}</p>
+          </div>
         </header>
 
         <FilterDropdown

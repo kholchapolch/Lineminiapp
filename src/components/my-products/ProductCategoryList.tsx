@@ -30,7 +30,14 @@ export function ProductCategoryList({
             {category.items.map((item) => {
               const card = (
                 <ProductBadgeCard
-                  className="productBadgeCard--catalog"
+                  className={[
+                    "productBadgeCard--catalog",
+                    item.status === "unlocked" && item.imageUrl
+                      ? "productBadgeCard--catalogHasImage"
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                   title={item.title}
                   imageUrl={item.status === "unlocked" ? item.imageUrl : null}
                 />

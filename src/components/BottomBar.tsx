@@ -52,11 +52,28 @@ export function BottomBar({
           );
 
           if (href) {
+            const isExternal = /^https?:\/\//i.test(href);
+            const itemClassName = `bottomBar__item${isActive ? " isActive" : ""}`;
+
+            if (isExternal) {
+              return (
+                <a
+                  key={item.id}
+                  href={href}
+                  className={itemClassName}
+                  aria-current={isActive ? "page" : undefined}
+                  onClick={() => onItemClick?.(item.id)}
+                >
+                  {content}
+                </a>
+              );
+            }
+
             return (
               <Link
                 key={item.id}
                 href={href}
-                className={`bottomBar__item${isActive ? " isActive" : ""}`}
+                className={itemClassName}
                 aria-current={isActive ? "page" : undefined}
                 onClick={() => onItemClick?.(item.id)}
               >

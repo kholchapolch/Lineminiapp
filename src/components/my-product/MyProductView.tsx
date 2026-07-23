@@ -1,10 +1,11 @@
 import { MyProductActions } from "@/components/my-product/MyProductActions";
 import { ProductBadgeHero } from "@/components/my-product/ProductBadgeHero";
+import { getClientOrigin } from "@/lib/absolute-url";
 import { formatUnlockedDate } from "@/lib/my-product/format-unlocked-date";
 import type { MyProductDetailData } from "@/lib/my-product/types";
 import type { Locale } from "@/lib/i18n/locales";
 import type { Messages } from "@/lib/i18n/messages/types";
-import { localizedPath } from "@/lib/i18n/paths";
+import { localizedPath, localizedProductSharePath } from "@/lib/i18n/paths";
 
 type MyProductViewProps = {
   locale: Locale;
@@ -18,6 +19,7 @@ export function MyProductView({
   data,
 }: MyProductViewProps): JSX.Element {
   const { product } = data;
+  const shareUrl = `${getClientOrigin()}${localizedProductSharePath(locale, product.id)}`;
 
   return (
     <div className="myProductPage">
@@ -41,27 +43,13 @@ export function MyProductView({
           <p className="myProductPage__meta">
             {messages.myProduct.quantity}: {product.quantity}
           </p>
-          {product.registrations?.length ? (
-            <div className="myProductPage__registrations">
-              <h2>{messages.myProduct.serialNumbers}</h2>
-              <ul>
-                {product.registrations.map((registration) => (
-                  <li key={registration.serialNumber}>
-                    <span>{registration.serialNumber}</span>
-                    <time dateTime={registration.registeredAt}>
-                      {formatUnlockedDate(registration.registeredAt, locale)}
-                    </time>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
         </section>
 
         <MyProductActions
           shareLabel={messages.myProduct.share}
           backLabel={messages.myProduct.backToMyBadges}
           backHref={localizedPath(locale, "my-badges")}
+          shareUrl={shareUrl}
         />
       </main>
     </div>

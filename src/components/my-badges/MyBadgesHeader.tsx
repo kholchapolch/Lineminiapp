@@ -37,9 +37,6 @@ export function MyBadgesProfileCard({
             {avatarInitial}
           </div>
         )}
-        {isOnline ? (
-          <span className="myBadgesProfileCard__online" aria-hidden="true" />
-        ) : null}
       </div>
       <h1 className="myBadgesProfileCard__name">{lineDisplayName}</h1>
       {fallbackProfile.handle ? (

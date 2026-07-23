@@ -88,7 +88,7 @@ export const en: Messages = {
     },
     title: "My product badges",
     description:
-      "Product badges are earned when you register eligible Sony products. Each badge reflects the lens or camera category you own.",
+      "Buy eligible Sony lenses and register\nyour products under the campaign terms to earn Badges\nand start collecting your achievements",
     filterLabel: "Filter by product type",
     backToMyBadges: "Back to my badges",
     filters: {
@@ -127,7 +127,7 @@ export const en: Messages = {
     },
     title: "My mission badges",
     description:
-      "Mission badges are earned by completing category quests. Each mission has multiple tiers to unlock.",
+      "Buy eligible Sony lenses and register\nyour products under the campaign terms to earn Badges\nand start collecting your achievements",
     backToMyBadges: "Back to my badges",
     sections: {
       "portrait-master": {

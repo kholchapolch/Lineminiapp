@@ -30,6 +30,14 @@ export function localizedProductPath(locale: Locale, productId: string): string 
   return `/${locale}/my-product/${productId}`;
 }
 
+export function localizedProductSharePath(locale: Locale, productId: string): string {
+  return `/${locale}/share/product/${encodeURIComponent(productId)}`;
+}
+
+export function localizedMissionSharePath(locale: Locale, missionId: string): string {
+  return `/${locale}/share/mission/${encodeURIComponent(missionId)}`;
+}
+
 export function defaultBadgesPath(searchParams?: Record<string, string | undefined>): string {
   return localizedPath(defaultLocale, "badges", searchParams);
 }
