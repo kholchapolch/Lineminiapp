@@ -41,7 +41,12 @@ export function MyMissionProgressView({
           <p className="myMissionSummaryCard__progress">
             {mission.progress}/{mission.target}
           </p>
-          <Button className="myMissionSummaryCard__register" variant="solid" icon={<RegisterNavIcon />} type="button">
+          <Button
+            className="myMissionSummaryCard__register"
+            variant="solid"
+            icon={<RegisterNavIcon />}
+            href={process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL}
+          >
             {messages.myMission.registerProduct}
           </Button>
         </div>
