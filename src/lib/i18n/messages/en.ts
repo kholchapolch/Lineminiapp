@@ -17,7 +17,8 @@ export const en: Messages = {
   errors: {
     accessBlocked: {
       title: "Access blocked",
-      message: "This badge page can only open from an approved Sony campaign source.",
+      message:
+        "This badge page can only open from an approved Sony campaign source.",
     },
     dataUnavailable: {
       title: "Badge data unavailable",
@@ -71,22 +72,23 @@ export const en: Messages = {
   myBadges: {
     meta: {
       title: "My Badges",
-      description: "View your product and mission badges",
+      description: "View your product and quest badges",
     },
     productBadges: "Product badges",
-    missionBadges: "Mission badges",
-    myProductBadges: "My product badges",
-    myMissionBadges: "My mission badges",
+    missionBadges: "Quest badges",
+    myProductBadges: "My Product Badges",
+    myMissionBadges: "My Quest Badges",
     viewAll: "View all",
     empty: "No badges yet",
     close: "Close",
   },
   myProducts: {
     meta: {
-      title: "My product badges",
-      description: "View all product badges earned from Sony product registration",
+      title: "My Product Badges",
+      description:
+        "View all product badges earned from Sony product registration",
     },
-    title: "My product badges",
+    title: "My Product Badges",
     description:
       "Buy eligible Sony lenses and register\nyour products under the campaign terms to earn Badges\nand start collecting your achievements",
     filterLabel: "Filter by product type",
@@ -118,73 +120,73 @@ export const en: Messages = {
     unlockedOn: "Unlocked on",
     quantity: "Quantity",
     serialNumbers: "Serial numbers",
-    share: "Share with friends",
+    share: "Share",
     backToMyBadges: "Back to my badges",
   },
   myMissions: {
     meta: {
-      title: "My mission badges",
-      description: "View mission badge progress and tier goals",
+      title: "My Quest Badges",
+      description: "View quest badge progress and tier goals",
     },
-    title: "My mission badges",
+    title: "My Quest Badges",
     description:
       "Buy eligible Sony lenses and register\nyour products under the campaign terms to earn Badges\nand start collecting your achievements",
     backToMyBadges: "Back to my badges",
-    empty: "No mission badges yet",
+    empty: "No quest badges yet",
     sections: {
       "portrait-master": {
         title: "Portrait Master",
         description:
-          "Collect mission badges by registering portrait lenses that match each tier requirement.",
+          "Collect quest badges by registering portrait lenses that match each tier requirement.",
       },
       "wide-architect": {
         title: "Wide Architect",
         description:
-          "Collect mission badges by registering wide-angle lenses that match each tier requirement.",
+          "Collect quest badges by registering wide-angle lenses that match each tier requirement.",
       },
       "the-visionary": {
         title: "The Visionary",
         description:
-          "Collect mission badges by registering telephoto lenses that match each tier requirement.",
+          "Collect quest badges by registering telephoto lenses that match each tier requirement.",
       },
       "trinity-master": {
         title: "Trinity Master",
         description:
-          "Collect mission badges by registering Trinity GM lenses (16-35 / 24-70 / 70-200) that match each tier requirement.",
+          "Collect quest badges by registering Trinity GM lenses (16-35 / 24-70 / 70-200) that match each tier requirement.",
       },
       "trinity-junior": {
         title: "Trinity Junior",
         description:
-          "Collect mission badges by registering Trinity Junior lenses that match each tier requirement.",
+          "Collect quest badges by registering Trinity Junior lenses that match each tier requirement.",
       },
       "all-rounder": {
         title: "All Rounder",
         description:
-          "Collect mission badges by registering all-rounder lenses that match each tier requirement.",
+          "Collect quest badges by registering all-rounder lenses that match each tier requirement.",
       },
       "f2-master": {
         title: "F2 Master",
         description:
-          "Collect mission badges by registering F2 Master lenses that match each tier requirement.",
+          "Collect quest badges by registering F2 Master lenses that match each tier requirement.",
       },
       "the-magnifier": {
         title: "The Magnifier",
         description:
-          "Collect mission badges by registering macro lenses that match each tier requirement.",
+          "Collect quest badges by registering macro lenses that match each tier requirement.",
       },
     },
   },
   myMission: {
     meta: {
-      title: "Mission badge",
-      description: "View mission badge details and progress",
+      title: "Quest badge",
+      description: "View quest badge details and progress",
     },
-    receivedTitle: "Mission badge received",
+    receivedTitle: "Quest badge received",
     unlockedOn: "Unlocked on",
-    share: "Share with friends",
+    share: "Share",
     backToHome: "Back to home",
     registerProduct: "Register product",
-    ticketMissionTitle: "Your ticket collection mission",
+    ticketMissionTitle: "Your ticket collection quest",
     productCode: "Product code",
     completed: "Completed",
     details: "Details",
