@@ -4,11 +4,16 @@ import { Button } from "@/components/Button";
 import { BackArrowIcon } from "@/components/icons/BackArrowIcon";
 import { RegisterNavIcon } from "@/components/icons/NavIcons";
 import { MyMissionTicketList } from "@/components/my-mission/MyMissionTicketList";
-import { getMissionBadgeVisualState } from "@/lib/my-missions/badge-visual-state";
+import { getPublicAppBaseUrl } from "@/lib/absolute-url";
+import type { Locale } from "@/lib/i18n/locales";
 import type { Messages } from "@/lib/i18n/messages/types";
+import { localizedMissionPath } from "@/lib/i18n/paths";
 import type { MyMissionDetailData } from "@/lib/my-mission/types";
+import { getMissionBadgeVisualState } from "@/lib/my-missions/badge-visual-state";
+import { buildRegisterProductUrl } from "@/lib/register-product-url";
 
 type MyMissionProgressViewProps = {
+  locale: Locale;
   messages: Messages;
   data: MyMissionDetailData;
   title: string;
@@ -17,6 +22,7 @@ type MyMissionProgressViewProps = {
 };
 
 export function MyMissionProgressView({
+  locale,
   messages,
   data,
   title,
@@ -24,7 +30,12 @@ export function MyMissionProgressView({
   backHref,
 }: MyMissionProgressViewProps): JSX.Element {
   const { mission } = data;
-  const badgeVisualState = getMissionBadgeVisualState(mission.progress, mission.target);
+  const badgeVisualState = getMissionBadgeVisualState(
+    mission.progress,
+    mission.target,
+  );
+  const callbackUrl = `${getPublicAppBaseUrl()}${localizedMissionPath(locale, mission.id)}`;
+  const registerHref = buildRegisterProductUrl(callbackUrl);
 
   return (
     <main className="myMissionPage__content myMissionPage__content--progress">
@@ -51,14 +62,16 @@ export function MyMissionProgressView({
             </p>
           </div>
         </div>
-        <Button
-          className="myMissionSummaryCard__register"
-          variant="solid"
-          icon={<RegisterNavIcon />}
-          href={process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL}
-        >
-          {messages.myMission.registerProduct}
-        </Button>
+        {registerHref ? (
+          <Button
+            className="myMissionSummaryCard__register"
+            variant="solid"
+            icon={<RegisterNavIcon />}
+            href={registerHref}
+          >
+            {messages.myMission.registerProduct}
+          </Button>
+        ) : null}
       </section>
 
       <MyMissionTicketList

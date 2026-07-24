@@ -31,6 +31,7 @@ export function MyMissionView({ locale, messages, data }: MyMissionViewProps): J
         />
       ) : (
         <MyMissionProgressView
+          locale={locale}
           messages={messages}
           data={data}
           title={sectionMessages.title}
