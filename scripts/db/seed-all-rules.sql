@@ -10,7 +10,7 @@ START TRANSACTION;
 INSERT INTO app_config (`key`, `value`)
 VALUES
   ('campaign_name', 'Sony Badge Pilot'),
-  ('badge_rules_version', '2026-07-24-share-safe-image-paths-001'),
+  ('badge_rules_version', '2026-07-24-quest-badge-images-001'),
   ('support_message', 'Please contact Sony Thailand support if badge data looks incorrect.')
 ON DUPLICATE KEY UPDATE `value` = VALUES(`value`);
 
@@ -182,20 +182,20 @@ VALUES
   ((SELECT id FROM badge_rules WHERE badge_code = 'product-ilce-7c'), 'achievement', 'Alpha 7C', 1, '/product-badge/ILCE-7C.png', NULL, '/product-badge/ILCE-7C.png', 408),
   ((SELECT id FROM badge_rules WHERE badge_code = 'product-ilce-7cr'), 'achievement', 'Alpha 7CR', 1, '/product-badge/ILCE-7CR.png', NULL, '/product-badge/ILCE-7CR.png', 409),
   ((SELECT id FROM badge_rules WHERE badge_code = 'product-ilce-7sm3'), 'achievement', 'Alpha 7S III', 1, '/product-badge/ILCE-7SM3.png', NULL, '/product-badge/ILCE-7SM3.png', 410),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'portrait-master'), 'bronze', 'Portrait Master Bronze', 2, '/mock/my-missions/tier-medal.svg', NULL, NULL, 1001),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'portrait-master'), 'silver', 'Portrait Master Silver', 3, '/mock/my-missions/tier-shield.svg', NULL, NULL, 1002),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'portrait-master'), 'gold', 'Portrait Master Gold', 4, '/mock/my-missions/tier-frame.svg', NULL, NULL, 1003),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'wide-architect'), 'bronze', 'Wide Architect Bronze', 3, '/mock/my-missions/tier-medal.svg', NULL, NULL, 1011),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'wide-architect'), 'silver', 'Wide Architect Silver', 4, '/mock/my-missions/tier-shield.svg', NULL, NULL, 1012),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'wide-architect'), 'gold', 'Wide Architect Gold', 5, '/mock/my-missions/tier-frame.svg', NULL, NULL, 1013),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'the-visionary'), 'bronze', 'The Visionary Bronze', 2, '/mock/my-missions/tier-medal.svg', NULL, NULL, 1021),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'the-visionary'), 'silver', 'The Visionary Silver', 3, '/mock/my-missions/tier-shield.svg', NULL, NULL, 1022),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'the-visionary'), 'gold', 'The Visionary Gold', 4, '/mock/my-missions/tier-frame.svg', NULL, NULL, 1023),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'trinity-master'), 'achievement', 'Trinity Master', 3, '/mock/my-missions/tier-frame.svg', NULL, NULL, 1031),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'trinity-junior'), 'achievement', 'Trinity Junior', 3, '/mock/my-missions/tier-frame.svg', NULL, NULL, 1041),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'all-rounder'), 'achievement', 'All Rounder', 3, '/mock/my-missions/tier-frame.svg', NULL, NULL, 1051),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'f2-master'), 'achievement', 'F2 Master', 2, '/mock/my-missions/tier-frame.svg', NULL, NULL, 1061),
-  ((SELECT id FROM badge_rules WHERE badge_code = 'the-magnifier'), 'achievement', 'The Magnifier', 1, '/mock/my-missions/tier-frame.svg', NULL, NULL, 1071);
+  ((SELECT id FROM badge_rules WHERE badge_code = 'portrait-master'), 'bronze', 'Portrait Master Bronze', 2, '/quest-badge/portrait-bronze.png', NULL, '/quest-badge/portrait-bronze.png', 1001),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'portrait-master'), 'silver', 'Portrait Master Silver', 3, '/quest-badge/portrait-silver.png', NULL, '/quest-badge/portrait-silver.png', 1002),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'portrait-master'), 'gold', 'Portrait Master Gold', 4, '/quest-badge/portrait-gold.png', NULL, '/quest-badge/portrait-gold.png', 1003),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'wide-architect'), 'bronze', 'Wide Architect Bronze', 3, '/quest-badge/wide-bronze.png', NULL, '/quest-badge/wide-bronze.png', 1011),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'wide-architect'), 'silver', 'Wide Architect Silver', 4, '/quest-badge/wide-silver.png', NULL, '/quest-badge/wide-silver.png', 1012),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'wide-architect'), 'gold', 'Wide Architect Gold', 5, '/quest-badge/wide-gold.png', NULL, '/quest-badge/wide-gold.png', 1013),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'the-visionary'), 'bronze', 'The Visionary Bronze', 2, '/quest-badge/the-visionary-bronze.png', NULL, '/quest-badge/the-visionary-bronze.png', 1021),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'the-visionary'), 'silver', 'The Visionary Silver', 3, '/quest-badge/the-visionary-silver.png', NULL, '/quest-badge/the-visionary-silver.png', 1022),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'the-visionary'), 'gold', 'The Visionary Gold', 4, '/quest-badge/the-visionary-gold.png', NULL, '/quest-badge/the-visionary-gold.png', 1023),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'trinity-master'), 'achievement', 'Trinity Master', 3, '/quest-badge/trinity-master.png', NULL, '/quest-badge/trinity-master.png', 1031),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'trinity-junior'), 'achievement', 'Trinity Junior', 3, '/quest-badge/trinity-junior.png', NULL, '/quest-badge/trinity-junior.png', 1041),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'all-rounder'), 'achievement', 'All Rounder', 3, '/quest-badge/all-around.png', NULL, '/quest-badge/all-around.png', 1051),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'f2-master'), 'achievement', 'F2 Master', 2, '/quest-badge/f2-master.png', NULL, '/quest-badge/f2-master.png', 1061),
+  ((SELECT id FROM badge_rules WHERE badge_code = 'the-magnifier'), 'achievement', 'The Magnifier', 1, '/quest-badge/the-magnifier.png', NULL, '/quest-badge/the-magnifier.png', 1071);
 
 DELETE FROM badge_rule_conditions
 WHERE badge_rule_id IN (SELECT id FROM badge_rules WHERE badge_code IN ('product-sel100m28gm', 'product-sel90m28g', 'product-sel30m35', 'product-sel135f18gm', 'product-sel14f18gm', 'product-sel16f18g', 'product-sel20f18g', 'product-sel24f14gm', 'product-sel24f28g', 'product-sel35f14gm', 'product-sel35f18f', 'product-sel50f12gm', 'product-sel50f14gm', 'product-sel50m28', 'product-sel85f14gm', 'product-sel85f14gm2', 'product-sel1655g', 'product-sel55210', 'product-selp18110g', 'product-sel1625g', 'product-sel1635gm', 'product-sel1635gm2', 'product-sel2070g', 'product-sel24105g', 'product-sel2450g', 'product-sel2470gm', 'product-sel2470gm2', 'product-sel2870gm', 'product-sel50150gm', 'product-selc1635g', 'product-selp1635g', 'product-selp28135g', 'product-sel1635z', 'product-sel2470z', 'product-sel70350g', 'product-sel100400mc', 'product-sel100400gm', 'product-sel200600g', 'product-sel300f28gm', 'product-sel400800g', 'product-sel400f28gm', 'product-sel600f40gm', 'product-sel70200gm', 'product-sel70200gm2', 'product-sel70200g', 'product-sel70200g2', 'product-ilce-1m2', 'product-ilce-9m3', 'product-ilce-7rm5', 'product-ilce-7m5', 'product-ilce-7m4', 'product-ilce-7m3', 'product-ilce-7cm2', 'product-ilce-7c', 'product-ilce-7cr', 'product-ilce-7sm3', 'portrait-master', 'wide-architect', 'the-visionary', 'trinity-master', 'trinity-junior', 'all-rounder', 'f2-master', 'the-magnifier'));

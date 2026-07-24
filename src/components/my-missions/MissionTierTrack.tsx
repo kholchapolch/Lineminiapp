@@ -2,6 +2,7 @@ import Link from "next/link";
 /* eslint-disable @next/next/no-img-element -- Mission badge images come from mock/page data. */
 import type { Locale } from "@/lib/i18n/locales";
 import { localizedMissionPath } from "@/lib/i18n/paths";
+import { getMissionBadgeVisualState } from "@/lib/my-missions/badge-visual-state";
 import type { MissionTier } from "@/lib/my-missions/types";
 
 type MissionTierTrackProps = {
@@ -12,20 +13,28 @@ type MissionTierTrackProps = {
 export function MissionTierTrack({ locale, tiers }: MissionTierTrackProps): JSX.Element {
   return (
     <div className="missionTierTrack">
-      {tiers.map((tier) => (
-        <Link
-          className={`missionBadgeNode missionBadgeNode--${tier.status}`}
-          href={localizedMissionPath(locale, tier.id)}
-          key={tier.id}
-        >
-          <div className="missionBadgeNode__art">
-            <img src={tier.imageUrl} alt="" />
-          </div>
-          <p className="missionBadgeNode__progress">
-            {tier.progress}/{tier.target}
-          </p>
-        </Link>
-      ))}
+      {tiers.map((tier) => {
+        const visualState = getMissionBadgeVisualState(tier.progress, tier.target);
+
+        return (
+          <Link
+            className={`missionBadgeNode missionBadgeNode--${visualState}`}
+            href={localizedMissionPath(locale, tier.id)}
+            key={tier.id}
+          >
+            <div className="missionBadgeNode__art" aria-hidden={visualState === "empty"}>
+              {visualState === "empty" ? (
+                <span className="missionBadgeNode__placeholder" />
+              ) : (
+                <img src={tier.imageUrl} alt="" />
+              )}
+            </div>
+            <p className="missionBadgeNode__progress">
+              {tier.progress}/{tier.target}
+            </p>
+          </Link>
+        );
+      })}
     </div>
   );
 }

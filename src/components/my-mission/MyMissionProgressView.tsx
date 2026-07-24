@@ -4,7 +4,7 @@ import { Button } from "@/components/Button";
 import { BackArrowIcon } from "@/components/icons/BackArrowIcon";
 import { RegisterNavIcon } from "@/components/icons/NavIcons";
 import { MyMissionTicketList } from "@/components/my-mission/MyMissionTicketList";
-import type { Locale } from "@/lib/i18n/locales";
+import { getMissionBadgeVisualState } from "@/lib/my-missions/badge-visual-state";
 import type { Messages } from "@/lib/i18n/messages/types";
 import type { MyMissionDetailData } from "@/lib/my-mission/types";
 
@@ -24,6 +24,7 @@ export function MyMissionProgressView({
   backHref,
 }: MyMissionProgressViewProps): JSX.Element {
   const { mission } = data;
+  const badgeVisualState = getMissionBadgeVisualState(mission.progress, mission.target);
 
   return (
     <main className="myMissionPage__content myMissionPage__content--progress">
@@ -33,8 +34,14 @@ export function MyMissionProgressView({
 
       <section className="myMissionSummaryCard">
         <div className="myMissionSummaryCard__top">
-          <div className="myMissionSummaryCard__badge">
-            <img src={mission.badgeImageUrl} alt="" />
+          <div
+            className={`myMissionSummaryCard__badge myMissionSummaryCard__badge--${badgeVisualState}`}
+          >
+            {badgeVisualState === "empty" ? (
+              <span className="myMissionSummaryCard__placeholder" />
+            ) : (
+              <img src={mission.badgeImageUrl} alt="" />
+            )}
           </div>
           <div className="myMissionSummaryCard__body">
             <h2>{title}</h2>
@@ -62,7 +69,10 @@ export function MyMissionProgressView({
         detailsLabel={messages.myMission.details}
       />
 
-      <Link className="sonyButton sonyButton--outline myMissionPage__back" href={backHref}>
+      <Link
+        className="sonyButton sonyButton--outline myMissionPage__back"
+        href={backHref}
+      >
         <span className="sonyButton__icon">
           <BackArrowIcon />
         </span>
