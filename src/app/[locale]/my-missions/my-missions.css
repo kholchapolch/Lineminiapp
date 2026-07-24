@@ -24,7 +24,7 @@
 .myMissionsPage__content {
   width: 100%;
   margin: 0 auto;
-  padding: 24px 0 40px;
+  padding: 24px 0 calc(40px + env(safe-area-inset-bottom, 0px));
 }
 
 .myMissionsPage__header {

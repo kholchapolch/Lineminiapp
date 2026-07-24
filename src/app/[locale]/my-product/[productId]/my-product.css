@@ -13,7 +13,7 @@
 .myProductPage__content {
   width: 100%;
   margin: 0 auto;
-  padding: 24px 16px 40px;
+  padding: 24px 16px calc(40px + env(safe-area-inset-bottom, 0px));
   text-align: center;
 }
 
