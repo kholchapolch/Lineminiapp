@@ -17,6 +17,7 @@ export async function getMyProductData(
       id: product.id,
       title: product.title,
       badgeImageUrl: product.imageUrl,
+      shareImageUrl: product.shareImageUrl ?? product.imageUrl,
       unlockedAt: product.earnedAt,
       quantity: product.quantity,
       registrations: product.registrations,

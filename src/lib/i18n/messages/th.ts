@@ -5,6 +5,11 @@ export const th: Messages = {
     title: "Sony Thailand",
     description: "แสดงเหรียญตรา Sony Thailand ผ่าน LINE LIFF",
   },
+  shareOg: {
+    title: "เหรียญของฉันจาก Sony (My badges from Sony)",
+    description:
+      "มาดูเหรียญที่ฉันปลดล็อกได้ในแคมเปญนี้! (Check out the badges I unlocked in this campaign!)",
+  },
   hero: {
     eyebrow: "Sony Thailand",
     title: "เหรียญตราของฉัน",
@@ -73,12 +78,12 @@ export const th: Messages = {
   myBadges: {
     meta: {
       title: "เหรียญตราของฉัน",
-      description: "ดูเหรียญโปรดักต์และเหรียญภารกิจของคุณ",
+      description: "ดูเหรียญผลิตภัณฑ์และเหรียญภารกิจของคุณ",
     },
-    productBadges: "เหรียญโปรดักต์",
+    productBadges: "เหรียญผลิตภัณฑ์",
     missionBadges: "เหรียญภารกิจ",
-    myProductBadges: "เหรีียญผลิตภัณฑ์ของฉัน (My Product Badges)",
-    myMissionBadges: "เหรียญภารกิจของฉัน (My Quest Badges)",
+    myProductBadges: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
+    myMissionBadges: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
     viewAll: "ดูทั้งหมด",
     empty:
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
@@ -88,7 +93,7 @@ export const th: Messages = {
     meta: {
       title: "เหรียญผลิตภัณฑ์ของฉัน (My Product Badges)",
       description:
-        "ดูเหรียญโปรดักต์ทั้งหมดที่คุณได้รับจากการลงทะเบียนสินค้า Sony",
+        "ดูเหรียญผลิตภัณฑ์ทั้งหมดที่คุณได้รับจากการลงทะเบียนสินค้า Sony",
     },
     title: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
     description:
@@ -115,11 +120,11 @@ export const th: Messages = {
   },
   myProduct: {
     meta: {
-      title: "แชร์เหรียญโปรดักต์",
-      description: "ดูรายละเอียดและแชร์เหรียญโปรดักต์ของคุณ",
+      title: "แชร์เหรียญผลิตภัณฑ์",
+      description: "ดูรายละเอียดและแชร์เหรียญผลิตภัณฑ์ของคุณ",
     },
-    shareTitle: "แชร์เหรียญโปรดักต์",
-    receivedTitle: "เหรียญโปรดักต์ที่ได้รับ",
+    shareTitle: "แชร์เหรียญผลิตภัณฑ์",
+    receivedTitle: "เหรียญผลิตภัณฑ์ที่ได้รับ",
     unlockedOn: "ปลดล็อคเมื่อ",
     quantity: "จำนวนที่มี",
     serialNumbers: "หมายเลขซีเรียล",
@@ -185,6 +190,7 @@ export const th: Messages = {
       title: "เหรียญภารกิจ",
       description: "ดูรายละเอียดและความคืบหน้าเหรียญภารกิจ",
     },
+    shareTitle: "แชร์เหรียญภารกิจ",
     receivedTitle: "เหรียญภารกิจที่ได้รับ",
     unlockedOn: "ปลดล็อคเมื่อ",
     share: "แชร์ (Share)",

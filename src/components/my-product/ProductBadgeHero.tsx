@@ -2,12 +2,18 @@
 type ProductBadgeHeroProps = {
   imageUrl: string;
   title: string;
+  /** When set, the image is a normal link (browser default open behavior). */
+  href?: string | null;
 };
 
-export function ProductBadgeHero({ imageUrl, title }: ProductBadgeHeroProps): JSX.Element {
-  return (
-    <div className="productBadgeHero">
-      <img className="productBadgeHero__image" src={imageUrl} alt={title} />
-    </div>
+export function ProductBadgeHero({
+  imageUrl,
+  title,
+  href,
+}: ProductBadgeHeroProps): JSX.Element {
+  const image = (
+    <img className="productBadgeHero__image" src={imageUrl} alt={title} />
   );
+
+  return <div className="productBadgeHero">{image}</div>;
 }

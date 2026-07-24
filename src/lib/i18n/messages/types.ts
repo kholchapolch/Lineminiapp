@@ -3,6 +3,10 @@ export type Messages = {
     title: string;
     description: string;
   };
+  shareOg: {
+    title: string;
+    description: string;
+  };
   hero: {
     eyebrow: string;
     title: string;
@@ -167,6 +171,7 @@ export type Messages = {
       title: string;
       description: string;
     };
+    shareTitle: string;
     receivedTitle: string;
     unlockedOn: string;
     share: string;

@@ -5,6 +5,11 @@ export const en: Messages = {
     title: "Sony Thailand",
     description: "Sony Thailand LIFF badge display pilot",
   },
+  shareOg: {
+    title: "เหรียญของฉันจาก Sony (My badges from Sony)",
+    description:
+      "มาดูเหรียญที่ฉันปลดล็อกได้ในแคมเปญนี้! (Check out the badges I unlocked in this campaign!)",
+  },
   hero: {
     eyebrow: "Sony Thailand",
     title: "My Badge",
@@ -181,6 +186,7 @@ export const en: Messages = {
       title: "Quest badge",
       description: "View quest badge details and progress",
     },
+    shareTitle: "Share quest badge",
     receivedTitle: "Quest badge received",
     unlockedOn: "Unlocked on",
     share: "Share",

@@ -2,6 +2,7 @@ export type MyProductDetail = {
   id: string;
   title: string;
   badgeImageUrl: string;
+  shareImageUrl: string;
   unlockedAt: string;
   quantity: number;
   registrations?: Array<{
