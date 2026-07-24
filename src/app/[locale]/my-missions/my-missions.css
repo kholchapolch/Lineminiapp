@@ -30,6 +30,7 @@
 .myMissionsPage__header {
   padding: 0 16px 24px 16px;
   text-align: center;
+  white-space: pre-line;
 }
 
 .myMissionsPage__header h1 {

@@ -77,24 +77,26 @@ export const th: Messages = {
     },
     productBadges: "เหรียญโปรดักต์",
     missionBadges: "เหรียญภารกิจ",
-    myProductBadges: "เหรียญโปรดักต์ของฉัน",
-    myMissionBadges: "เหรียญภารกิจของฉัน",
+    myProductBadges: "เหรีียญผลิตภัณฑ์ของฉัน (My Product Badges)",
+    myMissionBadges: "เหรียญภารกิจของฉัน (My Quest Badges)",
     viewAll: "ดูทั้งหมด",
-    empty: "ยังไม่มีเหรียญ",
+    empty:
+      "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     close: "ปิด",
   },
   myProducts: {
     meta: {
-      title: "เหรียญโปรดักต์ของฉัน",
+      title: "เหรียญผลิตภัณฑ์ของฉัน (My Product Badges)",
       description:
         "ดูเหรียญโปรดักต์ทั้งหมดที่คุณได้รับจากการลงทะเบียนสินค้า Sony",
     },
-    title: "เหรียญโปรดักต์ของฉัน",
+    title: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
     description:
       "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
     filterLabel: "กรองตามประเภทสินค้า",
     backToMyBadges: "กลับหน้าหลัก",
-    empty: "ยังไม่มีเหรียญ",
+    empty:
+      "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     filters: {
       all: "All",
       "full-frame-camera": "Full Frame Camera",
@@ -121,7 +123,7 @@ export const th: Messages = {
     unlockedOn: "ปลดล็อคเมื่อ",
     quantity: "จำนวนที่มี",
     serialNumbers: "หมายเลขซีเรียล",
-    share: "แชร์ให้เพื่อน",
+    share: "แชร์ (Share)",
     backToMyBadges: "กลับหน้าหลัก",
   },
   myMissions: {
@@ -129,11 +131,12 @@ export const th: Messages = {
       title: "เหรียญภารกิจของฉัน",
       description: "ดูความคืบหน้าเหรียญภารกิจและเป้าหมายแต่ละระดับ",
     },
-    title: "เหรียญภารกิจของฉัน",
+    title: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
     description:
       "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
     backToMyBadges: "กลับหน้าหลัก",
-    empty: "ยังไม่มีเหรียญภารกิจ",
+    empty:
+      "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     sections: {
       "portrait-master": {
         title: "Portrait Master",
@@ -184,9 +187,9 @@ export const th: Messages = {
     },
     receivedTitle: "เหรียญภารกิจที่ได้รับ",
     unlockedOn: "ปลดล็อคเมื่อ",
-    share: "แชร์ให้เพื่อน",
+    share: "แชร์ (Share)",
     backToHome: "กลับหน้าหลัก",
-    registerProduct: "ลงทะเบียนสินค้า",
+    registerProduct: "ลงทะเบียนสินค้า (Register Product)",
     ticketMissionTitle: "ภารกิจเก็บ Ticket ของคุณ",
     productCode: "รหัสสินค้า",
     completed: "สำเร็จ",

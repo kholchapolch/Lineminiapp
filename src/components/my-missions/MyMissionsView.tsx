@@ -13,13 +13,19 @@ type MyMissionsViewProps = {
   data: MyMissionsData;
 };
 
-export function MyMissionsView({ locale, messages, data }: MyMissionsViewProps): JSX.Element {
+export function MyMissionsView({
+  locale,
+  messages,
+  data,
+}: MyMissionsViewProps): JSX.Element {
   return (
     <div className="myMissionsPage">
       <main className="myMissionsPage__content">
         <header className="myMissionsPage__header">
           <h1>{messages.myMissions.title}</h1>
-          <p>{messages.myMissions.description}</p>
+          <div className="myMissionsPage__description">
+            <p>{messages.myMissions.description}</p>
+          </div>
         </header>
 
         <div className="myMissionsPage__sections">
@@ -34,7 +40,9 @@ export function MyMissionsView({ locale, messages, data }: MyMissionsViewProps):
                   locale={locale}
                   section={section}
                   title={messages.myMissions.sections[section.id].title}
-                  description={messages.myMissions.sections[section.id].description}
+                  description={
+                    messages.myMissions.sections[section.id].description
+                  }
                   showTopEdge={isFirst}
                   showBottomEdge={isLast}
                 />
