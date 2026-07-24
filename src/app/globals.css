@@ -703,6 +703,7 @@ h2 {
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
+  text-decoration: none;
   cursor: pointer;
   transition:
     background-color 0.15s ease,

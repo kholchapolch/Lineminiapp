@@ -32,24 +32,26 @@ export function MyMissionProgressView({
       </header>
 
       <section className="myMissionSummaryCard">
-        <div className="myMissionSummaryCard__badge">
-          <img src={mission.badgeImageUrl} alt="" />
+        <div className="myMissionSummaryCard__top">
+          <div className="myMissionSummaryCard__badge">
+            <img src={mission.badgeImageUrl} alt="" />
+          </div>
+          <div className="myMissionSummaryCard__body">
+            <h2>{title}</h2>
+            <p>{description}</p>
+            <p className="myMissionSummaryCard__progress">
+              {mission.progress}/{mission.target}
+            </p>
+          </div>
         </div>
-        <div className="myMissionSummaryCard__body">
-          <h2>{title}</h2>
-          <p>{description}</p>
-          <p className="myMissionSummaryCard__progress">
-            {mission.progress}/{mission.target}
-          </p>
-          <Button
-            className="myMissionSummaryCard__register"
-            variant="solid"
-            icon={<RegisterNavIcon />}
-            href={process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL}
-          >
-            {messages.myMission.registerProduct}
-          </Button>
-        </div>
+        <Button
+          className="myMissionSummaryCard__register"
+          variant="solid"
+          icon={<RegisterNavIcon />}
+          href={process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL}
+        >
+          {messages.myMission.registerProduct}
+        </Button>
       </section>
 
       <MyMissionTicketList

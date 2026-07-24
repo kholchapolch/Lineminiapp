@@ -72,8 +72,8 @@
 
 .myMissionSummaryCard {
   position: relative;
-  display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   margin-bottom: 28px;
   padding: 16px;
@@ -100,9 +100,16 @@
   mask-composite: exclude;
 }
 
-.myMissionSummaryCard__badge {
+.myMissionSummaryCard__top {
   position: relative;
   z-index: 1;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.myMissionSummaryCard__badge {
   display: grid;
   place-items: center;
 }
@@ -115,8 +122,6 @@
 }
 
 .myMissionSummaryCard__body {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -130,7 +135,7 @@
   line-height: 1.2;
 }
 
-.myMissionSummaryCard__body > p {
+.myMissionSummaryCard__body>p {
   margin: 0 0 10px;
   color: var(--my-mission-muted);
   font-size: 12px;
@@ -139,7 +144,7 @@
 
 .myMissionSummaryCard__progress {
   position: relative;
-  margin: 0 0 12px;
+  margin: 0;
   padding: 4px 10px;
   border-radius: 999px;
   background: #24272b;
@@ -169,7 +174,15 @@
 }
 
 .myMissionSummaryCard__register {
+  position: relative;
+  z-index: 1;
   width: 100%;
+  min-height: 44px;
+  height: 44px;
+  padding-block: 0;
+  gap: 6px;
+  font-size: 18px;
+
 }
 
 .myMissionTicketList {
@@ -229,8 +242,8 @@
   padding: 8px 14px;
   border: 1px solid var(--sony-campaign);
   border-radius: 999px;
-  background: transparent;
-  color: var(--my-mission-text);
+  background: var(--sony-campaign);
+  color: #fff;
   font: inherit;
   font-size: 12px;
   font-weight: 600;
