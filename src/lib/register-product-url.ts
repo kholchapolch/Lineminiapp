@@ -1,4 +1,20 @@
 /**
+ * LINE Mini App deep link back to a mission detail screen.
+ * https://miniapp.line.me/{liffId}/my-mission/{missionId}
+ */
+export function buildLineMiniAppMissionCallbackUrl(
+  missionId: string,
+  liffId: string | undefined = process.env.NEXT_PUBLIC_LIFF_ID,
+): string | undefined {
+  const id = liffId?.trim();
+  if (!id || !missionId.trim()) {
+    return undefined;
+  }
+
+  return `https://miniapp.line.me/${id}/th/my-missions/${encodeURIComponent(missionId)}`;
+}
+
+/**
  * Build the external Sony product-register URL with a return callback.
  */
 export function buildRegisterProductUrl(

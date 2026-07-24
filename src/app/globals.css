@@ -34,9 +34,16 @@
   box-sizing: border-box;
 }
 
+html {
+  height: 100%;
+  background: var(--dark-page-bg-bottom);
+}
+
 body {
   margin: 0;
-  background: var(--background);
+  min-height: 100%;
+  min-height: 100dvh;
+  background: var(--dark-page-bg-bottom);
   color: var(--ink);
   font-family: var(--font-sukhumvit-set), ui-sans-serif, system-ui, sans-serif;
   line-height: 1.5;
