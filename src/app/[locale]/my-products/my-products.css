@@ -24,6 +24,7 @@
 .myProductsPage__header {
   margin-bottom: 20px;
   text-align: center;
+  white-space: pre-line;
 }
 
 .myProductsPage__description {

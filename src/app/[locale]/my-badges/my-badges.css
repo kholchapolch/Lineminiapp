@@ -155,16 +155,18 @@
   margin-bottom: 14px;
 }
 
-.badgeCollectionSection__header h2 {
+.badgeCollectionSection__title {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
+  white-space: pre-line;
 }
 
 .badgeCollectionSection__viewAll {
   color: var(--my-badges-muted);
   font-size: 14px;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .badgeCollectionSection__empty {

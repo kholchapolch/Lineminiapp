@@ -13,6 +13,7 @@ export type MyMissionDetail = {
   id: string;
   sectionId: MissionSectionId;
   badgeImageUrl: string;
+  shareImageUrl: string;
   progress: number;
   target: number;
   unlockedAt?: string;

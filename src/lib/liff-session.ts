@@ -5,6 +5,7 @@ type LiffSessionClient = {
   isInClient(): boolean;
   getIDToken(): string | null;
   getProfile?(): Promise<LineProfile>;
+  openWindow?(input: { url: string; external?: boolean }): void;
 };
 
 export type LineProfile = {

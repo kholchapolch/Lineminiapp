@@ -4,7 +4,7 @@ import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale } from "@/lib/i18n/locales";
 import { getPublicProductShareMeta } from "@/lib/share/get-public-share-meta";
 import { loadAppConfig } from "@/lib/app-config";
-import { toAbsoluteUrl } from "@/lib/absolute-url";
+import { toAbsoluteUrl, toShareableAssetUrl } from "@/lib/absolute-url";
 import "../../share.css";
 
 type ShareProductPageProps = {
@@ -20,33 +20,44 @@ export async function generateMetadata({
 
   const messages = getDictionary(params.locale);
   const meta = await getPublicProductShareMeta(params.locale, params.productId);
+  const ogTitle = messages.shareOg.title;
+  const ogDescription = messages.shareOg.description;
 
   if (!meta) {
     return {
-      title: messages.myProduct.meta.title,
-      description: messages.myProduct.meta.description,
+      title: ogTitle,
+      description: ogDescription,
     };
   }
 
-  const pageUrl = toAbsoluteUrl(meta.pagePath, loadAppConfig().appBaseUrl);
+  const appBaseUrl = loadAppConfig().appBaseUrl;
+  const pageUrl = toAbsoluteUrl(meta.pagePath, appBaseUrl);
+  const imageUrl = toShareableAssetUrl(meta.imageUrl, appBaseUrl) ?? meta.imageUrl;
 
   return {
-    title: meta.title,
-    description: meta.description,
+    metadataBase: new URL(appBaseUrl),
+    title: ogTitle,
+    description: ogDescription,
     openGraph: {
-      title: meta.title,
-      description: meta.description,
+      title: ogTitle,
+      description: ogDescription,
       url: pageUrl ?? undefined,
       type: "website",
-      images: meta.imageUrl
-        ? [{ url: meta.imageUrl, alt: meta.title }]
+      images: imageUrl
+        ? [
+            {
+              url: imageUrl,
+              alt: ogTitle,
+              type: imageUrl.toLowerCase().endsWith(".png") ? "image/png" : undefined,
+            },
+          ]
         : undefined,
     },
     twitter: {
       card: "summary_large_image",
-      title: meta.title,
-      description: meta.description,
-      images: meta.imageUrl ? [meta.imageUrl] : undefined,
+      title: ogTitle,
+      description: ogDescription,
+      images: imageUrl ? [imageUrl] : undefined,
     },
   };
 }
@@ -67,13 +78,12 @@ export default async function ShareProductPage({
 
   return (
     <main className="sharePage">
-      <h1>{meta.title}</h1>
-      <p>{meta.description}</p>
+      <h1>{messages.shareOg.title}</h1>
+      <p>{messages.shareOg.description}</p>
       {meta.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element -- Share preview image from badge rules / public assets.
-        <img src={meta.imageUrl} alt={meta.title} />
+        <img src={meta.imageUrl} alt={messages.shareOg.title} />
       ) : null}
-      <p>{messages.myProduct.shareTitle}</p>
     </main>
   );
 }

@@ -21,6 +21,13 @@
   text-align: center;
 }
 
+.myMissionPage__eyebrow {
+  margin: 0 0 20px;
+  color: var(--my-mission-text);
+  font-size: 18px;
+  font-weight: 500;
+}
+
 .myMissionPage__header {
   margin-bottom: 20px;
   text-align: center;

@@ -46,7 +46,7 @@ export function BadgeCollectionSection({
   return (
     <section className={sectionClassName}>
       <div className="badgeCollectionSection__header">
-        <h2>{title}</h2>
+        <h2 className="badgeCollectionSection__title">{title}</h2>
         {interactive ? (
           <Link className="badgeCollectionSection__viewAll" href={viewAllHref}>
             {viewAllLabel}

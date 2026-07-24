@@ -30,6 +30,12 @@
   margin-bottom: 28px;
 }
 
+.productBadgeHero a {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+}
+
 .productBadgeHero__image {
   width: min(100%, 280px);
   height: auto;

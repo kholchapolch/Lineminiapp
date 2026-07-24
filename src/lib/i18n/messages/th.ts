@@ -5,6 +5,11 @@ export const th: Messages = {
     title: "Sony Thailand",
     description: "แสดงเหรียญตรา Sony Thailand ผ่าน LINE LIFF",
   },
+  shareOg: {
+    title: "เหรียญของฉันจาก Sony (My badges from Sony)",
+    description:
+      "มาดูเหรียญที่ฉันปลดล็อกได้ในแคมเปญนี้! (Check out the badges I unlocked in this campaign!)",
+  },
   hero: {
     eyebrow: "Sony Thailand",
     title: "เหรียญตราของฉัน",
@@ -73,28 +78,30 @@ export const th: Messages = {
   myBadges: {
     meta: {
       title: "เหรียญตราของฉัน",
-      description: "ดูเหรียญโปรดักต์และเหรียญภารกิจของคุณ",
+      description: "ดูเหรียญผลิตภัณฑ์และเหรียญภารกิจของคุณ",
     },
-    productBadges: "เหรียญโปรดักต์",
+    productBadges: "เหรียญผลิตภัณฑ์",
     missionBadges: "เหรียญภารกิจ",
-    myProductBadges: "เหรียญโปรดักต์ของฉัน",
-    myMissionBadges: "เหรียญภารกิจของฉัน",
+    myProductBadges: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
+    myMissionBadges: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
     viewAll: "ดูทั้งหมด",
-    empty: "ยังไม่มีเหรียญ",
+    empty:
+      "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     close: "ปิด",
   },
   myProducts: {
     meta: {
-      title: "เหรียญโปรดักต์ของฉัน",
+      title: "เหรียญผลิตภัณฑ์ของฉัน (My Product Badges)",
       description:
-        "ดูเหรียญโปรดักต์ทั้งหมดที่คุณได้รับจากการลงทะเบียนสินค้า Sony",
+        "ดูเหรียญผลิตภัณฑ์ทั้งหมดที่คุณได้รับจากการลงทะเบียนสินค้า Sony",
     },
-    title: "เหรียญโปรดักต์ของฉัน",
+    title: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
     description:
       "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
     filterLabel: "กรองตามประเภทสินค้า",
     backToMyBadges: "กลับหน้าหลัก",
-    empty: "ยังไม่มีเหรียญ",
+    empty:
+      "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     filters: {
       all: "All",
       "full-frame-camera": "Full Frame Camera",
@@ -113,15 +120,15 @@ export const th: Messages = {
   },
   myProduct: {
     meta: {
-      title: "แชร์เหรียญโปรดักต์",
-      description: "ดูรายละเอียดและแชร์เหรียญโปรดักต์ของคุณ",
+      title: "แชร์เหรียญผลิตภัณฑ์",
+      description: "ดูรายละเอียดและแชร์เหรียญผลิตภัณฑ์ของคุณ",
     },
-    shareTitle: "แชร์เหรียญโปรดักต์",
-    receivedTitle: "เหรียญโปรดักต์ที่ได้รับ",
+    shareTitle: "แชร์เหรียญผลิตภัณฑ์",
+    receivedTitle: "เหรียญผลิตภัณฑ์ที่ได้รับ",
     unlockedOn: "ปลดล็อคเมื่อ",
     quantity: "จำนวนที่มี",
     serialNumbers: "หมายเลขซีเรียล",
-    share: "แชร์ให้เพื่อน",
+    share: "แชร์ (Share)",
     backToMyBadges: "กลับหน้าหลัก",
   },
   myMissions: {
@@ -129,11 +136,12 @@ export const th: Messages = {
       title: "เหรียญภารกิจของฉัน",
       description: "ดูความคืบหน้าเหรียญภารกิจและเป้าหมายแต่ละระดับ",
     },
-    title: "เหรียญภารกิจของฉัน",
+    title: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
     description:
       "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
     backToMyBadges: "กลับหน้าหลัก",
-    empty: "ยังไม่มีเหรียญภารกิจ",
+    empty:
+      "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     sections: {
       "portrait-master": {
         title: "Portrait Master",
@@ -182,11 +190,12 @@ export const th: Messages = {
       title: "เหรียญภารกิจ",
       description: "ดูรายละเอียดและความคืบหน้าเหรียญภารกิจ",
     },
+    shareTitle: "แชร์เหรียญภารกิจ",
     receivedTitle: "เหรียญภารกิจที่ได้รับ",
     unlockedOn: "ปลดล็อคเมื่อ",
-    share: "แชร์ให้เพื่อน",
+    share: "แชร์ (Share)",
     backToHome: "กลับหน้าหลัก",
-    registerProduct: "ลงทะเบียนสินค้า",
+    registerProduct: "ลงทะเบียนสินค้า (Register Product)",
     ticketMissionTitle: "ภารกิจเก็บ Ticket ของคุณ",
     productCode: "รหัสสินค้า",
     completed: "สำเร็จ",

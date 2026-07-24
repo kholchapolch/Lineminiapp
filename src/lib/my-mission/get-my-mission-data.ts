@@ -50,6 +50,7 @@ function mapExperienceToMyMission(
       id: tier.id,
       sectionId: quest.id as MyMissionDetailData["mission"]["sectionId"],
       badgeImageUrl: tier.imageUrl ?? "",
+      shareImageUrl: tier.shareImageUrl ?? tier.imageUrl ?? "",
       progress: tier.matchedCount,
       target: tier.requiredCount,
       unlockedAt: tier.earnedAt ?? undefined,
