@@ -4,13 +4,20 @@ import { loadAppConfig } from "@/lib/app-config";
 import { defaultLocale, isLocale } from "@/lib/i18n/locales";
 import { createMockSkuLineUuid, parseMockSkuValues } from "@/lib/sku-mock";
 
-export async function GET(request: Request): Promise<NextResponse> {
-  const config = loadAppConfig();
+/** Local-only mock helper — never statically prerender during production builds. */
+export const dynamic = "force-dynamic";
 
-  if (config.appEnv !== "local" || config.sonyProductApiMode !== "mock") {
+export async function GET(request: Request): Promise<NextResponse> {
+  // Check env before loadAppConfig() so production CI builds don't require APP_BASE_URL
+  // just to discover this endpoint is unavailable.
+  if (
+    process.env.APP_ENV !== "local" ||
+    process.env.SONY_PRODUCT_API_MODE !== "mock"
+  ) {
     return NextResponse.json({ code: "NOT_FOUND", message: "Not found." }, { status: 404 });
   }
 
+  const config = loadAppConfig();
   const requestUrl = new URL(request.url);
   const skus = parseMockSkuValues(requestUrl.searchParams.getAll("sku"));
 
