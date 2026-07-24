@@ -1,6 +1,6 @@
 export const appConfig = [
   ["campaign_name", "Sony Badge Pilot"],
-  ["badge_rules_version", "2026-07-24-share-safe-image-paths-001"],
+  ["badge_rules_version", "2026-07-24-quest-badge-images-001"],
   ["support_message", "Please contact Sony Thailand support if badge data looks incorrect."],
 ];
 
@@ -92,7 +92,10 @@ function productBadgeImagePath(modelCode) {
   return `/product-badge/${modelCode}.png`;
 }
 
-const DEFAULT_PRODUCT_BADGE_IMAGE = "/mock/my-product/badge-hero.svg";
+/** Facebook-safe public paths for quest/mission badge art. */
+function questBadgeImagePath(fileStem) {
+  return `/quest-badge/${fileStem}.png`;
+}
 
 const productBadgeRules = Object.entries(productModelsByGroup).flatMap(
   ([displayGroupCode, models], groupIndex) =>
@@ -157,30 +160,33 @@ const productThresholds = productBadgeRules.map((rule) => ({
 }));
 
 const questThresholds = [
-  ["portrait-master", "bronze", "Portrait Master Bronze", 2, 1001],
-  ["portrait-master", "silver", "Portrait Master Silver", 3, 1002],
-  ["portrait-master", "gold", "Portrait Master Gold", 4, 1003],
-  ["wide-architect", "bronze", "Wide Architect Bronze", 3, 1011],
-  ["wide-architect", "silver", "Wide Architect Silver", 4, 1012],
-  ["wide-architect", "gold", "Wide Architect Gold", 5, 1013],
-  ["the-visionary", "bronze", "The Visionary Bronze", 2, 1021],
-  ["the-visionary", "silver", "The Visionary Silver", 3, 1022],
-  ["the-visionary", "gold", "The Visionary Gold", 4, 1023],
-  ["trinity-master", "achievement", "Trinity Master", 3, 1031],
-  ["trinity-junior", "achievement", "Trinity Junior", 3, 1041],
-  ["all-rounder", "achievement", "All Rounder", 3, 1051],
-  ["f2-master", "achievement", "F2 Master", 2, 1061],
-  ["the-magnifier", "achievement", "The Magnifier", 1, 1071],
-].map(([ruleCode, level, displayName, requiredCount, sortOrder]) => ({
-  ruleCode,
-  level,
-  displayName,
-  requiredCount,
-  achievedImageUrl: `/mock/my-missions/tier-${level === "bronze" ? "medal" : level === "silver" ? "shield" : "frame"}.svg`,
-  lockedImageUrl: null,
-  shareImageUrl: null,
-  sortOrder,
-}));
+  ["portrait-master", "bronze", "Portrait Master Bronze", 2, 1001, "portrait-bronze"],
+  ["portrait-master", "silver", "Portrait Master Silver", 3, 1002, "portrait-silver"],
+  ["portrait-master", "gold", "Portrait Master Gold", 4, 1003, "portrait-gold"],
+  ["wide-architect", "bronze", "Wide Architect Bronze", 3, 1011, "wide-bronze"],
+  ["wide-architect", "silver", "Wide Architect Silver", 4, 1012, "wide-silver"],
+  ["wide-architect", "gold", "Wide Architect Gold", 5, 1013, "wide-gold"],
+  ["the-visionary", "bronze", "The Visionary Bronze", 2, 1021, "the-visionary-bronze"],
+  ["the-visionary", "silver", "The Visionary Silver", 3, 1022, "the-visionary-silver"],
+  ["the-visionary", "gold", "The Visionary Gold", 4, 1023, "the-visionary-gold"],
+  ["trinity-master", "achievement", "Trinity Master", 3, 1031, "trinity-master"],
+  ["trinity-junior", "achievement", "Trinity Junior", 3, 1041, "trinity-junior"],
+  ["all-rounder", "achievement", "All Rounder", 3, 1051, "all-around"],
+  ["f2-master", "achievement", "F2 Master", 2, 1061, "f2-master"],
+  ["the-magnifier", "achievement", "The Magnifier", 1, 1071, "the-magnifier"],
+].map(([ruleCode, level, displayName, requiredCount, sortOrder, imageStem]) => {
+  const imageUrl = questBadgeImagePath(imageStem);
+  return {
+    ruleCode,
+    level,
+    displayName,
+    requiredCount,
+    achievedImageUrl: imageUrl,
+    lockedImageUrl: null,
+    shareImageUrl: imageUrl,
+    sortOrder,
+  };
+});
 
 export const badgeThresholds = [...productThresholds, ...questThresholds];
 

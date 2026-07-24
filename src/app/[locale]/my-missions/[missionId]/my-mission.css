@@ -12,13 +12,24 @@
 }
 
 .myMissionPage__content {
-  width: min(100%, 480px);
+  width: 100%;
   margin: 0 auto;
   padding: 24px 16px 40px;
 }
 
 .myMissionPage__content--completed {
   text-align: center;
+}
+
+.myMissionPage__content--completed .productBadgeHero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.myMissionPage__content--completed .productBadgeHero__image {
+  width: 90%;
+  height: auto;
 }
 
 .myMissionPage__eyebrow {
@@ -72,8 +83,8 @@
 
 .myMissionSummaryCard {
   position: relative;
-  display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   margin-bottom: 28px;
   padding: 16px;
@@ -100,23 +111,47 @@
   mask-composite: exclude;
 }
 
-.myMissionSummaryCard__badge {
+.myMissionSummaryCard__top {
   position: relative;
   z-index: 1;
   display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.myMissionSummaryCard__badge {
+  display: grid;
   place-items: center;
+  width: 100px;
+  height: 100px;
 }
 
 .myMissionSummaryCard__badge img {
-  width: 100%;
-  max-width: 92px;
-  aspect-ratio: 1;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
 }
 
+.myMissionSummaryCard__badge--unlocked img {
+  filter: none;
+  opacity: 1;
+}
+
+.myMissionSummaryCard__badge--partial img {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.myMissionSummaryCard__placeholder {
+  display: block;
+  width: 100px;
+  height: 100px;
+  border-radius: 28px;
+  background: #4c4d4f;
+}
+
 .myMissionSummaryCard__body {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -130,7 +165,7 @@
   line-height: 1.2;
 }
 
-.myMissionSummaryCard__body > p {
+.myMissionSummaryCard__body>p {
   margin: 0 0 10px;
   color: var(--my-mission-muted);
   font-size: 12px;
@@ -139,7 +174,7 @@
 
 .myMissionSummaryCard__progress {
   position: relative;
-  margin: 0 0 12px;
+  margin: 0;
   padding: 4px 10px;
   border-radius: 999px;
   background: #24272b;
@@ -169,7 +204,15 @@
 }
 
 .myMissionSummaryCard__register {
+  position: relative;
+  z-index: 1;
   width: 100%;
+  min-height: 44px;
+  height: 44px;
+  padding-block: 0;
+  gap: 6px;
+  font-size: 18px;
+
 }
 
 .myMissionTicketList {
@@ -229,8 +272,8 @@
   padding: 8px 14px;
   border: 1px solid var(--sony-campaign);
   border-radius: 999px;
-  background: transparent;
-  color: var(--my-mission-text);
+  background: var(--sony-campaign);
+  color: #fff;
   font: inherit;
   font-size: 12px;
   font-weight: 600;

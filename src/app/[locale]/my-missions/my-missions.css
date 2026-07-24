@@ -22,7 +22,7 @@
 }
 
 .myMissionsPage__content {
-  width: min(100%, 480px);
+  width: 100%;
   margin: 0 auto;
   padding: 24px 0 40px;
 }
@@ -131,30 +131,33 @@
 .missionBadgeNode__art {
   display: grid;
   place-items: center;
-  width: 100%;
-  max-width: 92px;
-  aspect-ratio: 1;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
 }
 
 .missionBadgeNode__art img {
-  width: 100%;
-  height: 100%;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
 }
 
-.missionBadgeNode--achieved .missionBadgeNode__art img {
+.missionBadgeNode__placeholder {
+  display: block;
+  width: 100px;
+  height: 100px;
+  border-radius: 28px;
+  background: #4c4d4f;
+}
+
+.missionBadgeNode--unlocked .missionBadgeNode__art img {
   filter: none;
   opacity: 1;
 }
 
-.missionBadgeNode--in-progress .missionBadgeNode__art img {
-  filter: grayscale(0.35) brightness(0.82);
-  opacity: 0.82;
-}
-
-.missionBadgeNode--locked .missionBadgeNode__art img {
-  filter: grayscale(1) brightness(0.55);
-  opacity: 0.45;
+.missionBadgeNode--partial .missionBadgeNode__art img {
+  filter: grayscale(1);
+  opacity: 0.55;
 }
 
 .missionBadgeNode__progress {

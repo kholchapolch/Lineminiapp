@@ -4,11 +4,16 @@ import { Button } from "@/components/Button";
 import { BackArrowIcon } from "@/components/icons/BackArrowIcon";
 import { RegisterNavIcon } from "@/components/icons/NavIcons";
 import { MyMissionTicketList } from "@/components/my-mission/MyMissionTicketList";
+import { getPublicAppBaseUrl } from "@/lib/absolute-url";
 import type { Locale } from "@/lib/i18n/locales";
 import type { Messages } from "@/lib/i18n/messages/types";
+import { localizedMissionPath } from "@/lib/i18n/paths";
 import type { MyMissionDetailData } from "@/lib/my-mission/types";
+import { getMissionBadgeVisualState } from "@/lib/my-missions/badge-visual-state";
+import { buildRegisterProductUrl } from "@/lib/register-product-url";
 
 type MyMissionProgressViewProps = {
+  locale: Locale;
   messages: Messages;
   data: MyMissionDetailData;
   title: string;
@@ -17,6 +22,7 @@ type MyMissionProgressViewProps = {
 };
 
 export function MyMissionProgressView({
+  locale,
   messages,
   data,
   title,
@@ -24,6 +30,12 @@ export function MyMissionProgressView({
   backHref,
 }: MyMissionProgressViewProps): JSX.Element {
   const { mission } = data;
+  const badgeVisualState = getMissionBadgeVisualState(
+    mission.progress,
+    mission.target,
+  );
+  const callbackUrl = `${getPublicAppBaseUrl()}${localizedMissionPath(locale, mission.id)}`;
+  const registerHref = buildRegisterProductUrl(callbackUrl);
 
   return (
     <main className="myMissionPage__content myMissionPage__content--progress">
@@ -32,24 +44,34 @@ export function MyMissionProgressView({
       </header>
 
       <section className="myMissionSummaryCard">
-        <div className="myMissionSummaryCard__badge">
-          <img src={mission.badgeImageUrl} alt="" />
+        <div className="myMissionSummaryCard__top">
+          <div
+            className={`myMissionSummaryCard__badge myMissionSummaryCard__badge--${badgeVisualState}`}
+          >
+            {badgeVisualState === "empty" ? (
+              <span className="myMissionSummaryCard__placeholder" />
+            ) : (
+              <img src={mission.badgeImageUrl} alt="" />
+            )}
+          </div>
+          <div className="myMissionSummaryCard__body">
+            <h2>{title}</h2>
+            <p>{description}</p>
+            <p className="myMissionSummaryCard__progress">
+              {mission.progress}/{mission.target}
+            </p>
+          </div>
         </div>
-        <div className="myMissionSummaryCard__body">
-          <h2>{title}</h2>
-          <p>{description}</p>
-          <p className="myMissionSummaryCard__progress">
-            {mission.progress}/{mission.target}
-          </p>
+        {registerHref ? (
           <Button
             className="myMissionSummaryCard__register"
             variant="solid"
             icon={<RegisterNavIcon />}
-            href={process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL}
+            href={registerHref}
           >
             {messages.myMission.registerProduct}
           </Button>
-        </div>
+        ) : null}
       </section>
 
       <MyMissionTicketList
@@ -60,7 +82,10 @@ export function MyMissionProgressView({
         detailsLabel={messages.myMission.details}
       />
 
-      <Link className="sonyButton sonyButton--outline myMissionPage__back" href={backHref}>
+      <Link
+        className="sonyButton sonyButton--outline myMissionPage__back"
+        href={backHref}
+      >
         <span className="sonyButton__icon">
           <BackArrowIcon />
         </span>
