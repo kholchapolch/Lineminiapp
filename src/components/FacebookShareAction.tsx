@@ -37,16 +37,25 @@ export function FacebookShareAction({
       return;
     }
 
-    if (/\s/.test(link)) {
-      console.error("Refusing to share URL with raw spaces:", link);
+    if (/\s/.test(shareUrl) || /\s/.test(link)) {
+      console.error("Refusing to share URL with raw spaces:", shareUrl || link);
       return;
     }
 
     setIsSharing(true);
     try {
+      // iOS + Facebook app installed breaks facebook.com/sharer links.
+      // Prefer the native share sheet; user picks Facebook there.
+      // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
+      if (canUseNavigatorShare()) {
+        const shared = await shareWithNavigator(shareUrl);
+        if (shared) {
+          return;
+        }
+      }
+
       const liff = await getCurrentLiffClient();
       if (liff.isInClient() && typeof liff.openWindow === "function") {
-        // react-share uses window.open — blocked / broken in LINE iOS WKWebView.
         liff.openWindow({ url: link, external: true });
         return;
       }
@@ -56,8 +65,10 @@ export function FacebookShareAction({
       setIsSharing(false);
     }
 
-    // Reliable on iOS after an async click handler.
-    window.location.assign(link);
+    const opened = window.open(link, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      window.location.assign(link);
+    }
   }
 
   if (!shareUrl) {
@@ -101,4 +112,24 @@ function resolveShareUrl(url: string | undefined): string {
   }
 
   return toShareableAssetUrl(url, getPublicAppBaseUrl()) ?? "";
+}
+
+function canUseNavigatorShare(): boolean {
+  return typeof navigator !== "undefined" && typeof navigator.share === "function";
+}
+
+/**
+ * Opens the system share sheet. Returns true if handled (including user cancel).
+ */
+async function shareWithNavigator(url: string): Promise<boolean> {
+  try {
+    await navigator.share({ url });
+    return true;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return true;
+    }
+    console.error("navigator.share failed:", error);
+    return false;
+  }
 }
