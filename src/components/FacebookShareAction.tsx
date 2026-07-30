@@ -32,7 +32,10 @@ export function FacebookShareAction({
     .join(" ");
   const disabled = !shareUrl || isSharing;
 
-  async function handleShare(_event: MouseEvent<HTMLButtonElement>, link: string) {
+  async function handleShare(
+    _event: MouseEvent<HTMLButtonElement>,
+    link: string,
+  ) {
     if (!shareUrl || !link || isSharing) {
       return;
     }
@@ -115,7 +118,9 @@ function resolveShareUrl(url: string | undefined): string {
 }
 
 function canUseNavigatorShare(): boolean {
-  return typeof navigator !== "undefined" && typeof navigator.share === "function";
+  return (
+    typeof navigator !== "undefined" && typeof navigator.share === "function"
+  );
 }
 
 /**
