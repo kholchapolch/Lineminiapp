@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
+import { FacebookShareButton } from "react-share";
 import { FacebookIcon } from "@/components/icons/FacebookIcon";
 import { getPublicAppBaseUrl, toShareableAssetUrl } from "@/lib/absolute-url";
 import { getCurrentLiffClient } from "@/lib/liff-session";
@@ -20,6 +21,7 @@ export function FacebookShareAction({
   className,
 }: FacebookShareActionProps): JSX.Element {
   const [shareUrl, setShareUrl] = useState(() => resolveShareUrl(url));
+  const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     setShareUrl(resolveShareUrl(url));
@@ -28,48 +30,65 @@ export function FacebookShareAction({
   const classes = ["sonyButton", "sonyButton--solid", className]
     .filter(Boolean)
     .join(" ");
+  const disabled = !shareUrl || isSharing;
 
-  async function handleShare() {
-    if (!shareUrl) {
+  async function handleShare(_event: MouseEvent<HTMLButtonElement>, link: string) {
+    if (!shareUrl || !link || isSharing) {
       return;
     }
 
-    // Guard: never share a URL that still contains raw spaces.
-    if (/\s/.test(shareUrl)) {
-      console.error("Refusing to share URL with raw spaces:", shareUrl);
+    if (/\s/.test(link)) {
+      console.error("Refusing to share URL with raw spaces:", link);
       return;
     }
 
-    const sharerUrl = buildFacebookSharerUrl(shareUrl, hashtag);
-
+    setIsSharing(true);
     try {
       const liff = await getCurrentLiffClient();
       if (liff.isInClient() && typeof liff.openWindow === "function") {
-        liff.openWindow({ url: sharerUrl, external: true });
+        // react-share uses window.open — blocked / broken in LINE iOS WKWebView.
+        liff.openWindow({ url: link, external: true });
         return;
       }
     } catch {
-      // Fall through to window.open
+      // Not in LIFF / init failed.
+    } finally {
+      setIsSharing(false);
     }
 
-    window.open(sharerUrl, "_blank", "noopener,noreferrer");
+    // Reliable on iOS after an async click handler.
+    window.location.assign(link);
+  }
+
+  if (!shareUrl) {
+    return (
+      <button type="button" className={classes} disabled aria-label={label}>
+        <span className="sonyButton__icon">
+          <FacebookIcon />
+        </span>
+        <span className="sonyButton__label">{label}</span>
+      </button>
+    );
   }
 
   return (
-    <button
-      type="button"
+    <FacebookShareButton
+      url={shareUrl}
+      hashtag={hashtag}
       className={classes}
-      disabled={!shareUrl}
+      disabled={disabled}
+      resetButtonStyle={false}
+      openShareDialogOnClick={false}
       aria-label={label}
-      onClick={() => {
-        void handleShare();
+      onClick={(event, link) => {
+        void handleShare(event, link);
       }}
     >
       <span className="sonyButton__icon">
         <FacebookIcon />
       </span>
       <span className="sonyButton__label">{label}</span>
-    </button>
+    </FacebookShareButton>
   );
 }
 
@@ -82,13 +101,4 @@ function resolveShareUrl(url: string | undefined): string {
   }
 
   return toShareableAssetUrl(url, getPublicAppBaseUrl()) ?? "";
-}
-
-function buildFacebookSharerUrl(url: string, hashtag?: string): string {
-  const sharer = new URL("https://www.facebook.com/sharer/sharer.php");
-  sharer.searchParams.set("u", url);
-  if (hashtag) {
-    sharer.searchParams.set("hashtag", hashtag);
-  }
-  return sharer.toString();
 }

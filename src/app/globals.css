@@ -727,6 +727,11 @@ h2 {
   background: var(--sony-campaign);
 }
 
+button.sonyButton.sonyButton--solid {
+  background: var(--sony-campaign);
+  color: #fff;
+}
+
 .sonyButton--solid:hover:not(:disabled) {
   background: #b83605;
 }

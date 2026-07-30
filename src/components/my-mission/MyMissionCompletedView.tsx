@@ -52,7 +52,6 @@ export function MyMissionCompletedView({
         <FacebookShareAction
           label={messages.myMission.share}
           url={shareImageUrl}
-          hashtag="#SonyThailand"
         />
         <Link className="sonyButton sonyButton--outline myMissionPage__back" href={backHref}>
           {messages.myMission.backToHome}

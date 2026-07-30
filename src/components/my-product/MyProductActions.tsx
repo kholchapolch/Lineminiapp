@@ -16,7 +16,7 @@ export function MyProductActions({
 }: MyProductActionsProps): JSX.Element {
   return (
     <div className="myProductPage__actions">
-      <FacebookShareAction label={shareLabel} url={shareUrl} hashtag="#SonyThailand" />
+      <FacebookShareAction label={shareLabel} url={shareUrl} />
       <Link className="sonyButton sonyButton--outline myProductPage__back" href={backHref}>
         {backLabel}
       </Link>
