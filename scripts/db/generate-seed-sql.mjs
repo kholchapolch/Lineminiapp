@@ -210,7 +210,7 @@ const generatedSql = renderSeedSql();
 if (process.argv.includes("--check")) {
   const currentSql = await readFile(outputUrl, "utf8").catch(() => "");
 
-  if (currentSql !== generatedSql) {
+  if (normalizeLineEndings(currentSql) !== normalizeLineEndings(generatedSql)) {
     throw new Error("scripts/db/seed-all-rules.sql is stale. Run npm run db:seed:sql.");
   }
 
@@ -218,4 +218,8 @@ if (process.argv.includes("--check")) {
 } else {
   await writeFile(outputUrl, generatedSql, "utf8");
   console.log(`Generated ${outputUrl.pathname}.`);
+}
+
+function normalizeLineEndings(value) {
+  return value.replaceAll("\r\n", "\n");
 }
