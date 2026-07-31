@@ -10,7 +10,10 @@ type MyBadgesBottomBarProps = {
   messages: Messages;
 };
 
-export function MyBadgesBottomBar({ locale, messages }: MyBadgesBottomBarProps): JSX.Element {
+export function MyBadgesBottomBar({
+  locale,
+  messages,
+}: MyBadgesBottomBarProps): JSX.Element {
   return (
     <BottomBar
       ariaLabel={messages.bottomBar.ariaLabel}
@@ -23,7 +26,7 @@ export function MyBadgesBottomBar({ locale, messages }: MyBadgesBottomBarProps):
       hrefs={{
         home: localizedPath(locale, "my-badges"),
         register: process.env.NEXT_PUBLIC_ACCOUNT_URL,
-        inquiry: localizedPath(locale, "badges"),
+        inquiry: "#",
       }}
       className="myBadgesBottomBar"
     />
