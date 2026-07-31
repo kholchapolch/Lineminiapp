@@ -1,0 +1,291 @@
+.myMissionPage {
+  --my-mission-bg-gradient: var(--dark-page-bg-gradient);
+  --my-mission-text: #ffffff;
+  --my-mission-muted: #b0b0b0;
+  --my-mission-accent: #c4551d;
+  --my-mission-surface: #1f1f1f;
+  --my-mission-success: #4caf7d;
+
+  min-height: 100dvh;
+  background: var(--my-mission-bg-gradient);
+  color: var(--my-mission-text);
+}
+
+.myMissionPage__content {
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 16px calc(40px + env(safe-area-inset-bottom, 0px));
+}
+
+.myMissionPage__content--completed {
+  text-align: center;
+}
+
+.myMissionPage__content--completed .productBadgeHero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.myMissionPage__content--completed .productBadgeHero__image {
+  width: 90%;
+  height: auto;
+}
+
+.myMissionPage__eyebrow {
+  margin: 0 0 20px;
+  color: var(--my-mission-text);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.myMissionPage__header {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.myMissionPage__header h1 {
+  margin: 0;
+  font-size: clamp(24px, 8vw, 28px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.myMissionPage__details {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.myMissionPage__details h1 {
+  margin: 0 0 14px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.myMissionPage__meta {
+  margin: 0;
+  color: var(--my-mission-accent);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.myMissionPage__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.myMissionPage__back {
+  text-decoration: none;
+}
+
+.myMissionSummaryCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding: 16px;
+  border-radius: 24px;
+  background: var(--my-mission-surface);
+  isolation: isolate;
+}
+
+.myMissionSummaryCard::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--product-badge-border-width);
+  background: var(--product-badge-border-gradient);
+  content: "";
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.myMissionSummaryCard__top {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.myMissionSummaryCard__badge {
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 100px;
+}
+
+.myMissionSummaryCard__badge img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.myMissionSummaryCard__badge--unlocked img {
+  filter: none;
+  opacity: 1;
+}
+
+.myMissionSummaryCard__badge--partial img {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.myMissionSummaryCard__placeholder {
+  display: block;
+  width: 100px;
+  height: 100px;
+  border-radius: 28px;
+  background: #4c4d4f;
+}
+
+.myMissionSummaryCard__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.myMissionSummaryCard__body h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.myMissionSummaryCard__body>p {
+  margin: 0 0 10px;
+  color: var(--my-mission-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.myMissionSummaryCard__progress {
+  position: relative;
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #24272b;
+  color: #d2d2d2;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  isolation: isolate;
+}
+
+.myMissionSummaryCard__progress::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: var(--product-badge-border-width);
+  background: var(--product-badge-border-gradient);
+  content: "";
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.myMissionSummaryCard__register {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 44px;
+  height: 44px;
+  padding-block: 0;
+  gap: 6px;
+  font-size: 18px;
+
+}
+
+.myMissionTicketList {
+  margin-bottom: 28px;
+}
+
+.myMissionTicketList h2 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.myMissionTicketList ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #2f3236;
+}
+
+.myMissionTicketList__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 64px;
+  padding: 12px 0;
+  border-bottom: 1px solid #2f3236;
+}
+
+.myMissionTicketList__product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  color: var(--my-mission-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.myMissionTicketList__product img {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.myMissionTicketList__status {
+  flex-shrink: 0;
+  color: var(--my-mission-success);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.myMissionTicketList__details {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border: 1px solid var(--sony-campaign);
+  border-radius: 999px;
+  background: var(--sony-campaign);
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.myMissionTicketList__details--disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}

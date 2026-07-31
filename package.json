@@ -3,19 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "clean": "rm -rf .next",
     "dev": "next dev",
+    "dev:clean": "npm run clean && next dev",
     "build": "next build",
+    "build:clean": "npm run clean && next build",
     "start": "node server.js",
     "lint": "next lint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "config:check": "node scripts/config/verify-deploy-env.mjs .env.production",
+    "docs:badge-rules": "node scripts/docs/generate-badge-rules-guide.mjs",
+    "docs:badge-rules:check": "node scripts/docs/generate-badge-rules-guide.mjs --check",
+    "db:migrate": "node scripts/db/migrate.mjs",
+    "db:seed": "node scripts/db/seed.mjs",
+    "db:seed:all": "node scripts/db/seed-all-rules.mjs",
+    "db:seed:sql": "node scripts/db/generate-seed-sql.mjs",
+    "db:seed:sql:check": "node scripts/db/generate-seed-sql.mjs --check",
+    "db:reset": "node scripts/db/reset.mjs",
+    "db:verify": "node scripts/db/verify.mjs"
   },
   "dependencies": {
     "@line/liff": "^2.27.1",
     "mysql2": "^3.22.5",
     "next": "^14.2.23",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-share": "^5.3.0",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

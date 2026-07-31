@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sony Badge Mock Data And Live Usage</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202e;
+        --muted: #667085;
+        --line: #d0d5dd;
+        --panel: #ffffff;
+        --soft: #f8fafc;
+        --blue: #155eef;
+        --warn: #b54708;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #f3f6fa;
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 32px auto;
+      }
+
+      header,
+      section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 18px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0 0 12px;
+        line-height: 1.2;
+      }
+
+      h1 {
+        font-size: clamp(28px, 4vw, 44px);
+      }
+
+      h2 {
+        font-size: 22px;
+      }
+
+      h3 {
+        font-size: 17px;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      code {
+        background: #eef2f6;
+        border-radius: 4px;
+        padding: 2px 5px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+      }
+
+      .meta,
+      .note {
+        color: var(--muted);
+      }
+
+      .callout {
+        border-left: 4px solid var(--blue);
+        background: #eff6ff;
+        padding: 16px;
+        margin: 14px 0;
+      }
+
+      .warning {
+        border-left-color: var(--warn);
+        background: #fffaeb;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--soft);
+        padding: 16px;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 920px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+        font-size: 14px;
+      }
+
+      th {
+        background: #eef4ff;
+        color: #172554;
+        font-size: 13px;
+        white-space: nowrap;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      @media (max-width: 760px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="meta">Developer and client review note</p>
+        <h1>Mock Data, Debug Mode, And Live Usage</h1>
+        <p>
+          This document explains which data is mock-only, how to use each mock
+          <code>lineuuid</code>, how debug mode behaves, and how production should use LINE session data
+          instead of URL parameters.
+        </p>
+      </header>
+
+      <section>
+        <h2>Short Answer</h2>
+        <div class="callout warning">
+          <p>
+            In production, the badge page must not trust <code>?lineuuid=...</code> from the URL.
+            The server should resolve the LINE user from a verified LINE login/session cookie.
+          </p>
+          <p>
+            Mock <code>lineuuid</code> query strings are for local/demo testing only.
+          </p>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Mock Mode</h3>
+            <p><code>SONY_PRODUCT_API_MODE=mock</code></p>
+            <p>Uses the mock customers and mock Sony product JSON inside the app.</p>
+          </div>
+          <div class="card">
+            <h3>Live Mode</h3>
+            <p><code>SONY_PRODUCT_API_MODE=live</code></p>
+            <p>Calls Sony APIM server-side using the verified LINE user ID.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Mock Line UUIDs</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mock lineuuid</th>
+                <th>Purpose</th>
+                <th>Important SKUs</th>
+                <th>Expected Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>demo-line-earned</code></td>
+                <td>Main Excel quest badge demo</td>
+                <td>
+                  ILCE-7RM5, SEL1635GM2, SEL35F14GM, SEL2470GM2, SEL70200GM2,
+                  SEL90M28G, SEL100400GM, SEL2070G, SELP1635G, SEL70200G,
+                  SEL2870GM, SEL50150GM, plus mixed tier demo SKUs
+                </td>
+                <td>
+                  Achieves product ownership badges, Portrait Master, Wide Architect,
+                  The Visionary, Trinity Master, All Rounder, F2 Master, The Magnifier,
+                  and some tier badges.
+                </td>
+              </tr>
+              <tr>
+                <td><code>demo-line-tier-bronze</code></td>
+                <td>Level badge bronze state</td>
+                <td>SHARED-TIER-01</td>
+                <td>Achieves first tier threshold where the rule includes the shared tier SKU.</td>
+              </tr>
+              <tr>
+                <td><code>demo-line-tier-silver</code></td>
+                <td>Body tier silver state</td>
+                <td>SHARED-TIER-01, BODY-SKU-02 to BODY-SKU-05</td>
+                <td>Shows Body Bronze and Body Silver achieved; Body Gold remains locked.</td>
+              </tr>
+              <tr>
+                <td><code>demo-line-tier-gold</code></td>
+                <td>Body and GM tier gold state</td>
+                <td>
+                  SHARED-TIER-01, BODY-SKU-02 to BODY-SKU-10, GM-SKU-02 to GM-SKU-10
+                </td>
+                <td>Shows Body Gold and GM Gold tier progress.</td>
+              </tr>
+              <tr>
+                <td><code>demo-line-tier-body-silver-gm-gold</code></td>
+                <td>Mixed tier state</td>
+                <td>SHARED-TIER-01, BODY-SKU-02 to BODY-SKU-05, GM-SKU-02 to GM-SKU-10</td>
+                <td>Shows Body Silver and GM Gold. Does not target the Excel quest badges.</td>
+              </tr>
+              <tr>
+                <td><code>demo-line-sony-warranty-contract</code></td>
+                <td>Sony warranty API response-shape sample</td>
+                <td>ZV-E10M2/BQ AP2, SEL70200GM2QSYX</td>
+                <td>Demonstrates how live warranty API fields map into internal product data.</td>
+              </tr>
+              <tr>
+                <td><code>demo-line-locked</code></td>
+                <td>Mostly locked state</td>
+                <td>ILCE-7CM2</td>
+                <td>Shows a product ownership example while most quest badges stay locked.</td>
+              </tr>
+              <tr>
+                <td><code>demo-line-missing-data</code></td>
+                <td>Missing metadata state</td>
+                <td>ILCE-7CM2 with null model name and serial number</td>
+                <td>Confirms SKU matching can still work when display metadata is missing.</td>
+              </tr>
+              <tr>
+                <td><code>demo-line-empty</code></td>
+                <td>No products state</td>
+                <td>None</td>
+                <td>All badges stay locked/available.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Mock SKU Groups</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Excel Quest Demo SKUs</h3>
+            <ul>
+              <li>Portrait/Wide overlap: SEL35F14GM</li>
+              <li>Trinity Master: SEL1635GM2, SEL2470GM2, SEL70200GM2</li>
+              <li>The Visionary: SEL100400GM</li>
+              <li>All Rounder: SEL2070G, SELP1635G, SEL70200G</li>
+              <li>F2 Master: SEL2870GM, SEL50150GM</li>
+              <li>The Magnifier: SEL90M28G</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Tier Demo SKUs</h3>
+            <ul>
+              <li>Shared tier SKU: SHARED-TIER-01</li>
+              <li>Body tier range: BODY-SKU-02 to BODY-SKU-10</li>
+              <li>GM tier range: GM-SKU-02 to GM-SKU-10</li>
+              <li>These are artificial demo SKUs, not Sony product SKUs.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Debug Mode</h2>
+        <p>Debug mode is controlled by the URL query <code>?debug=1</code>.</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Behavior</th>
+                <th>Without debug</th>
+                <th>With <code>?debug=1</code></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sony data source</td>
+                <td>Depends on <code>SONY_PRODUCT_API_MODE</code></td>
+                <td>Same; debug does not switch mock/live mode</td>
+              </tr>
+              <tr>
+                <td>Browser cache</td>
+                <td>Can reuse local badge result cache when metadata matches</td>
+                <td>Bypasses browser badge result cache</td>
+              </tr>
+              <tr>
+                <td>Debug panel</td>
+                <td>Hidden</td>
+                <td>Visible in local/staging only</td>
+              </tr>
+              <tr>
+                <td>Production</td>
+                <td>Normal production UI</td>
+                <td>Debug trace is ignored/omitted</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Local Demo URLs</h2>
+        <ul>
+          <li><code>/badge?lineuuid=demo-line-earned&amp;debug=1</code> explicit local mock UI with debug panel</li>
+          <li><code>/api/customer-products?lineuuid=demo-line-earned&amp;debug=1</code> API payload with debug trace in local mode</li>
+          <li><code>/badge</code> LINE SDK/session flow for real Mini App testing</li>
+        </ul>
+        <p class="note">
+          Local mock <code>lineuuid</code> values are accepted only when <code>debug=1</code> is present.
+          If <code>lineuuid</code> is omitted, the app must use the LINE SDK/session flow instead of
+          silently falling back to <code>SONY_DEMO_LINE_UUID</code>.
+        </p>
+      </section>
+
+      <section>
+        <h2>Live Production Usage</h2>
+        <p>In live mode, the server creates the Sony API request like this:</p>
+        <ul>
+          <li>Mode: <code>SONY_PRODUCT_API_MODE=live</code></li>
+          <li>Endpoint: <code>SONY_PRODUCT_API_BASE_URL</code></li>
+          <li>Secret header: <code>Ocp-Apim-Subscription-Key</code> from <code>SONY_PRODUCT_API_SUBSCRIPTION_KEY</code></li>
+          <li>Body: <code>{"countryCode":"th","lineId":"&lt;verified LINE user ID&gt;"}</code></li>
+        </ul>
+        <div class="callout warning">
+          <p>
+            Real usage should resolve <code>lineId</code> from the signed LINE session created by
+            <code>/badge</code> automatic LIFF recovery or the guarded <code>/entry</code> flow, not from
+            <code>?lineuuid=...</code>.
+          </p>
+          <p>
+            URL parameters can be edited by users. Accepting production LINE IDs from URL params
+            would let one user request another user's badge data.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Production Flow</h2>
+        <ol>
+          <li>User opens the LIFF/LINE Mini App URL configured to the clean <code>/badge</code> endpoint.</li>
+          <li>The <code>/entry</code> route validates <code>Origin</code>/<code>Referer</code> against the configured allowlist.</li>
+          <li>LIFF obtains a LINE ID token from the LINE client and sends it to <code>/api/line-session</code>.</li>
+          <li>The server verifies the LINE ID token with LINE and stores the LINE user ID in a signed, HTTP-only session cookie.</li>
+          <li>The badge page calls <code>/api/customer-products</code> without trusting a URL <code>lineuuid</code>.</li>
+          <li>The server calls Sony APIM with the verified LINE user ID and calculates badges from DB rules.</li>
+        </ol>
+        <p class="note">
+          If a user lands directly on <code>/badge</code> and the session is missing, the page attempts the same
+          LIFF ID-token session creation automatically, then retries badge loading once.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

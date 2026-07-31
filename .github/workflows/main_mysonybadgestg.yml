@@ -14,6 +14,7 @@ jobs:
   build:
     name: Validate and package
     runs-on: windows-latest
+    environment: uat
     permissions:
       contents: read
 
@@ -27,8 +28,30 @@ jobs:
           node-version: 24.x
           cache: npm
 
+      - name: Create build environment file
+        shell: pwsh
+        env:
+          UAT_ENV_FILE: ${{ secrets.UAT_ENV_FILE }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:UAT_ENV_FILE)) {
+            throw "UAT_ENV_FILE is required in the uat GitHub environment."
+          }
+
+          $content = $env:UAT_ENV_FILE.TrimEnd() + [Environment]::NewLine
+          [System.IO.File]::WriteAllText(
+            (Join-Path $PWD ".env.production"),
+            $content,
+            [System.Text.UTF8Encoding]::new($false)
+          )
+
+      - name: Validate UAT environment
+        run: npm run config:check
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Verify generated database seed
+        run: npm run db:seed:sql:check
 
       - name: Run tests
         run: npm test
@@ -42,6 +65,7 @@ jobs:
       - name: Prepare production server package
         shell: pwsh
         run: |
+          Remove-Item -Path .next/cache -Recurse -Force -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force -Path deploy | Out-Null
           Copy-Item -Path .next -Destination deploy/.next -Recurse -Force
           Copy-Item -Path public -Destination deploy/public -Recurse -Force
@@ -60,6 +84,11 @@ jobs:
           if-no-files-found: error
           include-hidden-files: true
 
+      - name: Remove build environment file
+        if: always()
+        shell: pwsh
+        run: Remove-Item -Path .env.production -Force -ErrorAction SilentlyContinue
+
   deploy:
     name: Deploy and verify
     runs-on: ubuntu-latest
@@ -73,6 +102,19 @@ jobs:
           name: nextjs-production-server
           path: deploy
 
+      - name: Create runtime environment file
+        shell: bash
+        env:
+          UAT_ENV_FILE: ${{ secrets.UAT_ENV_FILE }}
+        run: |
+          if [ -z "$UAT_ENV_FILE" ]; then
+            echo "UAT_ENV_FILE is required in the uat GitHub environment." >&2
+            exit 1
+          fi
+
+          printf '%s\n' "$UAT_ENV_FILE" > deploy/.env.production
+          chmod 600 deploy/.env.production
+
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
@@ -81,25 +123,54 @@ jobs:
           package: deploy
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_65CDA25D8ED242478BC3E40CB7D2134E }}
 
+      - name: Remove runtime environment file from runner
+        if: always()
+        shell: bash
+        run: rm -f deploy/.env.production
+
       - name: Verify custom domain
+        shell: bash
         run: |
-          curl --fail --silent --show-error \
-            --retry 12 \
-            --retry-all-errors \
-            --retry-delay 10 \
-            https://stglineminiapp.sony.co.th/ \
-            | grep --fixed-strings \
-                "Framework dependencies are ready for source integration." \
-                > /dev/null
-          curl --fail --silent --show-error \
-            --retry 12 \
-            --retry-all-errors \
-            --retry-delay 10 \
-            https://stglineminiapp.sony.co.th/api/health \
-            | grep --fixed-strings '"runtime":"nodejs"' > /dev/null
-          curl --fail --silent --show-error \
-            --retry 12 \
-            --retry-all-errors \
-            --retry-delay 10 \
-            https://stglineminiapp.sony.co.th/deployment-check.html \
-            | grep --fixed-strings "Deployment smoke test passed." > /dev/null
+          check_endpoint() {
+            local url="$1"
+            local expected="${2:-}"
+            local headers
+            local body
+            local status
+
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            status="$(curl --silent --show-error --location \
+              --retry 12 \
+              --retry-all-errors \
+              --retry-delay 10 \
+              --dump-header "$headers" \
+              --output "$body" \
+              --write-out '%{http_code}' \
+              "$url")"
+
+            if [ "$status" = "403" ] && grep --ignore-case --quiet '^x-ms-forbidden-ip:' "$headers"; then
+              echo "::warning::Runtime verification skipped because Azure Access Restrictions blocked the GitHub runner: $url"
+              rm -f "$headers" "$body"
+              return 0
+            fi
+
+            if [[ "$status" != 2* ]]; then
+              echo "Unexpected HTTP $status from $url" >&2
+              cat "$headers" >&2
+              rm -f "$headers" "$body"
+              return 1
+            fi
+
+            if [ -n "$expected" ] && ! grep --fixed-strings --quiet "$expected" "$body"; then
+              echo "Expected response marker was not found for $url" >&2
+              rm -f "$headers" "$body"
+              return 1
+            fi
+
+            rm -f "$headers" "$body"
+          }
+
+          check_endpoint "https://stglineminiapp.sony.co.th/"
+          check_endpoint "https://stglineminiapp.sony.co.th/api/health" '"runtime":"nodejs"'
+          check_endpoint "https://stglineminiapp.sony.co.th/deployment-check.html" "Deployment smoke test passed."

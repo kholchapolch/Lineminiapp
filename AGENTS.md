@@ -1,27 +1,51 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
-This repository is currently dependency/bootstrap-first. The framework baseline follows the setup prerequisites from `/pilot-sony`; source code will be copied later. The minimal Next.js placeholder lives in `app/` only so framework checks can run. Put shared application code in `src/`, colocate tests as `src/**/*.test.ts`, keep public assets in `public/`, and place operational notes in `docs/`.
+## Project Structure
 
-## Build, Test, and Development Commands
-Use npm with a committed `package-lock.json`.
+The Sony Badge Next.js application lives under `src/`. App Router pages and API
+routes are in `src/app`, reusable UI is in `src/components`, business and
+integration logic is in `src/lib`, and shared types are in `src/types`. Keep
+focused Vitest files beside their modules as `*.test.ts`. Static assets live in
+`public/`; database migration and seed tools live in `scripts/db/`.
 
-- `npm install`: install dependencies and update the lockfile during setup.
-- `npm run dev`: start the local Next.js server.
+The UAT Windows App Service runtime is repository-specific: preserve
+`server.js`, `web.config`, `public/deployment-check.html`, and
+`.github/workflows/main_mysonybadgestg.yml` when syncing application code.
+
+## Commands
+
+Use npm and the committed `package-lock.json`.
+
+- `npm ci`: install the locked dependency tree.
+- `npm run dev`: start the local development server.
 - `npm test`: run Vitest once.
-- `npm run lint`: run the Next.js ESLint checks.
-- `npm run build`: verify the production Next.js build.
+- `npm run lint`: run Next.js ESLint checks.
+- `npm run build`: build the production application.
+- `npm run db:migrate`: apply the MySQL schema migration.
+- `npm run db:seed`: replace the configured badge-rule data.
+- `npm run db:verify`: verify seeded rule counts and version.
 
-Database scripts are not configured yet. Add `db:migrate`, `db:seed`, or `db:reset` only when the copied source includes matching scripts.
+## Code and Test Style
 
-## Coding Style & Naming Conventions
-Use TypeScript with strict checks. Follow Next.js defaults and `eslint-config-next`. Prefer PascalCase for React components, camelCase for variables/functions, and kebab-case for route folders when readable. Use the `@/*` alias for imports from `src/`.
+Use strict TypeScript, the `@/*` alias for `src/`, PascalCase for React
+components, camelCase for functions and values, and stable badge/rule codes.
+Make surgical changes and add focused tests for session, SKU, API, database, or
+calculation behavior. Run tests, lint, and build before pushing `main`.
 
-## Testing Guidelines
-Vitest is configured for Node-based tests under `src/**/*.test.ts`. Add focused tests with feature work, especially for session handling, LINE/LIFF helpers, API adapters, and database logic. Run `npm test` before opening a pull request.
+## Deployment and Secrets
 
-## Commit & Pull Request Guidelines
-This repo has no local commit history yet. Use concise imperative commits such as `chore: bootstrap next dependencies`. Pull requests should describe scope, list validation commands, link the task or issue, and include screenshots for UI-facing changes.
+Pushes to `main` deploy to the `uat` GitHub environment. The workflow keeps the
+existing Azure publish-profile secret and materializes `.env.production` from
+the environment secret `UAT_ENV_FILE`; never commit `.env*`. Azure/App Service
+environment variables override values loaded from `.env.production`. Keep DB,
+session, LINE server, and APIM secrets server-only and never use
+`NEXT_PUBLIC_*` for secret values.
 
-## Security & Configuration Tips
-Keep DB credentials, LINE channel secrets, APIM keys, and session secrets out of source and screenshots. Only expose browser-safe values through `NEXT_PUBLIC_*`.
+The target database requires TLS. Use `DATABASE_SSL=true` or `?ssl=true` in
+`DATABASE_URL`. Do not disable certificate verification.
+
+## Commits and Pull Requests
+
+Use concise imperative commits. Before staging, inspect `git status` and the
+full diff, and preserve unrelated local work. Pull requests should state scope,
+validation commands, deployment impact, and screenshots for UI changes.

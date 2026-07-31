@@ -1,0 +1,111 @@
+.myProductPage {
+  --my-product-bg: var(--dark-page-bg-bottom);
+  --my-product-bg-gradient: var(--dark-page-bg-gradient);
+  --my-product-text: #ffffff;
+  --my-product-muted: #b0b0b0;
+  --my-product-accent: #c4551d;
+
+  min-height: 100dvh;
+  background: var(--my-product-bg-gradient);
+  color: var(--my-product-text);
+}
+
+.myProductPage__content {
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 16px calc(40px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+}
+
+.myProductPage__eyebrow {
+  margin: 0 0 20px;
+  color: var(--my-product-text);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.productBadgeHero {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.productBadgeHero a {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+}
+
+.productBadgeHero__image {
+  width: min(100%, 280px);
+  height: auto;
+}
+
+.myProductPage__details {
+  margin-bottom: 32px;
+}
+
+.myProductPage__details h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.myProductPage__title {
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.myProductPage__meta {
+  margin: 0;
+  color: var(--my-product-accent);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.myProductPage__registrations {
+  margin: 24px auto 0;
+  max-width: 360px;
+  text-align: left;
+}
+
+.myProductPage__registrations h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.myProductPage__registrations ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.myProductPage__registrations li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 0;
+  border-top: 1px solid rgb(255 255 255 / 14%);
+  color: var(--my-product-muted);
+  font-size: 13px;
+}
+
+.myProductPage__registrations span {
+  color: var(--my-product-text);
+  font-weight: 600;
+}
+
+.myProductPage__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.myProductPage__back {
+  text-decoration: none;
+}

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sony Badge Rules, Migration &amp; Mock Testing</title>
+    <style>
+      :root { color-scheme: light; --ink:#182230; --muted:#667085; --line:#d0d5dd; --panel:#fff; --soft:#f8fafc; --accent:#155eef; --ok:#067647; --warn:#b54708; }
+      * { box-sizing: border-box; }
+      body { margin:0; background:#f3f6fa; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.6; }
+      main { width:min(1160px,calc(100% - 32px)); margin:32px auto 64px; }
+      header, section { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:24px; margin-bottom:18px; }
+      h1,h2,h3 { margin:0 0 12px; line-height:1.25; }
+      h1 { font-size:clamp(28px,5vw,46px); }
+      h2 { font-size:26px; }
+      h3 { font-size:19px; }
+      p { margin:0 0 12px; }
+      a { color:var(--accent); }
+      code,pre { font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; }
+      code { background:#eef2f6; border-radius:4px; padding:2px 5px; font-size:12px; }
+      pre { overflow:auto; margin:12px 0 0; padding:15px; border-radius:8px; background:#101828; color:#f8fafc; font-size:12px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+      .meta,.muted { color:var(--muted); }
+      .stats,.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; }
+      .stat,.card { border:1px solid var(--line); border-radius:9px; padding:16px; background:var(--soft); }
+      .stat strong { display:block; font-size:28px; }
+      .pillRow,.skuList { display:flex; flex-wrap:wrap; gap:7px; }
+      .pill,.sku { display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:5px 9px; background:#fff; font-size:12px; }
+      .pill.ok { border-color:#abefc6; color:var(--ok); background:#ecfdf3; }
+      .quest { border-left:4px solid var(--accent); }
+      .condition { margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
+      .steps { counter-reset:step; list-style:none; padding:0; }
+      .steps li { position:relative; padding:0 0 18px 42px; }
+      .steps li::before { counter-increment:step; content:counter(step); position:absolute; left:0; top:0; width:28px; height:28px; display:grid; place-items:center; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; }
+      .notice { border-left:4px solid var(--warn); background:#fffaeb; padding:14px 16px; }
+      .tableWrap { overflow-x:auto; }
+      table { width:100%; min-width:720px; border-collapse:collapse; }
+      th,td { padding:11px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+      th { background:#eef4ff; font-size:13px; }
+      td { font-size:14px; }
+      details { margin-top:12px; border:1px solid var(--line); border-radius:8px; padding:12px; }
+      summary { cursor:pointer; font-weight:700; }
+      .toc a { display:inline-block; margin:0 14px 8px 0; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="meta">Client-readable confirmed configuration / เอกสารสรุปกติกาที่ใช้จริง</p>
+        <h1>Sony Badge Rules, Migration &amp; Mock Testing</h1>
+        <p>เอกสารนี้อธิบาย Product Badge และ Quest Badge ทั้งหมดในภาษาที่อ่านง่าย พร้อมขั้นตอนย้ายข้อมูลและวิธีทดสอบด้วย SKU จำลอง โดยข้อมูลสร้างจากไฟล์เดียวกับระบบจริง</p>
+        <div class="pillRow">
+          <span class="pill ok">Rules version 2026-07-20-confirmed-badge-rules-001</span>
+          <span class="pill">Case-insensitive SKU matching</span>
+          <span class="pill">Unique model counting for Quests</span>
+          <span class="pill">Local-only mock mode</span>
+        </div>
+      </header>
+
+      <section class="toc">
+        <h2>Contents</h2>
+        <a href="#summary">Rule summary</a><a href="#products">Product Badges</a><a href="#quests">Quest Badges</a><a href="#migration">Migration</a><a href="#mock">Mock testing</a><a href="#acceptance">Acceptance checklist</a>
+      </section>
+
+      <section id="summary">
+        <h2>1. Rule Summary / ภาพรวม</h2>
+        <div class="stats">
+          <div class="stat"><strong>6</strong>display groups</div>
+          <div class="stat"><strong>56</strong>Product Badge rules</div>
+          <div class="stat"><strong>8</strong>Quest families</div>
+          <div class="stat"><strong>70</strong>unlock thresholds</div>
+        </div>
+        <div class="notice" style="margin-top:16px">
+          <strong>Counting rule:</strong> Product Badge มี 1 เหรียญต่อ 1 รุ่นสินค้า แม้มีหลาย Serial Number ส่วน Quest Badge นับรุ่นสินค้าไม่ซ้ำกัน และสินค้ารุ่นเดียวสามารถช่วยปลดล็อกได้หลาย Quest หากอยู่ในหลายรายการที่กำหนด
+        </div>
+      </section>
+
+      <section id="products">
+        <h2>2. Product Badge Rules</h2>
+        <p>ลงทะเบียนสินค้าอย่างน้อย 1 Serial Number ของรุ่นที่ระบุเพื่อปลดล็อก Product Badge ของรุ่นนั้น การลงทะเบียนรุ่นเดิมเพิ่มจะเพิ่ม Quantity/Serial list แต่ไม่สร้างการ์ด Badge ซ้ำ</p>
+        <div class="card" style="margin-top:12px"><h3>Full Frame Camera <span class="muted">(10)</span></h3><div class="skuList"><span class="sku">ILCE-1M2</span><span class="sku">ILCE-9M3</span><span class="sku">ILCE-7RM5</span><span class="sku">ILCE-7M5</span><span class="sku">ILCE-7M4</span><span class="sku">ILCE-7M3</span><span class="sku">ILCE-7CM2</span><span class="sku">ILCE-7C</span><span class="sku">ILCE-7CR</span><span class="sku">ILCE-7SM3</span></div></div><div class="card" style="margin-top:12px"><h3>Prime Lens <span class="muted">(14)</span></h3><div class="skuList"><span class="sku">SEL30M35</span><span class="sku">SEL135F18GM</span><span class="sku">SEL14F18GM</span><span class="sku">SEL16F18G</span><span class="sku">SEL20F18G</span><span class="sku">SEL24F14GM</span><span class="sku">SEL24F28G</span><span class="sku">SEL35F14GM</span><span class="sku">SEL35F18F</span><span class="sku">SEL50F12GM</span><span class="sku">SEL50F14GM</span><span class="sku">SEL50M28</span><span class="sku">SEL85F14GM</span><span class="sku">SEL85F14GM2</span></div></div><div class="card" style="margin-top:12px"><h3>Wide &amp; Normal Zoom Lens <span class="muted">(18)</span></h3><div class="skuList"><span class="sku">SEL1655G</span><span class="sku">SEL55210</span><span class="sku">SELP18110G</span><span class="sku">SEL1625G</span><span class="sku">SEL1635GM</span><span class="sku">SEL1635GM2</span><span class="sku">SEL2070G</span><span class="sku">SEL24105G</span><span class="sku">SEL2450G</span><span class="sku">SEL2470GM</span><span class="sku">SEL2470GM2</span><span class="sku">SEL2870GM</span><span class="sku">SEL50150GM</span><span class="sku">SELC1635G</span><span class="sku">SELP1635G</span><span class="sku">SELP28135G</span><span class="sku">SEL1635Z</span><span class="sku">SEL2470Z</span></div></div><div class="card" style="margin-top:12px"><h3>Telephoto &amp; Super Telephoto Lens <span class="muted">(12)</span></h3><div class="skuList"><span class="sku">SEL70350G</span><span class="sku">SEL100400MC</span><span class="sku">SEL100400GM</span><span class="sku">SEL200600G</span><span class="sku">SEL300F28GM</span><span class="sku">SEL400800G</span><span class="sku">SEL400F28GM</span><span class="sku">SEL600F40GM</span><span class="sku">SEL70200GM</span><span class="sku">SEL70200GM2</span><span class="sku">SEL70200G</span><span class="sku">SEL70200G2</span></div></div><div class="card" style="margin-top:12px"><h3>Macro Lens <span class="muted">(2)</span></h3><div class="skuList"><span class="sku">SEL100M28GM</span><span class="sku">SEL90M28G</span></div></div>
+      </section>
+
+      <section id="quests">
+        <h2>3. Quest Badge Rules</h2>
+        <p>Quest จะใช้จำนวนรุ่นที่ไม่ซ้ำกันตามเงื่อนไขด้านล่าง ระดับ Bronze/Silver/Gold ใช้ Badge family เดียวกันและหน้า Home แสดงเฉพาะระดับสูงสุดที่ได้รับแล้ว</p>
+        <div class="grid"><article class="card quest"><h3>Portrait Master</h3><p>Collect unique eligible Portrait Master models.</p><div class="pillRow"><span class="pill ok">Portrait Master Bronze: 2</span><span class="pill ok">Portrait Master Silver: 3</span><span class="pill ok">Portrait Master Gold: 4</span></div><div class="condition"><strong>มีอย่างน้อย 4 รุ่น / Own any 4 eligible models</strong><p class="muted">Collect eligible Portrait Master models</p><div class="skuList"><span class="sku">SEL35F14GM</span><span class="sku">SEL50F14GM</span><span class="sku">SEL50F12GM</span><span class="sku">SEL85F14GM</span><span class="sku">SEL85F14GM2</span><span class="sku">SEL100M28GM</span><span class="sku">SEL135F18GM</span></div></div></article><article class="card quest"><h3>Wide Architect</h3><p>Collect unique eligible Wide Architect models.</p><div class="pillRow"><span class="pill ok">Wide Architect Bronze: 3</span><span class="pill ok">Wide Architect Silver: 4</span><span class="pill ok">Wide Architect Gold: 5</span></div><div class="condition"><strong>มีอย่างน้อย 5 รุ่น / Own any 5 eligible models</strong><p class="muted">Collect eligible Wide Architect models</p><div class="skuList"><span class="sku">SEL1224GM</span><span class="sku">SEL14F18GM</span><span class="sku">SEL16F18G</span><span class="sku">SEL20F18G</span><span class="sku">SEL1625G</span><span class="sku">SEL1635GM</span><span class="sku">SEL1635GM2</span><span class="sku">SEL1635Z</span><span class="sku">SEL2470GM</span><span class="sku">SEL2470GM2</span><span class="sku">SEL2450G</span><span class="sku">SELC1635G</span><span class="sku">SEL1655G</span><span class="sku">SEL2070G</span><span class="sku">SEL24105G</span><span class="sku">SEL2470Z</span><span class="sku">SEL24F14GM</span><span class="sku">SEL24F28G</span><span class="sku">SEL2870GM</span><span class="sku">SEL35F14GM</span><span class="sku">SEL35F18F</span><span class="sku">SELP1635G</span><span class="sku">SELP18110G</span><span class="sku">SELP28135G</span></div></div></article><article class="card quest"><h3>The Visionary</h3><p>Collect unique eligible The Visionary models.</p><div class="pillRow"><span class="pill ok">The Visionary Bronze: 2</span><span class="pill ok">The Visionary Silver: 3</span><span class="pill ok">The Visionary Gold: 4</span></div><div class="condition"><strong>มีอย่างน้อย 4 รุ่น / Own any 4 eligible models</strong><p class="muted">Collect eligible The Visionary models</p><div class="skuList"><span class="sku">SEL100400GM</span><span class="sku">SEL400800G</span><span class="sku">SEL200600G</span><span class="sku">SEL300F28GM</span><span class="sku">SEL400F28GM</span><span class="sku">SEL600F40GM</span><span class="sku">SEL70350G</span><span class="sku">SEL55210</span><span class="sku">SEL100400MC</span></div></div></article><article class="card quest"><h3>Trinity Master</h3><p>Own one model from each required G Master family.</p><div class="pillRow"><span class="pill ok">Trinity Master: 3</span></div><div class="condition"><strong>มีอย่างน้อย 1 รุ่นจากกลุ่มนี้ / Own at least 1 from this group</strong><p class="muted">Own one 16-35 GM family model</p><div class="skuList"><span class="sku">SEL1635GM</span><span class="sku">SEL1635GM2</span></div></div><div class="condition"><strong>มีอย่างน้อย 1 รุ่นจากกลุ่มนี้ / Own at least 1 from this group</strong><p class="muted">Own one 24-70 GM family model</p><div class="skuList"><span class="sku">SEL2470GM</span><span class="sku">SEL2470GM2</span></div></div><div class="condition"><strong>มีอย่างน้อย 1 รุ่นจากกลุ่มนี้ / Own at least 1 from this group</strong><p class="muted">Own one 70-200 GM family model</p><div class="skuList"><span class="sku">SEL70200GM</span><span class="sku">SEL70200GM2</span></div></div></article><article class="card quest"><h3>Trinity Junior</h3><p>Own all three required Trinity Junior models.</p><div class="pillRow"><span class="pill ok">Trinity Junior: 3</span></div><div class="condition"><strong>ต้องมีครบทุกรุ่น / Own all 3 models</strong><p class="muted">Own all Trinity Junior models</p><div class="skuList"><span class="sku">SEL2450G</span><span class="sku">SEL1625G</span><span class="sku">SEL70200G2</span></div></div></article><article class="card quest"><h3>All Rounder</h3><p>Own any three eligible All Rounder models.</p><div class="pillRow"><span class="pill ok">All Rounder: 3</span></div><div class="condition"><strong>มีอย่างน้อย 3 รุ่น / Own any 3 eligible models</strong><p class="muted">Own any three All Rounder models</p><div class="skuList"><span class="sku">SEL2070G</span><span class="sku">SELP1635G</span><span class="sku">SEL1635Z</span><span class="sku">SEL70200G</span></div></div></article><article class="card quest"><h3>F2 Master</h3><p>Own both required F2 Master models.</p><div class="pillRow"><span class="pill ok">F2 Master: 2</span></div><div class="condition"><strong>ต้องมีครบทุกรุ่น / Own all 2 models</strong><p class="muted">Own both F2 Master models</p><div class="skuList"><span class="sku">SEL2870GM</span><span class="sku">SEL50150GM</span></div></div></article><article class="card quest"><h3>The Magnifier</h3><p>Own any one eligible macro model.</p><div class="pillRow"><span class="pill ok">The Magnifier: 1</span></div><div class="condition"><strong>มีอย่างน้อย 1 รุ่นจากกลุ่มนี้ / Own at least 1 from this group</strong><p class="muted">Own any one macro model</p><div class="skuList"><span class="sku">SEL100M28GM</span><span class="sku">SEL90M28G</span><span class="sku">SEL50M28</span><span class="sku">SEL30M35</span></div></div></article></div>
+      </section>
+
+      <section id="migration">
+        <h2>4. Data Migration / ขั้นตอนย้ายข้อมูล</h2>
+        <ol class="steps">
+          <li><strong>Backup rule tables.</strong><pre>mysqldump -u &lt;user&gt; -p &lt;database&gt; app_config badge_display_groups badge_rules badge_rule_thresholds badge_rule_conditions &gt; badge-rules-backup.sql</pre></li>
+          <li><strong>Review the source data.</strong> แก้ไขเฉพาะ <code>scripts/db/seed-data.mjs</code> แล้ว regenerate artifacts เพื่อไม่ให้ JavaScript, SQL และเอกสารไม่ตรงกัน.<pre>npm run db:seed:sql
+npm run db:seed:sql:check
+npm run docs:badge-rules
+npm run docs:badge-rules:check</pre></li>
+          <li><strong>Apply in staging first.</strong><pre>export DATABASE_URL=mysql://&lt;user&gt;:&lt;password&gt;@&lt;host&gt;:&lt;port&gt;/&lt;database&gt;
+npm run db:seed:all</pre></li>
+          <li><strong>Manual SQL alternative.</strong> ใช้เมื่อทีมลูกค้าต้องการรัน SQL เอง หลังจาก schema migration แล้ว.<pre>npm run db:migrate
+mysql -u &lt;user&gt; -p &lt;database&gt; &lt; scripts/db/seed-all-rules.sql
+npm run db:verify</pre></li>
+          <li><strong>Verify counts and version.</strong><pre>SELECT COUNT(*) FROM badge_display_groups;      -- 6
+SELECT COUNT(*) FROM badge_rules;               -- 64
+SELECT COUNT(*) FROM badge_rule_thresholds;     -- 70
+SELECT COUNT(*) FROM badge_rule_conditions;     -- 66
+SELECT value FROM app_config WHERE `key` = 'badge_rules_version';</pre></li>
+          <li><strong>Run acceptance tests.</strong> ทดสอบ SKU ตัวอย่างตามหัวข้อถัดไป แล้วตรวจ Product list, Quest progress, highest tier, latest-three ordering และ duplicate serials.</li>
+        </ol>
+        <div class="notice"><strong>Important:</strong> Seed เป็นแบบ idempotent และทำงานใน transaction แต่จะลบ rule/group เก่าที่ไม่อยู่ใน source ปัจจุบัน รางวัลผู้ใช้ไม่ได้เก็บถาวร ระบบคำนวณใหม่จากข้อมูลสินค้า Sony เมื่อเรียกใช้งาน</div>
+      </section>
+
+      <section id="mock">
+        <h2>5. Mock Mode With Specific SKUs</h2>
+        <p>ใช้ได้เฉพาะ <code>APP_ENV=local</code> และ <code>SONY_PRODUCT_API_MODE=mock</code> โดยข้าม LIFF ในเครื่อง local แต่ staging/production ยังบังคับใช้ LINE session ที่ server ตรวจสอบแล้ว</p>
+        <pre>APP_ENV=local
+SONY_PRODUCT_API_MODE=mock
+DATABASE_URL=mysql://sony:sony@127.0.0.1:3307/sony_badges
+
+npm run db:seed:all
+npm run dev</pre>
+        <div class="tableWrap" style="margin-top:16px"><table><thead><tr><th>Scenario</th><th>Mock URL</th></tr></thead><tbody><tr><td>Single Product Badge</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL2470GM2"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL2470GM2</code></a></td></tr><tr><td>Duplicate serials: one badge, Quantity 2</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL2470GM2,SEL2470GM2"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL2470GM2,SEL2470GM2</code></a></td></tr><tr><td>Portrait Master Bronze</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL35F14GM,SEL50F14GM"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL35F14GM,SEL50F14GM</code></a></td></tr><tr><td>Portrait Master Gold</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL35F14GM,SEL50F14GM,SEL85F14GM2,SEL135F18GM"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL35F14GM,SEL50F14GM,SEL85F14GM2,SEL135F18GM</code></a></td></tr><tr><td>Trinity Master</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL1635GM2,SEL2470GM2,SEL70200GM2"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL1635GM2,SEL2470GM2,SEL70200GM2</code></a></td></tr><tr><td>Trinity Junior</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL2450G,SEL1625G,SEL70200G2"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL2450G,SEL1625G,SEL70200G2</code></a></td></tr><tr><td>All Rounder</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL2070G,SELP1635G,SEL70200G"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL2070G,SELP1635G,SEL70200G</code></a></td></tr><tr><td>F2 Master</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL2870GM,SEL50150GM"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL2870GM,SEL50150GM</code></a></td></tr><tr><td>The Magnifier</td><td><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL90M28G"><code>http://localhost:3000/th/badges?mock=1&amp;sku=SEL90M28G</code></a></td></tr></tbody></table></div>
+        <details>
+          <summary>Open or copy: all 64 badges (56 Product + 8 Quest)</summary>
+          <p><a href="http://localhost:3000/th/badges?mock=1&amp;sku=SEL100M28GM,SEL90M28G,SEL30M35,SEL135F18GM,SEL14F18GM,SEL16F18G,SEL20F18G,SEL24F14GM,SEL24F28G,SEL35F14GM,SEL35F18F,SEL50F12GM,SEL50F14GM,SEL50M28,SEL85F14GM,SEL85F14GM2,SEL1655G,SEL55210,SELP18110G,SEL1625G,SEL1635GM,SEL1635GM2,SEL2070G,SEL24105G,SEL2450G,SEL2470GM,SEL2470GM2,SEL2870GM,SEL50150GM,SELC1635G,SELP1635G,SELP28135G,SEL1635Z,SEL2470Z,SEL70350G,SEL100400MC,SEL100400GM,SEL200600G,SEL300F28GM,SEL400800G,SEL400F28GM,SEL600F40GM,SEL70200GM,SEL70200GM2,SEL70200G,SEL70200G2,ILCE-1M2,ILCE-9M3,ILCE-7RM5,ILCE-7M5,ILCE-7M4,ILCE-7M3,ILCE-7CM2,ILCE-7C,ILCE-7CR,ILCE-7SM3">Open complete catalog mock</a></p>
+          <pre>http://localhost:3000/th/badges?mock=1&amp;sku=SEL100M28GM,SEL90M28G,SEL30M35,SEL135F18GM,SEL14F18GM,SEL16F18G,SEL20F18G,SEL24F14GM,SEL24F28G,SEL35F14GM,SEL35F18F,SEL50F12GM,SEL50F14GM,SEL50M28,SEL85F14GM,SEL85F14GM2,SEL1655G,SEL55210,SELP18110G,SEL1625G,SEL1635GM,SEL1635GM2,SEL2070G,SEL24105G,SEL2450G,SEL2470GM,SEL2470GM2,SEL2870GM,SEL50150GM,SELC1635G,SELP1635G,SELP28135G,SEL1635Z,SEL2470Z,SEL70350G,SEL100400MC,SEL100400GM,SEL200600G,SEL300F28GM,SEL400800G,SEL400F28GM,SEL600F40GM,SEL70200GM,SEL70200GM2,SEL70200G,SEL70200G2,ILCE-1M2,ILCE-9M3,ILCE-7RM5,ILCE-7M5,ILCE-7M4,ILCE-7M3,ILCE-7CM2,ILCE-7C,ILCE-7CR,ILCE-7SM3</pre>
+        </details>
+        <div class="notice" style="margin-top:16px"><strong>Mock date behavior:</strong> ระบบสร้างวันลงทะเบียนตามลำดับ SKU ใน URL ดังนั้น SKU ด้านท้ายจะใหม่กว่า ใช้ SKU ซ้ำเพื่อจำลองหลาย Serial Number ของรุ่นเดียวกัน โดย Product Badge ยังมีเพียงหนึ่งการ์ด</div>
+      </section>
+
+      <section id="acceptance">
+        <h2>6. Acceptance Checklist</h2>
+        <div class="tableWrap"><table><thead><tr><th>Area</th><th>Expected result</th></tr></thead><tbody>
+          <tr><td>Product ownership</td><td>1 model = 1 Product Badge; duplicate registrations show Quantity and all serials.</td></tr>
+          <tr><td>Quest counting</td><td>นับ SKU/model ไม่ซ้ำ และใช้ any/all/min-count ตามแต่ละเงื่อนไข</td></tr>
+          <tr><td>Tier display</td><td>แสดงระดับสูงสุดที่ได้รับแล้วต่อ Quest family; Bronze/Silver/Gold ไม่แสดงซ้ำใน Home</td></tr>
+          <tr><td>Latest three</td><td>แต่ละ section เรียง earned date ใหม่ไปเก่า แล้วแสดงสูงสุด 3 การ์ด</td></tr>
+          <tr><td>Security</td><td>Custom SKU mock and LIFF bypass work only in local mock configuration.</td></tr>
+          <tr><td>Database</td><td>6 groups, 64 rules, 70 thresholds, 66 conditions and version 2026-07-20-confirmed-badge-rules-001.</td></tr>
+        </tbody></table></div>
+      </section>
+    </main>
+  </body>
+</html>
