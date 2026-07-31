@@ -1,6 +1,6 @@
 export const appConfig = [
   ["campaign_name", "Sony Badge Pilot"],
-  ["badge_rules_version", "2026-07-24-quest-badge-images-001"],
+  ["badge_rules_version", "2026-07-24-product-urls-001"],
   ["support_message", "Please contact Sony Thailand support if badge data looks incorrect."],
 ];
 
@@ -97,9 +97,125 @@ function questBadgeImagePath(fileStem) {
   return `/quest-badge/${fileStem}.png`;
 }
 
+/** Official Sony Thailand PDP / campaign landing URLs by model code. */
+const productUrlsByModelCode = {
+  SEL100M28GM:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel100m28gm?sku=sel100m28gmqsyx&cid=cmp-apac-209306&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL100M28GM&utm_term=SEL100M28GM",
+  SEL90M28G:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel90m28g?sku=sel90m28g-qsyx&cid=cmp-apac-209307&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL90M28G&utm_term=SEL90M28G",
+  SEL30M35:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel30m35?sku=sel30m35-c-syx&cid=cmp-apac-209308&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL30M35&utm_term=SEL30M35",
+  SEL135F18GM:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel135f18gm?sku=sel135f18gm-syx&cid=cmp-apac-209309&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL135F18GM&utm_term=SEL135F18GM",
+  SEL14F18GM:
+    "https://www.sony.co.th/th/lenses/products/sel14f18gm?cid=cmp-apac-209310&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL14F18GM&utm_term=SEL14F18GM",
+  SEL16F18G:
+    "https://www.sony.co.th/th/lenses?cid=cmp-apac-209311&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL16F18G&utm_term=SEL16F18G",
+  SEL20F18G:
+    "https://www.sony.co.th/th/lenses/products/sel20f18g?cid=cmp-apac-209312&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL20F18G&utm_term=SEL20F18G",
+  SEL24F14GM:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel24f14gm?sku=sel24f14gm-syx&cid=cmp-apac-209313&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL24F14GM&utm_term=SEL24F14GM",
+  SEL24F28G:
+    "https://www.sony.co.th/th/lenses/products/sel24f28g?cid=cmp-apac-209314&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL24F28G&utm_term=SEL24F28G",
+  SEL35F14GM:
+    "https://www.sony.co.th/th/lenses/products/sel35f14gm?cid=cmp-apac-209315&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL35F14GM&utm_term=SEL35F14GM",
+  SEL35F18F:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel35f18f?sku=sel35f18f-csyx&cid=cmp-apac-209316&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL35F18F&utm_term=SEL35F18F",
+  SEL50F12GM:
+    "https://www.sony.co.th/th/lenses/products/sel50f12gm?cid=cmp-apac-209317&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL50F12GM&utm_term=SEL50F12GM",
+  SEL50F14GM:
+    "https://www.sony.co.th/th/lenses/products/sel50f14gm?cid=cmp-apac-209318&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL50F14GM&utm_term=SEL50F14GM",
+  SEL50M28:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel50m28?sku=sel50m28-c-syx&cid=cmp-apac-209319&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL50M28&utm_term=SEL50M28",
+  SEL85F14GM:
+    "https://www.sony.co.th/th/lenses/products/sel85f14gm2?cid=cmp-apac-209320&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL85F14GM&utm_term=SEL85F14GM",
+  SEL85F14GM2:
+    "https://www.sony.co.th/th/lenses/products/sel85f14gm2?cid=cmp-apac-209321&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL85F14GM2&utm_term=SEL85F14GM2",
+  SEL1655G:
+    "https://www.sony.co.th/th/lenses?cid=cmp-apac-209322&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL1655G&utm_term=SEL1655G",
+  SEL55210:
+    "https://www.sony.co.th/th/lenses?cid=cmp-apac-209323&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL55210&utm_term=SEL55210",
+  SELP18110G:
+    "https://www.sony.co.th/th/lenses?cid=cmp-apac-209324&utm_source=Line&utm_campaign=F26_Digital-Badge_SELP18110G&utm_term=SELP18110G",
+  SEL1625G:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel1625g?sku=sel1625g-z-syx&cid=cmp-apac-209325&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL1625G&utm_term=SEL1625G",
+  SEL1635GM:
+    "https://www.sony.co.th/th/lenses/products/sel1635gm2?cid=cmp-apac-209326&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL1635GM&utm_term=SEL1635GM",
+  SEL1635GM2:
+    "https://www.sony.co.th/th/lenses/products/sel1635gm2?cid=cmp-apac-209327&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL1635GM2&utm_term=SEL1635GM2",
+  SEL2070G:
+    "https://www.sony.co.th/th/lenses/products/sel2070g?cid=cmp-apac-209328&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL2070G&utm_term=SEL2070G",
+  SEL24105G:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel24105g?sku=sel24105g-syx&cid=cmp-apac-209329&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL24105G&utm_term=SEL24105G",
+  SEL2450G:
+    "https://www.sony.co.th/th/lenses/products/sel2450g?cid=cmp-apac-209330&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL2450G&utm_term=SEL2450G",
+  SEL2470GM:
+    "https://www.sony.co.th/th/lenses/products/sel2470gm2?cid=cmp-apac-209331&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL2470GM&utm_term=SEL2470GM",
+  SEL2470GM2:
+    "https://www.sony.co.th/th/lenses/products/sel2470gm2?cid=cmp-apac-209332&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL2470GM2&utm_term=SEL2470GM2",
+  SEL2870GM:
+    "https://www.sony.co.th/th/electronics/e-mount-lenses/sel2870gm?sku=sel2870gm-qsyx&cid=cmp-apac-209333&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL2870GM&utm_term=SEL2870GM",
+  SEL50150GM:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel50150gm?cid=cmp-apac-209334&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL50150GM&utm_term=SEL50150GM",
+  SELC1635G:
+    "https://www.sony.co.th/th/lenses?cid=cmp-apac-209335&utm_source=Line&utm_campaign=F26_Digital-Badge_SELC1635G&utm_term=SELC1635G",
+  SELP1635G:
+    "https://www.sony.co.th/th/lenses/products/selp1635g?cid=cmp-apac-209336&utm_source=Line&utm_campaign=F26_Digital-Badge_SELP1635G&utm_term=SELP1635G",
+  SELP28135G:
+    "https://www.sony.co.th/th/electronics/camera-lenses/selp28135g?sku=selp28135g-syx&cid=cmp-apac-209337&utm_source=Line&utm_campaign=F26_Digital-Badge_SELP28135G&utm_term=SELP28135G",
+  SEL1635Z:
+    "https://www.sony.co.th/th/lenses?cid=cmp-apac-209338&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL1635Z&utm_term=SEL1635Z",
+  SEL2470Z:
+    "https://www.sony.co.th/th/lenses?cid=cmp-apac-209339&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL2470Z&utm_term=SEL2470Z",
+  SEL70350G:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel70350g?sku=sel70350g-csyx&cid=cmp-apac-209340&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL70350G&utm_term=SEL70350G",
+  SEL100400MC:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel100400mc?sku=sel100400mcqsyx&cid=cmp-apac-209341&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL100400MC&utm_term=SEL100400MC",
+  SEL100400GM:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel100400gm?sku=sel100400gm-syx&cid=cmp-apac-209342&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL100400GM&utm_term=SEL100400GM",
+  SEL200600G:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel200600g?sku=sel200600g-csyx&cid=cmp-apac-209343&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL200600G&utm_term=SEL200600G",
+  SEL300F28GM:
+    "https://www.sony.co.th/th/lenses/products/sel300f28gm?cid=cmp-apac-209344&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL300F28GM&utm_term=SEL300F28GM",
+  SEL400800G:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel400800g?sku=sel400800g-csyx&cid=cmp-apac-209345&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL400800G&utm_term=SEL400800G",
+  SEL400F28GM:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel400f28gm?sku=sel400f28gm-syx&cid=cmp-apac-209346&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL400F28GM&utm_term=SEL400F28GM",
+  SEL600F40GM:
+    "https://www.sony.co.th/th/electronics/camera-lenses/sel600f40gm?sku=sel600f40gm-syx&cid=cmp-apac-209347&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL600F40GM&utm_term=SEL600F40GM",
+  SEL70200GM:
+    "https://www.sony.co.th/th/lenses/products/sel70200gm2?locale=th_TH&sku=sel70200gm2qsyx&cid=cmp-apac-209348&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL70200GM&utm_term=SEL70200GM",
+  SEL70200GM2:
+    "https://www.sony.co.th/th/lenses/products/sel70200gm2?locale=th_TH&sku=sel70200gm2qsyx&cid=cmp-apac-209349&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL70200GM2&utm_term=SEL70200GM2",
+  SEL70200G:
+    "https://www.sony.co.th/th/lenses/products/sel70200g2?sku=sel70200g2-csyx&cid=cmp-apac-209350&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL70200G&utm_term=SEL70200G",
+  SEL70200G2:
+    "https://www.sony.co.th/th/lenses/products/sel70200g2?sku=sel70200g2-csyx&cid=cmp-apac-209351&utm_source=Line&utm_campaign=F26_Digital-Badge_SEL70200G2&utm_term=SEL70200G2",
+  "ILCE-1M2":
+    "https://www.sony.co.th/th/electronics/interchangeable-lens-cameras/ilce-1m2?cid=cmp-apac-209352&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-1M2&utm_term=ILCE-1M2",
+  "ILCE-9M3":
+    "https://www.sony.co.th/th/interchangeable-lens-cameras/products/ilce-9m3?sku=ilce-9m3-bq-ap2&cid=cmp-apac-209353&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-9M3&utm_term=ILCE-9M3",
+  "ILCE-7RM5":
+    "https://www.sony.co.th/th/interchangeable-lens-cameras/products/ilce-7rm5?sku=ilce-7rm5-bqap2&cid=cmp-apac-209354&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-7RM5&utm_term=ILCE-7RM5",
+  "ILCE-7M5":
+    "https://www.sony.co.th/th/electronics/interchangeable-lens-cameras/ilce-7m5?cid=cmp-apac-209355&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-7M5&utm_term=ILCE-7M5",
+  "ILCE-7M4":
+    "https://www.sony.co.th/th/interchangeable-lens-cameras/products/ilce-7m4?sku=ilce-7m4-bq-ap2&cid=cmp-apac-209356&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-7M4&utm_term=ILCE-7M4",
+  "ILCE-7M3":
+    "https://www.sony.co.th/th/interchangeable-lens-cameras/products/ilce-7m3-body-kit?sku=ilce-7m3-bq-ap2&cid=cmp-apac-209357&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-7M3&utm_term=ILCE-7M3",
+  "ILCE-7CM2":
+    "https://www.sony.co.th/th/interchangeable-lens-cameras/products/ilce-7cm2?cid=cmp-apac-209358&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-7CM2&utm_term=ILCE-7CM2",
+  "ILCE-7C":
+    "https://www.sony.co.th/th/interchangeable-lens-cameras/products/ilce-7c?locale=th_TH&sku=ilce-7c-sq-ap2&cid=cmp-apac-209359&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-7C&utm_term=ILCE-7C",
+  "ILCE-7CR":
+    "https://www.sony.co.th/th/interchangeable-lens-cameras/products/ilce-7cr?sku=ilce-7cr-bq-ap2&cid=cmp-apac-209360&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-7CR&utm_term=ILCE-7CR",
+  "ILCE-7SM3":
+    "https://www.sony.co.th/th/interchangeable-lens-cameras/products/ilce-7sm3?cid=cmp-apac-209361&utm_source=Line&utm_campaign=F26_Digital-Badge_ILCE-7SM3&utm_term=ILCE-7SM3",
+};
+
 const productBadgeRules = Object.entries(productModelsByGroup).flatMap(
   ([displayGroupCode, models], groupIndex) =>
-    models.map(([modelCode, displayName, imageUrl], modelIndex) => ({
+    models.map(([modelCode, displayName], modelIndex) => ({
       code: `product-${modelCode.toLowerCase()}`,
       name: displayName,
       badgeType: "product",
@@ -108,8 +224,8 @@ const productBadgeRules = Object.entries(productModelsByGroup).flatMap(
       displayGroup: displayGroupCode,
       displayGroupCode,
       productModelCode: modelCode,
-      productUrl: null,
-      imageUrl: imageUrl ?? productBadgeImagePath(modelCode),
+      productUrl: productUrlsByModelCode[modelCode] ?? null,
+      imageUrl: productBadgeImagePath(modelCode),
       description: `Register ${modelCode} to unlock this Product Badge.`,
       sortOrder: groupIndex * 100 + modelIndex + 1,
       activeFrom: null,

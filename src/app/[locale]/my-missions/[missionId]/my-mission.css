@@ -269,6 +269,9 @@
 
 .myMissionTicketList__details {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 8px 14px;
   border: 1px solid var(--sony-campaign);
   border-radius: 999px;
@@ -277,5 +280,12 @@
   font: inherit;
   font-size: 12px;
   font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
+}
+
+.myMissionTicketList__details--disabled {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
 }

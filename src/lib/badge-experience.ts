@@ -47,6 +47,7 @@ export type QuestBadgeExperience = {
   tiers: QuestTierExperience[];
   highestEarnedTier: QuestTierExperience | null;
   matchedProducts: SonyOwnedProduct[];
+  eligibleSkus: string[];
   sortOrder: number;
 };
 
@@ -186,6 +187,7 @@ function buildQuestBadge(
     tiers,
     highestEarnedTier: tiers.filter((tier) => tier.status === "achieved").at(-1) ?? null,
     matchedProducts,
+    eligibleSkus: rule.skus,
     sortOrder: rule.sortOrder,
   };
 }

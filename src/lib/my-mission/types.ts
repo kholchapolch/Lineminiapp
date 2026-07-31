@@ -7,6 +7,7 @@ export type MissionTicket = {
   productCode: string;
   imageUrl: string;
   status: MissionTicketStatus;
+  productUrl: string | null;
 };
 
 export type MyMissionDetail = {
