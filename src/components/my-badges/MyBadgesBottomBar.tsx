@@ -26,7 +26,7 @@ export function MyBadgesBottomBar({
       hrefs={{
         home: localizedPath(locale, "my-badges"),
         register: process.env.NEXT_PUBLIC_ACCOUNT_URL,
-        inquiry: "#",
+        inquiry: "https://www.sony.co.th/microsite/digital-badge/",
       }}
       className="myBadgesBottomBar"
     />
