@@ -48,11 +48,7 @@ export function MyMissionProgressView({
           <div
             className={`myMissionSummaryCard__badge myMissionSummaryCard__badge--${badgeVisualState}`}
           >
-            {badgeVisualState === "empty" ? (
-              <span className="myMissionSummaryCard__placeholder" />
-            ) : (
-              <img src={mission.badgeImageUrl} alt="" />
-            )}
+            <img src={mission.badgeImageUrl} alt="" />
           </div>
           <div className="myMissionSummaryCard__body">
             <h2>{title}</h2>

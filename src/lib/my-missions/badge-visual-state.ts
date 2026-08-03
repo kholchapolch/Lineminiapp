@@ -4,10 +4,7 @@ export function getMissionBadgeVisualState(
   progress: number,
   target: number,
 ): MissionBadgeVisualState {
-  if (progress <= 0) {
-    return "empty";
-  }
-  if (progress >= target) {
+  if (progress >= target && target > 0) {
     return "unlocked";
   }
   return "partial";
