@@ -10,11 +10,17 @@ type MissionTierTrackProps = {
   tiers: MissionTier[];
 };
 
-export function MissionTierTrack({ locale, tiers }: MissionTierTrackProps): JSX.Element {
+export function MissionTierTrack({
+  locale,
+  tiers,
+}: MissionTierTrackProps): JSX.Element {
   return (
     <div className="missionTierTrack">
       {tiers.map((tier) => {
-        const visualState = getMissionBadgeVisualState(tier.progress, tier.target);
+        const visualState = getMissionBadgeVisualState(
+          tier.progress,
+          tier.target,
+        );
 
         return (
           <Link
@@ -22,12 +28,8 @@ export function MissionTierTrack({ locale, tiers }: MissionTierTrackProps): JSX.
             href={localizedMissionPath(locale, tier.id)}
             key={tier.id}
           >
-            <div className="missionBadgeNode__art" aria-hidden={visualState === "empty"}>
-              {visualState === "empty" ? (
-                <span className="missionBadgeNode__placeholder" />
-              ) : (
-                <img src={tier.imageUrl} alt="" />
-              )}
+            <div className="missionBadgeNode__art">
+              <img src={tier.imageUrl} alt="" />
             </div>
             <p className="missionBadgeNode__progress">
               {tier.progress}/{tier.target}
