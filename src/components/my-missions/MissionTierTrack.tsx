@@ -22,12 +22,8 @@ export function MissionTierTrack({ locale, tiers }: MissionTierTrackProps): JSX.
             href={localizedMissionPath(locale, tier.id)}
             key={tier.id}
           >
-            <div className="missionBadgeNode__art" aria-hidden={visualState === "empty"}>
-              {visualState === "empty" ? (
-                <span className="missionBadgeNode__placeholder" />
-              ) : (
-                <img src={tier.imageUrl} alt="" />
-              )}
+            <div className="missionBadgeNode__art">
+              <img src={tier.imageUrl} alt="" />
             </div>
             <p className="missionBadgeNode__progress">
               {tier.progress}/{tier.target}
