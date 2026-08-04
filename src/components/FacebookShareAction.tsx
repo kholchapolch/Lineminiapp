@@ -3,7 +3,11 @@
 import { useEffect, useState, type MouseEvent } from "react";
 import { FacebookShareButton } from "react-share";
 import { FacebookIcon } from "@/components/icons/FacebookIcon";
-import { getPublicAppBaseUrl, toShareableAssetUrl } from "@/lib/absolute-url";
+import {
+  getPublicAppBaseUrl,
+  toFacebookSharerUrl,
+  toShareableAssetUrl,
+} from "@/lib/absolute-url";
 import { getCurrentLiffClient } from "@/lib/liff-session";
 
 type FacebookShareActionProps = {
@@ -31,26 +35,34 @@ export function FacebookShareAction({
     .filter(Boolean)
     .join(" ");
   const disabled = !shareUrl || isSharing;
+  const sharerUrl = toFacebookSharerUrl(shareUrl) ?? "";
 
   async function handleShare(
     _event: MouseEvent<HTMLButtonElement>,
     link: string,
   ) {
-    if (!shareUrl || !link || isSharing) {
+    if (!shareUrl || isSharing) {
       return;
     }
 
-    if (/\s/.test(shareUrl) || /\s/.test(link)) {
-      console.error("Refusing to share URL with raw spaces:", shareUrl || link);
+    const facebookLink = toFacebookSharerUrl(shareUrl) ?? link;
+    if (!facebookLink) {
+      return;
+    }
+
+    if (/\s/.test(shareUrl) || /\s/.test(facebookLink)) {
+      console.error(
+        "Refusing to share URL with raw spaces:",
+        shareUrl || facebookLink,
+      );
       return;
     }
 
     setIsSharing(true);
     try {
-      // iOS + Facebook app installed breaks facebook.com/sharer links.
-      // Prefer the native share sheet; user picks Facebook there.
-      // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
-      if (canUseNavigatorShare()) {
+      // Native share sheets can truncate percent-encoded spaces (%20) when the
+      // user picks Facebook. Prefer the double-encoded sharer dialog instead.
+      if (canUseNavigatorShare() && !hasPercentEncodedPathSpace(shareUrl)) {
         const shared = await shareWithNavigator(shareUrl);
         if (shared) {
           return;
@@ -58,8 +70,11 @@ export function FacebookShareAction({
       }
 
       const liff = await getCurrentLiffClient();
+
       if (liff.isInClient() && typeof liff.openWindow === "function") {
-        liff.openWindow({ url: link, external: true });
+        // alert(facebookLink);
+        // liff.openWindow({ url: facebookLink, external: true });
+        window.open(facebookLink, "_blank", "noopener,noreferrer");
         return;
       }
     } catch {
@@ -68,13 +83,13 @@ export function FacebookShareAction({
       setIsSharing(false);
     }
 
-    const opened = window.open(link, "_blank", "noopener,noreferrer");
+    const opened = window.open(facebookLink, "_blank", "noopener,noreferrer");
     if (!opened) {
-      window.location.assign(link);
+      window.location.assign(facebookLink);
     }
   }
 
-  if (!shareUrl) {
+  if (!shareUrl || !sharerUrl) {
     return (
       <button type="button" className={classes} disabled aria-label={label}>
         <span className="sonyButton__icon">
@@ -115,6 +130,10 @@ function resolveShareUrl(url: string | undefined): string {
   }
 
   return toShareableAssetUrl(url, getPublicAppBaseUrl()) ?? "";
+}
+
+function hasPercentEncodedPathSpace(url: string): boolean {
+  return /%20/i.test(url);
 }
 
 function canUseNavigatorShare(): boolean {
