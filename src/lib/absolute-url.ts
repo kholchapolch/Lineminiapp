@@ -40,7 +40,7 @@ export function toAbsoluteUrl(
  */
 export function toShareableAssetUrl(
   pathOrUrl: string | null | undefined,
-  baseUrl: string = getPublicAppBaseUrl(),
+  baseUrl: string = getBadgeImageBaseUrl(),
 ): string | null {
   const absolute = toAbsoluteUrl(pathOrUrl, baseUrl);
   if (!absolute) {
@@ -53,6 +53,52 @@ export function toShareableAssetUrl(
   }
 
   return absolute;
+}
+
+/**
+ * Host for badge art (product + quest). Prefers BADGE_IMAGE_BASE_URL when set,
+ * otherwise falls back to the public app origin.
+ */
+export function getBadgeImageBaseUrl(): string {
+  const configured =
+    blankToUndefined(process.env.NEXT_PUBLIC_BADGE_IMAGE_BASE_URL) ??
+    blankToUndefined(process.env.BADGE_IMAGE_BASE_URL);
+
+  if (configured) {
+    return configured.replace(/\/$/, "");
+  }
+
+  return getPublicAppBaseUrl();
+}
+
+/**
+ * Compose a display/share URL for a badge image path stored in the DB.
+ * - absolute http(s) values are kept (path-encoded)
+ * - relative paths use BADGE_IMAGE_BASE_URL when set, else APP_BASE_URL
+ * - if no base is configured, the original relative path is returned
+ */
+export function toBadgeImageUrl(
+  pathOrUrl: string | null | undefined,
+): string | null {
+  if (!pathOrUrl) {
+    return null;
+  }
+
+  const trimmed = pathOrUrl.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  if (isAbsoluteHttpUrl(trimmed)) {
+    return toAbsoluteUrl(trimmed, "");
+  }
+
+  const base = getBadgeImageBaseUrl();
+  if (!base) {
+    return trimmed;
+  }
+
+  return toAbsoluteUrl(trimmed, base);
 }
 
 function isAbsoluteHttpUrl(value: string): boolean {
@@ -102,7 +148,9 @@ function encodePathname(pathname: string): string {
         return segment;
       }
       try {
-        return encodeURIComponent(decodeURIComponent(segment.replace(/\+/g, "%20")));
+        return encodeURIComponent(
+          decodeURIComponent(segment.replace(/\+/g, "%20")),
+        );
       } catch {
         return encodeURIComponent(segment);
       }

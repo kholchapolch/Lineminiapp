@@ -1,7 +1,7 @@
 import "server-only";
 
-import { loadAppConfig } from "@/lib/app-config";
-import { toShareableAssetUrl } from "@/lib/absolute-url";
+import { getBadgeImageBaseUrl, toShareableAssetUrl } from "@/lib/absolute-url";
+
 import {
   getActiveBadgeRules,
   getBadgeRuntimeConfig,
@@ -35,7 +35,7 @@ export async function getPublicProductShareMeta(
   return {
     title: rule.name,
     description: rule.description ?? rule.name,
-    imageUrl: toShareableAssetUrl(imagePath, loadAppConfig().appBaseUrl),
+    imageUrl: toShareableAssetUrl(imagePath, getBadgeImageBaseUrl()),
     pagePath: `/${locale}/share/product/${encodeURIComponent(productId)}`,
   };
 }
@@ -65,7 +65,7 @@ export async function getPublicMissionShareMeta(
     return {
       title: threshold.displayName || rule.name,
       description: rule.description ?? rule.name,
-      imageUrl: toShareableAssetUrl(imagePath, loadAppConfig().appBaseUrl),
+      imageUrl: toShareableAssetUrl(imagePath, getBadgeImageBaseUrl()),
       pagePath: `/${locale}/share/mission/${encodeURIComponent(missionId)}`,
     };
   }

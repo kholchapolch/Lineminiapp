@@ -1,4 +1,9 @@
-import { calculateRuleMatch, isRuleActive, isWithinDateWindow } from "@/lib/badge-engine";
+import {
+  calculateRuleMatch,
+  isRuleActive,
+  isWithinDateWindow,
+} from "@/lib/badge-engine";
+import { toBadgeImageUrl } from "@/lib/absolute-url";
 import { matchesEligibleSku } from "@/lib/sku";
 import type {
   BadgeRuleConfig,
@@ -56,7 +61,9 @@ export type BadgeExperience = {
   productBadges: ProductBadgeExperience[];
   questBadges: QuestBadgeExperience[];
   recentProductBadges: ProductBadgeExperience[];
-  recentQuestBadges: Array<QuestBadgeExperience & { highestEarnedTier: QuestTierExperience }>;
+  recentQuestBadges: Array<
+    QuestBadgeExperience & { highestEarnedTier: QuestTierExperience }
+  >;
   fetchedAt: string;
 };
 
@@ -87,8 +94,11 @@ export function buildBadgeExperience({
       .slice(0, 3),
     recentQuestBadges: questBadges
       .filter(
-        (badge): badge is QuestBadgeExperience & { highestEarnedTier: QuestTierExperience } =>
-          Boolean(badge.highestEarnedTier?.earnedAt),
+        (
+          badge,
+        ): badge is QuestBadgeExperience & {
+          highestEarnedTier: QuestTierExperience;
+        } => Boolean(badge.highestEarnedTier?.earnedAt),
       )
       .sort((left, right) =>
         compareEarnedValues(
@@ -111,7 +121,11 @@ function buildProductBadge(
     .filter(
       (product) =>
         matchesEligibleSku(product.sku, rule.skus) &&
-        isWithinDateWindow(product.registeredAt, rule.registrationStart, rule.registrationEnd),
+        isWithinDateWindow(
+          product.registeredAt,
+          rule.registrationStart,
+          rule.registrationEnd,
+        ),
     )
     .sort((left, right) => left.registeredAt.localeCompare(right.registeredAt))
     .map((product) => ({
@@ -127,10 +141,14 @@ function buildProductBadge(
     title: rule.name,
     groupCode: rule.displayGroupCode ?? rule.displayGroup ?? "product",
     status: unlocked ? "unlocked" : "locked",
-    imageUrl: unlocked
-      ? (threshold?.achievedImageUrl ?? null)
-      : (threshold?.lockedImageUrl ?? threshold?.achievedImageUrl ?? null),
-    shareImageUrl: threshold?.shareImageUrl ?? threshold?.achievedImageUrl ?? null,
+    imageUrl: toBadgeImageUrl(
+      unlocked
+        ? (threshold?.achievedImageUrl ?? null)
+        : (threshold?.lockedImageUrl ?? threshold?.achievedImageUrl ?? null),
+    ),
+    shareImageUrl: toBadgeImageUrl(
+      threshold?.shareImageUrl ?? threshold?.achievedImageUrl ?? null,
+    ),
     productUrl: rule.productUrl ?? null,
     earnedAt: registrations[0]?.registeredAt ?? null,
     quantity: registrations.length,
@@ -166,10 +184,14 @@ function buildQuestBadge(
       level: rule.ruleType === "tier" ? threshold.level : null,
       title: threshold.displayName,
       status,
-      imageUrl: achieved
-        ? threshold.achievedImageUrl
-        : (threshold.lockedImageUrl ?? threshold.achievedImageUrl),
-      shareImageUrl: threshold.shareImageUrl ?? threshold.achievedImageUrl,
+      imageUrl: toBadgeImageUrl(
+        achieved
+          ? threshold.achievedImageUrl
+          : (threshold.lockedImageUrl ?? threshold.achievedImageUrl),
+      ),
+      shareImageUrl: toBadgeImageUrl(
+        threshold.shareImageUrl ?? threshold.achievedImageUrl,
+      ),
       matchedCount: Math.min(matchedCount, threshold.requiredCount),
       requiredCount: threshold.requiredCount,
       remainingCount: Math.max(threshold.requiredCount - matchedCount, 0),
@@ -185,7 +207,8 @@ function buildQuestBadge(
     title: rule.name,
     description: rule.description,
     tiers,
-    highestEarnedTier: tiers.filter((tier) => tier.status === "achieved").at(-1) ?? null,
+    highestEarnedTier:
+      tiers.filter((tier) => tier.status === "achieved").at(-1) ?? null,
     matchedProducts,
     eligibleSkus: rule.skus,
     sortOrder: rule.sortOrder,
@@ -217,7 +240,12 @@ function compareEarnedThenOrder(
   left: ProductBadgeExperience,
   right: ProductBadgeExperience,
 ): number {
-  return compareEarnedValues(left.earnedAt, right.earnedAt, left.sortOrder, right.sortOrder);
+  return compareEarnedValues(
+    left.earnedAt,
+    right.earnedAt,
+    left.sortOrder,
+    right.sortOrder,
+  );
 }
 
 function compareEarnedValues(

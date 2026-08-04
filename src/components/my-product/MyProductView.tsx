@@ -1,6 +1,6 @@
 import { MyProductActions } from "@/components/my-product/MyProductActions";
 import { ProductBadgeHero } from "@/components/my-product/ProductBadgeHero";
-import { getPublicAppBaseUrl, toShareableAssetUrl } from "@/lib/absolute-url";
+import { getBadgeImageBaseUrl, toShareableAssetUrl } from "@/lib/absolute-url";
 import { formatUnlockedDate } from "@/lib/my-product/format-unlocked-date";
 import type { MyProductDetailData } from "@/lib/my-product/types";
 import type { Locale } from "@/lib/i18n/locales";
@@ -20,7 +20,7 @@ export function MyProductView({
 }: MyProductViewProps): JSX.Element {
   const { product } = data;
   const shareImageUrl =
-    toShareableAssetUrl(product.shareImageUrl, getPublicAppBaseUrl()) ?? "";
+    toShareableAssetUrl(product.shareImageUrl, getBadgeImageBaseUrl()) ?? "";
 
   return (
     <div className="myProductPage">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FacebookShareAction } from "@/components/FacebookShareAction";
 import { ProductBadgeHero } from "@/components/my-product/ProductBadgeHero";
-import { getPublicAppBaseUrl, toShareableAssetUrl } from "@/lib/absolute-url";
+import { getBadgeImageBaseUrl, toShareableAssetUrl } from "@/lib/absolute-url";
 import { formatUnlockedDate } from "@/lib/my-product/format-unlocked-date";
 import type { Locale } from "@/lib/i18n/locales";
 import type { Messages } from "@/lib/i18n/messages/types";
@@ -26,7 +26,7 @@ export function MyMissionCompletedView({
   const shareImageUrl =
     toShareableAssetUrl(
       mission.shareImageUrl || mission.badgeImageUrl,
-      getPublicAppBaseUrl(),
+      getBadgeImageBaseUrl(),
     ) ?? "";
 
   return (
@@ -43,7 +43,8 @@ export function MyMissionCompletedView({
         <h1>{messages.myMission.receivedTitle}</h1>
         {mission.unlockedAt ? (
           <p className="myMissionPage__meta">
-            {messages.myMission.unlockedOn}: {formatUnlockedDate(mission.unlockedAt, locale)}
+            {messages.myMission.unlockedOn}:{" "}
+            {formatUnlockedDate(mission.unlockedAt, locale)}
           </p>
         ) : null}
       </section>
@@ -53,7 +54,10 @@ export function MyMissionCompletedView({
           label={messages.myMission.share}
           url={shareImageUrl}
         />
-        <Link className="sonyButton sonyButton--outline myMissionPage__back" href={backHref}>
+        <Link
+          className="sonyButton sonyButton--outline myMissionPage__back"
+          href={backHref}
+        >
           {messages.myMission.backToHome}
         </Link>
       </div>

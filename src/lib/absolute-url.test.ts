@@ -1,6 +1,14 @@
-import { describe, expect, it } from "vitest";
-import { toAbsoluteUrl, toShareableAssetUrl } from "@/lib/absolute-url";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  getBadgeImageBaseUrl,
+  toAbsoluteUrl,
+  toBadgeImageUrl,
+  toShareableAssetUrl,
+} from "@/lib/absolute-url";
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 describe("toAbsoluteUrl", () => {
   it("uses https URLs as-is without APP_BASE_URL", () => {
     expect(
@@ -12,15 +20,15 @@ describe("toAbsoluteUrl", () => {
   });
 
   it("uses http URLs as-is without APP_BASE_URL", () => {
-    expect(toAbsoluteUrl("http://cdn.example.com/a.png", "https://app.example.com")).toBe(
-      "http://cdn.example.com/a.png",
-    );
+    expect(
+      toAbsoluteUrl("http://cdn.example.com/a.png", "https://app.example.com"),
+    ).toBe("http://cdn.example.com/a.png");
   });
 
   it("resolves public paths against the app base URL", () => {
-    expect(toAbsoluteUrl("/badges/SEL50F12GM.png", "https://app.example.com")).toBe(
-      "https://app.example.com/badges/SEL50F12GM.png",
-    );
+    expect(
+      toAbsoluteUrl("/badges/SEL50F12GM.png", "https://app.example.com"),
+    ).toBe("https://app.example.com/badges/SEL50F12GM.png");
   });
 
   it("percent-encodes spaces and ampersands in path segments", () => {
@@ -60,6 +68,55 @@ describe("toShareableAssetUrl", () => {
       ),
     ).toBe(
       "https://ctk.ctk-playground.cc/Product%20Badge/Full%20Frame%20Camera/ILCE-1M2.png",
+    );
+  });
+});
+
+describe("getBadgeImageBaseUrl", () => {
+  it("prefers BADGE_IMAGE_BASE_URL over APP_BASE_URL", () => {
+    vi.stubEnv("BADGE_IMAGE_BASE_URL", "https://sony.blob.azure.url/");
+    vi.stubEnv("APP_BASE_URL", "https://app.example.com");
+    vi.stubEnv("NEXT_PUBLIC_APP_BASE_URL", "https://app.example.com");
+
+    expect(getBadgeImageBaseUrl()).toBe("https://sony.blob.azure.url");
+  });
+
+  it("falls back to APP_BASE_URL when badge host is unset", () => {
+    vi.stubEnv("BADGE_IMAGE_BASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_BADGE_IMAGE_BASE_URL", "");
+    vi.stubEnv("APP_BASE_URL", "https://app.example.com");
+    vi.stubEnv("NEXT_PUBLIC_APP_BASE_URL", "https://app.example.com");
+
+    expect(getBadgeImageBaseUrl()).toBe("https://app.example.com");
+  });
+});
+
+describe("toBadgeImageUrl", () => {
+  it("joins badge host with a DB image path", () => {
+    vi.stubEnv("BADGE_IMAGE_BASE_URL", "https://sony.blob.azure.url");
+    vi.stubEnv("APP_BASE_URL", "https://app.example.com");
+
+    expect(toBadgeImageUrl("/product-badge/SEL50F14GM.png")).toBe(
+      "https://sony.blob.azure.url/product-badge/SEL50F14GM.png",
+    );
+  });
+
+  it("joins APP_BASE_URL when badge host is unset", () => {
+    vi.stubEnv("BADGE_IMAGE_BASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_BADGE_IMAGE_BASE_URL", "");
+    vi.stubEnv("APP_BASE_URL", "https://app.example.com");
+    vi.stubEnv("NEXT_PUBLIC_APP_BASE_URL", "https://app.example.com");
+
+    expect(toBadgeImageUrl("/quest-badge/portrait-bronze.png")).toBe(
+      "https://app.example.com/quest-badge/portrait-bronze.png",
+    );
+  });
+
+  it("keeps absolute image URLs", () => {
+    vi.stubEnv("BADGE_IMAGE_BASE_URL", "https://sony.blob.azure.url");
+
+    expect(toBadgeImageUrl("https://cdn.example.com/a.png")).toBe(
+      "https://cdn.example.com/a.png",
     );
   });
 });

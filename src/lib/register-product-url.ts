@@ -17,6 +17,7 @@ export function buildLineMiniAppMissionCallbackUrl(
 /**
  * Build the external Sony product-register URL with a return callback.
  */
+
 export function buildRegisterProductUrl(
   callbackUrl: string,
   baseUrl: string | undefined = process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL,
