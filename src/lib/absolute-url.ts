@@ -55,6 +55,32 @@ export function toShareableAssetUrl(
   return absolute;
 }
 
+/**
+ * Build facebook.com/sharer URL for a target that may contain `%20` in the path.
+ *
+ * Facebook's sharer appears to decode `u=` more than once. A normal
+ * `encodeURIComponent` of `...%20...` yields `...%2520...` in the query, which
+ * still gets truncated. Pre-escaping `%20` → `%2520` before the final
+ * encodeURIComponent produces `...%252520...` in `u=`, which is the form that
+ * survives (e.g. Macro%252520Lens).
+ */
+export function toFacebookSharerUrl(
+  targetUrl: string | null | undefined,
+): string | null {
+  const trimmed = blankToUndefined(targetUrl ?? undefined);
+  if (!trimmed) {
+    return null;
+  }
+
+  if (/\s/.test(trimmed)) {
+    return null;
+  }
+
+  // `%20` → `%2520` here; encodeURIComponent then yields `%252520` in `u=`.
+  const facebookSafeTarget = trimmed.replace(/%20/gi, "%2520");
+  return `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(facebookSafeTarget)}`;
+}
+
 function isAbsoluteHttpUrl(value: string): boolean {
   return /^https?:\/\//i.test(value);
 }
