@@ -60,9 +60,10 @@ export function FacebookShareAction({
 
     setIsSharing(true);
     try {
-      // Native share sheets can truncate percent-encoded spaces (%20) when the
-      // user picks Facebook. Prefer the double-encoded sharer dialog instead.
-      if (canUseNavigatorShare() && !hasPercentEncodedPathSpace(shareUrl)) {
+      // iOS + Facebook app installed breaks facebook.com/sharer links.
+      // Prefer the native share sheet; user picks Facebook there.
+      // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
+      if (canUseNavigatorShare()) {
         const shared = await shareWithNavigator(shareUrl);
         if (shared) {
           return;
@@ -70,11 +71,8 @@ export function FacebookShareAction({
       }
 
       const liff = await getCurrentLiffClient();
-
       if (liff.isInClient() && typeof liff.openWindow === "function") {
-        // alert(facebookLink);
-        // liff.openWindow({ url: facebookLink, external: true });
-        window.open(facebookLink, "_blank", "noopener,noreferrer");
+        liff.openWindow({ url: facebookLink, external: true });
         return;
       }
     } catch {
@@ -130,10 +128,6 @@ function resolveShareUrl(url: string | undefined): string {
   }
 
   return toShareableAssetUrl(url, getPublicAppBaseUrl()) ?? "";
-}
-
-function hasPercentEncodedPathSpace(url: string): boolean {
-  return /%20/i.test(url);
 }
 
 function canUseNavigatorShare(): boolean {
