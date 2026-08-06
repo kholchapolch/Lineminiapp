@@ -21,6 +21,8 @@ type SonyWarrantyProduct = {
 };
 type SonyWarrantyApiResponse = {
   prodDetails?: unknown;
+  errorCode?: unknown;
+  errorMessage?: unknown;
 };
 
 class SonyProductApiError extends Error {
@@ -81,7 +83,9 @@ class LiveSonyProductsClient implements SonyProductsClient {
       cache: "no-store",
     });
 
-    if (response.status === 404) {
+    const payload = await readSonyApiJson(response);
+
+    if (response.status === 404 || isSonyLineIdNotFoundPayload(payload)) {
       throw new SonyCustomerNotFoundError();
     }
 
@@ -91,11 +95,14 @@ class LiveSonyProductsClient implements SonyProductsClient {
       );
     }
 
-    const payload = (await response.json()) as
-      | LiveSonyApiResponse
-      | SonyWarrantyApiResponse;
+    if (!payload) {
+      throw new SonyProductApiError("Sony product API returned an empty body.");
+    }
 
-    return normalizeLiveSonyApiResponse(payload, lineuuid);
+    return normalizeLiveSonyApiResponse(
+      payload as LiveSonyApiResponse | SonyWarrantyApiResponse,
+      lineuuid,
+    );
   }
 }
 
@@ -210,4 +217,25 @@ function assertSonyOwnedProduct(product: unknown): SonyOwnedProduct {
 
 function nullableString(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
+}
+
+async function readSonyApiJson(response: Response): Promise<unknown> {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Sony warranty APIM may return HTTP 200 with:
+ * `{ "errorCode": "100", "errorMessage": "Line Id ... is not found..." }`
+ */
+function isSonyLineIdNotFoundPayload(payload: unknown): boolean {
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+
+  const errorCode = (payload as { errorCode?: unknown }).errorCode;
+  return errorCode === "100" || errorCode === 100;
 }

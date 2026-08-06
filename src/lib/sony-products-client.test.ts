@@ -86,4 +86,26 @@ describe("createSonyProductsClient", () => {
       ],
     });
   });
+
+  it("maps Sony errorCode 100 to SonyCustomerNotFoundError", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          errorCode: "100",
+          errorMessage:
+            "Line Id Ufc3b33b522605ff0c7570c265a116d80 is not found in our database",
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      ),
+    );
+
+    await expect(
+      createSonyProductsClient(liveConfig).getCustomerProducts(
+        "Ufc3b33b522605ff0c7570c265a116d80",
+      ),
+    ).rejects.toMatchObject({
+      name: "SonyCustomerNotFoundError",
+      code: "CUSTOMER_NOT_FOUND",
+    });
+  });
 });
