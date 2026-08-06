@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import { loadAppConfig } from "@/lib/app-config";
-import {
-  resolveAuthorizedLineUuid,
-  UnauthorizedError,
-} from "@/lib/auth-session";
+import { UnauthorizedError } from "@/lib/auth-session";
+import { isSonyCustomerNotFound } from "@/lib/badge-result";
 import { defaultLocale, isLocale } from "@/lib/i18n/locales";
 import { getMyBadgesData } from "@/lib/my-badges/get-my-badges-data";
 import { toSafeError } from "@/lib/safe-logging";
@@ -25,8 +22,13 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     console.log({ safeError });
 
-    return NextResponse.json(safeError, {
-      status: error instanceof UnauthorizedError ? 401 : 500,
-    });
+    const status =
+      error instanceof UnauthorizedError
+        ? 401
+        : isSonyCustomerNotFound(error)
+          ? 404
+          : 500;
+
+    return NextResponse.json(safeError, { status });
   }
 }

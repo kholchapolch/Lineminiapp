@@ -39,6 +39,7 @@ export default function MyBadgesPage({
   const { lineUuid, status } = useLineSession();
   const [data, setData] = useState<MyBadgesData | null>(null);
   const [error, setError] = useState(false);
+  const [isRedirectingToAccount, setIsRedirectingToAccount] = useState(false);
 
   useEffect(() => {
     if (status === "idle" || status === "loading") {
@@ -48,6 +49,7 @@ export default function MyBadgesPage({
     if (!lineUuid) {
       setData(null);
       setError(true);
+      setIsRedirectingToAccount(false);
       return;
     }
 
@@ -55,6 +57,7 @@ export default function MyBadgesPage({
 
     setData(null);
     setError(false);
+    setIsRedirectingToAccount(false);
 
     async function loadBadges() {
       try {
@@ -67,6 +70,15 @@ export default function MyBadgesPage({
         );
 
         if (!response.ok) {
+          if (await shouldRedirectToAccount(response)) {
+            const accountUrl = getAccountUrl();
+            if (accountUrl) {
+              setIsRedirectingToAccount(true);
+              window.location.assign(accountUrl);
+              return;
+            }
+          }
+
           throw new Error("Failed to load badges");
         }
 
@@ -88,7 +100,7 @@ export default function MyBadgesPage({
     };
   }, [lineUuid, locale, status]);
 
-  if (status === "idle" || status === "loading") {
+  if (status === "idle" || status === "loading" || isRedirectingToAccount) {
     return <PageLoading variant="my-badges" />;
   }
 
@@ -108,4 +120,22 @@ export default function MyBadgesPage({
   }
 
   return <MyBadgesView locale={locale} messages={messages} data={data} />;
+}
+
+function getAccountUrl(): string | null {
+  const accountUrl = process.env.NEXT_PUBLIC_ACCOUNT_URL?.trim();
+  return accountUrl || null;
+}
+
+async function shouldRedirectToAccount(response: Response): Promise<boolean> {
+  if (response.status === 404) {
+    return true;
+  }
+
+  try {
+    const payload = (await response.clone().json()) as { code?: unknown };
+    return payload.code === "CUSTOMER_NOT_FOUND";
+  } catch {
+    return false;
+  }
 }
