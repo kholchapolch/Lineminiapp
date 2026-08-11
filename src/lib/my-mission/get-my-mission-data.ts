@@ -24,7 +24,7 @@ export async function getMyMissionLockedData(
   return mapExperienceToMyMission(await getLockedBadgeExperience(), missionId);
 }
 
-function mapExperienceToMyMission(
+export function mapExperienceToMyMission(
   experience: BadgeExperience,
   missionId: string,
 ): MyMissionDetailData | null {
@@ -39,7 +39,6 @@ function mapExperienceToMyMission(
 
   const tickets = buildMissionTickets({
     missionId: tier.id,
-    requiredCount: tier.requiredCount,
     matchedProducts: quest.matchedProducts,
     eligibleSkus: quest.eligibleSkus,
     productBadges: experience.productBadges,
@@ -62,61 +61,29 @@ function mapExperienceToMyMission(
 
 function buildMissionTickets({
   missionId,
-  requiredCount,
   matchedProducts,
   eligibleSkus,
   productBadges,
 }: {
   missionId: string;
-  requiredCount: number;
   matchedProducts: BadgeExperience["questBadges"][number]["matchedProducts"];
   eligibleSkus: string[];
   productBadges: ProductBadgeExperience[];
 }): MissionTicket[] {
-  const tickets: MissionTicket[] = [];
-
-  for (const product of matchedProducts.slice(0, requiredCount)) {
-    const badge = findProductBadge(productBadges, product.sku);
-    tickets.push({
-      id: `${missionId}-ticket-${tickets.length + 1}`,
-      productCode: product.sku,
-      imageUrl: badge?.imageUrl ?? FALLBACK_TICKET_IMAGE,
-      status: "completed",
-      productUrl: badge?.productUrl ?? null,
-    });
-  }
-
-  const pendingSkus = eligibleSkus.filter(
-    (sku) =>
-      !matchedProducts.some((product) => matchesEligibleSku(product.sku, [sku])),
-  );
-
-  for (const sku of pendingSkus) {
-    if (tickets.length >= requiredCount) {
-      break;
-    }
-
+  return eligibleSkus.map((sku, index) => {
+    const owned = matchedProducts.some((product) =>
+      matchesEligibleSku(product.sku, [sku]),
+    );
     const badge = findProductBadge(productBadges, sku);
-    tickets.push({
-      id: `${missionId}-ticket-${tickets.length + 1}`,
+
+    return {
+      id: `${missionId}-ticket-${index + 1}`,
       productCode: sku,
       imageUrl: badge?.imageUrl ?? FALLBACK_TICKET_IMAGE,
-      status: "pending",
+      status: owned ? "completed" : "pending",
       productUrl: badge?.productUrl ?? null,
-    });
-  }
-
-  while (tickets.length < requiredCount) {
-    tickets.push({
-      id: `${missionId}-ticket-${tickets.length + 1}`,
-      productCode: "—",
-      imageUrl: FALLBACK_TICKET_IMAGE,
-      status: "pending",
-      productUrl: null,
-    });
-  }
-
-  return tickets;
+    };
+  });
 }
 
 function findProductBadge(

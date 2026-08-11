@@ -187,9 +187,28 @@ function buildQuestBadge(
     tiers,
     highestEarnedTier: tiers.filter((tier) => tier.status === "achieved").at(-1) ?? null,
     matchedProducts,
-    eligibleSkus: rule.skus,
+    eligibleSkus: uniqueEligibleSkus(rule),
     sortOrder: rule.sortOrder,
   };
+}
+
+function uniqueEligibleSkus(rule: BadgeRuleConfig): string[] {
+  const seen = new Set<string>();
+  const skus: string[] = [];
+
+  for (const condition of rule.conditions ?? []) {
+    for (const sku of condition.sonySkus) {
+      const normalized = sku.trim().toUpperCase();
+      if (!normalized || seen.has(normalized)) {
+        continue;
+      }
+
+      seen.add(normalized);
+      skus.push(sku);
+    }
+  }
+
+  return skus.length > 0 ? skus : rule.skus;
 }
 
 function findThresholdEarnedAt(
