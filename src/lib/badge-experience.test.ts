@@ -99,5 +99,6 @@ describe("buildBadgeExperience", () => {
       { level: "gold", status: "in-progress", matchedCount: 3, earnedAt: null },
     ]);
     expect(quest?.highestEarnedTier?.level).toBe("silver");
+    expect(quest?.eligibleSkus).toEqual(["LENS-A", "LENS-B", "LENS-C", "LENS-D"]);
   });
 });
