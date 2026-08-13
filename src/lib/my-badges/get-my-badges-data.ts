@@ -36,7 +36,8 @@ export async function getMyBadgesData(
     })),
     missionBadges: experience.recentQuestBadges.map((quest) => {
       const sectionId = quest.id as MissionSectionId;
-      const localizedTitle = messages.myMissions.sections[sectionId]?.title;
+      const section = messages.myMissions.sections[sectionId];
+      const localizedTitle = section?.badgeTitle ?? section?.title;
 
       return {
         id: quest.highestEarnedTier.id,

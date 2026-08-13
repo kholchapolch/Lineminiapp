@@ -101,4 +101,50 @@ describe("buildBadgeExperience", () => {
     expect(quest?.highestEarnedTier?.level).toBe("silver");
     expect(quest?.eligibleSkus).toEqual(["LENS-A", "LENS-B", "LENS-C", "LENS-D"]);
   });
+
+  it("orders same-day recent product badges alphabetically by title", () => {
+    const sameDayProducts: SonyCustomerProducts = {
+      ...customerProducts,
+      products: [
+        { sku: "LENS-B", modelName: "Lens B", serialNumber: "B-1", registeredAt: "2026-01-01" },
+        { sku: "LENS-A", modelName: "Lens A", serialNumber: "A-1", registeredAt: "2026-01-01" },
+      ],
+    };
+    const sameDayRules: BadgeRuleConfig[] = [
+      {
+        ...rules[0],
+        id: 10,
+        code: "product-lens-b",
+        name: "Zebra Lens",
+        productModelCode: "LENS-B",
+        skus: ["LENS-B"],
+        sortOrder: 1,
+        conditions: [
+          { id: 10, label: "Own B", matchType: "any", requiredCount: 1, sonySkus: ["LENS-B"] },
+        ],
+      },
+      {
+        ...rules[0],
+        id: 11,
+        code: "product-lens-a2",
+        name: "Alpha Lens",
+        productModelCode: "LENS-A",
+        skus: ["LENS-A"],
+        sortOrder: 99,
+        conditions: [
+          { id: 11, label: "Own A", matchType: "any", requiredCount: 1, sonySkus: ["LENS-A"] },
+        ],
+      },
+    ];
+
+    const result = buildBadgeExperience({
+      customerProducts: sameDayProducts,
+      rules: sameDayRules,
+    });
+
+    expect(result.recentProductBadges.map((badge) => badge.title)).toEqual([
+      "Alpha Lens",
+      "Zebra Lens",
+    ]);
+  });
 });
