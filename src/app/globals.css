@@ -884,6 +884,7 @@ button.sonyButton.sonyButton--solid {
   font-weight: 500;
   line-height: 1.25;
   text-align: center;
+  white-space: pre-line;
   overflow-wrap: anywhere;
 }
 

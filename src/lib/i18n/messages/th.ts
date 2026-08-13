@@ -71,9 +71,9 @@ export const th: Messages = {
   },
   bottomBar: {
     ariaLabel: "เมนูหลัก",
-    home: "หน้าแรก",
-    register: "ลงทะเบียนสินค้า",
-    inquiry: "สอบถามข้อมูล",
+    home: "หน้าแรก\n(Home)",
+    register: "ลงทะเบียนสินค้า\n(Register Products)",
+    inquiry: "คำถามที่พบบ่อย\n(FAQ)",
   },
   myBadges: {
     meta: {
@@ -103,19 +103,23 @@ export const th: Messages = {
     empty:
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     filters: {
-      all: "All",
-      "full-frame-camera": "Full Frame Camera",
-      "prime-lens": "Prime Lens",
-      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
-      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
-      "macro-lens": "Macro Lens",
+      all: "ทั้งหมด (All)",
+      "full-frame-camera": "กล้องฟูลเฟรม (Full Frame Camera)",
+      "prime-lens": "เลนส์ไพร์ม (Prime Lens)",
+      "wide-normal-zoom-lens":
+        "เลนส์ซูมมุมกว้างและเลนส์ซูมมาตรฐาน (Wide & Normal Zoom Lens)",
+      "telephoto-super-telephoto-lens":
+        "เลนส์ระยะไกลและเลนส์ระยะไกลพิเศษ (Telephoto & Super Telephoto Lens)",
+      "macro-lens": "เลนส์มาโคร (Macro Lens)",
     },
     categories: {
-      "full-frame-camera": "Full Frame Camera",
-      "prime-lens": "Prime Lens",
-      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
-      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
-      "macro-lens": "Macro Lens",
+      "full-frame-camera": "กล้องฟูลเฟรม \n(Full Frame Camera)",
+      "prime-lens": "เลนส์ไพร์ม \n(Prime Lens)",
+      "wide-normal-zoom-lens":
+        "เลนส์ซูมมุมกว้างและเลนส์ซูมมาตรฐาน \n(Wide & Normal Zoom Lens)",
+      "telephoto-super-telephoto-lens":
+        "เลนส์ระยะไกลและเลนส์ระยะไกลพิเศษ \n(Telephoto & Super Telephoto Lens)",
+      "macro-lens": "เลนส์มาโคร \n(Macro Lens)",
     },
   },
   myProduct: {
@@ -156,8 +160,8 @@ export const th: Messages = {
           "ลงทะเบียนสะสมเลนส์ Wide ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นกำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register unique Wide-angle lenses to reach the required quantity and specified models to unlock various tiers of reward medals.)",
       },
       "the-visionary": {
-        title: "เทพวิสัยทัศน์ (The Visionary)",
-        badgeTitle: "เทพวิสัยทัศน์ \n(The Visionary)",
+        title: "เทพสายป่า (The Visionary)",
+        badgeTitle: "เทพสายป่า \n(The Visionary)",
         description:
           "ลงทะเบียนสะสมเลนส์ Telephoto ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register unique Telephoto lenses to reach the required quantity and specified models to unlock various tiers of reward medals.)",
       },
@@ -206,11 +210,11 @@ export const th: Messages = {
     registerProduct: "ลงทะเบียนสินค้า (Register Product)",
     ticketMissionTitle: "ภารกิจเก็บเหรียญภารกิจของคุณ",
     levels: {
-      bronze: "ระดับบรอนซ์ (Bronze)",
+      bronze: "ระดับทองแดง (Bronze)",
       silver: "ระดับเงิน (Silver)",
       gold: "ระดับทอง (Gold)",
     },
-    completed: "สำเร็จ",
+    completed: "สำเร็จ (Completed)",
     details: "รายละเอียด (See More)",
     back: "ย้อนกลับ (Back)",
   },
