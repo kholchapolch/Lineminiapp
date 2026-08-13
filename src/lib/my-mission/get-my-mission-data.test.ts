@@ -4,14 +4,14 @@ import { mapExperienceToMyMission } from "@/lib/my-mission/get-my-mission-data";
 
 vi.mock("server-only", () => ({}));
 
-const portraitSkus = [
-  "SEL35F14GM",
-  "SEL50F14GM",
-  "SEL50F12GM",
-  "SEL85F14GM",
-  "SEL85F14GM2",
-  "SEL100M28GM",
-  "SEL135F18GM",
+const portraitProducts = [
+  ["SEL35F14GM", "FE 35mm F1.4 GM"],
+  ["SEL50F14GM", "FE 50mm F1.4 GM"],
+  ["SEL50F12GM", "FE 50mm F1.2 GM"],
+  ["SEL85F14GM", "FE 85mm F1.4 GM"],
+  ["SEL85F14GM2", "FE 85mm F1.4 GM II"],
+  ["SEL100M28GM", "FE 100 mm.F2.8 Macro GM OSS"],
+  ["SEL135F18GM", "FE 135mm F1.8 GM"],
 ] as const;
 
 const experience: BadgeExperience = {
@@ -22,10 +22,10 @@ const experience: BadgeExperience = {
     lineDisplayName: null,
     linePictureUrl: null,
   },
-  productBadges: portraitSkus.map((sku, index) => ({
+  productBadges: portraitProducts.map(([sku, title], index) => ({
     id: `product-${sku.toLowerCase()}`,
     modelCode: sku,
-    title: sku,
+    title,
     groupCode: "prime-lens",
     status: sku === "SEL35F14GM" ? "unlocked" : "locked",
     imageUrl: `/product-badge/${sku}.png`,
@@ -65,7 +65,7 @@ const experience: BadgeExperience = {
           registeredAt: "2026-01-01",
         },
       ],
-      eligibleSkus: [...portraitSkus],
+      eligibleSkus: portraitProducts.map(([sku]) => sku),
       sortOrder: 1000,
     },
   ],
@@ -75,21 +75,23 @@ const experience: BadgeExperience = {
 };
 
 describe("mapExperienceToMyMission", () => {
-  it("lists every sony_skus product and matches detail URLs by SKU", () => {
+  it("lists every sony_skus product with badge names and detail URLs", () => {
     const result = mapExperienceToMyMission(experience, "portrait-master-gold");
 
-    expect(result?.mission.tickets.map((ticket) => ticket.productCode)).toEqual([
-      ...portraitSkus,
-    ]);
+    expect(result?.mission.tickets.map((ticket) => ticket.title)).toEqual(
+      portraitProducts.map(([, title]) => title),
+    );
     expect(result?.mission.tickets).toHaveLength(7);
     expect(result?.mission.tickets[0]).toMatchObject({
       productCode: "SEL35F14GM",
+      title: "FE 35mm F1.4 GM",
       status: "completed",
       productUrl: "https://www.sony.co.th/th/lenses/sel35f14gm",
       imageUrl: "/product-badge/SEL35F14GM.png",
     });
     expect(result?.mission.tickets[5]).toMatchObject({
       productCode: "SEL100M28GM",
+      title: "FE 100 mm.F2.8 Macro GM OSS",
       status: "pending",
       productUrl: "https://www.sony.co.th/th/lenses/sel100m28gm",
     });

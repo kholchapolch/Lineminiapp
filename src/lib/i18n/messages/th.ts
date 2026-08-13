@@ -197,7 +197,6 @@ export const th: Messages = {
     backToHome: "กลับหน้าหลัก",
     registerProduct: "ลงทะเบียนสินค้า (Register Product)",
     ticketMissionTitle: "ภารกิจเก็บเหรียญภารกิจของคุณ",
-    productCode: "รหัสสินค้า",
     completed: "สำเร็จ",
     details: "รายละเอียด",
     back: "ย้อนกลับ",

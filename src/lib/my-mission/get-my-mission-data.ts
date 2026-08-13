@@ -79,6 +79,7 @@ function buildMissionTickets({
     return {
       id: `${missionId}-ticket-${index + 1}`,
       productCode: sku,
+      title: badge?.title?.trim() || sku,
       imageUrl: badge?.imageUrl ?? FALLBACK_TICKET_IMAGE,
       status: owned ? "completed" : "pending",
       productUrl: badge?.productUrl ?? null,

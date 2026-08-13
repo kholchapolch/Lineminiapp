@@ -193,7 +193,6 @@ export const en: Messages = {
     backToHome: "Back to home",
     registerProduct: "Register product",
     ticketMissionTitle: "Your mission badge collection quest",
-    productCode: "Product code",
     completed: "Completed",
     details: "Details",
     back: "Back",
