@@ -84,7 +84,7 @@ export const th: Messages = {
     missionBadges: "เหรียญภารกิจ \n(Quest Badges)",
     myProductBadges: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
     myMissionBadges: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
-    viewAll: "ดูทั้งหมด (see all)",
+    viewAll: "ดูทั้งหมด (See all)",
     empty:
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     close: "ปิด",
@@ -97,7 +97,7 @@ export const th: Messages = {
     },
     title: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
     description:
-      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียนผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge และเริ่มสะสมความสำเร็จของคุณ (Buy participating Sony lenses and register to earn Badges and start your achievements.)",
+      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียนผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge และเริ่มสะสมความสำเร็จของคุณ \n(Buy participating Sony lenses and register to earn Badges and start your achievements.)",
     filterLabel: "กรองตามประเภทสินค้า",
     backToMyBadges: "กลับหน้าหลัก (Back)",
     empty:
@@ -138,7 +138,7 @@ export const th: Messages = {
     },
     title: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
     description:
-      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียนผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge และเริ่มสะสมความสำเร็จของคุณ (Buy participating Sony lenses and register to earn Badges and start your achievements.)",
+      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียนผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge และเริ่มสะสมความสำเร็จของคุณ \n(Buy participating Sony lenses and register to earn Badges and start your achievements.)",
     backToMyBadges: "กลับหน้าหลัก (Back)",
     empty:
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
