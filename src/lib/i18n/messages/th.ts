@@ -206,11 +206,11 @@ export const th: Messages = {
     registerProduct: "ลงทะเบียนสินค้า (Register Product)",
     ticketMissionTitle: "ภารกิจเก็บเหรียญภารกิจของคุณ",
     levels: {
-      bronze: "ระดับบรอนซ์ (Bronze)",
+      bronze: "ระดับทองแดง (Bronze)",
       silver: "ระดับเงิน (Silver)",
       gold: "ระดับทอง (Gold)",
     },
-    completed: "สำเร็จ",
+    completed: "สำเร็จแล้ว (Completed)",
     details: "รายละเอียด (See More)",
     back: "ย้อนกลับ (Back)",
   },

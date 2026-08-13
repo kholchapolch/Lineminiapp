@@ -132,7 +132,7 @@ describe("mapExperienceToMyMission", () => {
 
 describe("resolveMissionCardTitle", () => {
   const levels = {
-    bronze: "ระดับบรอนซ์ (Bronze)",
+    bronze: "ระดับทองแดง (Bronze)",
     silver: "ระดับเงิน (Silver)",
     gold: "ระดับทอง (Gold)",
   };

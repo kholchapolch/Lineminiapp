@@ -267,8 +267,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 5.75rem;
-  padding: 8px 14px;
+  min-width: 5.5rem;
+  padding: 8px 6px;
   box-sizing: border-box;
   color: var(--my-mission-success);
   font-size: 14px;
