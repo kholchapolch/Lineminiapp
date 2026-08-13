@@ -135,6 +135,7 @@
   margin: 0;
   color: var(--my-badges-muted);
   font-size: 12px;
+  white-space: pre-line;
 }
 
 .myBadgesStats__divider {
@@ -200,8 +201,8 @@
   overflow: visible;
 }
 
-.myBadgesPage .badgeCollectionSection__grid > a,
-.myBadgesPage .badgeCollectionSection__grid > div {
+.myBadgesPage .badgeCollectionSection__grid>a,
+.myBadgesPage .badgeCollectionSection__grid>div {
   display: flex;
   align-self: stretch;
   height: 100%;
