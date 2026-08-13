@@ -144,17 +144,17 @@ export const th: Messages = {
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     sections: {
       "portrait-master": {
-        title: "Portrait Master",
+        title: "เทพพอร์ตเทรต (Portrait Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ Portrait ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "wide-architect": {
-        title: "Wide Architect",
+        title: "เทพสายแลนด์ (Wide Architect)",
         description:
           "ลงทะเบียนสะสมเลนส์ Wide ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นกำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "the-visionary": {
-        title: "The Visionary",
+        title: "เทพวิสัยทัศน์ (The Visionary)",
         description:
           "ลงทะเบียนสะสมเลนส์ Telephoto ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
