@@ -210,7 +210,7 @@ export const th: Messages = {
       silver: "ระดับเงิน (Silver)",
       gold: "ระดับทอง (Gold)",
     },
-    completed: "สำเร็จแล้ว (Completed)",
+    completed: "สำเร็จ (Completed)",
     details: "รายละเอียด (See More)",
     back: "ย้อนกลับ (Back)",
   },
