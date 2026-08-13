@@ -196,7 +196,7 @@ export const th: Messages = {
     share: "แชร์ (Share)",
     backToHome: "กลับหน้าหลัก",
     registerProduct: "ลงทะเบียนสินค้า (Register Product)",
-    ticketMissionTitle: "ภารกิจเก็บ Ticket ของคุณ",
+    ticketMissionTitle: "ภารกิจเก็บเหรียญภารกิจของคุณ",
     productCode: "รหัสสินค้า",
     completed: "สำเร็จ",
     details: "รายละเอียด",
