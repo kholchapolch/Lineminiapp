@@ -9,6 +9,7 @@ export async function getMyBadgesData(
   const experience = await getBadgeExperienceForLineUuid(lineuuid);
   const displayName =
     experience.customer.lineDisplayName ?? experience.customer.displayName;
+  const missionBadges = countMissionBadgesFromQuestTiers(experience.questBadges);
 
   return {
     profile: {
@@ -22,10 +23,8 @@ export async function getMyBadgesData(
         (badge) => badge.status === "unlocked",
       ).length,
       productBadgeTotal: experience.productBadges.length,
-      missionBadgeCount: experience.questBadges.filter((badge) =>
-        Boolean(badge.highestEarnedTier),
-      ).length,
-      missionBadgeTotal: experience.questBadges.length,
+      missionBadgeCount: missionBadges.count,
+      missionBadgeTotal: missionBadges.total,
     },
     productBadges: experience.recentProductBadges.map((badge) => ({
       id: badge.id,
@@ -38,5 +37,17 @@ export async function getMyBadgesData(
       imageUrl: quest.highestEarnedTier.imageUrl,
     })),
     fetchedAt: experience.fetchedAt,
+  };
+}
+
+/** Counts each mission medal/tier shown on /my-missions (not quest groups). */
+export function countMissionBadgesFromQuestTiers(
+  questBadges: Array<{ tiers: Array<{ status: string }> }>,
+): { count: number; total: number } {
+  const missionTiers = questBadges.flatMap((quest) => quest.tiers);
+
+  return {
+    count: missionTiers.filter((tier) => tier.status === "achieved").length,
+    total: missionTiers.length,
   };
 }

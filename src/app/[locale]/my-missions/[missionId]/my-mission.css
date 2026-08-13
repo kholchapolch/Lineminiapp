@@ -262,9 +262,16 @@
 
 .myMissionTicketList__status {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.75rem;
+  padding: 8px 14px;
+  box-sizing: border-box;
   color: var(--my-mission-success);
   font-size: 14px;
   font-weight: 600;
+  text-align: center;
 }
 
 .myMissionTicketList__details {
@@ -272,7 +279,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-width: 5.75rem;
   padding: 8px 14px;
+  box-sizing: border-box;
   border: 1px solid var(--sony-campaign);
   border-radius: 999px;
   background: var(--sony-campaign);

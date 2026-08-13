@@ -160,9 +160,9 @@ export const en: Messages = {
           "Collect quest badges by registering Trinity GM lenses (16-35 / 24-70 / 70-200) that match each tier requirement.",
       },
       "trinity-junior": {
-        title: "Trinity Junior",
+        title: "Trinity G",
         description:
-          "Collect quest badges by registering Trinity Junior lenses that match each tier requirement.",
+          "Collect quest badges by registering Trinity G lenses that match each tier requirement.",
       },
       "all-rounder": {
         title: "All Rounder",
@@ -192,7 +192,7 @@ export const en: Messages = {
     share: "Share",
     backToHome: "Back to home",
     registerProduct: "Register product",
-    ticketMissionTitle: "Your ticket collection quest",
+    ticketMissionTitle: "Your mission badge collection quest",
     productCode: "Product code",
     completed: "Completed",
     details: "Details",
