@@ -145,41 +145,49 @@ export const th: Messages = {
     sections: {
       "portrait-master": {
         title: "เทพพอร์ตเทรต (Portrait Master)",
+        badgeTitle: "เทพพอร์ตเทรต \n(Portrait Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ Portrait ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "wide-architect": {
         title: "เทพสายแลนด์ฯ (Wide Architect)",
+        badgeTitle: "เทพสายแลนด์ฯ \n(Wide Architect)",
         description:
           "ลงทะเบียนสะสมเลนส์ Wide ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นกำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "the-visionary": {
         title: "เทพวิสัยทัศน์ (The Visionary)",
+        badgeTitle: "เทพวิสัยทัศน์ \n(The Visionary)",
         description:
           "ลงทะเบียนสะสมเลนส์ Telephoto ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "trinity-master": {
         title: "สามกษัตริย์ G Master (Trinity Master)",
+        badgeTitle: "สามกษัตริย์ G Master \n(Trinity Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ Gmaster 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "trinity-junior": {
         title: "สามกษัตริย์ G (Trinity G)",
+        badgeTitle: "สามกษัตริย์ G \n(Trinity G)",
         description:
           "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "all-rounder": {
         title: "เทพสายลุย (All Rounder)",
+        badgeTitle: "เทพสายลุย \n(All Rounder)",
         description:
           "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "f2-master": {
         title: "เลนส์เทพเจ้า (F2 Master)",
+        badgeTitle: "เลนส์เทพเจ้า \n(F2 Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ FE 28-70mm F2 GM และ FE 50-150 มม. F2 GM เพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "the-magnifier": {
         title: "เทพมาโคร (The Magnifier)",
+        badgeTitle: "เทพมาโคร \n(The Magnifier)",
         description:
           "ลงทะเบียนสะสมเลนส์ Macro 1 ชิ้นที่จากรุ่นกำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
