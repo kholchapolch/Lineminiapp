@@ -83,7 +83,7 @@ export function buildBadgeExperience({
     questBadges,
     recentProductBadges: productBadges
       .filter((badge) => badge.status === "unlocked" && badge.earnedAt)
-      .sort(compareEarnedThenOrder)
+      .sort(compareEarnedThenLabel)
       .slice(0, 3),
     recentQuestBadges: questBadges
       .filter(
@@ -91,11 +91,11 @@ export function buildBadgeExperience({
           Boolean(badge.highestEarnedTier?.earnedAt),
       )
       .sort((left, right) =>
-        compareEarnedValues(
+        compareEarnedThenLabelValues(
           left.highestEarnedTier.earnedAt,
           right.highestEarnedTier.earnedAt,
-          left.sortOrder,
-          right.sortOrder,
+          left.title,
+          right.title,
         ),
       )
       .slice(0, 3),
@@ -232,18 +232,26 @@ function findThresholdEarnedAt(
   return null;
 }
 
-function compareEarnedThenOrder(
+function compareEarnedThenLabel(
   left: ProductBadgeExperience,
   right: ProductBadgeExperience,
 ): number {
-  return compareEarnedValues(left.earnedAt, right.earnedAt, left.sortOrder, right.sortOrder);
+  return compareEarnedThenLabelValues(
+    left.earnedAt,
+    right.earnedAt,
+    left.title,
+    right.title,
+  );
 }
 
-function compareEarnedValues(
-  left: string | null,
-  right: string | null,
-  leftOrder: number,
-  rightOrder: number,
+function compareEarnedThenLabelValues(
+  leftDate: string | null,
+  rightDate: string | null,
+  leftLabel: string,
+  rightLabel: string,
 ): number {
-  return (right ?? "").localeCompare(left ?? "") || leftOrder - rightOrder;
+  return (
+    (rightDate ?? "").localeCompare(leftDate ?? "") ||
+    leftLabel.localeCompare(rightLabel, undefined, { sensitivity: "base" })
+  );
 }
