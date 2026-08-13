@@ -76,6 +76,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  white-space: pre-line;
 }
 
 .filterDropdown__trigger span {
@@ -110,6 +111,7 @@
   font-weight: 500;
   text-align: left;
   cursor: pointer;
+  white-space: pre-line;
 }
 
 .filterDropdown__option.isSelected {
