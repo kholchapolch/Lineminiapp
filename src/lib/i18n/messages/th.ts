@@ -183,7 +183,7 @@ export const th: Messages = {
         title: "เลนส์เทพเจ้า (F2 Master)",
         badgeTitle: "เลนส์เทพเจ้า \n(F2 Master)",
         description:
-          "ลงทะเบียนสะสมเลนส์ FE 28-70mm F2 GM และ FE 50-150 มม. F2 GM เพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register the FE 28-70mm F2 GM and FE 50-150mm F2 GM lenses to unlock various tiers of reward medals.)",
+          "ลงทะเบียนสะสมเลนส์ FE 28-70mm F2 GM และ FE 50-150mm F2 GM เพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register the FE 28-70mm F2 GM and FE 50-150mm F2 GM lenses to unlock various tiers of reward medals.)",
       },
       "the-magnifier": {
         title: "เทพมาโคร (The Magnifier)",
