@@ -103,19 +103,23 @@ export const th: Messages = {
     empty:
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     filters: {
-      all: "All",
-      "full-frame-camera": "Full Frame Camera",
-      "prime-lens": "Prime Lens",
-      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
-      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
-      "macro-lens": "Macro Lens",
+      all: "ทั้งหมด (All)",
+      "full-frame-camera": "กล้องฟูลเฟรม (Full Frame Camera)",
+      "prime-lens": "เลนส์ไพร์ม (Prime Lens)",
+      "wide-normal-zoom-lens":
+        "เลนส์ซูมมุมกว้างและเลนส์ซูมมาตรฐาน (Wide & Normal Zoom Lens)",
+      "telephoto-super-telephoto-lens":
+        "เลนส์ระยะไกลและเลนส์ระยะไกลพิเศษ (Telephoto & Super Telephoto Lens)",
+      "macro-lens": "เลนส์มาโคร (Macro Lens)",
     },
     categories: {
-      "full-frame-camera": "Full Frame Camera",
-      "prime-lens": "Prime Lens",
-      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
-      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
-      "macro-lens": "Macro Lens",
+      "full-frame-camera": "กล้องฟูลเฟรม \n(Full Frame Camera)",
+      "prime-lens": "เลนส์ไพร์ม \n(Prime Lens)",
+      "wide-normal-zoom-lens":
+        "เลนส์ซูมมุมกว้างและเลนส์ซูมมาตรฐาน \n(Wide & Normal Zoom Lens)",
+      "telephoto-super-telephoto-lens":
+        "เลนส์ระยะไกลและเลนส์ระยะไกลพิเศษ \n(Telephoto & Super Telephoto Lens)",
+      "macro-lens": "เลนส์มาโคร \n(Macro Lens)",
     },
   },
   myProduct: {
