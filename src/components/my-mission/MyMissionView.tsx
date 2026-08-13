@@ -15,6 +15,7 @@ type MyMissionViewProps = {
 export function MyMissionView({ locale, messages, data }: MyMissionViewProps): JSX.Element {
   const { mission } = data;
   const sectionMessages = messages.myMissions.sections[mission.sectionId];
+  const title = sectionMessages.badgeTitle ?? sectionMessages.title;
   const missionsHref = localizedPath(locale, "my-missions");
   const homeHref = localizedPath(locale, "my-badges");
   const isComplete = isMissionComplete(mission);
@@ -26,14 +27,14 @@ export function MyMissionView({ locale, messages, data }: MyMissionViewProps): J
           locale={locale}
           messages={messages}
           data={data}
-          title={sectionMessages.title}
+          title={title}
           backHref={homeHref}
         />
       ) : (
         <MyMissionProgressView
           messages={messages}
           data={data}
-          title={sectionMessages.title}
+          title={title}
           description={sectionMessages.description}
           backHref={missionsHref}
         />
