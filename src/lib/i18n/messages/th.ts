@@ -71,9 +71,9 @@ export const th: Messages = {
   },
   bottomBar: {
     ariaLabel: "เมนูหลัก",
-    home: "หน้าแรก",
-    register: "ลงทะเบียนสินค้า",
-    inquiry: "สอบถามข้อมูล",
+    home: "หน้าแรก\n(Home)",
+    register: "ลงทะเบียนสินค้า\n(Register Products)",
+    inquiry: "คำถามที่พบบ่อย\n(FAQ)",
   },
   myBadges: {
     meta: {
