@@ -193,6 +193,11 @@ export const en: Messages = {
     backToHome: "Back to home",
     registerProduct: "Register product",
     ticketMissionTitle: "Your mission badge collection quest",
+    levels: {
+      bronze: "Bronze",
+      silver: "Silver",
+      gold: "Gold",
+    },
     completed: "Completed",
     details: "Details",
     back: "Back",

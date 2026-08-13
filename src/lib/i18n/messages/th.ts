@@ -80,8 +80,8 @@ export const th: Messages = {
       title: "เหรียญตราของฉัน",
       description: "ดูเหรียญผลิตภัณฑ์และเหรียญภารกิจของคุณ",
     },
-    productBadges: "เหรียญผลิตภัณฑ์",
-    missionBadges: "เหรียญภารกิจ",
+    productBadges: "เหรียญผลิตภัณฑ์ \n(Product Badges)",
+    missionBadges: "เหรียญภารกิจ \n(Quest Badges)",
     myProductBadges: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
     myMissionBadges: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
     viewAll: "ดูทั้งหมด",
@@ -144,42 +144,42 @@ export const th: Messages = {
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     sections: {
       "portrait-master": {
-        title: "Portrait Master",
+        title: "เทพพอร์ตเทรต\n(Portrait Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ Portrait ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "wide-architect": {
-        title: "Wide Architect",
+        title: "เทพสายแลนด์\n(Wide Architect)",
         description:
           "ลงทะเบียนสะสมเลนส์ Wide ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นกำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "the-visionary": {
-        title: "The Visionary",
+        title: "เทพวิสัยทัศน์\n(The Visionary)",
         description:
           "ลงทะเบียนสะสมเลนส์ Telephoto ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "trinity-master": {
-        title: "Trinity Master",
+        title: "สามกษัตริย์ G Master\n(Trinity Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ Gmaster 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "trinity-junior": {
-        title: "Trinity G",
+        title: "สามกษัตริย์ G\n(Trinity G)",
         description:
           "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "all-rounder": {
-        title: "All Rounder",
+        title: "เทพสายลุย\n(All Rounder)",
         description:
           "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "f2-master": {
-        title: "F2 Master",
+        title: "เลนส์เทพเจ้า\n(F2 Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ FE 28-70mm F2 GM และ FE 50-150 มม. F2 GM เพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "the-magnifier": {
-        title: "The Magnifier",
+        title: "เทพมาโคร\n(The Magnifier)",
         description:
           "ลงทะเบียนสะสมเลนส์ Macro 1 ชิ้นที่จากรุ่นกำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
@@ -197,6 +197,11 @@ export const th: Messages = {
     backToHome: "กลับหน้าหลัก",
     registerProduct: "ลงทะเบียนสินค้า (Register Product)",
     ticketMissionTitle: "ภารกิจเก็บเหรียญภารกิจของคุณ",
+    levels: {
+      bronze: "ระดับบรอนซ์ (Bronze)",
+      silver: "ระดับเงิน (Silver)",
+      gold: "ระดับทอง (Gold)",
+    },
     completed: "สำเร็จ",
     details: "รายละเอียด",
     back: "ย้อนกลับ",

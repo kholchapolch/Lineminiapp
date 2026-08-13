@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { BadgeExperience } from "@/lib/badge-experience";
 import { mapExperienceToMyMission } from "@/lib/my-mission/get-my-mission-data";
+import { resolveMissionCardTitle } from "@/lib/my-mission/types";
 
 vi.mock("server-only", () => ({}));
 
@@ -42,6 +43,32 @@ const experience: BadgeExperience = {
       title: "Portrait Master",
       description: null,
       tiers: [
+        {
+          id: "portrait-master-bronze",
+          level: "bronze",
+          title: "Portrait Master Bronze",
+          status: "achieved",
+          imageUrl: "/quest-badge/portrait-bronze.png",
+          shareImageUrl: "/quest-badge/portrait-bronze.png",
+          matchedCount: 2,
+          requiredCount: 2,
+          remainingCount: 0,
+          earnedAt: "2026-01-01",
+          sortOrder: 1,
+        },
+        {
+          id: "portrait-master-silver",
+          level: "silver",
+          title: "Portrait Master Silver",
+          status: "achieved",
+          imageUrl: "/quest-badge/portrait-silver.png",
+          shareImageUrl: "/quest-badge/portrait-silver.png",
+          matchedCount: 3,
+          requiredCount: 3,
+          remainingCount: 0,
+          earnedAt: "2026-01-02",
+          sortOrder: 2,
+        },
         {
           id: "portrait-master-gold",
           level: "gold",
@@ -95,5 +122,38 @@ describe("mapExperienceToMyMission", () => {
       status: "pending",
       productUrl: "https://www.sony.co.th/th/lenses/sel100m28gm",
     });
+    expect(result?.mission).toMatchObject({
+      level: "gold",
+      tierTitle: "Portrait Master Gold",
+      tierCount: 3,
+    });
+  });
+});
+
+describe("resolveMissionCardTitle", () => {
+  const levels = {
+    bronze: "ระดับบรอนซ์ (Bronze)",
+    silver: "ระดับเงิน (Silver)",
+    gold: "ระดับทอง (Gold)",
+  };
+
+  it("uses section title when the quest has a single tier", () => {
+    expect(
+      resolveMissionCardTitle(
+        { tierCount: 1, level: null, tierTitle: "Trinity G" },
+        "Trinity G",
+        levels,
+      ),
+    ).toBe("Trinity G");
+  });
+
+  it("uses level label when the quest has multiple tiers", () => {
+    expect(
+      resolveMissionCardTitle(
+        { tierCount: 3, level: "gold", tierTitle: "Wide Architect Gold" },
+        "Wide Architect",
+        levels,
+      ),
+    ).toBe("ระดับทอง (Gold)");
   });
 });

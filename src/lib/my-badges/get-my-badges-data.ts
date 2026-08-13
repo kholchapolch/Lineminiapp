@@ -1,12 +1,15 @@
-import type { Locale } from "@/lib/i18n/locales";
 import { getBadgeExperienceForLineUuid } from "@/lib/badge-experience-server";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
+import type { Locale } from "@/lib/i18n/locales";
 import type { MyBadgesData } from "@/lib/my-badges/types";
+import type { MissionSectionId } from "@/lib/my-missions/types";
 
 export async function getMyBadgesData(
   locale: Locale,
   lineuuid: string,
 ): Promise<MyBadgesData> {
   const experience = await getBadgeExperienceForLineUuid(lineuuid);
+  const messages = getDictionary(locale);
   const displayName =
     experience.customer.lineDisplayName ?? experience.customer.displayName;
   const missionBadges = countMissionBadgesFromQuestTiers(experience.questBadges);
@@ -31,11 +34,16 @@ export async function getMyBadgesData(
       title: badge.title,
       imageUrl: badge.imageUrl,
     })),
-    missionBadges: experience.recentQuestBadges.map((quest) => ({
-      id: quest.highestEarnedTier.id,
-      title: quest.title,
-      imageUrl: quest.highestEarnedTier.imageUrl,
-    })),
+    missionBadges: experience.recentQuestBadges.map((quest) => {
+      const sectionId = quest.id as MissionSectionId;
+      const localizedTitle = messages.myMissions.sections[sectionId]?.title;
+
+      return {
+        id: quest.highestEarnedTier.id,
+        title: localizedTitle ?? quest.title,
+        imageUrl: quest.highestEarnedTier.imageUrl,
+      };
+    }),
     fetchedAt: experience.fetchedAt,
   };
 }
