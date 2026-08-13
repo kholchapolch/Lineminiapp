@@ -1,3 +1,10 @@
+export type MissionSectionMessages = {
+  title: string;
+  /** Optional two-line title for my-badges collection cards. Falls back to `title`. */
+  badgeTitle?: string;
+  description: string;
+};
+
 export type Messages = {
   meta: {
     title: string;
@@ -132,38 +139,14 @@ export type Messages = {
     backToMyBadges: string;
     empty: string;
     sections: {
-      "portrait-master": {
-        title: string;
-        description: string;
-      };
-      "wide-architect": {
-        title: string;
-        description: string;
-      };
-      "the-visionary": {
-        title: string;
-        description: string;
-      };
-      "trinity-master": {
-        title: string;
-        description: string;
-      };
-      "trinity-junior": {
-        title: string;
-        description: string;
-      };
-      "all-rounder": {
-        title: string;
-        description: string;
-      };
-      "f2-master": {
-        title: string;
-        description: string;
-      };
-      "the-magnifier": {
-        title: string;
-        description: string;
-      };
+      "portrait-master": MissionSectionMessages;
+      "wide-architect": MissionSectionMessages;
+      "the-visionary": MissionSectionMessages;
+      "trinity-master": MissionSectionMessages;
+      "trinity-junior": MissionSectionMessages;
+      "all-rounder": MissionSectionMessages;
+      "f2-master": MissionSectionMessages;
+      "the-magnifier": MissionSectionMessages;
     };
   };
   myMission: {
