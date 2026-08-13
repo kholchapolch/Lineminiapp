@@ -73,7 +73,6 @@ export function MyMissionProgressView({
       <MyMissionTicketList
         tickets={mission.tickets}
         title={messages.myMission.ticketMissionTitle}
-        productCodeLabel={messages.myMission.productCode}
         completedLabel={messages.myMission.completed}
         detailsLabel={messages.myMission.details}
       />

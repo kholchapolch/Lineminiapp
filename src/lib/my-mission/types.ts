@@ -4,7 +4,10 @@ export type MissionTicketStatus = "completed" | "pending";
 
 export type MissionTicket = {
   id: string;
+  /** Eligible SKU from badge_rule_conditions.sony_skus */
   productCode: string;
+  /** badge_rules.badge_name / product badge display title */
+  title: string;
   imageUrl: string;
   status: MissionTicketStatus;
   productUrl: string | null;

@@ -178,7 +178,6 @@ export type Messages = {
     backToHome: string;
     registerProduct: string;
     ticketMissionTitle: string;
-    productCode: string;
     completed: string;
     details: string;
     back: string;
