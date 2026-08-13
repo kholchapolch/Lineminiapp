@@ -156,8 +156,8 @@ export const th: Messages = {
           "ลงทะเบียนสะสมเลนส์ Wide ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นกำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register unique Wide-angle lenses to reach the required quantity and specified models to unlock various tiers of reward medals.)",
       },
       "the-visionary": {
-        title: "เทพวิสัยทัศน์ (The Visionary)",
-        badgeTitle: "เทพวิสัยทัศน์ \n(The Visionary)",
+        title: "เทพสายป่า (The Visionary)",
+        badgeTitle: "เทพสายป่า \n(The Visionary)",
         description:
           "ลงทะเบียนสะสมเลนส์ Telephoto ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register unique Telephoto lenses to reach the required quantity and specified models to unlock various tiers of reward medals.)",
       },
