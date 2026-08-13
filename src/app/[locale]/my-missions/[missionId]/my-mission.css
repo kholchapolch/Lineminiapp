@@ -48,7 +48,8 @@
   margin: 0;
   font-size: clamp(24px, 8vw, 28px);
   font-weight: 700;
-  line-height: 1.15;
+  line-height: 1.25;
+  white-space: pre-line;
 }
 
 .myMissionPage__details {
@@ -162,7 +163,8 @@
   margin: 0 0 8px;
   font-size: 18px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.25;
+  white-space: pre-line;
 }
 
 .myMissionSummaryCard__body>p {
