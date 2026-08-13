@@ -107,9 +107,9 @@ export const th: Messages = {
       "full-frame-camera": "กล้องฟูลเฟรม (Full Frame Camera)",
       "prime-lens": "เลนส์ไพร์ม (Prime Lens)",
       "wide-normal-zoom-lens":
-        "เลนส์ซูมมุมกว้างและเลนส์ซูมมาตรฐาน (Wide & Normal Zoom Lens)",
+        "เลนส์ซูมมุมกว้างและเลนส์ซูมมาตรฐาน \n(Wide & Normal Zoom Lens)",
       "telephoto-super-telephoto-lens":
-        "เลนส์ระยะไกลและเลนส์ระยะไกลพิเศษ (Telephoto & Super Telephoto Lens)",
+        "เลนส์ระยะไกลและเลนส์ระยะไกลพิเศษ \n(Telephoto & Super Telephoto Lens)",
       "macro-lens": "เลนส์มาโคร (Macro Lens)",
     },
     categories: {
