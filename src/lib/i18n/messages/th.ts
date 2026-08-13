@@ -164,7 +164,7 @@ export const th: Messages = {
           "ลงทะเบียนสะสมเลนส์ Gmaster 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "trinity-junior": {
-        title: "Trinity Junior",
+        title: "Trinity G",
         description:
           "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
