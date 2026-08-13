@@ -159,27 +159,27 @@ export const th: Messages = {
           "ลงทะเบียนสะสมเลนส์ Telephoto ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "trinity-master": {
-        title: "Trinity Master",
+        title: "สามกษัตริย์ G Master (Trinity Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ Gmaster 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "trinity-junior": {
-        title: "Trinity G",
+        title: "สามกษัตริย์ G (Trinity G)",
         description:
           "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "all-rounder": {
-        title: "All Rounder",
+        title: "เทพสายลุย (All Rounder)",
         description:
           "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
       "f2-master": {
-        title: "F2 Master",
+        title: "เลนส์เทพเจ้า (F2 Master)",
         description:
           "ลงทะเบียนสะสมเลนส์ FE 28-70mm F2 GM และ FE 50-150 มม. F2 GM เพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
       },
       "the-magnifier": {
-        title: "The Magnifier",
+        title: "เทพมาโคร (The Magnifier)",
         description:
           "ลงทะเบียนสะสมเลนส์ Macro 1 ชิ้นที่จากรุ่นกำหนด เพื่อปลดล็อกเหรียญรางวัล",
       },
@@ -197,6 +197,11 @@ export const th: Messages = {
     backToHome: "กลับหน้าหลัก",
     registerProduct: "ลงทะเบียนสินค้า (Register Product)",
     ticketMissionTitle: "ภารกิจเก็บเหรียญภารกิจของคุณ",
+    levels: {
+      bronze: "ระดับบรอนซ์ (Bronze)",
+      silver: "ระดับเงิน (Silver)",
+      gold: "ระดับทอง (Gold)",
+    },
     completed: "สำเร็จ",
     details: "รายละเอียด",
     back: "ย้อนกลับ",

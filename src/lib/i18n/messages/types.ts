@@ -178,6 +178,11 @@ export type Messages = {
     backToHome: string;
     registerProduct: string;
     ticketMissionTitle: string;
+    levels: {
+      bronze: string;
+      silver: string;
+      gold: string;
+    };
     completed: string;
     details: string;
     back: string;

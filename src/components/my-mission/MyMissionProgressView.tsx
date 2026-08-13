@@ -5,7 +5,10 @@ import { BackArrowIcon } from "@/components/icons/BackArrowIcon";
 import { RegisterNavIcon } from "@/components/icons/NavIcons";
 import { MyMissionTicketList } from "@/components/my-mission/MyMissionTicketList";
 import type { Messages } from "@/lib/i18n/messages/types";
-import type { MyMissionDetailData } from "@/lib/my-mission/types";
+import {
+  resolveMissionCardTitle,
+  type MyMissionDetailData,
+} from "@/lib/my-mission/types";
 import { getMissionBadgeVisualState } from "@/lib/my-missions/badge-visual-state";
 import {
   buildLineMiniAppMissionCallbackUrl,
@@ -28,6 +31,11 @@ export function MyMissionProgressView({
   backHref,
 }: MyMissionProgressViewProps): JSX.Element {
   const { mission } = data;
+  const cardTitle = resolveMissionCardTitle(
+    mission,
+    title,
+    messages.myMission.levels,
+  );
   const badgeVisualState = getMissionBadgeVisualState(
     mission.progress,
     mission.target,
@@ -51,7 +59,7 @@ export function MyMissionProgressView({
             <img src={mission.badgeImageUrl} alt="" />
           </div>
           <div className="myMissionSummaryCard__body">
-            <h2>{title}</h2>
+            <h2>{cardTitle}</h2>
             <p>{description}</p>
             <p className="myMissionSummaryCard__progress">
               {mission.progress}/{mission.target}

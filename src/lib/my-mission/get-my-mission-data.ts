@@ -48,6 +48,9 @@ export function mapExperienceToMyMission(
     mission: {
       id: tier.id,
       sectionId: quest.id as MyMissionDetailData["mission"]["sectionId"],
+      level: tier.level,
+      tierTitle: tier.title,
+      tierCount: quest.tiers.length,
       badgeImageUrl: tier.imageUrl ?? "",
       shareImageUrl: tier.shareImageUrl ?? tier.imageUrl ?? "",
       progress: tier.matchedCount,
