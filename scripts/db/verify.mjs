@@ -1,10 +1,12 @@
 import { withConnection } from "./mysql-connection.mjs";
-import {
+import { loadSeedData } from "./seed-module.mjs";
+
+const {
   badgeConditions,
   badgeDisplayGroups,
   badgeRules,
   badgeThresholds,
-} from "./seed-data.mjs";
+} = await loadSeedData(import.meta.url);
 
 const expected = {
   badge_display_groups: badgeDisplayGroups.length,
