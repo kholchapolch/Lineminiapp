@@ -18,7 +18,7 @@ export function getDatabaseUrl() {
   return databaseUrl;
 }
 
-export function createConnectionPool({ omitDatabase = false } = {}) {
+export function createConnectionPool() {
   const url = new URL(getDatabaseUrl());
   const sslValue =
     process.env.DATABASE_SSL ??
@@ -32,7 +32,7 @@ export function createConnectionPool({ omitDatabase = false } = {}) {
     port: Number(url.port || 3306),
     user: decodeURIComponent(url.username),
     password: decodeURIComponent(url.password),
-    database: omitDatabase ? undefined : url.pathname.replace(/^\//, ""),
+    database: url.pathname.replace(/^\//, ""),
     ssl: sslEnabled
       ? { minVersion: "TLSv1.2", rejectUnauthorized: true }
       : undefined,
@@ -43,8 +43,8 @@ export function createConnectionPool({ omitDatabase = false } = {}) {
   });
 }
 
-export async function withConnection(callback, options) {
-  const pool = createConnectionPool(options);
+export async function withConnection(callback) {
+  const pool = createConnectionPool();
 
   try {
     return await callback(pool);
