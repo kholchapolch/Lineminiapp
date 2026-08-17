@@ -1,0 +1,53 @@
+name: PROD one-time DB seed
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type SEED_PROD_2026_08_18"
+        required: true
+        type: string
+
+concurrency:
+  group: prod-one-time-db-seed
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    name: Audit, seed, and verify
+    runs-on: windows-latest
+    environment: production
+    permissions:
+      contents: read
+
+    steps:
+      - name: Confirm main and one-time operation
+        shell: pwsh
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          if ("${{ github.ref }}" -ne "refs/heads/main") {
+            throw "This workflow may run only from main."
+          }
+
+          if ($env:CONFIRMATION -ne "SEED_PROD_2026_08_18") {
+            throw "Confirmation must be exactly SEED_PROD_2026_08_18."
+          }
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Verify production blob image paths
+        run: node scripts/db/verify-prod-images.mjs --seed ./prod/seed-data.mjs
+
+      - name: Run guarded seed inside PROD App Service network
+        shell: pwsh
+        env:
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8C4E0510CC98405CB8EB54B85B9C9385 }}
+        run: ./scripts/db/seed-prod-via-kudu.ps1
