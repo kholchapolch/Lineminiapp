@@ -1,4 +1,4 @@
-name: Deploy Next.js PROD site
+name: PROD deploy
 
 on:
   push:

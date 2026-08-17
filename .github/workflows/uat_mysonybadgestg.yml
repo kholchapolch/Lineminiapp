@@ -1,4 +1,4 @@
-name: Deploy Next.js UAT site
+name: UAT deploy
 
 on:
   push:

@@ -12,7 +12,10 @@ const {
 } = await loadSeedData(import.meta.url);
 
 const outputUrl = resolveArgPath("--out", "./seed-all-rules.sql", import.meta.url);
-const seedSourcePath = relative(process.cwd(), fileURLToPath(resolveSeedDataUrl(import.meta.url)));
+const seedSourcePath = relative(
+  process.cwd(),
+  fileURLToPath(resolveSeedDataUrl(import.meta.url)),
+).replaceAll("\\", "/");
 
 export function renderSeedSql() {
   const ruleCodes = badgeRules.map((rule) => rule.code);
