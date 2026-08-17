@@ -17,11 +17,15 @@
     "docs:badge-rules:check": "node scripts/docs/generate-badge-rules-guide.mjs --check",
     "db:migrate": "node scripts/db/migrate.mjs",
     "db:seed": "node scripts/db/seed.mjs",
+    "db:seed:prod": "node scripts/db/seed.mjs --seed ./prod/seed-data.mjs",
     "db:seed:all": "node scripts/db/seed-all-rules.mjs",
+    "db:seed:all:prod": "node scripts/db/seed-all-rules.mjs --seed ./prod/seed-data.mjs",
     "db:seed:sql": "node scripts/db/generate-seed-sql.mjs",
+    "db:seed:sql:prod": "node scripts/db/generate-seed-sql.mjs --seed ./prod/seed-data.mjs --out ./prod/seed-all-rules.sql",
     "db:seed:sql:check": "node scripts/db/generate-seed-sql.mjs --check",
     "db:reset": "node scripts/db/reset.mjs",
-    "db:verify": "node scripts/db/verify.mjs"
+    "db:verify": "node scripts/db/verify.mjs",
+    "db:verify:prod": "node scripts/db/verify.mjs --seed ./prod/seed-data.mjs"
   },
   "dependencies": {
     "@line/liff": "^2.27.1",

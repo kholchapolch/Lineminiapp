@@ -1,13 +1,18 @@
+import { relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { readFile, writeFile } from "node:fs/promises";
-import {
+import { loadSeedData, resolveArgPath, resolveSeedDataUrl } from "./seed-module.mjs";
+
+const {
   appConfig,
   badgeConditions,
   badgeDisplayGroups,
   badgeRules,
   badgeThresholds,
-} from "./seed-data.mjs";
+} = await loadSeedData(import.meta.url);
 
-const outputUrl = new URL("./seed-all-rules.sql", import.meta.url);
+const outputUrl = resolveArgPath("--out", "./seed-all-rules.sql", import.meta.url);
+const seedSourcePath = relative(process.cwd(), fileURLToPath(resolveSeedDataUrl(import.meta.url)));
 
 export function renderSeedSql() {
   const ruleCodes = badgeRules.map((rule) => rule.code);
@@ -15,7 +20,7 @@ export function renderSeedSql() {
 
   return [
     "-- GENERATED FILE. DO NOT EDIT BY HAND.",
-    "-- Source: scripts/db/seed-data.mjs",
+    `-- Source: ${seedSourcePath}`,
     "-- Regenerate: npm run db:seed:sql",
     "-- Prerequisite: run scripts/db/migrate.mjs or npm run db:migrate first.",
     `-- Rows: ${badgeDisplayGroups.length} groups, ${badgeRules.length} rules, ${badgeThresholds.length} thresholds, ${badgeConditions.length} conditions.`,
