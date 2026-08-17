@@ -65,7 +65,7 @@ jobs:
       - name: Verify generated database seed
         run: npm run db:seed:sql:check
 
-      - name: Validate production seed data
+      - name: Validate production seed file (no DB)
         shell: pwsh
         run: |
           node scripts/db/generate-seed-sql.mjs `
