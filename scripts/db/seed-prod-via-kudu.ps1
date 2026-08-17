@@ -35,6 +35,7 @@ $uploadFiles = @(
   @{ Source = "scripts/db/mysql-connection.mjs"; Destination = "$remoteRoot/db/mysql-connection.mjs" },
   @{ Source = "scripts/db/seed-module.mjs"; Destination = "$remoteRoot/db/seed-module.mjs" },
   @{ Source = "scripts/db/audit-prod-seed.mjs"; Destination = "$remoteRoot/db/audit-prod-seed.mjs" },
+  @{ Source = "scripts/db/create-prod-database.mjs"; Destination = "$remoteRoot/db/create-prod-database.mjs" },
   @{ Source = "scripts/db/migrate.mjs"; Destination = "$remoteRoot/db/migrate.mjs" },
   @{ Source = "scripts/db/seed.mjs"; Destination = "$remoteRoot/db/seed.mjs" },
   @{ Source = "scripts/db/verify.mjs"; Destination = "$remoteRoot/db/verify.mjs" },
@@ -127,6 +128,24 @@ try {
         "$remoteRoot/db/verify.mjs --seed ./prod/seed-data.mjs"
       ) | Out-Null
       Write-Host "PROD one-time seed completed and verified."
+    }
+    "database_missing" {
+      Write-Host "PROD database lineminidb does not exist. Creating the approved database."
+      Invoke-KuduCommand `
+        "node --env-file=.env.production $remoteRoot/db/create-prod-database.mjs" |
+        Out-Null
+      Invoke-KuduCommand `
+        "node --env-file=.env.production $remoteRoot/db/migrate.mjs" |
+        Out-Null
+      Invoke-KuduCommand (
+        "node --env-file=.env.production " +
+        "$remoteRoot/db/seed.mjs --seed ./prod/seed-data.mjs"
+      ) | Out-Null
+      Invoke-KuduCommand (
+        "node --env-file=.env.production " +
+        "$remoteRoot/db/verify.mjs --seed ./prod/seed-data.mjs"
+      ) | Out-Null
+      Write-Host "PROD database created, seeded, and verified."
     }
     default {
       throw (

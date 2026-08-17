@@ -48,6 +48,15 @@ if (!expectedVersion) {
 }
 
 await withConnection(async (pool) => {
+  const [schemaRows] = await pool.query(
+    `
+      SELECT schema_name
+      FROM information_schema.schemata
+      WHERE schema_name = ?
+    `,
+    [databaseName],
+  );
+  const databaseExists = schemaRows.length === 1;
   const [tableRows] = await pool.query(
     `
       SELECT table_name
@@ -68,7 +77,7 @@ await withConnection(async (pool) => {
     }
 
     const [rows] = await pool.query(
-      `SELECT COUNT(*) AS count FROM \`${tableName}\``,
+      `SELECT COUNT(*) AS count FROM \`${databaseName}\`.\`${tableName}\``,
     );
     counts[tableName] = Number(rows[0].count);
   }
@@ -76,7 +85,11 @@ await withConnection(async (pool) => {
   let currentVersion = null;
   if (existingTables.has("app_config")) {
     const [rows] = await pool.execute(
-      "SELECT `value` FROM app_config WHERE `key` = 'badge_rules_version'",
+      `
+        SELECT \`value\`
+        FROM \`${databaseName}\`.app_config
+        WHERE \`key\` = 'badge_rules_version'
+      `,
     );
     currentVersion = rows[0]?.value ?? null;
   }
@@ -89,17 +102,20 @@ await withConnection(async (pool) => {
   const targetTablesAreEmpty = TARGET_TABLES.every(
     (tableName) => counts[tableName] === 0,
   );
-  const status = expectedDataMatches
-    ? "already_seeded"
-    : targetTablesAreEmpty
-      ? "safe_to_seed"
-      : "unsafe_nonempty";
+  const status = !databaseExists
+    ? "database_missing"
+    : expectedDataMatches
+      ? "already_seeded"
+      : targetTablesAreEmpty
+        ? "safe_to_seed"
+        : "unsafe_nonempty";
 
   console.log(
     `PROD_SEED_AUDIT=${JSON.stringify({
       status,
       databaseHost: databaseUrl.hostname,
       databaseName,
+      databaseExists,
       existingTables: [...existingTables].sort(),
       counts,
       currentVersion,
@@ -107,4 +123,4 @@ await withConnection(async (pool) => {
       expectedCounts,
     })}`,
   );
-});
+}, { omitDatabase: true });
