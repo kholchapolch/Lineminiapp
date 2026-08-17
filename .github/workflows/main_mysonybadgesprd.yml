@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type SEED_PROD_2026_08_18 only for the one-time PROD seed"
+        required: false
+        type: string
 
 concurrency:
   group: deploy-nextjs-prod
@@ -13,6 +18,7 @@ concurrency:
 jobs:
   build:
     name: Validate and package
+    if: github.event_name == 'push' || inputs.confirmation != 'SEED_PROD_2026_08_18'
     runs-on: windows-latest
     environment: production
     permissions:
@@ -194,3 +200,30 @@ jobs:
           check_endpoint "https://lineminiapp.sony.co.th/"
           check_endpoint "https://lineminiapp.sony.co.th/api/health" '"runtime":"nodejs"'
           check_endpoint "https://lineminiapp.sony.co.th/deployment-check.html" "Deployment smoke test passed."
+
+  seed-once:
+    name: One-time audit, seed, and verify
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirmation == 'SEED_PROD_2026_08_18'
+    runs-on: windows-latest
+    environment: production
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Verify production blob image paths
+        run: node scripts/db/verify-prod-images.mjs --seed ./prod/seed-data.mjs
+
+      - name: Run guarded seed inside PROD App Service network
+        shell: pwsh
+        env:
+          AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8C4E0510CC98405CB8EB54B85B9C9385 }}
+        run: ./scripts/db/seed-prod-via-kudu.ps1
