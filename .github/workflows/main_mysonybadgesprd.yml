@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - mysonybadgesprd
+name: Deploy Next.js PROD site
 
 on:
   push:
@@ -9,47 +6,191 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: deploy-nextjs-prod
+  cancel-in-progress: false
+
 jobs:
   build:
+    name: Validate and package
     runs-on: windows-latest
+    environment: production
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '24.x'
+          node-version: 24.x
+          cache: npm
 
-      - name: npm install, build, and test
+      - name: Create build environment file
+        shell: pwsh
+        env:
+          PROD_ENV_FILE: ${{ secrets.PROD_ENV_FILE }}
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
-      
-      - name: Upload artifact for deployment job
+          if ([string]::IsNullOrWhiteSpace($env:PROD_ENV_FILE)) {
+            throw "PROD_ENV_FILE is required in the production GitHub environment."
+          }
+
+          $content = $env:PROD_ENV_FILE.TrimEnd() + [Environment]::NewLine
+          [System.IO.File]::WriteAllText(
+            (Join-Path $PWD ".env.production"),
+            $content,
+            [System.Text.UTF8Encoding]::new($false)
+          )
+
+      - name: Validate PROD environment
+        env:
+          EXPECTED_APP_ENV: production
+          EXPECTED_APP_BASE_URL: https://lineminiapp.sony.co.th
+          EXPECTED_NEXT_PUBLIC_APP_BASE_URL: https://lineminiapp.sony.co.th
+          EXPECTED_NEXT_PUBLIC_LIFF_ID: 2010142842-QGmxwQit
+          EXPECTED_LINE_CHANNEL_ID: "2010142842"
+          EXPECTED_SONY_PRODUCT_API_MODE: live
+          EXPECTED_SONY_PRODUCT_API_BASE_URL: https://apim-rcap-prd.azure-api.net/mysony-api/QueryWarrantyMySonyByLine
+          EXPECTED_DATABASE_HOST: mysonybadgesqlprd.mysql.database.azure.com
+          EXPECTED_DATABASE_NAME: lineminidb
+          EXPECTED_NEXT_PUBLIC_ACCOUNT_URL: https://www.sony.co.th/microsite/msr-line-menu/product-register
+          EXPECTED_NEXT_PUBLIC_REGISTER_PRODUCT_URL: https://www.sony.co.th/microsite/msr-line-menu/product-register
+        run: npm run config:check
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify generated database seed
+        run: npm run db:seed:sql:check
+
+      - name: Validate production seed data
+        shell: pwsh
+        run: |
+          node scripts/db/generate-seed-sql.mjs `
+            --seed ./prod/seed-data.mjs `
+            --out "$env:RUNNER_TEMP/prod-seed-all-rules.sql"
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Build application
+        run: npm run build
+
+      - name: Prepare production server package
+        shell: pwsh
+        run: |
+          Remove-Item -Path .next/cache -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path deploy | Out-Null
+          Copy-Item -Path .next -Destination deploy/.next -Recurse -Force
+          Copy-Item -Path public -Destination deploy/public -Recurse -Force
+          Copy-Item -Path server.js -Destination deploy/server.js -Force
+          Copy-Item -Path package.json -Destination deploy/package.json -Force
+          Copy-Item -Path package-lock.json -Destination deploy/package-lock.json -Force
+          Copy-Item -Path next.config.mjs -Destination deploy/next.config.mjs -Force
+          Copy-Item -Path web.config -Destination deploy/web.config -Force
+          npm ci --omit=dev --prefix deploy
+
+      - name: Upload deployment package
         uses: actions/upload-artifact@v4
         with:
-          name: node-app
-          path: .
+          name: nextjs-production-server-prod
+          path: deploy
+          if-no-files-found: error
+          include-hidden-files: true
+
+      - name: Remove build environment file
+        if: always()
+        shell: pwsh
+        run: Remove-Item -Path .env.production -Force -ErrorAction SilentlyContinue
 
   deploy:
+    name: Deploy and verify
     runs-on: ubuntu-latest
     needs: build
-    
+    environment: production
+
     steps:
-      - name: Download artifact from build job
+      - name: Download deployment package
         uses: actions/download-artifact@v4
         with:
-          name: node-app
-      
-      - name: 'Deploy to Azure Web App'
+          name: nextjs-production-server-prod
+          path: deploy
+
+      - name: Create runtime environment file
+        shell: bash
+        env:
+          PROD_ENV_FILE: ${{ secrets.PROD_ENV_FILE }}
+        run: |
+          if [ -z "$PROD_ENV_FILE" ]; then
+            echo "PROD_ENV_FILE is required in the production GitHub environment." >&2
+            exit 1
+          fi
+
+          printf '%s\n' "$PROD_ENV_FILE" > deploy/.env.production
+          chmod 600 deploy/.env.production
+
+      - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'mysonybadgesprd'
-          slot-name: 'Production'
-          package: .
+          app-name: mysonybadgesprd
+          slot-name: Production
+          package: deploy
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8C4E0510CC98405CB8EB54B85B9C9385 }}
+
+      - name: Remove runtime environment file from runner
+        if: always()
+        shell: bash
+        run: rm -f deploy/.env.production
+
+      - name: Verify custom domain
+        shell: bash
+        run: |
+          check_endpoint() {
+            local url="$1"
+            local expected="${2:-}"
+            local headers
+            local body
+            local status
+
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            status="$(curl --silent --show-error --location \
+              --retry 12 \
+              --retry-all-errors \
+              --retry-delay 10 \
+              --dump-header "$headers" \
+              --output "$body" \
+              --write-out '%{http_code}' \
+              "$url")"
+
+            if [ "$status" = "403" ] && grep --ignore-case --quiet '^x-ms-forbidden-ip:' "$headers"; then
+              echo "::warning::Runtime verification skipped because Azure Access Restrictions blocked the GitHub runner: $url"
+              rm -f "$headers" "$body"
+              return 0
+            fi
+
+            if [[ "$status" != 2* ]]; then
+              echo "Unexpected HTTP $status from $url" >&2
+              cat "$headers" >&2
+              rm -f "$headers" "$body"
+              return 1
+            fi
+
+            if [ -n "$expected" ] && ! grep --fixed-strings --quiet "$expected" "$body"; then
+              echo "Expected response marker was not found for $url" >&2
+              rm -f "$headers" "$body"
+              return 1
+            fi
+
+            rm -f "$headers" "$body"
+          }
+
+          check_endpoint "https://lineminiapp.sony.co.th/"
+          check_endpoint "https://lineminiapp.sony.co.th/api/health" '"runtime":"nodejs"'
+          check_endpoint "https://lineminiapp.sony.co.th/deployment-check.html" "Deployment smoke test passed."

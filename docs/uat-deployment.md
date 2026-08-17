@@ -8,13 +8,14 @@ existing Windows Azure App Service. IIS terminates HTTPS and uses
 
 - Custom domain: `https://stglineminiapp.sony.co.th/`
 - Azure App Service: `mysonybadgestg`
-- Source branch: `main`
+- Source branch: `uat`
 - GitHub environment: `uat`
 - Health endpoint: `https://stglineminiapp.sony.co.th/api/health`
 - Static smoke endpoint: `https://stglineminiapp.sony.co.th/deployment-check.html`
 
 The GitHub repository default branch is still `founding`, but UAT deployment is
-intentionally triggered by pushes to `main`.
+intentionally triggered by pushes to `uat` through
+`.github/workflows/uat_mysonybadgestg.yml`.
 
 ## Deployment credentials
 
@@ -112,7 +113,7 @@ authoritative `.mjs` data.
 
 ## Workflow behavior
 
-A push to `main`:
+A push to `uat`:
 
 1. checks out the repository on Windows;
 2. creates the build `.env.production` from `UAT_ENV_FILE`;

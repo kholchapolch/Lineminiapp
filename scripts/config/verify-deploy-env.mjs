@@ -56,6 +56,13 @@ if (databaseUrl.protocol !== "mysql:") {
   throw new Error("DATABASE_URL must use the mysql protocol.");
 }
 
+const databaseName = decodeURIComponent(
+  databaseUrl.pathname.replace(/^\/+/, ""),
+);
+if (!databaseName) {
+  throw new Error("DATABASE_URL must include a database name.");
+}
+
 const sslValue = (
   env.DATABASE_SSL ||
   databaseUrl.searchParams.get("ssl") ||
@@ -112,6 +119,42 @@ if (
 
 if (env.SONY_PRODUCT_API_MODE === "mock") {
   console.log("::warning::UAT is configured to use Sony mock product data.");
+}
+
+for (const [key, expectedEnvironmentKey] of [
+  ["APP_ENV", "EXPECTED_APP_ENV"],
+  ["APP_BASE_URL", "EXPECTED_APP_BASE_URL"],
+  ["NEXT_PUBLIC_APP_BASE_URL", "EXPECTED_NEXT_PUBLIC_APP_BASE_URL"],
+  ["NEXT_PUBLIC_LIFF_ID", "EXPECTED_NEXT_PUBLIC_LIFF_ID"],
+  ["LINE_CHANNEL_ID", "EXPECTED_LINE_CHANNEL_ID"],
+  ["SONY_PRODUCT_API_MODE", "EXPECTED_SONY_PRODUCT_API_MODE"],
+  ["SONY_PRODUCT_API_BASE_URL", "EXPECTED_SONY_PRODUCT_API_BASE_URL"],
+  ["NEXT_PUBLIC_ACCOUNT_URL", "EXPECTED_NEXT_PUBLIC_ACCOUNT_URL"],
+  [
+    "NEXT_PUBLIC_REGISTER_PRODUCT_URL",
+    "EXPECTED_NEXT_PUBLIC_REGISTER_PRODUCT_URL",
+  ],
+]) {
+  const expectedValue = process.env[expectedEnvironmentKey];
+  if (expectedValue && env[key] !== expectedValue) {
+    throw new Error(`${key} does not match the deployment target.`);
+  }
+}
+
+if (
+  process.env.EXPECTED_DATABASE_HOST &&
+  databaseUrl.hostname !== process.env.EXPECTED_DATABASE_HOST
+) {
+  throw new Error("DATABASE_URL host does not match the deployment target.");
+}
+
+if (
+  process.env.EXPECTED_DATABASE_NAME &&
+  databaseName !== process.env.EXPECTED_DATABASE_NAME
+) {
+  throw new Error(
+    "DATABASE_URL database name does not match the deployment target.",
+  );
 }
 
 console.log(

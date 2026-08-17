@@ -3,7 +3,7 @@ name: Deploy Next.js UAT site
 on:
   push:
     branches:
-      - dev
+      - uat
   workflow_dispatch:
 
 concurrency:

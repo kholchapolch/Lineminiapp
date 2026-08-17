@@ -10,7 +10,8 @@ focused Vitest files beside their modules as `*.test.ts`. Static assets live in
 
 The UAT Windows App Service runtime is repository-specific: preserve
 `server.js`, `web.config`, `public/deployment-check.html`, and
-`.github/workflows/main_mysonybadgestg.yml` when syncing application code.
+`.github/workflows/uat_mysonybadgestg.yml` when syncing application code. Keep
+`.github/workflows/main_mysonybadgesprd.yml` in the same release tree.
 
 ## Commands
 
@@ -30,13 +31,15 @@ Use npm and the committed `package-lock.json`.
 Use strict TypeScript, the `@/*` alias for `src/`, PascalCase for React
 components, camelCase for functions and values, and stable badge/rule codes.
 Make surgical changes and add focused tests for session, SKU, API, database, or
-calculation behavior. Run tests, lint, and build before pushing `main`.
+calculation behavior. Run tests, lint, and build before pushing `uat` or `main`.
 
 ## Deployment and Secrets
 
-Pushes to `main` deploy to the `uat` GitHub environment. The workflow keeps the
-existing Azure publish-profile secret and materializes `.env.production` from
-the environment secret `UAT_ENV_FILE`; never commit `.env*`. Azure/App Service
+Pushes to `uat` deploy to the `uat` GitHub environment. Pushes to `main` deploy
+to the `production` GitHub environment. Keep both workflow files synchronized
+on both branches, promote the same release SHA to `uat` first, and fast-forward
+`main` only after UAT verification. The workflows materialize `.env.production`
+from `UAT_ENV_FILE` or `PROD_ENV_FILE`; never commit `.env*`. Azure/App Service
 environment variables override values loaded from `.env.production`. Keep DB,
 session, LINE server, and APIM secrets server-only and never use
 `NEXT_PUBLIC_*` for secret values.
