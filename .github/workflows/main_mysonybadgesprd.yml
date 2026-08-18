@@ -52,7 +52,7 @@ jobs:
           EXPECTED_NEXT_PUBLIC_LIFF_ID: 2010142842-QGmxwQit
           EXPECTED_LINE_CHANNEL_ID: "2010142842"
           EXPECTED_SONY_PRODUCT_API_MODE: live
-          EXPECTED_SONY_PRODUCT_API_BASE_URL: https://apim-rcap-prd.azure-api.net/mysony-api/QueryWarrantyMySonyByLine
+          EXPECTED_SONY_PRODUCT_API_BASE_URL: https://apim-rcap-prod.azure-api.net/mysony-api/QueryWarrantyMySonyByLine
           EXPECTED_DATABASE_HOST: mysonybadgesqlprd.mysql.database.azure.com
           EXPECTED_DATABASE_NAME: lineminidb
           EXPECTED_NEXT_PUBLIC_ACCOUNT_URL: https://www.sony.co.th/microsite/msr-line-menu/product-register
