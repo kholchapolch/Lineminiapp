@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deployment Record</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 920px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Deployment Record</h1>
+        <p class="lede">
+          Version, Commit/Build, วันที่ Deploy, ผู้ดำเนินการ และผลตรวจสอบ
+        </p>
+        <p>
+          Git ไม่เก็บประวัติ deploy ที่กรอกแล้ว
+          แถวด้านล่างเป็นแม่แบบและค่าที่อ่านได้จากรีโปเท่านั้น
+          อย่าใส่ secret
+        </p>
+      </header>
+
+      <section>
+        <h2>เวอร์ชันที่ระบุในโค้ด (ไม่ใช่ใบรับรองว่าอยู่บนเซิร์ฟเวอร์แล้ว)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ชนิด</th>
+                <th>ค่าในรีโป</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>แพ็กเกจ npm</td>
+                <td><code>package.json</code> → <code>0.1.0</code></td>
+                <td>ไม่ถูกเขียนบนหน้าเว็บหรือ health endpoint</td>
+              </tr>
+              <tr>
+                <td>กฎเหรียญ (seed)</td>
+                <td><code>badge_rules_version</code> = <code>2026-07-24-product-urls-001</code></td>
+                <td>ตรวจบนฐานหลัง seed ไม่ได้อยู่ใน artifact แอปโดยอัตโนมัติ</td>
+              </tr>
+              <tr>
+                <td>Node ที่ CI ใช้</td>
+                <td>24.x</td>
+                <td>workflow UAT</td>
+              </tr>
+              <tr>
+                <td>Next.js (lockfile)</td>
+                <td>ตาม <code>package-lock.json</code> (^14.2.23 ใน package.json)</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>ที่ไปดู Commit / Build จริง</h2>
+        <ul>
+          <li>GitHub Actions: workflow “Deploy Next.js UAT site” environment <code>uat</code></li>
+          <li>SHA ของงาน = commit ที่ checkout</li>
+          <li>Artifact ชื่อ <code>nextjs-production-server</code></li>
+          <li>Azure Deployment Center / ประวัติ App Service <code>mysonybadgestg</code></li>
+        </ul>
+        <div class="note warn">
+          ทริกเกอร์ใน YAML คือสาขา <code>dev</code> และ <code>workflow_dispatch</code>
+          ไม่มีฟิลด์ “ผู้ดำเนินการ” ในแอป — เป็นผู้กด dispatch หรือบัญชีที่ push
+        </div>
+      </section>
+
+      <section>
+        <h2>แม่แบบบันทึกต่อครั้ง (กรอกนอก Git หรือวิกิภายใน)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>คัดลอกแถวว่างไปกรอกหลัง deploy — ตัวอย่างไม่ใช่ผล UAT ที่ยืนยันแล้ว</caption>
+            <thead>
+              <tr>
+                <th>ฟิลด์</th>
+                <th>วิธีเติม</th>
+                <th>ตัวอย่างรูปแบบ (ไม่มีค่าจริง)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>สภาพแวดล้อม</td>
+                <td>UAT / Production</td>
+                <td>UAT (<code>APP_ENV=staging</code>)</td>
+              </tr>
+              <tr>
+                <td>วันที่–เวลา deploy</td>
+                <td>จาก Actions หรือ Azure (เขตเวลาที่ตกลง)</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>ผู้ดำเนินการ</td>
+                <td>ผู้ push / ผู้อนุมัติ environment / ผู้รัน DB</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>Git commit SHA</td>
+                <td>หัวงาน Actions</td>
+                <td><code>&lt;40-char-sha&gt;</code></td>
+              </tr>
+              <tr>
+                <td>สาขา</td>
+                <td>ตามทริกเกอร์</td>
+                <td><code>dev</code> หรือ SHA ที่ dispatch</td>
+              </tr>
+              <tr>
+                <td>ผล CI (build job)</td>
+                <td>config:check, seed SQL check, test, lint, build</td>
+                <td>Pass / Fail + ลิงก์ run</td>
+              </tr>
+              <tr>
+                <td>ผล deploy job</td>
+                <td>webapps-deploy สำเร็จหรือไม่</td>
+                <td>Pass / Fail</td>
+              </tr>
+              <tr>
+                <td>ผลตรวจสอบ HTTP</td>
+                <td>
+                  <code>/</code>, <code>/api/health</code>,
+                  <code>/deployment-check.html</code>
+                </td>
+                <td>
+                  2xx + ข้อความตามสเปก หรือ
+                  Warning: 403 <code>x-ms-forbidden-ip</code>
+                </td>
+              </tr>
+              <tr>
+                <td>DB รอบนี้</td>
+                <td>migrate/seed หรือไม่ SHA + <code>badge_rules_version</code> บนฐาน</td>
+                <td>ไม่รัน / รันชุด prod / รันชุด default</td>
+              </tr>
+              <tr>
+                <td>หมายเหตุ</td>
+                <td>Sony mode mock/live โดยไม่ใส่คีย์</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>ผลตรวจสอบมาตรฐานเมื่อ IP ถูกอนุญาต</h2>
+        <ul>
+          <li><code>GET /api/health</code> → JSON มี <code>"status":"ok"</code> และ <code>"runtime":"nodejs"</code></li>
+          <li><code>/deployment-check.html</code> มี <code>Deployment smoke test passed.</code></li>
+          <li>รากโดเมนตอบ 2xx หลังตาม redirect</li>
+        </ul>
+        <p>
+          Health ไม่คืนเวอร์ชันแอปหรือ commit
+          ต้องผูก SHA จากระบบ deploy เอง
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

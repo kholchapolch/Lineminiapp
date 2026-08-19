@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Share Content &amp; Asset List</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Share Content &amp; Asset List</h1>
+        <p class="lede">
+          Caption, Thumbnail, Badge Image และข้อความแต่ละสถานะ
+          ตาม seed <code>2026-07-24-product-urls-001</code>
+        </p>
+      </header>
+
+      <section>
+        <h2>ข้อความตามสถานะ</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>สถานะ UI</th>
+                <th>มีปุ่มแชร์?</th>
+                <th>Caption จากแอป</th>
+                <th>ข้อความบนจอ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>สินค้า locked</td>
+                <td>ไม่มี (เข้าหน้ารายละเอียดไม่ได้)</td>
+                <td>—</td>
+                <td>การ์ดไม่มีรูปในแคตตาล็อก</td>
+              </tr>
+              <tr>
+                <td>สินค้า unlocked</td>
+                <td>มี</td>
+                <td>ไม่ส่ง caption</td>
+                <td>
+                  แชร์เหรียญผลิตภัณฑ์ · เหรียญผลิตภัณฑ์ที่ได้รับ ·
+                  ชื่อรุ่น · ปลดล็อคเมื่อ · จำนวนที่มี
+                </td>
+              </tr>
+              <tr>
+                <td>ภารกิจชั้นยังไม่ครบ</td>
+                <td>ไม่มี</td>
+                <td>—</td>
+                <td>ความคืบหน้า และตั๋วรุ่น</td>
+              </tr>
+              <tr>
+                <td>ภารกิจชั้นครบ</td>
+                <td>มี</td>
+                <td>ไม่ส่ง caption</td>
+                <td>แชร์เหรียญภารกิจ · เหรียญภารกิจที่ได้รับ · วันที่ถ้ามี</td>
+              </tr>
+              <tr>
+                <td>หน้า OG /share</td>
+                <td>ไม่มีปุ่ม</td>
+                <td>
+                  og:title / og:description คงที่ของแคมเปญ
+                  (ไม่เปลี่ยนตามชื่อรุ่น)
+                </td>
+                <td>หัวข้อและคำโปรยเดียวกัน + รูป</td>
+              </tr>
+              <tr>
+                <td>ปุ่ม disabled</td>
+                <td>แสดงแต่กดไม่ได้</td>
+                <td>—</td>
+                <td>สร้าง URL รูปไม่ได้ หรือกำลังแชร์อยู่</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Thumbnail บน Facebook เมื่อแชร์ URL รูปโดยตรง ขึ้นกับว่า Facebook ดึงไฟล์ PNG ได้หรือไม่
+          ไม่ได้ส่ง og:title คู่กับ URL รูป
+          Preview เต็มตามสเปก OG เกิดเมื่อแชร์ URL หน้า <code>/share/...</code> ซึ่งปุ่มหลักไม่ได้ใช้
+        </div>
+      </section>
+
+      <section>
+        <h2>Product badge images</h2>
+        <p>
+          Path สาธารณะ: <code>/product-badge/{productModelCode}.png</code>
+          seed ตั้งทั้ง achieved และ share เป็นไฟล์เดียวกัน
+          ตัวอย่างรหัส: ILCE-7M4 → <code>/product-badge/ILCE-7M4.png</code>
+          มี 56 ไฟล์ตามกลุ่มกล้องและเลนส์ (ไม่มี SEL1224GM)
+        </p>
+        <p>ปุ่มบนจอ: <code>แชร์ (Share)</code></p>
+      </section>
+
+      <section>
+        <h2>Quest / tier badge images</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>share = ไฟล์เดียวกับ achieved ใน seed</caption>
+            <thead>
+              <tr>
+                <th>ชั้น (missionId)</th>
+                <th>ชื่อแสดง</th>
+                <th>ไฟล์ (Thumbnail / Badge)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>portrait-master-bronze</td>
+                <td>Portrait Master Bronze</td>
+                <td><code>/quest-badge/portrait-bronze.png</code></td>
+              </tr>
+              <tr>
+                <td>portrait-master-silver</td>
+                <td>Portrait Master Silver</td>
+                <td><code>/quest-badge/portrait-silver.png</code></td>
+              </tr>
+              <tr>
+                <td>portrait-master-gold</td>
+                <td>Portrait Master Gold</td>
+                <td><code>/quest-badge/portrait-gold.png</code></td>
+              </tr>
+              <tr>
+                <td>wide-architect-bronze|silver|gold</td>
+                <td>Wide Architect …</td>
+                <td><code>/quest-badge/wide-bronze.png</code> (และ silver/gold)</td>
+              </tr>
+              <tr>
+                <td>the-visionary-bronze|silver|gold</td>
+                <td>The Visionary …</td>
+                <td><code>/quest-badge/the-visionary-bronze.png</code> (และ silver/gold)</td>
+              </tr>
+              <tr>
+                <td>trinity-master-achievement</td>
+                <td>Trinity Master</td>
+                <td><code>/quest-badge/trinity-master.png</code></td>
+              </tr>
+              <tr>
+                <td>trinity-junior-achievement</td>
+                <td>Trinity Junior</td>
+                <td><code>/quest-badge/trinity-junior.png</code></td>
+              </tr>
+              <tr>
+                <td>all-rounder-achievement</td>
+                <td>All Rounder</td>
+                <td><code>/quest-badge/all-around.png</code></td>
+              </tr>
+              <tr>
+                <td>f2-master-achievement</td>
+                <td>F2 Master</td>
+                <td><code>/quest-badge/f2-master.png</code></td>
+              </tr>
+              <tr>
+                <td>the-magnifier-achievement</td>
+                <td>The Magnifier</td>
+                <td><code>/quest-badge/the-magnifier.png</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Caption คงที่สำหรับ OG เท่านั้น</h2>
+        <ul>
+          <li>Title: เหรียญของฉันจาก Sony (My badges from Sony)</li>
+          <li>
+            Description: มาดูเหรียญที่ฉันปลดล็อกได้ในแคมเปญนี้!
+            (Check out the badges I unlocked in this campaign!)
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Deployment Guide / Runbook</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      h3 { margin-top: 18px; font-size: 20px; }
+      p { margin: 0 0 14px; }
+      ol, ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      pre { margin: 0 0 14px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: #101923; color: #f7fbff; padding: 16px; font-size: 13px; line-height: 1.5; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Deployment Guide / Runbook</h1>
+        <p class="lede">
+          ขั้นตอน Build, Deploy, Verify, Rollback และผู้รับผิดชอบ
+        </p>
+        <p>
+          ใช้กับ UAT App Service <code>mysonybadgestg</code>
+          Production ยังไม่มี workflow ในรีโป — ทำตามหลักการเดียวกันเมื่อมีโฮสต์แล้ว
+        </p>
+      </header>
+
+      <section>
+        <h2>ผู้รับผิดชอบ (RACI จากรีโป)</h2>
+        <p>ไม่มี <code>CODEOWNERS</code> และไม่มีรายชื่อบุคคลใน Git</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>งาน</th>
+                <th>ผู้ทำในทางปฏิบัติ</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Build, เทส, lint, แพ็กเกจ, deploy แอป UAT</td>
+                <td>GitHub Actions งานใน environment <code>uat</code></td>
+                <td><code>main_mysonybadgestg.yml</code></td>
+              </tr>
+              <tr>
+                <td>อนุมัติ environment / เก็บ secret</td>
+                <td>ผู้มีสิทธิ์ GitHub environment <code>uat</code></td>
+                <td><code>UAT_ENV_FILE</code>, publish profile</td>
+              </tr>
+              <tr>
+                <td>ตั้งค่า Windows App Service (IIS, Node 24, HTTPS, Access Restrictions)</td>
+                <td>เจ้าของ Azure App Service</td>
+                <td><code>docs/uat-deployment.md</code></td>
+              </tr>
+              <tr>
+                <td>Migrate / seed MySQL</td>
+                <td>ผู้ปฏิบัติการบนโฮสต์ที่เข้า Azure MySQL ได้ — <strong>ไม่ใช่</strong> GitHub runner</td>
+                <td>workflow ไม่มีขั้นตอน <code>db:migrate</code></td>
+              </tr>
+              <tr>
+                <td>แก้โค้ดและเปิด PR</td>
+                <td>ทีมพัฒนา — สาขาทริกเกอร์ตาม YAML คือ <code>dev</code></td>
+                <td>workflow <code>on.push.branches</code></td>
+              </tr>
+              <tr>
+                <td>Rollback แอป</td>
+                <td>ผู้มีสิทธิ์ Actions หรือ Azure Deployment Center — ไม่มีสคริปต์ในรีโป</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Build</h2>
+        <h3>อัตโนมัติ (UAT)</h3>
+        <ol>
+          <li>Push สาขา <code>dev</code> หรือรัน <code>workflow_dispatch</code></li>
+          <li>Concurrency กลุ่ม <code>deploy-nextjs-uat</code> — งานใหม่ยกเลิกงานเก่าที่ยังไม่จบ</li>
+          <li>Checkout + Node 24 บน <code>windows-latest</code></li>
+          <li>สร้าง <code>.env.production</code> จาก <code>UAT_ENV_FILE</code></li>
+          <li><code>npm run config:check</code></li>
+          <li><code>npm ci</code></li>
+          <li><code>npm run db:seed:sql:check</code></li>
+          <li><code>npm test</code> → <code>npm run lint</code> → <code>npm run build</code></li>
+          <li>
+            แพ็กโฟลเดอร์ <code>deploy/</code>:
+            <code>.next</code> (ตัด cache), <code>public</code>,
+            <code>server.js</code>, <code>web.config</code>,
+            <code>package.json</code>, <code>package-lock.json</code>,
+            <code>next.config.mjs</code>, แล้ว <code>npm ci --omit=dev</code> ในนั้น
+          </li>
+          <li>อัปโหลด artifact <code>nextjs-production-server</code> (ไม่มี <code>.env.production</code>)</li>
+          <li>ลบไฟล์ env บน runner ของงาน build</li>
+        </ol>
+        <h3>ด้วยมือ (เครื่องพัฒนา)</h3>
+        <pre>npm ci
+npm test
+npm run lint
+npm run build</pre>
+        <p>อย่า commit ผล <code>.next</code> ใช้ <code>npm start</code> (<code>node server.js</code>) เมื่อทดสอบโหมด production ในเครื่อง</p>
+        <div class="note warn">
+          เก็บ <code>server.js</code>, <code>web.config</code>,
+          <code>public/deployment-check.html</code> และไฟล์ workflow นี้เมื่อซิงก์โค้ด
+          เป็นรันไทม์เฉพาะ UAT Windows
+        </div>
+      </section>
+
+      <section>
+        <h2>Deploy</h2>
+        <ol>
+          <li>งาน <code>deploy</code> บน <code>ubuntu-latest</code> รอ build สำเร็จ</li>
+          <li>ดาวน์โหลด artifact ไป <code>deploy/</code></li>
+          <li>เขียน <code>deploy/.env.production</code> จาก <code>UAT_ENV_FILE</code> (โหมดไฟล์ 600)</li>
+          <li>
+            <code>azure/webapps-deploy@v3</code> —
+            <code>app-name: mysonybadgestg</code>,
+            <code>slot-name: Production</code>,
+            แพ็กเกจโฟลเดอร์ <code>deploy</code>
+          </li>
+          <li>ลบ env บน runner</li>
+        </ol>
+        <p>ฐานข้อมูล: ถ้ามี schema/กฎใหม่ ให้ migrate และ seed จากเครือข่ายที่อนุญาต <strong>ก่อนหรือตามแผนที่ตกลง</strong> ไม่ได้อยู่ใน workflow</p>
+        <pre># บนโฮสต์ที่เข้า MySQL UAT ได้ — ใช้ชุดที่ตรงสภาพแวดล้อม
+export DATABASE_URL='mysql://&lt;user&gt;:&lt;pass&gt;@&lt;host&gt;:3306/&lt;db&gt;?ssl=true'
+export DATABASE_SSL=true
+npm run db:migrate
+npm run db:seed:prod
+npm run db:verify:prod</pre>
+        <p>จด Git SHA ที่ deploy และค่า <code>app_config.badge_rules_version</code></p>
+      </section>
+
+      <section>
+        <h2>Verify</h2>
+        <h3>ที่ workflow ทำอัตโนมัติ</h3>
+        <p>curl พร้อม retry ไปยังโดเมน UAT:</p>
+        <ul>
+          <li><code>https://stglineminiapp.sony.co.th/</code> — HTTP 2xx</li>
+          <li><code>/api/health</code> — ตัวเนื้อมี <code>"runtime":"nodejs"</code></li>
+          <li><code>/deployment-check.html</code> — มีข้อความ <code>Deployment smoke test passed.</code></li>
+        </ul>
+        <p>ถ้าได้ 403 และหัว <code>x-ms-forbidden-ip</code> ให้ warning แล้วยังถือว่าขั้น verify ของ workflow ผ่าน</p>
+        <h3>ที่ควรทำจาก IP ที่อนุญาต</h3>
+        <ol>
+          <li>เปิด Mini App ใน LINE ตาม LIFF ของ UAT</li>
+          <li>เซสชันถูกสร้างหลัง verify ID token</li>
+          <li>หน้า <code>/th/my-badges</code> โหลดเหรียญจาก Sony live หรือ mock ตาม <code>SONY_PRODUCT_API_MODE</code></li>
+          <li>อย่าใช้ <code>db:reset</code></li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Rollback</h2>
+        <p>ไม่มี job rollback ใน GitHub Actions</p>
+        <ol>
+          <li>
+            <strong>แอป:</strong> deploy แพ็กเกจ/commit ก่อนหน้าซ้ำ
+            (GitHub <code>workflow_dispatch</code> บน SHA เก่า, หรือ Redeploy ใน Azure ตามประวัติถ้ามี)
+          </li>
+          <li>
+            <strong>กฎฐานข้อมูล:</strong> restore dump ที่ถ่ายไว้ก่อน seed หรือ checkout ไฟล์ seed เก่ารวมกับ
+            <code>db:seed:prod</code> — ดูแผนสำรองแยก
+          </li>
+          <li>
+            <strong>ห้าม</strong> <code>npm run db:reset</code> บน UAT
+          </li>
+          <li>
+            หลังย้อน: ตรวจ health, smoke HTML, และ SHA + <code>badge_rules_version</code>
+          </li>
+        </ol>
+        <div class="note warn">
+          การเปลี่ยน <code>NEXT_PUBLIC_*</code> ต้อง build ใหม่
+          การทับ App Service setting อย่างเดียวไม่เปลี่ยนค่าที่ฝังในคลายเอนต์แล้ว
+        </div>
+      </section>
+
+      <section>
+        <h2>เมื่อล้ม</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>อาการ</th>
+                <th>ที่ดู</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>config:check ล้ม</td>
+                <td>คีย์ขาด, HTTP ไม่ใช่ HTTPS, APP_ENV ไม่ใช่ staging/production, LIFF ไม่ตรงช่อง</td>
+              </tr>
+              <tr>
+                <td>db:seed:sql:check ล้ม</td>
+                <td>รัน <code>npm run db:seed:sql</code> แล้ว commit SQL ให้ตรง <code>seed-data.mjs</code></td>
+              </tr>
+              <tr>
+                <td>Deploy สำเร็จแต่ verify 403</td>
+                <td>Access Restrictions — ตรวจจากเครือข่ายที่อนุญาต ไม่ใช่บั๊ก Next.js</td>
+              </tr>
+              <tr>
+                <td>แอปขึ้นแต่เหรียญว่าง/500</td>
+                <td>ฐานยังไม่ migrate/seed, Sony API, หรือ session</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

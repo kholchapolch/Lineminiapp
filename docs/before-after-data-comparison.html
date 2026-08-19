@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Before–After Data Comparison</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Before–After Data Comparison</h1>
+        <p class="lede">
+          เปรียบเทียบข้อมูลก่อนและหลัง Update จากไฟล์ในรีโป ไม่ใช่ dump ของฐาน UAT ณ เวลาจริง
+        </p>
+      </header>
+
+      <section>
+        <h2>A. Seed SQL ที่ commit — 20 ก.ค. เทียบ 24 ก.ค. 2026</h2>
+        <p>
+          ก่อน: <code>scripts/db/seed-all-rules_backup.sql</code>
+          (<code>2026-07-20-confirmed-badge-rules-001</code>)
+          หลัง: <code>scripts/db/seed-all-rules.sql</code> จาก
+          <code>seed-data.mjs</code>
+          (<code>2026-07-24-product-urls-001</code>)
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>จำนวนแถวในไฟล์ generated (ชุด default)</caption>
+            <thead>
+              <tr>
+                <th>ตาราง</th>
+                <th>Before (backup SQL)</th>
+                <th>After (ปัจจุบัน)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>badge_display_groups</td>
+                <td>6</td>
+                <td>6 (ชุดกลุ่มเดียวกัน)</td>
+              </tr>
+              <tr>
+                <td>badge_rules</td>
+                <td>64</td>
+                <td>64 (รหัสกฎชุดเดียวกัน ไม่มี product-sel1224gm)</td>
+              </tr>
+              <tr>
+                <td>badge_rule_thresholds</td>
+                <td>70</td>
+                <td>70</td>
+              </tr>
+              <tr>
+                <td>badge_rule_conditions</td>
+                <td>66</td>
+                <td>66</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>เนื้อหาที่เปลี่ยนแม้จำนวนแถวเท่ากัน</caption>
+            <thead>
+              <tr>
+                <th>ฟิลด์</th>
+                <th>Before</th>
+                <th>After</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>badge_rules_version</td>
+                <td>2026-07-20-confirmed-badge-rules-001</td>
+                <td>2026-07-24-product-urls-001</td>
+              </tr>
+              <tr>
+                <td>ชื่อแสดงเหรียญสินค้า (display_name / threshold)</td>
+                <td>รหัสรุ่น เช่น SEL100M28GM</td>
+                <td>ชื่อการตลาด เช่น FE 100 mm.F2.8 Macro GM OSS</td>
+              </tr>
+              <tr>
+                <td>รูป achieved / share</td>
+                <td><code>/mock/my-product/badge-hero.svg</code> (ไฟล์เดียวกันทุกสินค้า)</td>
+                <td>
+                  <code>/product-badge/{MODEL}.png</code> และ
+                  <code>/quest-badge/{stem}.png</code>
+                </td>
+              </tr>
+              <tr>
+                <td>product_url</td>
+                <td>มีคอลัมน์ใน SQL แล้ว (ค่ายังขึ้นกับไฟล์ backup)</td>
+                <td>URL หน้าสินค้า Sony Thailand ตาม map ใน seed</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>B. ชุด default เทียบชุด prod (ไฟล์ seed ปัจจุบัน)</h2>
+        <p>
+          ทั้งคู่ประกาศเวอร์ชันเดียวกัน
+          <code>2026-07-24-product-urls-001</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>Default (<code>seed-data.mjs</code>)</th>
+                <th>Prod (<code>prod/seed-data.mjs</code>)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>กลุ่มแสดงผล</td>
+                <td>6</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>กฎทั้งหมด</td>
+                <td>64 (สินค้า 56 + ภารกิจ 8)</td>
+                <td>65 (สินค้า 57 + ภารกิจ 8)</td>
+              </tr>
+              <tr>
+                <td>thresholds / conditions</td>
+                <td>70 / 66</td>
+                <td>71 / 67</td>
+              </tr>
+              <tr>
+                <td>เหรียญสินค้า SEL1224GM</td>
+                <td>ไม่มี — รุ่นนี้อยู่แค่เงื่อนไข Wide Architect</td>
+                <td>มี <code>product-sel1224gm</code></td>
+              </tr>
+              <tr>
+                <td>path รูปสินค้า</td>
+                <td>สัมพัทธ์ <code>/product-badge/…</code></td>
+                <td>
+                  URL เต็มไปยัง Azure blob (โฮสต์ตาม dump)
+                  path มีชื่อโฟลเดอร์กลุ่มที่ encode แล้ว
+                </td>
+              </tr>
+              <tr>
+                <td>ภารกิจ 8 รายการและขั้น</td>
+                <td>ชุดเดียวกัน</td>
+                <td>ชุดเดียวกัน (เกณฑ์และ SKU ภารกิจตรงกัน รวม Wide Architect มี SEL1224GM)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          รัน <code>db:seed</code> (default) ทับฐานที่เคย seed ด้วย prod จะ
+          <strong>ลบ</strong> <code>product-sel1224gm</code>
+          เพราะกฎที่ไม่อยู่ในไฟล์ที่เลือกจะถูกลบ
+        </div>
+      </section>
+
+      <section>
+        <h2>C. Schema ก่อน–หลัง migrate (idempotent)</h2>
+        <p>
+          ฐานว่าง: ได้ตารางครบตาม <code>migrate.mjs</code>
+          รวมคอลัมน์ <code>display_group_code</code>, <code>product_model_code</code>,
+          <code>product_url</code>, <code>share_image_url</code> และ index ที่ระบุ
+        </p>
+        <p>
+          ฐานที่มีตารางเก่าแล้ว: CREATE ข้ามถ้ามีอยู่ ALTER ที่ซ้ำถูกกลืน
+          แถวข้อมูลเดิมไม่ถูกลบจนกว่าจะ seed
+        </p>
+        <p>
+          Seed ไม่แตะ <code>badge_calculation_logs</code>
+          <code>db:reset</code> ลบตารางนี้ด้วย
+        </p>
+      </section>
+
+      <section>
+        <h2>วิธีเทียบบนฐานจริงหลังอัปเดต</h2>
+        <ul>
+          <li>
+            ก่อนรัน: บันทึก
+            <code>SELECT value FROM app_config WHERE \`key\` = 'badge_rules_version'</code>
+            และ COUNT ของสี่ตารางกฎ
+          </li>
+          <li>
+            หลังรัน: <code>npm run db:verify</code> หรือ <code>db:verify:prod</code>
+            ตามไฟล์ที่เพิ่ง seed
+          </li>
+          <li>
+            ตรวจว่ามีหรือไม่มี <code>product-sel1224gm</code> ให้ตรงชุดที่ตั้งใจ
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Badge Rule Specification</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 880px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .skus {
+        font-size: 13px;
+        word-break: break-word;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Badge Rule Specification</h1>
+        <p class="lede">
+          เงื่อนไขการได้รับ Product Badge, Quest Badge และ Tier
+          ตามกฎที่ seed ในฐานข้อมูลและเครื่องคำนวณในแอป
+        </p>
+        <p>
+          เวอร์ชันกฎ: <code>2026-07-24-product-urls-001</code>
+          แหล่ง: <code>scripts/db/seed-data.mjs</code> ·
+          เครื่องคำนวณ: <code>src/lib/badge-engine.ts</code>,
+          <code>src/lib/badge-experience.ts</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#overview">ภาพรวม (Overview)</a></li>
+            <li><a href="#match">วิธีจับคู่ SKU</a></li>
+            <li><a href="#product">Product Badge</a></li>
+            <li><a href="#quest">Quest Badge</a></li>
+            <li><a href="#tier">Tier (Bronze / Silver / Gold)</a></li>
+            <li><a href="#engine">สถานะในเครื่องคำนวณ</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="overview">
+        <h2>ภาพรวม (Overview)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>Product Badge</strong>
+            หนึ่งกฎต่อหนึ่งรุ่น · ปลดล็อกเมื่อมีอย่างน้อยหนึ่ง serial ที่จับคู่ SKU ได้
+            จำนวน serial ไม่ทำให้ได้เหรียญซ้ำ แต่แสดงเป็น <code>quantity</code>
+          </div>
+          <div class="box">
+            <strong>Quest Badge</strong>
+            เงื่อนไขหลายรุ่น · นับ <strong>unique SKU</strong> ไม่นับ serial ซ้ำของรุ่นเดียวกัน
+          </div>
+          <div class="box">
+            <strong>Tier</strong>
+            Quest สามรายการใช้ <code>ruleType: tier</code>
+            Bronze / Silver / Gold จากจำนวนรุ่น unique ที่สะสมได้
+          </div>
+        </div>
+        <p>
+          ชุดปัจจุบัน: 56 Product Badge + 8 Quest
+          (3 แบบมี tier, 5 แบบ achievement ชั้นเดียว)
+        </p>
+        <div class="note">
+          ทุกกฎใน seed ตั้ง <code>isActive</code> ใช้งาน,
+          <code>activeFrom</code> / <code>activeTo</code> /
+          <code>registrationStart</code> / <code>registrationEnd</code> เป็น null
+          จึงยังไม่มีหน้าต่างวันที่จำกัด
+          <code>warrantyExpiryDate</code> จาก Sony <strong>ไม่ใช้</strong>
+        </div>
+      </section>
+
+      <section id="match">
+        <h2>วิธีจับคู่ SKU และวันที่ (Matching)</h2>
+        <ol>
+          <li>
+            ใช้ <code>modelName</code> จาก warranty เป็น SKU ภายใน
+            เปรียบเทียบแบบ uppercase / trim
+          </li>
+          <li>
+            ตรงทั้งรหัส หรือรหัสกฎตามด้วย suffix ภูมิภาค
+            (<code>/QSYX</code>, <code>QSYX</code>, <code> SYX</code>, <code>/CSYX</code> ฯลฯ)
+          </li>
+          <li>
+            ไม่ต่อท้ายด้วยตัวอักษรรุ่นอื่น เช่น
+            <code>SEL70200GM</code> ไม่ตรงกฎ <code>SEL70200G</code>
+          </li>
+          <li>
+            ถ้ามีหน้าต่างลงทะเบียน ใช้เฉพาะ <code>registrationDate</code>
+            ที่อยู่ในช่วง (รวมวันเริ่มและวันสิ้นสุด ตาม UTC วันที่)
+          </li>
+        </ol>
+        <p>
+          ประเภทเงื่อนไข (<code>matchType</code>):
+        </p>
+        <ul>
+          <li>
+            <code>any</code> — นับ unique SKU ในรายการ สูงสุดเท่า
+            <code>requiredCount</code> ของเงื่อนไขนั้น (มักเป็น 1)
+          </li>
+          <li>
+            <code>all</code> — ต้องครบทุกรุ่นในรายการ
+            เครื่องคำนวณใช้ <code>requiredCount = ความยาวรายการ SKU</code>
+          </li>
+          <li>
+            <code>min_count</code> — นับ unique SKU ในรายการ
+            เทียบกับ <code>requiredCount</code>
+          </li>
+        </ul>
+        <p>
+          ถ้ากฎมีหลายเงื่อนไข (เช่น Trinity Master) ค่า
+          <code>matchedCount</code> คือผลรวมของแต่ละเงื่อนไข
+          สินค้าชิ้นเดียวถูกนับในเงื่อนไขที่ตรงได้ แต่ไม่นับสองครั้งใน Map แสดงผล
+        </p>
+      </section>
+
+      <section id="product">
+        <h2>Product Badge</h2>
+        <h3>เงื่อนไขได้รับ (Earn rule)</h3>
+        <ul>
+          <li>
+            <code>badgeType: product</code>, <code>ruleType: achievement</code>
+          </li>
+          <li>
+            เงื่อนไขเดียว: <code>any</code> / <code>requiredCount: 1</code>
+            SKU = <code>productModelCode</code> ของกฎนั้น
+          </li>
+          <li>
+            เกณฑ์: <code>level: achievement</code>, <code>requiredCount: 1</code>
+          </li>
+          <li>
+            Mini App: <code>unlocked</code> เมื่อมีอย่างน้อยหนึ่ง registration ที่จับคู่ได้
+            <code>earnedAt</code> = วันที่ลงทะเบียนที่เก่าที่สุดของรุ่นนั้น
+          </li>
+          <li>
+            serial เพิ่มของรุ่นเดียวกันเพิ่ม <code>quantity</code> และรายการ registrations
+            ไม่สร้าง Product Badge แถวใหม่
+          </li>
+        </ul>
+        <div class="note warn">
+          <code>SEL1224GM</code> อยู่ใน Quest Wide Architect เท่านั้น
+          ไม่มีแถว Product Badge
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>กลุ่มสินค้า (56 รุ่น) — หนึ่งเหรียญต่อรหัส</caption>
+            <thead>
+              <tr>
+                <th>กลุ่ม (Group)</th>
+                <th>จำนวน</th>
+                <th>รหัสรุ่นที่เป็นเงื่อนไข (Eligible model codes)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Full Frame Camera<br /><code>full-frame-camera</code></td>
+                <td>10</td>
+                <td class="skus">
+                  ILCE-1M2, ILCE-9M3, ILCE-7RM5, ILCE-7M5, ILCE-7M4,
+                  ILCE-7M3, ILCE-7CM2, ILCE-7C, ILCE-7CR, ILCE-7SM3
+                </td>
+              </tr>
+              <tr>
+                <td>Prime Lens<br /><code>prime-lens</code></td>
+                <td>14</td>
+                <td class="skus">
+                  SEL30M35, SEL135F18GM, SEL14F18GM, SEL16F18G, SEL20F18G,
+                  SEL24F14GM, SEL24F28G, SEL35F14GM, SEL35F18F, SEL50F12GM,
+                  SEL50F14GM, SEL50M28, SEL85F14GM, SEL85F14GM2
+                </td>
+              </tr>
+              <tr>
+                <td>Wide &amp; Normal Zoom<br /><code>wide-normal-zoom-lens</code></td>
+                <td>18</td>
+                <td class="skus">
+                  SEL1655G, SEL55210, SELP18110G, SEL1625G, SEL1635GM, SEL1635GM2,
+                  SEL2070G, SEL24105G, SEL2450G, SEL2470GM, SEL2470GM2, SEL2870GM,
+                  SEL50150GM, SELC1635G, SELP1635G, SELP28135G, SEL1635Z, SEL2470Z
+                </td>
+              </tr>
+              <tr>
+                <td>Telephoto<br /><code>telephoto-super-telephoto-lens</code></td>
+                <td>12</td>
+                <td class="skus">
+                  SEL70350G, SEL100400MC, SEL100400GM, SEL200600G, SEL300F28GM,
+                  SEL400800G, SEL400F28GM, SEL600F40GM, SEL70200GM, SEL70200GM2,
+                  SEL70200G, SEL70200G2
+                </td>
+              </tr>
+              <tr>
+                <td>Macro Lens<br /><code>macro-lens</code></td>
+                <td>2</td>
+                <td class="skus">SEL100M28GM, SEL90M28G</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          รหัสกฎ: <code>product-{model ตัวพิมพ์เล็ก}</code>
+          เช่น <code>product-ilce-7m4</code>, <code>product-sel35f14gm</code>
+        </p>
+      </section>
+
+      <section id="quest">
+        <h2>Quest Badge</h2>
+        <p>
+          ทุก Quest อยู่ในกลุ่มแสดงผล <code>quest</code>
+          เงื่อนไขด้านล่างคือชุดที่ seed แล้ว
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Quest แบบสะสม (tier) — นับ unique รุ่นในรายการ</caption>
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อ</th>
+                <th>matchType</th>
+                <th>Bronze / Silver / Gold</th>
+                <th>รายการรุ่นที่นับได้ (Eligible SKUs)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>portrait-master</code></td>
+                <td>Portrait Master</td>
+                <td><code>min_count</code></td>
+                <td>2 / 3 / 4</td>
+                <td class="skus">
+                  SEL35F14GM, SEL50F14GM, SEL50F12GM, SEL85F14GM, SEL85F14GM2,
+                  SEL100M28GM, SEL135F18GM
+                </td>
+              </tr>
+              <tr>
+                <td><code>wide-architect</code></td>
+                <td>Wide Architect</td>
+                <td><code>min_count</code></td>
+                <td>3 / 4 / 5</td>
+                <td class="skus">
+                  SEL1224GM, SEL14F18GM, SEL16F18G, SEL20F18G, SEL1625G,
+                  SEL1635GM, SEL1635GM2, SEL1635Z, SEL2470GM, SEL2470GM2,
+                  SEL2450G, SELC1635G, SEL1655G, SEL2070G, SEL24105G, SEL2470Z,
+                  SEL24F14GM, SEL24F28G, SEL2870GM, SEL35F14GM, SEL35F18F,
+                  SELP1635G, SELP18110G, SELP28135G
+                </td>
+              </tr>
+              <tr>
+                <td><code>the-visionary</code></td>
+                <td>The Visionary</td>
+                <td><code>min_count</code></td>
+                <td>2 / 3 / 4</td>
+                <td class="skus">
+                  SEL100400GM, SEL400800G, SEL200600G, SEL300F28GM, SEL400F28GM,
+                  SEL600F40GM, SEL70350G, SEL55210, SEL100400MC
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          เงื่อนไข <code>min_count</code> ในฐานข้อมูลตั้ง
+          <code>requiredCount</code> เท่ากับเป้า Gold (4, 5, 4)
+          ชั้น Bronze/Silver ใช้เกณฑ์ต่ำกว่าบน <code>matchedCount</code> เดียวกัน
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Quest แบบชุด (achievement) — ชั้นเดียว</caption>
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อ</th>
+                <th>ตรรกะ</th>
+                <th>ต้องครบ</th>
+                <th>รายการ / ครอบครัว</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>trinity-master</code></td>
+                <td>Trinity Master</td>
+                <td>สามเงื่อนไข <code>any</code> × 1</td>
+                <td>3 (ครอบครัวละ 1)</td>
+                <td class="skus">
+                  16–35 GM: SEL1635GM หรือ SEL1635GM2<br />
+                  24–70 GM: SEL2470GM หรือ SEL2470GM2<br />
+                  70–200 GM: SEL70200GM หรือ SEL70200GM2<br />
+                  สองเวอร์ชันในครอบครัวเดียวกันนับได้เพียง 1
+                </td>
+              </tr>
+              <tr>
+                <td><code>trinity-junior</code></td>
+                <td>Trinity Junior</td>
+                <td><code>all</code></td>
+                <td>3 จาก 3</td>
+                <td class="skus">SEL2450G, SEL1625G, SEL70200G2</td>
+              </tr>
+              <tr>
+                <td><code>all-rounder</code></td>
+                <td>All Rounder</td>
+                <td><code>min_count</code></td>
+                <td>3 จาก 4</td>
+                <td class="skus">SEL2070G, SELP1635G, SEL1635Z, SEL70200G</td>
+              </tr>
+              <tr>
+                <td><code>f2-master</code></td>
+                <td>F2 Master</td>
+                <td><code>all</code></td>
+                <td>2 จาก 2</td>
+                <td class="skus">SEL2870GM, SEL50150GM</td>
+              </tr>
+              <tr>
+                <td><code>the-magnifier</code></td>
+                <td>The Magnifier</td>
+                <td><code>any</code> × 1</td>
+                <td>1 จาก 4</td>
+                <td class="skus">SEL100M28GM, SEL90M28G, SEL50M28, SEL30M35</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tier">
+        <h2>Tier (Bronze / Silver / Gold)</h2>
+        <p>
+          ใช้เฉพาะ Quest ที่ <code>ruleType: tier</code>
+          Product Badge ไม่มีชั้นโลหะ — มีแค่ปลดล็อก / ล็อก
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>เกณฑ์จำนวน unique รุ่น (Unique model count)</caption>
+            <thead>
+              <tr>
+                <th>Quest</th>
+                <th>Bronze</th>
+                <th>Silver</th>
+                <th>Gold</th>
+                <th>ขนาดพูลสูงสุดในรายการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Portrait Master</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>7 รุ่น</td>
+              </tr>
+              <tr>
+                <td>Wide Architect</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>24 รุ่น (รวม SEL1224GM)</td>
+              </tr>
+              <tr>
+                <td>The Visionary</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>9 รุ่น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>สถานะแต่ละชั้นบน Mini App</h3>
+        <ul>
+          <li>
+            <code>achieved</code> — <code>matchedCount ≥ requiredCount</code> ของชั้นนั้น
+            <code>earnedAt</code> = วันที่ลงทะเบียนของรุ่นที่ทำให้ถึงเกณฑ์
+            (เรียงวันที่ แล้วหยิบชิ้นที่ลำดับเท่าเกณฑ์)
+          </li>
+          <li>
+            <code>in-progress</code> — ชั้นถัดจากชั้นสูงสุดที่ได้แล้ว
+            หรือชั้นแรกเมื่อมี matchedCount &gt; 0 แต่ยังไม่ถึง Bronze
+          </li>
+          <li>
+            <code>locked</code> — ชั้นที่ไกลกว่านั้น หรือยังไม่มีรุ่นที่นับได้เลย
+          </li>
+        </ul>
+        <p>
+          <code>highestEarnedTier</code> คือชั้น <code>achieved</code> ที่สูงสุด
+          หน้า my-badges โชว์ภารกิจล่าสุดจากวันที่ของชั้นนี้
+        </p>
+        <div class="note">
+          ได้ Gold แล้วยังคงถือ Bronze และ Silver เป็น achieved ด้วย
+          ไม่มีการลดชั้นเมื่อสินค้าหายจาก warranty ในรอบถัดไปจนกว่า Sony จะไม่ส่งรุ่นนั้นมา
+        </div>
+      </section>
+
+      <section id="engine">
+        <h2>สถานะในเครื่องคำนวณ (Engine vs Mini App)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>คำศัพท์สถานะ</caption>
+            <thead>
+              <tr>
+                <th>ชั้น</th>
+                <th>ค่า</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>calculateBadges</code></td>
+                <td><code>earned</code></td>
+                <td>ถึงเกณฑ์อย่างน้อยหนึ่ง threshold</td>
+              </tr>
+              <tr>
+                <td><code>calculateBadges</code></td>
+                <td><code>locked</code></td>
+                <td>มี matchedCount &gt; 0 แต่ยังไม่ถึงเกณฑ์ต่ำสุด</td>
+              </tr>
+              <tr>
+                <td><code>calculateBadges</code></td>
+                <td><code>no-badge</code></td>
+                <td>matchedCount = 0</td>
+              </tr>
+              <tr>
+                <td>Product Mini App</td>
+                <td><code>unlocked</code> / <code>locked</code></td>
+                <td>มี serial ที่จับคู่ได้หรือไม่มี</td>
+              </tr>
+              <tr>
+                <td>Quest Mini App</td>
+                <td>ดูตาราง Tier</td>
+                <td>แยกสถานะรายชั้น ไม่ใช้คำว่า earned</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          กฎที่ <code>isActive = false</code> หรืออยู่นอก
+          <code>activeFrom</code>–<code>activeTo</code> จะไม่ปรากฏในประสบการณ์ Mini App
+          ถ้าเคยได้เหรียญแล้วแต่ปิดการแสดงผลทั้งกฎ เหรียญจะหายจากรายการ
+          (ต่างจากหน้าต่างลงทะเบียนที่ยังคงเหรียญถ้าสินค้าลงทะเบียนในช่วงที่กำหนด)
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Security Checklist / Assessment Result</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+        --fail: #9b1c1c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 880px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .pass {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .partial {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      .fail {
+        color: var(--fail);
+        font-weight: 700;
+      }
+
+      .sev-high {
+        color: var(--fail);
+        font-weight: 700;
+      }
+
+      .sev-med {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      .sev-low {
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Security Checklist / Assessment Result</h1>
+        <p class="lede">
+          ผลตรวจจากโค้ดปัจจุบัน: Authentication, Authorization, Encryption, Logging,
+          Session, API Security และช่องโหว่พื้นฐาน
+        </p>
+        <div class="note warn">
+          นี่คือ technical review จาก repository ไม่ใช่ penetration test
+          และยังไม่ใช่ใบรับรอง PDPA / ISO
+          วันที่ทบทวน: 19 สิงหาคม 2026 อ้างอิงไฟล์ใน Sony Badge Pilot
+        </div>
+        <nav>
+          <ul class="toc">
+            <li><a href="#summary">สรุปผล</a></li>
+            <li><a href="#checklist">Checklist ตามหัวข้อ</a></li>
+            <li><a href="#findings">Findings</a></li>
+            <li><a href="#baseline">ช่องโหว่พื้นฐาน</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="summary">
+        <h2>สรุปผล (Overall)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>Authentication</strong>
+            <span class="partial">Partial</span>
+            LIFF + LINE verify ใช้ได้; Mini App ยังพึ่ง query <code>lineuuid</code>
+          </div>
+          <div class="box">
+            <strong>Authorization</strong>
+            <span class="fail">Fail</span>
+            <code>/api/my-*</code> ไม่ผูกกับ session cookie
+          </div>
+          <div class="box">
+            <strong>Encryption</strong>
+            <span class="partial">Partial</span>
+            HTTPS/TLS DB บังคับตอน deploy; cookie เซ็นแต่ไม่เข้ารหัสตัว payload
+          </div>
+          <div class="box">
+            <strong>Logging</strong>
+            <span class="partial">Partial</span>
+            log ตารางใช้ hash แต่ยังมี <code>console.log</code> ค่าดิบ
+          </div>
+          <div class="box">
+            <strong>Session</strong>
+            <span class="pass">Pass*</span>
+            Cookie HttpOnly + HMAC ดี แต่ไม่ได้ใช้ครอบคลุมทุก API
+          </div>
+          <div class="box">
+            <strong>API Security</strong>
+            <span class="partial">Partial</span>
+            error ถูกตัดแล้ว ไม่มี rate limit / security headers ของแอป
+          </div>
+        </div>
+        <p>
+          * Session mechanism ผ่านเกณฑ์พื้นฐาน แต่ขอบเขตการใช้ยังไม่ครอบคลุมหน้า Mini App หลัก
+        </p>
+      </section>
+
+      <section id="checklist">
+        <h2>Checklist ตามหัวข้อ</h2>
+
+        <h3>Authentication</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ยืนยัน LINE ID token กับ LINE ไม่เชื่อ token จากไคลเอนต์อย่างเดียว</td>
+                <td class="pass">Pass</td>
+                <td><code>verifyLineIdToken</code> เรียก <code>api.line.me</code> ตรวจ <code>aud</code> / <code>sub</code> / <code>exp</code></td>
+              </tr>
+              <tr>
+                <td>LIFF ต้องรันใน LINE client</td>
+                <td class="pass">Pass</td>
+                <td><code>liff.isInClient()</code> ก่อนสร้าง session</td>
+              </tr>
+              <tr>
+                <td>staging/production บังคับ LIFF ID, channel ID, session secret</td>
+                <td class="pass">Pass</td>
+                <td><code>loadAppConfig</code> + <code>config:check</code> (secret ≥ 32 ตัว, LIFF ต้องเป็นของ channel)</td>
+              </tr>
+              <tr>
+                <td>หน้า Mini App หลักใช้ session ที่ verify แล้วเป็นตัวระบุตัวตน</td>
+                <td class="fail">Fail</td>
+                <td><code>/api/my-*</code> อ่าน <code>?lineuuid=</code> โดยไม่เรียก <code>resolveAuthorizedLineUuid</code></td>
+              </tr>
+              <tr>
+                <td>Mock / demo identity ถูกจำกัดเฉพาะ local</td>
+                <td class="pass">Pass</td>
+                <td><code>/api/mock-session</code> คืน 404 นอก local+mock; query demo บน customer-products เฉพาะ debug+mock</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Authorization</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ไม่มีหน้า admin ให้ลูกค้าแก้กฎ</td>
+                <td class="pass">Pass</td>
+                <td>ไม่มี CMS; กฎมาจาก seed</td>
+              </tr>
+              <tr>
+                <td>ลูกค้าเห็นแต่ข้อมูลของตนเอง</td>
+                <td class="fail">Fail</td>
+                <td>IDOR: ใส่ LINE user ID ของผู้อื่นใน query ของ <code>/api/my-*</code> แล้วได้เหรียญและซีเรียล</td>
+              </tr>
+              <tr>
+                <td><code>/entry</code> จำกัดแหล่งที่มา</td>
+                <td class="pass">Pass</td>
+                <td>Origin/Referer ต้องอยู่ใน allowlist และต้องมี cookie</td>
+              </tr>
+              <tr>
+                <td>เส้นทาง legacy shelf ใช้ cookie</td>
+                <td class="pass">Pass</td>
+                <td><code>/api/customer-products</code> ใช้ <code>resolveAuthorizedLineUuid</code></td>
+              </tr>
+              <tr>
+                <td>หน้าแชร์ไม่เปิดข้อมูลลูกค้า</td>
+                <td class="pass">Pass</td>
+                <td><code>getPublicShareMeta</code> อ่านแค่กฎและรูป</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Encryption</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>UAT บังคับ HTTPS ของแอปและ URL ภายนอก</td>
+                <td class="pass">Pass</td>
+                <td><code>config:check</code> ตรวจ <code>https:</code>; App Service HTTPS Only ตาม runbook</td>
+              </tr>
+              <tr>
+                <td>MySQL ใช้ TLS และยังตรวจใบรับรอง</td>
+                <td class="pass">Pass</td>
+                <td><code>rejectUnauthorized: true</code>; deploy ต้องมี <code>DATABASE_SSL</code></td>
+              </tr>
+              <tr>
+                <td>ความลับไม่ถูกใส่ <code>NEXT_PUBLIC_*</code></td>
+                <td class="pass">Pass</td>
+                <td>APIM key, DB, session secret เป็น server-only</td>
+              </tr>
+              <tr>
+                <td>ข้อมูลระบุตัวตนใน cookie ถูกเข้ารหัส</td>
+                <td class="partial">Partial</td>
+                <td>HMAC-SHA256 ป้องกันการแก้ค่า แต่ payload เป็น base64 อ่าน LINE ID ได้ถ้าได้คุกกี้</td>
+              </tr>
+              <tr>
+                <td>ความลับใน Git</td>
+                <td class="pass">Pass</td>
+                <td>ไม่ commit <code>.env*</code>; UAT ใช้ environment secret</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Logging</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ตาราง log ไม่เก็บ LINE ID ดิบ</td>
+                <td class="pass">Pass</td>
+                <td><code>hashLineUuid</code> HMAC-SHA256 เมื่อมี <code>LOG_HASH_SECRET</code></td>
+              </tr>
+              <tr>
+                <td>ข้อความ error ถึงไคลเอนต์ไม่รั่วรายละเอียดภายใน</td>
+                <td class="pass">Pass</td>
+                <td><code>toSafeError</code></td>
+              </tr>
+              <tr>
+                <td>ไม่มี PII ใน stdout / App Service log</td>
+                <td class="fail">Fail</td>
+                <td>
+                  <code>console.log({ lineuuid })</code> ใน
+                  <code>my-badges</code>, <code>my-missions</code>
+                  และ <code>getCustomerProducts</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Debug payload ไม่ส่งซีเรียลดิบใน production</td>
+                <td class="pass">Pass</td>
+                <td>debug ปิดเมื่อ <code>APP_ENV=production</code>; debug JSON ใช้ธง present</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Session</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cookie เป็น HttpOnly, SameSite, มีอายุ</td>
+                <td class="pass">Pass</td>
+                <td><code>HttpOnly</code>, <code>SameSite=Lax</code>, <code>Max-Age=3600</code>, <code>Secure</code> นอก local</td>
+              </tr>
+              <tr>
+                <td>ลายเซ็นกันการปลอมแปลง</td>
+                <td class="pass">Pass</td>
+                <td>HMAC-SHA256 + <code>timingSafeEqual</code></td>
+              </tr>
+              <tr>
+                <td>ไม่เก็บ session ใน JS ที่อ่านได้</td>
+                <td class="fail">Fail</td>
+                <td><code>sessionStorage.sony_line_uuid</code> เก็บ LINE ID ดิบ และส่งต่อใน URL</td>
+              </tr>
+              <tr>
+                <td>ไม่มี fallback secret อ่อนบน staging</td>
+                <td class="pass">Pass</td>
+                <td>นอก local ต้องมี <code>APP_SESSION_SECRET</code>; ค่าคงที่ในโค้ดใช้แค่ local</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>API Security</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SQL injection บน input จากผู้ใช้</td>
+                <td class="pass">Pass</td>
+                <td>insert/log ใช้ parameterized <code>execute</code>; query กฎเป็น SQL คงที่</td>
+              </tr>
+              <tr>
+                <td>Rate limiting / abuse control</td>
+                <td class="fail">Fail</td>
+                <td>ไม่มีในแอป — เรียก Sony APIM ได้ตามปริมาณ request ของ Mini App API</td>
+              </tr>
+              <tr>
+                <td>Security headers (CSP, HSTS, X-Frame-Options)</td>
+                <td class="partial">Partial</td>
+                <td>แอปไม่ตั้ง CSP/frame options; HSTS พึ่ง HTTPS ของ Azure/IIS</td>
+              </tr>
+              <tr>
+                <td>CSRF บนการเปลี่ยนสถานะ</td>
+                <td class="partial">Partial</td>
+                <td>
+                  <code>POST /api/line-session</code> เป็น same-site จาก LIFF
+                  แต่ GET <code>/api/my-*</code> ใช้ตัวตนใน query จึงเสี่ยง IDOR มากกว่า CSRF แบบคลาสสิก
+                </td>
+              </tr>
+              <tr>
+                <td>Endpoint อันตรายถูกล็อกนอก local</td>
+                <td class="pass">Pass</td>
+                <td>mock-session 404; debug ปิดใน production; <code>NEXT_PUBLIC_DEBUG_MOCK_JSON</code> ต้องเป็น false ตอน deploy</td>
+              </tr>
+              <tr>
+                <td>Health ไม่เปิดข้อมูลภายใน</td>
+                <td class="pass">Pass</td>
+                <td><code>{"status":"ok","runtime":"nodejs"}</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="findings">
+        <h2>Findings ที่ควรปิด</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>ความรุนแรง</th>
+                <th>หัวข้อ</th>
+                <th>รายละเอียด</th>
+                <th>แนวทางแก้ (ไม่ลงมือในเอกสารนี้)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>F1</td>
+                <td class="sev-high">High</td>
+                <td>Authorization / IDOR</td>
+                <td>
+                  <code>/api/my-badges</code>, <code>/api/my-products</code>,
+                  <code>/api/my-missions</code> เชื่อ <code>lineuuid</code> จาก query
+                </td>
+                <td>ใช้ <code>resolveAuthorizedLineUuid</code> จาก cookie เหมือน customer-products</td>
+              </tr>
+              <tr>
+                <td>F2</td>
+                <td class="sev-med">Medium</td>
+                <td>Logging</td>
+                <td>stdout ยังพิมพ์ LINE user ID ดิบตอน live warranty และบาง my-* API</td>
+                <td>ลบ <code>console.log</code> หรือใช้ <code>hashLineUuid</code></td>
+              </tr>
+              <tr>
+                <td>F3</td>
+                <td class="sev-med">Medium</td>
+                <td>Session / PII in browser</td>
+                <td>LINE ID อยู่ใน <code>sessionStorage</code> และ query string ของ XHR</td>
+                <td>พึ่ง cookie อย่างเดียว ไม่ส่ง identity ใน URL</td>
+              </tr>
+              <tr>
+                <td>F4</td>
+                <td class="sev-low">Low</td>
+                <td>Encryption at rest (cookie)</td>
+                <td>cookie อ่าน LINE ID ได้ถ้าขโมยคุกกี้</td>
+                <td>เก็บแค่ opaque session id หรือเข้ารหัส payload</td>
+              </tr>
+              <tr>
+                <td>F5</td>
+                <td class="sev-low">Low</td>
+                <td>API abuse</td>
+                <td>ไม่มี rate limit ไปยัง Sony APIM</td>
+                <td>จำกัดต่อ session / IP ที่ขอบแอปหรือ APIM</td>
+              </tr>
+              <tr>
+                <td>F6</td>
+                <td class="sev-low">Low</td>
+                <td>Security headers</td>
+                <td><code>next.config.mjs</code> ไม่ใส่ CSP / clickjacking headers</td>
+                <td>ตั้ง headers ที่ IIS หรือ Next</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="baseline">
+        <h2>ช่องโหว่พื้นฐาน (Baseline vulns)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>กลุ่ม</th>
+                <th>ผลตรวจ</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Injection (SQL)</td>
+                <td class="pass">ไม่พบรูปแบบ query ต่อสตริงจากผู้ใช้</td>
+                <td>input จาก LINE/SKU ไม่ถูกต่อเป็น SQL ของกฎ</td>
+              </tr>
+              <tr>
+                <td>XSS</td>
+                <td class="partial">ความเสี่ยงต่ำ</td>
+                <td>
+                  ไม่พบ <code>dangerouslySetInnerHTML</code>
+                  รูปเหรียญมาจาก URL ใน DB — ผู้มีสิทธิ์ seed/DB ตั้ง URL ได้
+                  ลูกค้าทั่วไปตั้งค่านี้ไม่ได้
+                </td>
+              </tr>
+              <tr>
+                <td>SSRF</td>
+                <td class="pass">ความเสี่ยงต่ำ</td>
+                <td>warranty URL มาจาก env ไม่ใช่จากผู้ใช้</td>
+              </tr>
+              <tr>
+                <td>Secret exposure</td>
+                <td class="pass">ควบคุมในรีโป</td>
+                <td>มี <code>console.log</code> ของ subscription key ที่ถูก comment แล้วใน <code>app-config.ts</code></td>
+              </tr>
+              <tr>
+                <td>Information disclosure</td>
+                <td class="partial">บางจุด</td>
+                <td>
+                  debug ปิดใน production
+                  <code>getPublicDbSchema</code> / debug tables มีได้เฉพาะโหมด debug
+                  health ไม่เปิดเวอร์ชันรายละเอียด
+                </td>
+              </tr>
+              <tr>
+                <td>Broken access control</td>
+                <td class="fail">พบ</td>
+                <td>F1 เป็นช่องโหว่หลักของ Mini App API</td>
+              </tr>
+              <tr>
+                <td>Security misconfiguration</td>
+                <td class="partial">บางจุด</td>
+                <td>deploy check เข้มเรื่อง HTTPS/TLS/debug; แอปไม่มี CSP; workflow ไม่รัน <code>npm audit</code></td>
+              </tr>
+              <tr>
+                <td>Open mock/debug in prod</td>
+                <td class="pass">ถูกบล็อก</td>
+                <td>mock-session และ debug flag</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          จุดที่ควรแก้ก่อนขยาย production ตามลำดับ: F1 (ผูก my-* กับ cookie) แล้ว F2–F3 (log และไม่ใส่ LINE ID ใน URL)
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

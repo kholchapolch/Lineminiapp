@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data Update Script / Migration Script</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      h3 { margin-top: 18px; font-size: 20px; }
+      p { margin: 0 0 14px; }
+      ul, ol { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      pre { margin: 0 0 14px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: #101923; color: #f7fbff; padding: 16px; font-size: 13px; line-height: 1.5; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Data Update Script / Migration Script</h1>
+        <p class="lede">
+          Script ที่ใช้ปรับปรุงข้อมูล พร้อม Version และวิธีใช้งาน
+        </p>
+        <p>
+          ไม่มีตาราง <code>schema_migrations</code>
+          เวอร์ชันข้อมูลกฎอยู่ที่ <code>app_config.badge_rules_version</code>
+          ค่าปัจจุบันใน seed ทั้งสองชุด:
+          <code>2026-07-24-product-urls-001</code>
+        </p>
+      </header>
+
+      <section>
+        <h2>เวอร์ชัน (Version)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ชั้น</th>
+                <th>ที่เก็บ</th>
+                <th>ค่าปัจจุบัน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Schema</td>
+                <td>ลำดับ statement ใน <code>scripts/db/migrate.mjs</code></td>
+                <td>ไม่มีเลขเวอร์ชันในฐาน — รันซ้ำได้ (idempotent)</td>
+              </tr>
+              <tr>
+                <td>Badge rules</td>
+                <td>
+                  <code>scripts/db/seed-data.mjs</code> และ
+                  <code>scripts/db/prod/seed-data.mjs</code>
+                  คีย์ <code>badge_rules_version</code>
+                </td>
+                <td><code>2026-07-24-product-urls-001</code></td>
+              </tr>
+              <tr>
+                <td>สำเนา SQL เก่าในรีโป</td>
+                <td><code>scripts/db/seed-all-rules_backup.sql</code></td>
+                <td><code>2026-07-20-confirmed-badge-rules-001</code> — ไม่ใช่แหล่งความจริง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          เมื่อแก้กฎ ระดับ หรือเงื่อนไข ต้อง bump <code>badge_rules_version</code>
+          ชุด default กับ prod ใช้สตริงเดียวกันทั้งที่แคตตาล็อกสินค้าต่างกันที่
+          <code>SEL1224GM</code> — อย่าใช้สตริงนี้แยกว่า seed ชุดไหนอยู่ในฐาน
+        </div>
+      </section>
+
+      <section>
+        <h2>รายการ script</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>คำสั่ง</th>
+                <th>ไฟล์</th>
+                <th>สิ่งที่ทำ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>npm run db:migrate</code></td>
+                <td><code>scripts/db/migrate.mjs</code></td>
+                <td>
+                  สร้างตาราง/คอลัมน์/index
+                  ALTER/INDEX ที่ซ้ำข้ามด้วย <code>ER_DUP_FIELDNAME</code> /
+                  <code>ER_DUP_KEYNAME</code>
+                  ไม่ลบแถว
+                </td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed</code></td>
+                <td><code>seed.mjs</code> + <code>seed-data.mjs</code></td>
+                <td>
+                  ธุรกรรมเดียว: upsert <code>app_config</code>
+                  ลบแล้วใส่ <code>badge_display_groups</code>
+                  upsert กฎ แล้วแทนที่ thresholds/conditions ของกฎที่ seed
+                  ลบกฎที่ไม่อยู่ในไฟล์ (CASCADE ลูก)
+                </td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:prod</code></td>
+                <td><code>seed.mjs --seed ./prod/seed-data.mjs</code></td>
+                <td>เหมือน seed แต่ใช้ชุด UAT/prod (URL รูป blob, มีเหรียญ SEL1224GM)</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:all</code> / <code>:prod</code></td>
+                <td><code>seed-all-rules.mjs</code></td>
+                <td>migrate → seed → verify ติดกัน</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql</code></td>
+                <td><code>generate-seed-sql.mjs</code></td>
+                <td>เขียน <code>seed-all-rules.sql</code> จาก seed (ไม่แตะฐาน)</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql:prod</code></td>
+                <td>generate + <code>--out ./prod/seed-all-rules.sql</code></td>
+                <td>สร้าง SQL ชุด prod — ไฟล์นี้ไม่ได้อยู่ในรีโปตอนจัดทำเอกสาร</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql:check</code></td>
+                <td><code>generate-seed-sql.mjs --check</code></td>
+                <td>CI บังคับให้ SQL ที่ commit ตรง seed เริ่มต้น</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:verify</code> / <code>:prod</code></td>
+                <td><code>verify.mjs</code></td>
+                <td>เทียบ COUNT ตารางกับความยาวอาร์เรย์ใน seed และมีคีย์เวอร์ชัน</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:reset</code></td>
+                <td><code>reset.mjs</code></td>
+                <td>
+                  DROP ตารางแอปทั้งหมดรวม <code>badge_calculation_logs</code>
+                  แล้ว migrate + seed ชุด default + verify — ใช้แค่ local
+                </td>
+              </tr>
+              <tr>
+                <td>regenerate prod seed</td>
+                <td><code>scripts/db/prod/generate-seed-data.mjs</code></td>
+                <td>
+                  อ่าน dump <code>uat_sony_table.sql</code>
+                  ไม่รันใน CI
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>วิธีใช้งาน</h2>
+        <h3>ข้อกำหนด</h3>
+        <ul>
+          <li><code>DATABASE_URL</code> รูปแบบ <code>mysql://user:pass@host:port/db</code> (ไม่มี secret ในเอกสารนี้)</li>
+          <li>Azure MySQL: <code>DATABASE_SSL=true</code> หรือ <code>?ssl=true</code> — ไม่ปิดการตรวจใบรับรอง</li>
+        </ul>
+        <h3>Local — ใส่กฎชุด default</h3>
+        <pre>export DATABASE_URL='mysql://sony:sony@127.0.0.1:3307/sony_badges'
+npm run db:migrate
+npm run db:seed
+npm run db:verify</pre>
+        <p>หรือ <code>npm run db:seed:all</code> / ล้างทั้ง schema: <code>npm run db:reset</code></p>
+        <h3>อัปเดตกฎในโค้ดแล้วส่งเข้าฐาน</h3>
+        <ol>
+          <li>แก้เฉพาะ <code>scripts/db/seed-data.mjs</code> (หรือ prod ตามสภาพแวดล้อม)</li>
+          <li>bump <code>badge_rules_version</code></li>
+          <li><code>npm run db:seed:sql</code> และ <code>npm run db:seed:sql:check</code></li>
+          <li>สำรองฐาน แล้ว <code>npm run db:seed</code> หรือ <code>db:seed:prod</code></li>
+          <li><code>npm run db:verify</code> หรือ <code>db:verify:prod</code></li>
+        </ol>
+        <h3>ทางเลือก SQL ด้วยมือ</h3>
+        <pre>npm run db:migrate
+# แล้ว import scripts/db/seed-all-rules.sql (ชุด default)
+npm run db:verify</pre>
+        <div class="note warn">
+          Push แอปไป UAT ไม่รัน migrate/seed
+          workflow ตรวจแค่ <code>db:seed:sql:check</code> กับเทส/lint/build
+          ผู้ปฏิบัติการต้องรัน script ต่อ Azure MySQL จากโฮสต์ที่เข้าถึงได้
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
