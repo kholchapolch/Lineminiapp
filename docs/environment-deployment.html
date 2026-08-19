@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Environment &amp; Deployment Document</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      h3 { margin-top: 18px; font-size: 20px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Environment &amp; Deployment Document</h1>
+        <p class="lede">
+          รายละเอียด Sandbox, UAT และ Production รวมถึง URL และ Configuration
+        </p>
+        <p>
+          ค่า <code>APP_ENV</code> ในโค้ดมีแค่ <code>local</code>, <code>staging</code>, <code>production</code>
+          ชื่อธุรกิจ “UAT” ใช้ <code>APP_ENV=staging</code>
+          ไม่มีค่า <code>uat</code> หรือ <code>sandbox</code> ในแอป
+        </p>
+      </header>
+
+      <section>
+        <h2>ภาพรวมสภาพแวดล้อม</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ชื่อธุรกิจ</th>
+                <th>APP_ENV</th>
+                <th>โฮสต์แอปในรีโป</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sandbox / local</td>
+                <td><code>local</code></td>
+                <td>
+                  <code>http://localhost:3000</code>
+                  MySQL Docker พอร์ตโฮสต์ <code>3307</code>
+                </td>
+                <td>มีในรีโป (<code>docker-compose.yml</code>, <code>npm run dev</code>)</td>
+              </tr>
+              <tr>
+                <td>UAT / staging</td>
+                <td><code>staging</code></td>
+                <td>
+                  <code>https://stglineminiapp.sony.co.th/</code>
+                  App Service <code>mysonybadgestg</code>
+                </td>
+                <td>
+                  มี workflow
+                  <code>.github/workflows/main_mysonybadgestg.yml</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Production</td>
+                <td><code>production</code></td>
+                <td>ไม่มี URL / App Service / workflow ในรีโปนี้</td>
+                <td>
+                  โค้ดรองรับโหมดนี้ (ปิด debug, บังคับ LIFF/DB/session)
+                  ยังไม่มี pipeline แยก
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <code>docs/uat-deployment.md</code> และ <code>AGENTS.md</code> ระบุว่า push สาขา
+          <code>main</code> ไป UAT
+          ไฟล์ workflow ที่ commit ตอนนี้ trigger ที่สาขา <code>dev</code> และ
+          <code>workflow_dispatch</code>
+          ใช้ YAML เป็นแหล่งความจริงของทริกเกอร์จนกว่าจะแก้เอกสารหรือ workflow ให้ตรงกัน
+        </div>
+      </section>
+
+      <section>
+        <h2>Sandbox (local)</h2>
+        <h3>URL</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>จุดเข้า</th>
+                <th>URL</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>แอป Next.js</td>
+                <td><code>http://localhost:3000</code></td>
+              </tr>
+              <tr>
+                <td>สุขภาพ (ถ้าเซิร์ฟเวอร์รัน)</td>
+                <td><code>http://localhost:3000/api/health</code></td>
+              </tr>
+              <tr>
+                <td>หน้าโฮมของ user หลัง middleware</td>
+                <td>
+                  <code>http://localhost:3000/th/my-badges</code>
+                  — middleware ส่ง <code>/</code> และ <code>/badge</code> มาหน้านี้ (locale เริ่มต้น <code>th</code>)
+                </td>
+              </tr>
+              <tr>
+                <td>MySQL</td>
+                <td><code>127.0.0.1:3307</code> ฐาน <code>sony_badges</code></td>
+              </tr>
+              <tr>
+                <td>Sony API โหมด mock</td>
+                <td>ค่าเริ่มต้นในเครื่องชี้ mock ในแอป ไม่เรียก APIM</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Configuration</h3>
+        <ul>
+          <li>คัดลอกจาก <code>.env.example</code> เป็น <code>.env.local</code> — <strong>ห้าม commit</strong> และอย่าคัดลอกค่าตัวอย่างที่เป็น secret/LIFF จริงลงเอกสารอื่น</li>
+          <li><code>DATABASE_SSL=false</code> สำหรับ Docker local</li>
+          <li><code>SONY_PRODUCT_API_MODE=mock</code></li>
+          <li>HTTP บน localhost ใช้ได้; <code>config:check</code> ไม่ใช้กับไฟล์นี้ (บังคับ HTTPS)</li>
+          <li>LIFF ว่างได้ในโหมด local เพื่อพรีวิวโดยไม่เข้า LINE</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>UAT (staging)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>URL สาธารณะที่ระบุใน workflow / คู่มือ UAT</caption>
+            <thead>
+              <tr>
+                <th>บทบาท</th>
+                <th>URL หรือชื่อ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>โดเมนแอป</td>
+                <td><code>https://stglineminiapp.sony.co.th/</code></td>
+              </tr>
+              <tr>
+                <td>Health</td>
+                <td><code>https://stglineminiapp.sony.co.th/api/health</code> → <code>{"status":"ok","runtime":"nodejs"}</code></td>
+              </tr>
+              <tr>
+                <td>Smoke ไฟล์สถิต</td>
+                <td><code>https://stglineminiapp.sony.co.th/deployment-check.html</code></td>
+              </tr>
+              <tr>
+                <td>Azure App Service</td>
+                <td><code>mysonybadgestg</code> สล็อตชื่อ <code>Production</code> (สล็อตดีพลอย ไม่ใช่ APP_ENV)</td>
+              </tr>
+              <tr>
+                <td>GitHub environment</td>
+                <td><code>uat</code></td>
+              </tr>
+              <tr>
+                <td>LINE ID token verify</td>
+                <td><code>https://api.line.me/oauth2/v2.1/verify</code> (ค่าเริ่มต้นในโค้ด)</td>
+              </tr>
+              <tr>
+                <td>Sony warranty APIM</td>
+                <td>
+                  ตั้งใน <code>SONY_PRODUCT_API_BASE_URL</code>
+                  รูปแบบในเทส: โฮสต์ APIM + path
+                  <code>/mysony-api/QueryWarrantyMySonyByLine</code>
+                  ค่าจริงอยู่ใน secret
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Azure Access Restrictions อาจตอบ <code>403</code> พร้อมหัว
+          <code>x-ms-forbidden-ip</code> ถ้า IP ผู้เรียกไม่อยู่ใน allowlist
+          workflow ถือว่าเป็นคำเตือน ไม่ใช่แอปพัง
+        </p>
+        <h3>ที่เก็บ Configuration</h3>
+        <ul>
+          <li>GitHub environment secret <code>UAT_ENV_FILE</code> = เนื้อหาทั้งไฟล์ <code>.env.production</code></li>
+          <li>ถูกเขียนตอน build (Windows) และก่อน deploy (Ubuntu) แล้วลบออกจาก runner</li>
+          <li>ไม่ถูกใส่ใน artifact กลาง</li>
+          <li>App Service application settings ถ้ามี จะทับค่าจากไฟล์ตอนรัน — แต่ <code>NEXT_PUBLIC_*</code> ต้องมีตอน <code>npm run build</code></li>
+          <li>Publish profile: secret ชื่อยาว <code>AZUREAPPSERVICE_PUBLISHPROFILE_…</code> ตาม workflow — ห้ามสลับกับโปรไฟล์รีโปอื่น</li>
+        </ul>
+        <h3>คีย์ที่ <code>npm run config:check</code> บังคับ</h3>
+        <p>
+          <code>DATABASE_URL</code>, <code>DATABASE_SSL</code> (ต้องเปิด TLS),
+          <code>APP_ENV</code> (<code>staging</code> หรือ <code>production</code>),
+          <code>APP_BASE_URL</code> = <code>NEXT_PUBLIC_APP_BASE_URL</code> (HTTPS),
+          <code>ALLOWED_ORIGINS</code>, <code>ALLOWED_REFERRERS</code> (HTTPS และต้องรวม origin แอป),
+          <code>NEXT_PUBLIC_LIFF_ID</code> ขึ้นต้นด้วย <code>LINE_CHANNEL_ID-</code>,
+          <code>LINE_CHANNEL_ID</code> (ตัวเลข),
+          <code>LINE_VERIFY_ID_TOKEN_URL</code>,
+          <code>APP_SESSION_SECRET</code> และ <code>LOG_HASH_SECRET</code> (≥ 32 ตัว),
+          <code>NEXT_PUBLIC_DEBUG_MOCK_JSON=false</code>,
+          <code>SONY_PRODUCT_API_MODE</code> (<code>mock</code> หรือ <code>live</code>),
+          <code>SONY_PRODUCT_API_BASE_URL</code>,
+          <code>SONY_PRODUCT_API_COUNTRY_CODE</code> (ISO สองตัวพิมพ์เล็ก),
+          <code>SONY_DEMO_LINE_UUID</code>,
+          <code>NEXT_PUBLIC_ACCOUNT_URL</code>,
+          <code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code>
+        </p>
+        <p>
+          <code>SONY_PRODUCT_API_SUBSCRIPTION_KEY</code> จำเป็นเมื่อโหมด <code>live</code>
+          โหมด mock จะเตือนในล็อก CI
+        </p>
+        <p>รันไทม์ App Service: Windows + IIS/iisnode, Node 24 64-bit, HTTPS Only, <code>PORT</code> จากแพลตฟอร์ม, <code>NODE_ENV=production</code> ใน <code>web.config</code></p>
+      </section>
+
+      <section>
+        <h2>Production</h2>
+        <ul>
+          <li>ตั้ง <code>APP_ENV=production</code> — โหมด debug ปิดแม้มี <code>?debug=1</code></li>
+          <li><code>config:check</code> ใช้กฎเดียวกับ UAT (HTTPS, TLS DB, mock JSON ปิด)</li>
+          <li>ควรใช้ seed ชุด <code>db:seed:prod</code> ถ้าต้องการเหรียญ/รูปแบบ dump UAT-prod</li>
+          <li>โดเมน LINE LIFF, APIM, MySQL, App Service ต้องกำหนดนอก Git และไม่ใส่ secret ในเอกสารนี้</li>
+        </ul>
+        <div class="note warn">
+          อย่าชี้ Mini App production ไปที่โดเมน UAT
+          <code>https://stglineminiapp.sony.co.th/</code>
+        </div>
+      </section>
+
+      <section>
+        <h2>สิ่งที่ห้ามทำกับ Configuration</h2>
+        <ul>
+          <li>Commit <code>.env*</code></li>
+          <li>ใส่คีย์ DB, session, LINE server, APIM ใน <code>NEXT_PUBLIC_*</code></li>
+          <li>ปิดการตรวจใบรับรอง TLS ของ MySQL</li>
+          <li>ใส่ <code>http://</code> นำหน้า hostname ใน <code>DATABASE_URL</code></li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

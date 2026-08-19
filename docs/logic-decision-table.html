@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Logic Decision Table</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 920px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .id {
+        white-space: nowrap;
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Logic Decision Table</h1>
+        <p class="lede">
+          ตาราง Input, Condition และผลลัพธ์ที่ระบบต้องออก
+          สำหรับจับคู่ SKU, คำนวณเหรียญ, หน้าต่างวันที่ และข้อผิดพลาดจากการเชื่อมต่อ
+        </p>
+        <p>
+          อ้างอิงพฤติกรรมใน <code>matchesEligibleSku</code>,
+          <code>calculateRuleMatch</code>,
+          <code>buildBadgeExperience</code>,
+          <code>LiveSonyProductsClient</code>
+          และ route <code>/api/customer-products</code>, <code>/api/my-*</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#sku">DT-01 SKU</a></li>
+            <li><a href="#product">DT-02 Product Badge</a></li>
+            <li><a href="#quest">DT-03 Quest match</a></li>
+            <li><a href="#tier">DT-04 Threshold / Tier</a></li>
+            <li><a href="#dates">DT-05 วันที่</a></li>
+            <li><a href="#dup">DT-06 สินค้าซ้ำ</a></li>
+            <li><a href="#sony">DT-07 Sony API</a></li>
+            <li><a href="#api">DT-08 HTTP API</a></li>
+            <li><a href="#session">DT-09 LINE session</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="sku">
+        <h2>DT-01 · จับคู่รหัสรุ่น (SKU match)</h2>
+        <p>
+          Input: <code>modelName</code> จาก warranty (ใช้เป็น sku ภายใน) และรายการรหัสในกฎ
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>ผล: แถวนี้เข้าเงื่อนไขเหรียญหรือไม่</caption>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">SKU-01</td>
+                <td><code>sel2450g</code> vs กฎ <code>SEL2450G</code></td>
+                <td>uppercase + trim แล้วเท่ากัน</td>
+                <td>จับคู่ได้ (match)</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-02</td>
+                <td><code>SEL70200GM/QSYX</code> vs <code>SEL70200GM</code></td>
+                <td>ส่วนที่เหลือเป็น suffix ภูมิภาคที่รู้จัก</td>
+                <td>จับคู่ได้</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-03</td>
+                <td><code>SEL70200GM2QSYX</code> vs <code>SEL70200GM2</code></td>
+                <td>suffix <code>QSYX</code> ติดรหัสโดยไม่มี <code>/</code></td>
+                <td>จับคู่ได้</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-04</td>
+                <td><code>SEL70200GM/QSYX</code> vs <code>SEL70200G</code></td>
+                <td>ส่วนที่เหลือขึ้นต้นด้วย <code>M</code> ไม่ใช่ suffix</td>
+                <td>ไม่จับคู่</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-05</td>
+                <td><code>SEL1635GM2</code> vs <code>SEL2450G</code></td>
+                <td>รหัสคนละรุ่น</td>
+                <td>ไม่จับคู่</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-06</td>
+                <td>รุ่นที่ไม่มีในกฎใดเลย</td>
+                <td>ไม่ตรง Product และไม่ตรง Quest SKU</td>
+                <td>
+                  ไม่ปลดล็อกเหรียญ · ไม่เพิ่ม unique ของ Quest
+                  (ยังอยู่ในรายการถือครองดิบ)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="product">
+        <h2>DT-02 · Product Badge</h2>
+        <p>
+          Input: รายการ warranty ของลูกค้า + กฎ <code>badgeType: product</code>
+          (เกณฑ์ <code>requiredCount = 1</code>)
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">PB-01</td>
+                <td>0 serial ที่จับคู่รุ่นนี้</td>
+                <td>—</td>
+                <td>
+                  Mini App: <code>locked</code> ·
+                  <code>quantity = 0</code> · <code>earnedAt = null</code>
+                </td>
+              </tr>
+              <tr>
+                <td class="id">PB-02</td>
+                <td>1 serial ที่จับคู่ได้</td>
+                <td>อยู่ในหน้าต่างลงทะเบียน (ถ้ามี)</td>
+                <td>
+                  <code>unlocked</code> · <code>quantity = 1</code> ·
+                  ใช้รูป achieved · <code>earnedAt</code> = วันลงทะเบียนนั้น
+                </td>
+              </tr>
+              <tr>
+                <td class="id">PB-03</td>
+                <td>หลาย serial ของรุ่นเดียวกัน</td>
+                <td>ทุกแถวจับคู่รหัสเดียวกัน</td>
+                <td>
+                  ยังเป็นเหรียญเดียว · <code>quantity = n</code> ·
+                  เก็บทุก serial · <code>earnedAt</code> = วันเก่าสุด
+                </td>
+              </tr>
+              <tr>
+                <td class="id">PB-04</td>
+                <td>ถือครอง <code>SEL1224GM</code> อย่างเดียว</td>
+                <td>ไม่มีกฎ product ของรหัสนี้</td>
+                <td>ไม่มีแถว Product Badge · อาจนับใน Wide Architect</td>
+              </tr>
+              <tr>
+                <td class="id">PB-05</td>
+                <td>กฎ <code>isActive = false</code> หรือเลย <code>activeTo</code></td>
+                <td>กฎไม่ผ่าน <code>isRuleActive</code></td>
+                <td>ไม่แสดงเหรียญนี้ในประสบการณ์ Mini App</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="quest">
+        <h2>DT-03 · Quest · นับ unique ตาม matchType</h2>
+        <p>
+          Input: unique รุ่นที่จับคู่รายการ SKU ของเงื่อนไขได้ หลังตัดสินค้าซ้ำตาม
+          <code>normalizeSku</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">Q-01</td>
+                <td><code>any</code>, <code>requiredCount = 1</code>, พูล 2+ รุ่น</td>
+                <td>มีอย่างน้อย 1 unique ในพูล</td>
+                <td>
+                  เงื่อนไขนี้ให้ <code>matchedCount += 1</code>
+                  (เพดาน 1 แม้ถือหลายรุ่นในพูล)
+                </td>
+              </tr>
+              <tr>
+                <td class="id">Q-02</td>
+                <td><code>all</code>, รายการ SKU ความยาว N</td>
+                <td>unique ที่จับคู่ได้ = N</td>
+                <td>เงื่อนไขครบ · บวก N เข้า matched รวม</td>
+              </tr>
+              <tr>
+                <td class="id">Q-03</td>
+                <td><code>all</code>, รายการความยาว N</td>
+                <td>unique &lt; N</td>
+                <td>บวกจำนวนที่มีจริง · ยังไม่ถึงเกณฑ์ชั้น achievement</td>
+              </tr>
+              <tr>
+                <td class="id">Q-04</td>
+                <td><code>min_count</code>, เป้า K จากพูล</td>
+                <td>unique = U</td>
+                <td>
+                  บวก <code>min(U, K ของเงื่อนไข)</code>
+                  ชั้น Bronze/Silver เทียบ U กับเกณฑ์ชั้น ไม่ใช่กับ K เสมอ
+                  (K ใน seed ของ tier = เป้า Gold)
+                </td>
+              </tr>
+              <tr>
+                <td class="id">Q-05</td>
+                <td>Trinity Master · 3 เงื่อนไข any/1</td>
+                <td>ครบ 3 ครอบครัว (GM หรือ GM II อย่างใดอย่างหนึ่งต่อครอบครัว)</td>
+                <td>
+                  <code>matchedCount = 3</code> · achievement earned / ชั้นเดียว achieved
+                </td>
+              </tr>
+              <tr>
+                <td class="id">Q-06</td>
+                <td>Trinity Master</td>
+                <td>มีทั้ง SEL1635GM และ SEL1635GM2 เท่านั้น</td>
+                <td>
+                  <code>matchedCount = 1</code> · ยังไม่ earned
+                </td>
+              </tr>
+              <tr>
+                <td class="id">Q-07</td>
+                <td>All Rounder · min_count 3 จาก 4</td>
+                <td>ถือ 3 รุ่นในพูล</td>
+                <td>earned (achievement)</td>
+              </tr>
+              <tr>
+                <td class="id">Q-08</td>
+                <td>F2 Master / Trinity Junior · <code>all</code></td>
+                <td>ขาดอย่างน้อย 1 รุ่นบังคับ</td>
+                <td>ไม่ earned · Mini App ชั้นเดียว locked หรือ in-progress ตามจำนวน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tier">
+        <h2>DT-04 · Threshold และสถานะชั้น (Tier)</h2>
+        <p>
+          Input: <code>matchedCount</code> ของ Quest และรายการ threshold เรียงตาม
+          <code>requiredCount</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">T-01</td>
+                <td>matchedCount = 0</td>
+                <td>—</td>
+                <td>
+                  Engine: <code>no-badge</code> ·
+                  Mini App ทุกชั้น <code>locked</code> ·
+                  <code>highestEarnedTier = null</code>
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-02</td>
+                <td>0 &lt; matchedCount &lt; เกณฑ์ชั้นแรก</td>
+                <td>เช่น Portrait unique = 1, Bronze = 2</td>
+                <td>
+                  Engine: <code>locked</code> ·
+                  Mini App ชั้นแรก <code>in-progress</code> ที่เหลือ locked
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-03</td>
+                <td>matchedCount ≥ Bronze และ &lt; Silver</td>
+                <td>เช่น Portrait = 2</td>
+                <td>
+                  Bronze <code>achieved</code> · Silver <code>in-progress</code> ·
+                  Gold locked · engine <code>earned</code> ที่ระดับ bronze
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-04</td>
+                <td>matchedCount ≥ Gold</td>
+                <td>เช่น Portrait ≥ 4, Wide ≥ 5, Visionary ≥ 4</td>
+                <td>
+                  Bronze+Silver+Gold ทั้งหมด <code>achieved</code> ·
+                  ไม่มีชั้น in-progress
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-05</td>
+                <td>แสดง progress รายชั้น</td>
+                <td>matchedCount เกินเกณฑ์ชั้นนั้น</td>
+                <td>
+                  UI ใช้ <code>min(matchedCount, requiredCount)</code>
+                  ของชั้นนั้น
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-06</td>
+                <td>Quest achievement ชั้นเดียว</td>
+                <td>matchedCount ≥ requiredCount ของ threshold เดียว</td>
+                <td>ชั้นนั้น achieved · ไม่มีเส้นทางเลื่อนโลหะ</td>
+              </tr>
+              <tr>
+                <td class="id">T-07</td>
+                <td>รอบถัดไป Sony ส่งรุ่นน้อยลง</td>
+                <td>matchedCount ต่ำกว่าเกณฑ์ที่เคยถึง</td>
+                <td>
+                  คำนวณใหม่ตามข้อมูลปัจจุบัน ไม่ persist ชั้นเก่า
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="dates">
+        <h2>DT-05 · หน้าต่างวันที่ (Date windows)</h2>
+        <p>
+          ชุด seed ปัจจุบันเป็น null ทั้งช่วงแสดงผลและช่วงลงทะเบียน
+          แถวด้านล่างคือพฤติกรรมเมื่อมีการตั้งค่าในฐานข้อมูล
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">D-01</td>
+                <td>
+                  <code>activeFrom</code> / <code>activeTo</code> = null,
+                  <code>isActive = true</code>
+                </td>
+                <td>now เท่าใดก็ได้</td>
+                <td>กฎถูกใช้คำนวณ</td>
+              </tr>
+              <tr>
+                <td class="id">D-02</td>
+                <td>now อยู่ก่อน <code>activeFrom</code> หรือหลัง <code>activeTo</code></td>
+                <td>หรือ <code>isActive = false</code></td>
+                <td>ซ่อนกฎทั้งก้อน (รายการเหรียญว่างสำหรับกฎนั้น)</td>
+              </tr>
+              <tr>
+                <td class="id">D-03</td>
+                <td>สินค้าลงทะเบียนใน <code>registrationStart</code>–<code>End</code></td>
+                <td>now เลยช่วงลงทะเบียน แต่ยังอยู่ในช่วงแสดงผล</td>
+                <td>ยังนับสินค้าชิ้นนั้น และยังถือเหรียญที่ได้แล้ว</td>
+              </tr>
+              <tr>
+                <td class="id">D-04</td>
+                <td>สินค้าลงทะเบียนหลัง <code>registrationEnd</code></td>
+                <td>—</td>
+                <td>ไม่นับชิ้นนั้นในกฎนี้</td>
+              </tr>
+              <tr>
+                <td class="id">D-05</td>
+                <td><code>registeredAt</code> ว่างหรือ parse เป็นวันที่ไม่ได้</td>
+                <td><code>isWithinDateWindow</code></td>
+                <td>ไม่นับแถวนี้</td>
+              </tr>
+              <tr>
+                <td class="id">D-06</td>
+                <td><code>warrantyExpiryDate</code> ใดๆ</td>
+                <td>—</td>
+                <td>ไม่มีผลต่อการปลดล็อก</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="dup">
+        <h2>DT-06 · สินค้าซ้ำ (Duplicates)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">DUP-01</td>
+                <td>สอง serial รหัสเดียวกัน (ตัวพิมพ์ต่างกันถือว่ารุ่นเดียว)</td>
+                <td>—</td>
+                <td>
+                  Product: quantity 2 · Quest: unique 1 ไม่เลื่อนชั้นจาก serial ที่สอง
+                </td>
+              </tr>
+              <tr>
+                <td class="id">DUP-02</td>
+                <td>GM และ GM II ในครอบครัว Trinity เดียวกัน</td>
+                <td>เงื่อนไข any เพดาน 1</td>
+                <td>สอง Product Badge · Quest ครอบครัวนั้นนับ 1</td>
+              </tr>
+              <tr>
+                <td class="id">DUP-03</td>
+                <td>
+                  <code>SEL35F14GM</code> และ <code>SEL35F14GM/QSYX</code>
+                </td>
+                <td>กุญแจ unique ไม่ยุบ suffix</td>
+                <td>
+                  Product ของรหัสฐาน: quantity รวมทั้งคู่ ·
+                  Quest min_count: นับ 2 unique
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="sony">
+        <h2>DT-07 · Sony warranty API (โหมด live)</h2>
+        <p>Input: HTTP status + JSON body ของ <code>QueryWarrantyMySonyByLine</code></p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">S-01</td>
+                <td>HTTP 200, <code>prodDetails</code> เป็นอาร์เรย์</td>
+                <td>ทุกแถวมี <code>modelName</code> และ <code>registrationDate</code> เป็นสตริง</td>
+                <td>
+                  ได้รายการสินค้า · serial ว่างได้ · ละ <code>warrantyExpiryDate</code>
+                </td>
+              </tr>
+              <tr>
+                <td class="id">S-02</td>
+                <td>HTTP 200, <code>prodDetails: []</code></td>
+                <td>พบลูกค้าแต่ไม่มีสินค้า</td>
+                <td>คำนวณเหรียญทั้งหมด locked / no-badge ไม่ใช่ 404</td>
+              </tr>
+              <tr>
+                <td class="id">S-03</td>
+                <td>HTTP 404</td>
+                <td>—</td>
+                <td>โยน <code>CUSTOMER_NOT_FOUND</code></td>
+              </tr>
+              <tr>
+                <td class="id">S-04</td>
+                <td>HTTP อื่นที่ไม่ใช่ 2xx</td>
+                <td>รวม 401/403/5xx</td>
+                <td>โยน <code>SONY_PRODUCT_API_ERROR</code></td>
+              </tr>
+              <tr>
+                <td class="id">S-05</td>
+                <td>HTTP 200 แต่ไม่มีอาร์เรย์ <code>prodDetails</code></td>
+                <td>และไม่ใช่รูปแบบ customer/products สำรอง</td>
+                <td><code>SONY_PRODUCT_API_ERROR</code></td>
+              </tr>
+              <tr>
+                <td class="id">S-06</td>
+                <td>แถวใดแถวหนึ่งขาด modelName หรือ registrationDate</td>
+                <td>—</td>
+                <td>ทิ้งทั้ง payload เป็น <code>SONY_PRODUCT_API_ERROR</code></td>
+              </tr>
+              <tr>
+                <td class="id">S-07</td>
+                <td>ไม่มี subscription key / fetch ล้ม</td>
+                <td>ไม่มีรหัส TIMEOUT ในแอป</td>
+                <td>
+                  <code>SONY_PRODUCT_API_ERROR</code> หรือ
+                  <code>UNKNOWN_ERROR</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="api">
+        <h2>DT-08 · ผลลัพธ์ HTTP ตามพื้นผิว API</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">A-01</td>
+                <td><code>GET /api/customer-products</code></td>
+                <td>ไม่มีเซสชันที่ตรวจแล้ว</td>
+                <td>401 <code>UNAUTHORIZED</code></td>
+              </tr>
+              <tr>
+                <td class="id">A-02</td>
+                <td>customer-products</td>
+                <td>Sony 404</td>
+                <td>404 <code>CUSTOMER_NOT_FOUND</code> + เขียน calculation log</td>
+              </tr>
+              <tr>
+                <td class="id">A-03</td>
+                <td>customer-products</td>
+                <td>Sony/DB error อื่น</td>
+                <td>500 รหัสปลอดภัย + เขียน log error</td>
+              </tr>
+              <tr>
+                <td class="id">A-04</td>
+                <td>customer-products สำเร็จ + cache headers ตรง</td>
+                <td>debug ปิด</td>
+                <td>200 <code>cacheStatus: hit</code> ไม่ส่งรายการเหรียญเต็ม</td>
+              </tr>
+              <tr>
+                <td class="id">A-05</td>
+                <td>
+                  <code>GET /api/my-products</code> หรือ
+                  <code>/api/my-missions</code>
+                </td>
+                <td>ไม่มี <code>lineuuid</code></td>
+                <td>200 แคตตาล็อกล็อก (ไม่เรียก Sony)</td>
+              </tr>
+              <tr>
+                <td class="id">A-06</td>
+                <td>my-products / my-missions</td>
+                <td>Sony ล้ม แต่โหลดกฎได้</td>
+                <td>200 แคตตาล็อกล็อก (ดูเหมือนยังไม่มีเหรียญ)</td>
+              </tr>
+              <tr>
+                <td class="id">A-07</td>
+                <td><code>GET /api/my-badges</code></td>
+                <td>Sony หรือคำนวณล้ม</td>
+                <td>500 JSON error · หน้าบ้านวิวว่าง</td>
+              </tr>
+              <tr>
+                <td class="id">A-08</td>
+                <td>
+                  <code>/api/my-products/[id]</code>
+                  หรือ mission detail
+                </td>
+                <td>รหัสไม่อยู่ในกฎ หรือยังไม่ปลดล็อก (product detail)</td>
+                <td>404 <code>NOT_FOUND</code></td>
+              </tr>
+              <tr>
+                <td class="id">A-09</td>
+                <td><code>GET /api/health</code></td>
+                <td>โปรเซสตอบได้</td>
+                <td>200 <code>{ status: "ok" }</code> ไม่ตรวจ Sony/DB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Mini App <code>/api/my-*</code> ไม่ตรวจคุกกี้เซสชัน
+          ใครส่ง <code>lineuuid</code> ได้ถือเป็น input ของการคำนวณ
+        </div>
+      </section>
+
+      <section id="session">
+        <h2>DT-09 · LINE session</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">L-01</td>
+                <td><code>POST /api/line-session</code> ไม่มี idToken</td>
+                <td>—</td>
+                <td>400 <code>MISSING_ID_TOKEN</code></td>
+              </tr>
+              <tr>
+                <td class="id">L-02</td>
+                <td>LINE verify ไม่ผ่าน หรือ aud/sub ไม่ถูกต้อง</td>
+                <td>—</td>
+                <td>401 <code>UNAUTHORIZED</code> ไม่ตั้งคุกกี้</td>
+              </tr>
+              <tr>
+                <td class="id">L-03</td>
+                <td>verify ผ่าน</td>
+                <td>—</td>
+                <td>
+                  200 <code>{ ok: true }</code> + คุกกี้
+                  <code>sony_line_session</code> HttpOnly 1 ชั่วโมง
+                </td>
+              </tr>
+              <tr>
+                <td class="id">L-04</td>
+                <td>LIFF ไม่ได้เปิดใน LINE client / ไม่มี ID token</td>
+                <td>ฝั่งไคลเอนต์</td>
+                <td>throw ข้อความให้เปิดจาก Mini App · ไม่เรียก Sony</td>
+              </tr>
+              <tr>
+                <td class="id">L-05</td>
+                <td><code>getProfile</code> ล้ม</td>
+                <td>—</td>
+                <td>โปรไฟล์เป็น null · เซสชันยังสร้างได้ถ้า verify ผ่าน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

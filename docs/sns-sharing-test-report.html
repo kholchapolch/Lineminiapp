@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SNS Sharing Test Report</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --ok: #198754; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+      .pass { color: var(--ok); font-weight: 700; }
+      .gap { color: var(--warn); font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>SNS Sharing Test Report</h1>
+        <p class="lede">
+          ผลทดสอบปุ่มแชร์ Preview, รูปภาพ, ข้อความ, URL และการยกเลิกแชร์
+        </p>
+        <p>
+          Vitest <code>absolute-url.test.ts</code> ผ่าน (9 tests, 19 Aug 2026)
+          ไม่มีเทสคอมโพเนนต์ปุ่ม และไม่มี e2e เปิด Facebook / share sheet
+        </p>
+      </header>
+
+      <section>
+        <h2>ปุ่มแชร์</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>ผลที่คาด</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>B-01</td>
+                <td>มี URL รูปที่ encode แล้ว</td>
+                <td>ปุ่ม FacebookShareButton กดได้</td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>B-02</td>
+                <td>สร้าง URL ไม่ได้ / ว่าง</td>
+                <td>ปุ่ม disabled</td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>B-03</td>
+                <td>กำลังแชร์</td>
+                <td>disabled จนจบ attempt</td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>B-04</td>
+                <td>สินค้าล็อก / ภารกิจไม่ครบ</td>
+                <td>ไม่มีปุ่มบนจอ</td>
+                <td class="gap">Specified</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>URL และรูป</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>หลักฐาน</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>U-01</td>
+                <td>path สัมพัทธ์ประกอบกับ base</td>
+                <td>toAbsoluteUrl /badges/…png</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>U-02</td>
+                <td>เว้นวรรคและ &amp; ใน path ถูก encode</td>
+                <td>Product Badge / Wide &amp; Normal…</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>U-03</td>
+                <td>ไม่มีช่องว่างดิบใน share URL</td>
+                <td>toShareableAssetUrl</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>U-04</td>
+                <td>Facebook sharer ใช้ %252520 สำหรับช่องว่างใน path</td>
+                <td>toFacebookSharerUrl ตัวอย่าง Macro Lens</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>U-05</td>
+                <td>URL ว่างหรือยังมีช่องว่างดิบ</td>
+                <td>toFacebookSharerUrl คืน null</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>U-06</td>
+                <td>กดแชร์แล้ว Facebook แสดงรูป PNG</td>
+                <td>ต้องเปิด sharer/crawler จริง</td>
+                <td class="gap">Not automated</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>ข้อความและ Preview</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>ผลที่คาด</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>P-01</td>
+                <td>Web Share / sharer จากปุ่ม</td>
+                <td>ไม่มี caption จากแอป — อาจเห็นแค่ลิงก์รูป</td>
+                <td class="gap">Specified · ไม่มี e2e preview</td>
+              </tr>
+              <tr>
+                <td>P-02</td>
+                <td>OG หน้า /share เมื่อมีกฎ</td>
+                <td>title/description คงที่ + og:image รูปเหรียญ</td>
+                <td class="gap">Specified (ไม่มีเทส generateMetadata)</td>
+              </tr>
+              <tr>
+                <td>P-03</td>
+                <td>Facebook Sharing Debugger กับ URL รูป vs URL หน้า share</td>
+                <td>คนละผล preview</td>
+                <td class="gap">ต้องทำมือตอน UAT</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>การยกเลิกแชร์</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>ผลที่คาดในโค้ด</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>C-01</td>
+                <td>ผู้ใช้ปิด share sheet (AbortError)</td>
+                <td>
+                  <code>shareWithNavigator</code> คืน true
+                  ไม่เปิด Facebook sharer ต่อ
+                </td>
+                <td class="gap">Specified (ไม่มีเทส DOMException)</td>
+              </tr>
+              <tr>
+                <td>C-02</td>
+                <td>ผู้ใช้ปิดแท็บ Facebook หลัง openWindow</td>
+                <td>แอปไม่ได้รับ callback — กลับ Mini App ตาม LIFF</td>
+                <td class="gap">Not automated</td>
+              </tr>
+              <tr>
+                <td>C-03</td>
+                <td>navigator.share ล้มที่ไม่ใช่ยกเลิก</td>
+                <td>log แล้วตกลงไปเปิด Facebook sharer</td>
+                <td class="gap">Specified</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          UAT ที่ควรทำบน iPhone ที่มีแอป Facebook: กดแชร์แล้วต้องขึ้น share sheet ไม่ใช่ลิงก์ sharer ที่พัง
+          และกดยกเลิกแล้วต้องไม่เด้ง Facebook ซ้ำ
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
