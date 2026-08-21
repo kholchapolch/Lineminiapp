@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Digital Badge Release Coordination</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      h3 { margin-top: 18px; font-size: 20px; }
+      p { margin: 0 0 14px; }
+      ol, ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      pre { margin: 0 0 14px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: #101923; color: #f7fbff; padding: 16px; font-size: 13px; line-height: 1.5; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Digital Badge Release Coordination</h1>
+        <p class="lede">
+          การประสานงานปล่อย Digital Badge (LINE Mini App)
+          ลำดับงาน ฝ่ายที่เกี่ยวข้อง และเกณฑ์ Go / No-Go
+        </p>
+        <p>
+          อิงจากสิ่งที่มีในรีโป: แอป Next.js, seed/migrate MySQL,
+          workflow UAT ไป App Service <code>mysonybadgestg</code>
+          Production ยังไม่มี pipeline ใน Git — ประสานตามหลักเดียวกับ UAT เมื่อมีโฮสต์
+        </p>
+      </header>
+
+      <section>
+        <h2>ขอบเขตที่ต้องประสานพร้อมกัน</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>สายงาน</th>
+                <th>สิ่งที่ต้องพร้อม</th>
+                <th>หมายเหตุจากรีโป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>แอป Mini App</td>
+                <td>โค้ดที่ build ผ่าน, package Windows (<code>server.js</code>, <code>web.config</code>)</td>
+                <td>Deploy อัตโนมัติเมื่อ push สาขาตาม workflow (ปัจจุบัน <code>dev</code>)</td>
+              </tr>
+              <tr>
+                <td>Configuration / Secret</td>
+                <td>
+                  <code>UAT_ENV_FILE</code> (หรือ env โปรดักชันเมื่อมี),
+                  publish profile, LIFF / APIM / DB
+                </td>
+                <td><code>NEXT_PUBLIC_*</code> ต้องมีตอน build — แก้ทีหลังอย่างเดียวไม่พอ</td>
+              </tr>
+              <tr>
+                <td>ฐานข้อมูลกฎเหรียญ</td>
+                <td>migrate + seed + verify, ค่า <code>badge_rules_version</code></td>
+                <td>ไม่ได้อยู่ใน GitHub Actions — รันจากโฮสต์ที่เข้า MySQL ได้</td>
+              </tr>
+              <tr>
+                <td>สินทรัพย์รูปเหรียญ</td>
+                <td>
+                  ไฟล์ใน <code>/product-badge/</code>, <code>/quest-badge/</code>
+                  หรือ URL blob ตามชุด seed
+                </td>
+                <td>ชุด default กับชุด prod คนละรูปแบบ path</td>
+              </tr>
+              <tr>
+                <td>LINE LIFF</td>
+                <td>Endpoint URL, Channel / LIFF ID ตรง env</td>
+                <td>ต้อง HTTPS ของโดเมนแอป</td>
+              </tr>
+              <tr>
+                <td>Sony warranty APIM</td>
+                <td>โหมด <code>live</code> หรือ <code>mock</code>, subscription key เมื่อ live</td>
+                <td>คีย์ไม่ commit</td>
+              </tr>
+              <tr>
+                <td>Azure App Service / เครือข่าย</td>
+                <td>HTTPS, Access Restrictions, health path</td>
+                <td>IP นอก allowlist ได้ 403 — ไม่ใช่แอปพัง</td>
+              </tr>
+              <tr>
+                <td>ธุรกิจ / UAT บน LINE</td>
+                <td>บัญชีทดสอบ, เคสปลดล็อกเหรียญ, แชร์, ลงทะเบียนสินค้า</td>
+                <td>ไม่มี e2e ใน CI</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          รายชื่อบุคคลและช่องทางติดต่อไม่อยู่ใน Git
+          กรอกผู้ประสานหลักในวิกิภายในตอนส่งมอบ
+        </div>
+      </section>
+
+      <section>
+        <h2>ลำดับที่แนะนำ (ไม่สลับแอปกับกฎโดยไม่ตั้งใจ)</h2>
+        <pre>1. ล็อกขอบเขตรีลีส + Release Note
+2. สำรองตารางกฎ (ถ้าจะ seed)
+3. ยืนยัน env / LIFF / APIM / โดเมน (config:check ผ่านตอน build)
+4. Deploy แอป (Actions) — จด Git SHA
+5. Migrate / seed / verify ฐาน (ถ้ากฎเปลี่ยน) — จด badge_rules_version
+6. อัปเดต LIFF endpoint ถ้าโดเมนหรือ path เปลี่ยน
+7. Verify จาก IP ที่อนุญาต + เปิดใน LINE
+8. บันทึก Deployment Record + ตัดสิน Go / No-Go
+9. ถ้า No-Go: rollback แอป และ/หรือ restore กฎ ตามแผนสำรอง</pre>
+        <p>
+          ถ้าเปลี่ยนแค่ UI โดยไม่เปลี่ยนกฎ ข้ามขั้น seed ได้
+          ถ้าเปลี่ยนแค่กฎโดยไม่เปลี่ยนแอป ยังต้อง bump
+          <code>badge_rules_version</code> เพื่อให้แคชฝั่งไคลเอนต์หมดอายุ
+        </p>
+      </section>
+
+      <section>
+        <h2>Checklist ก่อนปล่อย (Go / No-Go)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ติ๊กนอก Git หลังทำจริง — อย่าใส่ secret ในช่องหมายเหตุ</caption>
+            <thead>
+              <tr>
+                <th>ข้อ</th>
+                <th>ผ่านเมื่อ</th>
+                <th>Go?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>CI build</td>
+                <td>
+                  <code>config:check</code>, <code>db:seed:sql:check</code>,
+                  test, lint, build ผ่าน
+                </td>
+                <td>☐</td>
+              </tr>
+              <tr>
+                <td>Deploy แอป</td>
+                <td>webapps-deploy สำเร็จ และมี SHA ใน Actions</td>
+                <td>☐</td>
+              </tr>
+              <tr>
+                <td>Smoke HTTP</td>
+                <td>
+                  <code>/api/health</code> มี <code>runtime":"nodejs"</code>
+                  และ <code>/deployment-check.html</code> มีข้อความ smoke
+                  (หรือรู้แล้วว่า 403 เป็น Access Restriction)
+                </td>
+                <td>☐</td>
+              </tr>
+              <tr>
+                <td>กฎในฐาน</td>
+                <td>
+                  <code>db:verify</code> / <code>db:verify:prod</code> ตามชุดที่ตั้งใจ
+                  และเวอร์ชันตรงที่บันทึก
+                </td>
+                <td>☐</td>
+              </tr>
+              <tr>
+                <td>LIFF ใน LINE</td>
+                <td>เปิด Mini App ได้, สร้างเซสชัน, หน้าโฮมของ user โหลดเหรียญ</td>
+                <td>☐</td>
+              </tr>
+              <tr>
+                <td>Sony ข้อมูลสินค้า</td>
+                <td>โหมดที่ตกลง (mock/live) ให้ผลตรงบัญชีทดสอบ</td>
+                <td>☐</td>
+              </tr>
+              <tr>
+                <td>รูป / แชร์</td>
+                <td>รูปเหรียญขึ้น, ปุ่มแชร์กดได้บนอุปกรณ์เป้าหมาย</td>
+                <td>☐</td>
+              </tr>
+              <tr>
+                <td>เอกสารรีลีส</td>
+                <td>Release Note + Deployment Record กรอก SHA / วันที่ / ผู้ดำเนินการ</td>
+                <td>☐</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          No-Go ถ้า CI ไม่ผ่าน, health ไม่ขึ้นจากเครือข่ายที่อนุญาต,
+          กฎในฐานไม่ตรงชุดที่ตั้งใจ, หรือเปิดใน LINE ไม่ได้สร้างเซสชัน
+        </div>
+      </section>
+
+      <section>
+        <h2>จุดที่มักหลุดตอนประสาน</h2>
+        <ul>
+          <li>
+            Deploy แอปแล้วแต่ยังไม่ seed — ผู้ใช้เห็นกฎเก่าหรือตารางไม่ครบ
+          </li>
+          <li>
+            Seed ชุด default ทับฐานที่ต้องมีเหรียญ <code>SEL1224GM</code> (ชุด prod)
+          </li>
+          <li>
+            แก้เฉพาะ App Service setting แต่ไม่ rebuild — ค่า
+            <code>NEXT_PUBLIC_*</code> ในคลายเอนต์ไม่เปลี่ยน
+          </li>
+          <li>
+            เปลี่ยนโดเมนแล้วไม่อัปเดต LIFF endpoint /
+            <code>APP_BASE_URL</code> /
+            <code>ALLOWED_ORIGINS</code>
+          </li>
+          <li>
+            ทดสอบจาก IP นอก allowlist แล้วสรุปว่าแอปพัง
+          </li>
+          <li>
+            สมมติว่า push ไป <code>main</code> จะขึ้น UAT ทั้งที่ YAML ทริกเกอร์ที่
+            <code>dev</code>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>สิ่งที่ต้องบันทึกหลังปล่อย</h2>
+        <ul>
+          <li>สภาพแวดล้อม (UAT / Production)</li>
+          <li>วันที่–เวลา, ผู้ประสานหลัก, Git SHA</li>
+          <li>รัน DB หรือไม่ — ค่า <code>badge_rules_version</code></li>
+          <li>โหมด Sony (<code>mock</code> / <code>live</code>) โดยไม่ใส่คีย์</li>
+          <li>ผล smoke และผลทดสอบใน LINE สั้นๆ</li>
+          <li>ถ้า rollback: SHA / dump ที่ใช้ย้อน</li>
+        </ul>
+        <p>
+          ใช้แม่แบบใน Deployment Record และเนื้อหาใน Release Note เป็นต้นทาง
+          อย่า commit secret หรือ LINE ID ดิบในบันทึกสาธารณะ
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

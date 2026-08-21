@@ -16,7 +16,7 @@
         --accent-soft: #e8f0ff;
         --ok: #198754;
         --warn: #b55b00;
-        --fail: #c1121f;
+        --risk: #c1121f;
       }
 
       * {
@@ -166,8 +166,8 @@
         font-weight: 700;
       }
 
-      .fail {
-        color: var(--fail);
+      .risk {
+        color: var(--risk);
         font-weight: 700;
       }
 
@@ -246,7 +246,7 @@
             สำเร็จ · ข้อมูลซ้ำ · ไม่พบลูกค้า (mock) · SKU นอกแคตตาล็อก
           </div>
           <div class="box">
-            <strong class="pass">ผ่านบางส่วน (Partial)</strong>
+            <strong class="pass">ต้องติดตาม</strong>
             ข้อมูลไม่ครบ — mock กับ live ต่างกัน
           </div>
           <div class="box">
@@ -280,7 +280,7 @@
               </tr>
               <tr>
                 <td>ข้อมูลไม่ครบ (Incomplete data)</td>
-                <td class="gap">Partial</td>
+                <td class="gap">ต้องติดตาม</td>
                 <td>
                   mock: <code>demo-line-missing-data</code> ·
                   live: บังคับ <code>modelName</code> + <code>registrationDate</code>
@@ -522,7 +522,7 @@
         <h3>IT-20 · พฤติกรรมต่างกันตาม API ผิว</h3>
         <div class="tableWrap">
           <table>
-            <caption>เมื่อ Sony ล้มเหลว (When Sony fails)</caption>
+            <caption>เมื่อ Sony ล้มเหลว (When Sony has errors)</caption>
             <thead>
               <tr>
                 <th>Endpoint</th>

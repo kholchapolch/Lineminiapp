@@ -16,7 +16,7 @@
         --accent-soft: #e8f0ff;
         --ok: #198754;
         --warn: #b55b00;
-        --fail: #c1121f;
+        --risk: #c1121f;
       }
 
       * {
@@ -209,7 +209,7 @@
           <ul class="toc">
             <li><a href="#policy">นโยบาย (Policy)</a></li>
             <li><a href="#retry">Retry</a></li>
-            <li><a href="#flow">ลำดับเมื่อล้มเหลว (Failure flow)</a></li>
+            <li><a href="#flow">ลำดับเมื่อล้มเหลว (Error flow)</a></li>
             <li><a href="#codes">รหัสข้อผิดพลาด (Error codes)</a></li>
             <li><a href="#surfaces">พฤติกรรมต่อ API</a></li>
             <li><a href="#logs">การบันทึก Log</a></li>
@@ -316,7 +316,7 @@
       </section>
 
       <section id="flow">
-        <h2>ลำดับเมื่อเชื่อมต่อไม่สำเร็จ (Failure flow)</h2>
+        <h2>ลำดับเมื่อเชื่อมต่อไม่สำเร็จ (Error flow)</h2>
         <h3>Sony warranty (INT-04)</h3>
         <pre class="flow">getCustomerProducts(lineId)
   │
