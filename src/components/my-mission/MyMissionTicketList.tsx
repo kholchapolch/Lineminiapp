@@ -5,7 +5,6 @@ import type { MissionTicket } from "@/lib/my-mission/types";
 type MyMissionTicketListProps = {
   tickets: MissionTicket[];
   title: string;
-  productCodeLabel: string;
   completedLabel: string;
   detailsLabel: string;
 };
@@ -13,7 +12,6 @@ type MyMissionTicketListProps = {
 export function MyMissionTicketList({
   tickets,
   title,
-  productCodeLabel,
   completedLabel,
   detailsLabel,
 }: MyMissionTicketListProps): JSX.Element {
@@ -25,9 +23,7 @@ export function MyMissionTicketList({
           <li className="myMissionTicketList__item" key={ticket.id}>
             <div className="myMissionTicketList__product">
               <img src={ticket.imageUrl} alt="" />
-              <span>
-                {productCodeLabel} {ticket.productCode}
-              </span>
+              <span>{ticket.title}</span>
             </div>
             {ticket.status === "completed" ? (
               <span className="myMissionTicketList__status">{completedLabel}</span>

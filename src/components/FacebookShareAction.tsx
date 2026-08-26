@@ -3,7 +3,11 @@
 import { useEffect, useState, type MouseEvent } from "react";
 import { FacebookShareButton } from "react-share";
 import { FacebookIcon } from "@/components/icons/FacebookIcon";
-import { getPublicAppBaseUrl, toShareableAssetUrl } from "@/lib/absolute-url";
+import {
+  getPublicAppBaseUrl,
+  toFacebookSharerUrl,
+  toShareableAssetUrl,
+} from "@/lib/absolute-url";
 import { getCurrentLiffClient } from "@/lib/liff-session";
 
 type FacebookShareActionProps = {
@@ -31,17 +35,26 @@ export function FacebookShareAction({
     .filter(Boolean)
     .join(" ");
   const disabled = !shareUrl || isSharing;
+  const sharerUrl = toFacebookSharerUrl(shareUrl) ?? "";
 
   async function handleShare(
     _event: MouseEvent<HTMLButtonElement>,
     link: string,
   ) {
-    if (!shareUrl || !link || isSharing) {
+    if (!shareUrl || isSharing) {
       return;
     }
 
-    if (/\s/.test(shareUrl) || /\s/.test(link)) {
-      console.error("Refusing to share URL with raw spaces:", shareUrl || link);
+    const facebookLink = toFacebookSharerUrl(shareUrl) ?? link;
+    if (!facebookLink) {
+      return;
+    }
+
+    if (/\s/.test(shareUrl) || /\s/.test(facebookLink)) {
+      console.error(
+        "Refusing to share URL with raw spaces:",
+        shareUrl || facebookLink,
+      );
       return;
     }
 
@@ -59,7 +72,7 @@ export function FacebookShareAction({
 
       const liff = await getCurrentLiffClient();
       if (liff.isInClient() && typeof liff.openWindow === "function") {
-        liff.openWindow({ url: link, external: true });
+        liff.openWindow({ url: facebookLink, external: true });
         return;
       }
     } catch {
@@ -68,13 +81,13 @@ export function FacebookShareAction({
       setIsSharing(false);
     }
 
-    const opened = window.open(link, "_blank", "noopener,noreferrer");
+    const opened = window.open(facebookLink, "_blank", "noopener,noreferrer");
     if (!opened) {
-      window.location.assign(link);
+      window.location.assign(facebookLink);
     }
   }
 
-  if (!shareUrl) {
+  if (!shareUrl || !sharerUrl) {
     return (
       <button type="button" className={classes} disabled aria-label={label}>
         <span className="sonyButton__icon">

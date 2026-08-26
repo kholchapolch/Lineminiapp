@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Error Handling &amp; Retry Flow</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+        --fail: #c1121f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .flow {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.55;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        margin: 0 0 14px;
+        white-space: pre;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .none {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      .ok {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .skip {
+        color: var(--muted);
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Error Handling &amp; Retry Flow</h1>
+        <p class="lede">
+          วิธีจัดการเมื่อเชื่อมต่อไม่สำเร็จ การ Retry และการบันทึก Log
+          ของ LINE, Sony APIM, MySQL และ Mini App API
+        </p>
+        <p>
+          สถานะปัจจุบัน: <strong>ไม่มีการ retry / backoff ในแอป</strong>
+          แต่ละการเรียกภายนอกเป็นครั้งเดียว (single attempt)
+          ความล้มเหลวถูก map เป็นรหัสปลอดภัย หรือแสดงแคตตาล็อกล็อก
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#policy">นโยบาย (Policy)</a></li>
+            <li><a href="#retry">Retry</a></li>
+            <li><a href="#flow">ลำดับเมื่อล้มเหลว (Failure flow)</a></li>
+            <li><a href="#codes">รหัสข้อผิดพลาด (Error codes)</a></li>
+            <li><a href="#surfaces">พฤติกรรมต่อ API</a></li>
+            <li><a href="#logs">การบันทึก Log</a></li>
+            <li><a href="#gaps">ช่องว่าง (Gaps)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="policy">
+        <h2>นโยบาย (Policy)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>ไม่เปิดเผยรายละเอียดภายใน</strong>
+            JSON สาธารณะใช้ <code>toSafeError</code>
+            ข้อความทั่วไป เช่น “temporarily unavailable”
+            ไม่ส่ง stack, token, หรือ serial
+          </div>
+          <div class="box">
+            <strong>ไม่ retry อัตโนมัติ</strong>
+            ไม่มี loop, ไม่มี exponential backoff, ไม่มี queue
+            ผู้ใช้ต้องโหลดหน้าใหม่ หรือเข้าหน้าอีกครั้ง
+          </div>
+          <div class="box">
+            <strong>สองแบบการตอบผู้ใช้</strong>
+            <code>/api/customer-products</code> ส่ง HTTP error ·
+            <code>/api/my-products</code> และรายการภารกิจส่วนใหญ่
+            พยายามคืนหน้าล็อกแทน
+          </div>
+        </div>
+        <p>
+          การเชื่อมต่อที่อาจล้ม: LIFF init, LINE verify ID token, Sony
+          <code>QueryWarrantyMySonyByLine</code>, MySQL กฎเหรียญ
+          ไม่มี webhook / job ที่ retry ภายหลัง
+        </p>
+      </section>
+
+      <section id="retry">
+        <h2>Retry</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>สิ่งที่มีและไม่มี (What exists)</caption>
+            <thead>
+              <tr>
+                <th>ชั้น (Layer)</th>
+                <th>Retry ในโค้ด</th>
+                <th>พฤติกรรมจริง (Actual behavior)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sony APIM <code>fetch</code></td>
+                <td class="none">ไม่มี</td>
+                <td>
+                  ครั้งเดียว · ไม่มี <code>AbortSignal</code> · ไม่มี timeout ในแอป
+                </td>
+              </tr>
+              <tr>
+                <td>LINE verify ID token</td>
+                <td class="none">ไม่มี</td>
+                <td>
+                  HTTP ไม่สำเร็จ → <code>UNAUTHORIZED</code> ทันที
+                </td>
+              </tr>
+              <tr>
+                <td>LIFF <code>liff.init</code></td>
+                <td class="ok">รีเซ็ต promise เมื่อล้ม</td>
+                <td>
+                  ครั้งถัดไปที่เรียก <code>getCurrentLiffClient</code> จะ init ใหม่
+                  ไม่ใช่ retry ภายในครั้งเดียว
+                </td>
+              </tr>
+              <tr>
+                <td>ไคลเอนต์ Mini App</td>
+                <td class="none">ไม่มีปุ่ม retry อัตโนมัติ</td>
+                <td>
+                  <code>useLineSessionData</code> fetch ครั้งเดียวต่อ
+                  <code>lineUuid</code> · ยกเลิกด้วย AbortController เมื่อ unmount
+                </td>
+              </tr>
+              <tr>
+                <td>MySQL pool</td>
+                <td class="skip">ไม่ใช่ retry ของธุรกิจ</td>
+                <td>
+                  <code>waitForConnections: true</code>,
+                  <code>connectionLimit: 10</code>
+                  คิวรอ connection ในพูล ไม่ลอง query ซ้ำเมื่อ query ล้ม
+                </td>
+              </tr>
+              <tr>
+                <td>เขียน <code>badge_calculation_logs</code></td>
+                <td class="none">ไม่ retry</td>
+                <td>
+                  <code>.catch(() =&gt; undefined)</code> ทิ้งความล้มเหลวของการเขียน log
+                  เพื่อไม่ให้บังหน้าผลคำนวณ
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          คำว่า “Please try again later” ใน <code>UNKNOWN_ERROR</code>
+          เป็นข้อความผู้ใช้ ไม่ได้หมายความว่าเซิร์ฟเวอร์จะลองใหม่ให้
+        </div>
+      </section>
+
+      <section id="flow">
+        <h2>ลำดับเมื่อเชื่อมต่อไม่สำเร็จ (Failure flow)</h2>
+        <h3>Sony warranty (INT-04)</h3>
+        <pre class="flow">getCustomerProducts(lineId)
+  │
+  ├─ ไม่มี subscription key → SONY_PRODUCT_API_ERROR
+  ├─ HTTP 404              → CUSTOMER_NOT_FOUND
+  ├─ HTTP อื่นที่ไม่ใช่ 2xx → SONY_PRODUCT_API_ERROR
+  ├─ payload ไม่ครบ        → SONY_PRODUCT_API_ERROR
+  └─ เครือข่ายค้าง/timeout ของแพลตฟอร์ม
+                           → ไม่มีรหัส TIMEOUT (กลายเป็น UNKNOWN หรือ API error)</pre>
+        <h3>เส้นทางคำนวณเหรียญแบบมี log</h3>
+        <p>
+          เฉพาะ <code>getBadgeResultForLineUuid</code>
+          (ใช้โดย <code>GET /api/customer-products</code>)
+        </p>
+        <pre class="flow">try Sony + MySQL rules + calculate
+  ├─ สำเร็จ → writeBadgeCalculationLog (hash, นับ SKU, สรุปเหรียญ)
+  │           .catch เงียบถ้า DB เขียนไม่ได้
+  └─ ล้ม    → writeBadgeCalculationLog (error_code, error_message ที่ปลอดภัย)
+             แล้ว throw ต่อ → HTTP 401 / 404 / 500</pre>
+        <h3>เส้นทาง Mini App (my-*)</h3>
+        <pre class="flow">GET /api/my-products | /api/my-missions
+  ├─ ไม่มี lineuuid     → แคตตาล็อกล็อก (ไม่เรียก Sony)
+  ├─ Sony/DB ล้ม         → พยายามแคตตาล็อกล็อก HTTP 200
+  └─ โหลดกฎล็อกไม่ได้   → 500 { code, message }
+
+GET /api/my-badges
+  └─ ล้ม → 500 ทันที (ไม่มี fallback ล็อกใน route นี้)
+           และ console.log locale + lineuuid ดิบ
+
+GET /api/my-products/[id] | /api/my-missions/[id]
+  ├─ ไม่พบรหัสในกฎ      → 404 NOT_FOUND
+  └─ Sony ล้ม (detail)   → mission มี fallback ล็อก; product detail ส่ง 500</pre>
+        <h3>LINE session</h3>
+        <pre class="flow">LIFF getIDToken → POST /api/line-session
+  ├─ ไม่มี idToken        → 400 MISSING_ID_TOKEN
+  ├─ LINE verify ไม่ผ่าน  → 401 UNAUTHORIZED
+  └─ ข้อผิดพลาดอื่น       → 500 UNKNOWN_ERROR
+ไคลเอนต์: response ไม่ ok → throw "LINE session could not be verified."
+getLineProfile จาก LIFF ล้ม → คืน null (ไม่บล็อกเซสชัน)</pre>
+      </section>
+
+      <section id="codes">
+        <h2>รหัสข้อผิดพลาด (Error codes)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>รหัสที่ไคลเอนต์อาจเห็น (Public codes)</caption>
+            <thead>
+              <tr>
+                <th>code</th>
+                <th>HTTP โดยทั่วไป</th>
+                <th>สาเหตุ (Cause)</th>
+                <th>ข้อความปลอดภัย (safeMessage)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>MISSING_ID_TOKEN</code></td>
+                <td>400</td>
+                <td>body ไม่มี <code>idToken</code></td>
+                <td>LINE ID token is required.</td>
+              </tr>
+              <tr>
+                <td><code>UNAUTHORIZED</code></td>
+                <td>401</td>
+                <td>
+                  ไม่มีคุกกี้เซสชัน หรือ LINE verify ล้ม
+                </td>
+                <td>LINE session is required. (หรือข้อความ verify)</td>
+              </tr>
+              <tr>
+                <td><code>CUSTOMER_NOT_FOUND</code></td>
+                <td>404</td>
+                <td>Sony HTTP 404 หรือ mock ไม่รู้จัก lineuuid</td>
+                <td>Customer profile was not found.</td>
+              </tr>
+              <tr>
+                <td><code>NOT_FOUND</code></td>
+                <td>404</td>
+                <td>productId / missionId ไม่อยู่ในกฎ หรือยังไม่ปลดล็อก</td>
+                <td>Product / Mission badge not found.</td>
+              </tr>
+              <tr>
+                <td><code>SONY_PRODUCT_API_ERROR</code></td>
+                <td>500</td>
+                <td>APIM ไม่สำเร็จ หรือ payload ไม่ถูกต้อง</td>
+                <td>Badge data is temporarily unavailable.</td>
+              </tr>
+              <tr>
+                <td><code>UNKNOWN_ERROR</code></td>
+                <td>500</td>
+                <td>error ที่ไม่มี <code>code</code> + <code>safeMessage</code></td>
+                <td>Something went wrong. Please try again later.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <code>toSafeError</code> คืนรหัสต้นทางเฉพาะเมื่อ object มีทั้ง
+          <code>code</code> และ <code>safeMessage</code> เป็นสตริง
+          Error ของ MySQL ดิบจะกลายเป็น <code>UNKNOWN_ERROR</code>
+        </p>
+      </section>
+
+      <section id="surfaces">
+        <h2>พฤติกรรมต่อพื้นผิว API (Per-surface behavior)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>เมื่อ Sony หรือฐานข้อมูลล้มเหลว</caption>
+            <thead>
+              <tr>
+                <th>Endpoint</th>
+                <th>ผู้ใช้เห็น (User-facing)</th>
+                <th>เขียน calculation log</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GET /api/customer-products</code></td>
+                <td>JSON error + HTTP 404/500</td>
+                <td class="ok">ใช่ (hash เท่านั้น)</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-products</code>, <code>GET /api/my-missions</code></td>
+                <td>แคตตาล็อกล็อก HTTP 200 ถ้าโหลดกฎได้</td>
+                <td class="none">ไม่</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-badges</code></td>
+                <td>500 JSON error · หน้าบ้านแสดงวิวว่าง</td>
+                <td class="none">ไม่</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/health</code></td>
+                <td>เสมอ <code>{ status: "ok" }</code></td>
+                <td class="skip">ไม่ตรวจ Sony/DB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          หน้า Mini App ไม่มีปุ่ม “ลองใหม่” แยก
+          การโหลดใหม่ของ LIFF หรือเปลี่ยน <code>lineUuid</code> จะยิง fetch อีกครั้งหนึ่ง
+        </p>
+      </section>
+
+      <section id="logs">
+        <h2>การบันทึก Log (Logging)</h2>
+        <h3>1. Application console (stdout ของ App Service)</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ตำแหน่ง</th>
+                <th>สิ่งที่พิมพ์</th>
+                <th>ความเสี่ยง (Risk)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sony-products-client.ts</code></td>
+                <td><code>getCustomerProducts</code> + lineuuid ดิบ</td>
+                <td>PII ใน log ของแพลตฟอร์มทุกครั้งที่เรียก Sony</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-badges</code></td>
+                <td><code>{ locale, lineuuid }</code></td>
+                <td>PII</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-missions</code></td>
+                <td><code>{ lineuuid }</code> และเมื่อล้ม <code>{ error }</code></td>
+                <td>อาจมี stack / รายละเอียดภายใน</td>
+              </tr>
+              <tr>
+                <td>catch ของ my-badges</td>
+                <td><code>{ safeError }</code></td>
+                <td>รหัสปลอดภัยเท่านั้น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>2. ตาราง <code>badge_calculation_logs</code></h3>
+        <p>
+          เขียนแบบ fire-and-forget จาก <code>getBadgeResultForLineUuid</code>
+          ถ้าไม่มี <code>DATABASE_URL</code> จะข้าม
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>คอลัมน์ที่เก็บ (Stored columns)</caption>
+            <thead>
+              <tr>
+                <th>คอลัมน์</th>
+                <th>เนื้อหา</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>customer_line_uuid_hash</code></td>
+                <td>
+                  HMAC-SHA256 ของ lineuuid ด้วย
+                  <code>LOG_HASH_SECRET</code> หรือ fallback
+                  <code>APP_SESSION_SECRET</code>
+                  ไม่เก็บ LINE ID ดิบ
+                </td>
+              </tr>
+              <tr>
+                <td><code>source_sku_count</code></td>
+                <td>จำนวนสินค้าจาก Sony (เมื่อล้มเป็น 0)</td>
+              </tr>
+              <tr>
+                <td><code>matched_sku_count</code></td>
+                <td>ผลรวม <code>matchedCount</code> ของเหรียญที่คำนวณ</td>
+              </tr>
+              <tr>
+                <td><code>earned_badges_json</code></td>
+                <td>
+                  อาร์เรย์ <code>{ code, status, matchedCount }</code>
+                  เมื่อล้มเป็น <code>[]</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>error_code</code> / <code>error_message</code></td>
+                <td>
+                  จาก <code>toSafeError</code> เมื่อ catch
+                  สำเร็จเป็น NULL
+                </td>
+              </tr>
+              <tr>
+                <td><code>created_at</code></td>
+                <td>timestamp · มี index เรียงใหม่ก่อน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          Mini App ที่ใช้ <code>getBadgeExperienceForLineUuid</code>
+          ไม่เขียนแถวนี้
+          การเปิด my-badges / my-products จึงไม่เหลือประวัติ error ในตาราง
+          แม้ Sony จะล้ม
+        </div>
+        <p>
+          ไม่มี job ลบ log ตามอายุ (retention)
+          การลบต้องทำนอกแอป
+        </p>
+        <h3>3. สิ่งที่ไม่ถูก log</h3>
+        <ul>
+          <li>ไม่ส่ง log ไป SIEM / Application Insights จากโค้ดแอปโดยตรง</li>
+          <li>ไม่เก็บ serial, modelName, ID token ในตาราง log</li>
+          <li>
+            <code>/api/customer-products</code> ตัด serial ออกจาก JSON แสดงผล
+            แต่ debug trace แบบ local ยังมีชุดข้อมูลที่ redact แล้ว
+          </li>
+        </ul>
+      </section>
+
+      <section id="gaps">
+        <h2>ช่องว่าง (Gaps)</h2>
+        <ul>
+          <li>
+            กำหนด timeout + retry นโยบายชัด (เช่น 1 ครั้งเมื่อ 502/503/timeout จาก APIM)
+            และรหัส <code>TIMEOUT</code> แยกจาก <code>SONY_PRODUCT_API_ERROR</code>
+          </li>
+          <li>
+            หยุดพิมพ์ lineuuid ดิบใน console ให้ใช้ <code>hashLineUuid</code>
+          </li>
+          <li>
+            เขียน calculation log จากเส้นทาง my-* ด้วย หรือรวมให้เหลือแหล่งเดียว
+          </li>
+          <li>
+            ทำ health check ที่ตรวจ MySQL / APIM แยกจาก liveness ของโปรเซส
+          </li>
+          <li>
+            ปุ่มหรือข้อความ “ลองใหม่” บน Mini App เมื่อเป็น 500 จริง
+            (ตอนนี้ my-products อาจดูเหมือน “ยังไม่มีเหรียญ” ทั้งที่ Sony ล่ม)
+          </li>
+          <li>
+            <code>GET /api/my-missions</code> มีโค้ดหลัง
+            <code>return</code> ใน catch ที่ไม่ถูกเรียก
+            fallback 500 เมื่อโหลดแคตตาล็อกล็อกไม่ได้จึงไม่ทำงานใน route นี้
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

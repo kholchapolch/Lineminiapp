@@ -71,20 +71,20 @@ export const th: Messages = {
   },
   bottomBar: {
     ariaLabel: "เมนูหลัก",
-    home: "หน้าแรก",
-    register: "ลงทะเบียนสินค้า",
-    inquiry: "สอบถามข้อมูล",
+    home: "หน้าแรก\n(Home)",
+    register: "ลงทะเบียนสินค้า\n(Register Products)",
+    inquiry: "คำถามที่พบบ่อย\n(FAQ)",
   },
   myBadges: {
     meta: {
       title: "เหรียญตราของฉัน",
       description: "ดูเหรียญผลิตภัณฑ์และเหรียญภารกิจของคุณ",
     },
-    productBadges: "เหรียญผลิตภัณฑ์",
-    missionBadges: "เหรียญภารกิจ",
+    productBadges: "เหรียญผลิตภัณฑ์ \n(Product Badges)",
+    missionBadges: "เหรียญภารกิจ \n(Quest Badges)",
     myProductBadges: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
     myMissionBadges: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
-    viewAll: "ดูทั้งหมด",
+    viewAll: "ดูทั้งหมด (See all)",
     empty:
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     close: "ปิด",
@@ -97,25 +97,29 @@ export const th: Messages = {
     },
     title: "เหรียญผลิตภัณฑ์ของฉัน\n(My Product Badges)",
     description:
-      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
+      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียนผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge และเริ่มสะสมความสำเร็จของคุณ \n(Buy participating Sony lenses and register to earn Badges and start your achievements.)",
     filterLabel: "กรองตามประเภทสินค้า",
-    backToMyBadges: "กลับหน้าหลัก",
+    backToMyBadges: "กลับหน้าหลัก (Back)",
     empty:
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     filters: {
-      all: "All",
-      "full-frame-camera": "Full Frame Camera",
-      "prime-lens": "Prime Lens",
-      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
-      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
-      "macro-lens": "Macro Lens",
+      all: "ทั้งหมด (All)",
+      "full-frame-camera": "กล้องฟูลเฟรม (Full Frame Camera)",
+      "prime-lens": "เลนส์ไพร์ม (Prime Lens)",
+      "wide-normal-zoom-lens":
+        "เลนส์ซูมมุมกว้างและเลนส์ซูมมาตรฐาน \n(Wide & Normal Zoom Lens)",
+      "telephoto-super-telephoto-lens":
+        "เลนส์ระยะไกลและเลนส์ระยะไกลพิเศษ \n(Telephoto & Super Telephoto Lens)",
+      "macro-lens": "เลนส์มาโคร (Macro Lens)",
     },
     categories: {
-      "full-frame-camera": "Full Frame Camera",
-      "prime-lens": "Prime Lens",
-      "wide-normal-zoom-lens": "Wide & Normal Zoom Lens",
-      "telephoto-super-telephoto-lens": "Telephoto & Super Telephoto Lens",
-      "macro-lens": "Macro Lens",
+      "full-frame-camera": "กล้องฟูลเฟรม \n(Full Frame Camera)",
+      "prime-lens": "เลนส์ไพร์ม \n(Prime Lens)",
+      "wide-normal-zoom-lens":
+        "เลนส์ซูมมุมกว้างและเลนส์ซูมมาตรฐาน \n(Wide & Normal Zoom Lens)",
+      "telephoto-super-telephoto-lens":
+        "เลนส์ระยะไกลและเลนส์ระยะไกลพิเศษ \n(Telephoto & Super Telephoto Lens)",
+      "macro-lens": "เลนส์มาโคร \n(Macro Lens)",
     },
   },
   myProduct: {
@@ -129,7 +133,7 @@ export const th: Messages = {
     quantity: "จำนวนที่มี",
     serialNumbers: "หมายเลขซีเรียล",
     share: "แชร์ (Share)",
-    backToMyBadges: "กลับหน้าหลัก",
+    backToMyBadges: "กลับหน้าหลัก (Back)",
   },
   myMissions: {
     meta: {
@@ -138,50 +142,58 @@ export const th: Messages = {
     },
     title: "เหรียญภารกิจของฉัน\n(My Quest Badges)",
     description:
-      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียน\nผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge\nและเริ่มสะสมความสำเร็จของคุณ",
-    backToMyBadges: "กลับหน้าหลัก",
+      "ซื้อเลนส์ Sony ที่ร่วมรายการและลงทะเบียนผลิตภัณฑ์ ตามเงื่อนไข เพื่อรับ Badge และเริ่มสะสมความสำเร็จของคุณ \n(Buy participating Sony lenses and register to earn Badges and start your achievements.)",
+    backToMyBadges: "กลับหน้าหลัก (Back)",
     empty:
       "ลงทะเบียนสินค้าเพื่อเริ่มสะสมเหรียญของคุณ (Register your product to start collecting badges)",
     sections: {
       "portrait-master": {
-        title: "Portrait Master",
+        title: "เทพพอร์ตเทรต (Portrait Master)",
+        badgeTitle: "เทพพอร์ตเทรต \n(Portrait Master)",
         description:
-          "ลงทะเบียนสะสมเลนส์ Portrait ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
+          "ลงทะเบียนสะสมเลนส์ Portrait ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register unique Portrait lenses to reach the required quantity and specified models to unlock various tiers of reward medals.)",
       },
       "wide-architect": {
-        title: "Wide Architect",
+        title: "เทพสายแลนด์ฯ (Wide Architect)",
+        badgeTitle: "เทพสายแลนด์ฯ \n(Wide Architect)",
         description:
-          "ลงทะเบียนสะสมเลนส์ Wide ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นกำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
+          "ลงทะเบียนสะสมเลนส์ Wide ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นกำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register unique Wide-angle lenses to reach the required quantity and specified models to unlock various tiers of reward medals.)",
       },
       "the-visionary": {
-        title: "The Visionary",
+        title: "เทพสายป่า (The Visionary)",
+        badgeTitle: "เทพสายป่า \n(The Visionary)",
         description:
-          "ลงทะเบียนสะสมเลนส์ Telephoto ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
+          "ลงทะเบียนสะสมเลนส์ Telephoto ไม่ซ้ำกันให้ครบตามจำนวน และรุ่นที่กำหนดเพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register unique Telephoto lenses to reach the required quantity and specified models to unlock various tiers of reward medals.)",
       },
       "trinity-master": {
-        title: "Trinity Master",
+        title: "สามกษัตริย์ G Master (Trinity Master)",
+        badgeTitle: "สามกษัตริย์ G Master \n(Trinity Master)",
         description:
-          "ลงทะเบียนสะสมเลนส์ Gmaster 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
+          "ลงทะเบียนสะสมเลนส์ Gmaster 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล \n(Register 3 unique G Master lenses from the specified models to unlock the reward medal.)",
       },
       "trinity-junior": {
-        title: "Trinity Junior",
+        title: "สามกษัตริย์ G (Trinity G)",
+        badgeTitle: "สามกษัตริย์ G \n(Trinity G)",
         description:
-          "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
+          "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล \n(Register 3 unique G lenses from the specified models to unlock the reward medal.)",
       },
       "all-rounder": {
-        title: "All Rounder",
+        title: "เทพสายลุย (All Rounder)",
+        badgeTitle: "เทพสายลุย \n(All Rounder)",
         description:
-          "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล",
+          "ลงทะเบียนสะสมเลนส์ G 3 ชิ้นไม่ซ้ำกันจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล \n(Register 3 unique G lenses from the specified models to unlock the reward medal.)",
       },
       "f2-master": {
-        title: "F2 Master",
+        title: "เลนส์เทพเจ้า (F2 Master)",
+        badgeTitle: "เลนส์เทพเจ้า \n(F2 Master)",
         description:
-          "ลงทะเบียนสะสมเลนส์ FE 28-70mm F2 GM และ FE 50-150 มม. F2 GM เพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ",
+          "ลงทะเบียนสะสมเลนส์ FE 28-70mm F2 GM และ FE 50-150mm F2 GM เพื่อปลดล็อกเหรียญรางวัลระดับต่างๆ \n(Register the FE 28-70mm F2 GM and FE 50-150mm F2 GM lenses to unlock various tiers of reward medals.)",
       },
       "the-magnifier": {
-        title: "The Magnifier",
+        title: "เทพมาโคร (The Magnifier)",
+        badgeTitle: "เทพมาโคร \n(The Magnifier)",
         description:
-          "ลงทะเบียนสะสมเลนส์ Macro 1 ชิ้นที่จากรุ่นกำหนด เพื่อปลดล็อกเหรียญรางวัล",
+          "ลงทะเบียนสะสมเลนส์ Macro 1 ชิ้นจากรุ่นที่กำหนด เพื่อปลดล็อกเหรียญรางวัล \n(Register 1 Macro lens from the specified models to unlock the reward medal.)",
       },
     },
   },
@@ -194,12 +206,16 @@ export const th: Messages = {
     receivedTitle: "เหรียญภารกิจที่ได้รับ",
     unlockedOn: "ปลดล็อคเมื่อ",
     share: "แชร์ (Share)",
-    backToHome: "กลับหน้าหลัก",
+    backToHome: "กลับหน้าหลัก (Back)",
     registerProduct: "ลงทะเบียนสินค้า (Register Product)",
-    ticketMissionTitle: "ภารกิจเก็บ Ticket ของคุณ",
-    productCode: "รหัสสินค้า",
-    completed: "สำเร็จ",
-    details: "รายละเอียด",
-    back: "ย้อนกลับ",
+    ticketMissionTitle: "ภารกิจเก็บเหรียญภารกิจของคุณ",
+    levels: {
+      bronze: "ระดับทองแดง (Bronze)",
+      silver: "ระดับเงิน (Silver)",
+      gold: "ระดับทอง (Gold)",
+    },
+    completed: "สำเร็จ (Completed)",
+    details: "รายละเอียด (See More)",
+    back: "ย้อนกลับ (Back)",
   },
 };

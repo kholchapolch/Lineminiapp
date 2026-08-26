@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Backup &amp; Rollback Plan</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul, ol { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      pre { margin: 0 0 14px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: #101923; color: #f7fbff; padding: 16px; font-size: 13px; line-height: 1.5; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Backup &amp; Rollback Plan</h1>
+        <p class="lede">
+          วิธีสำรองและย้อนกลับข้อมูล หากพบปัญหา
+        </p>
+        <p>
+          Seed ทำงานในธุรกรรม: ถ้า script ล้มจะ <code>rollback</code> การเปลี่ยนแปลงรอบนั้น
+          ถ้า commit แล้วแล้วพบว่ากฎผิด ต้องกู้จากสำเนาหรือ seed เวอร์ชันก่อนใน Git
+          <strong>ไม่มี</strong> คำสั่ง rollback อัตโนมัติใน npm
+        </p>
+      </header>
+
+      <section>
+        <h2>สิ่งที่ seed ทำลายได้</h2>
+        <ul>
+          <li>แทนที่กลุ่มแสดงผลทั้งตาราง</li>
+          <li>ลบ thresholds/conditions ของกฎที่ถูก seed แล้วใส่ใหม่</li>
+          <li>ลบกฎที่ไม่อยู่ในไฟล์ seed (ลูกถูกลบด้วย ON DELETE CASCADE)</li>
+          <li>ไม่ลบ <code>badge_calculation_logs</code></li>
+        </ul>
+        <div class="note warn">
+          <code>npm run db:reset</code> DROP ตารางแอปทั้งหมดรวมปูมคำนวณ
+          ห้ามใช้บน UAT/production
+        </div>
+      </section>
+
+      <section>
+        <h2>สำรองก่อนอัปเดต (Backup)</h2>
+        <p>
+          ใช้ mysqldump หรือเครื่องมือเทียบเท่าของ Azure
+          ใส่โฮสต์/ผู้ใช้จากสภาพแวดล้อม ไม่ commit ไฟล์ที่มีรหัสผ่าน
+        </p>
+        <pre>mysqldump --single-transaction --set-gtid-purged=OFF \
+  -h &lt;host&gt; -P &lt;port&gt; -u &lt;user&gt; -p \
+  --ssl-mode=REQUIRED \
+  &lt;database&gt; \
+  app_config badge_display_groups badge_rules \
+  badge_rule_thresholds badge_rule_conditions \
+  &gt; badge-rules-backup-$(date +%Y%m%d-%H%M).sql
+
+# ถ้าต้องการเก็บปูมคำนวณด้วย
+mysqldump --single-transaction \
+  -h &lt;host&gt; -P &lt;port&gt; -u &lt;user&gt; -p \
+  --ssl-mode=REQUIRED \
+  &lt;database&gt; badge_calculation_logs \
+  &gt; badge-calculation-logs-backup-$(date +%Y%m%d-%H%M).sql</pre>
+        <p>จดควบคู่: Git SHA ของแอป, ไฟล์ seed ที่จะรัน (default หรือ prod), ค่า <code>badge_rules_version</code> ก่อนเปลี่ยน</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>สิ่งที่อยู่ในรีโป</th>
+                <th>ใช้ย้อนฐานได้หรือไม่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>scripts/db/seed-all-rules_backup.sql</code></td>
+                <td>
+                  เป็น snapshot ของ generated SQL เก่า (รูป mock SVG)
+                  ไม่ใช่ dump ของ Azure
+                  ใช้ย้อน “ชุดกฎใน Git” ได้ถ้าตั้งใจกลับไปเวอร์ชันนั้น
+                </td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/uat_sony_table.sql</code></td>
+                <td>
+                  dump อ้างอิง ณ วันที่ในไฟล์
+                  ไม่รับประกันว่าตรงฐานปัจจุบัน
+                </td>
+              </tr>
+              <tr>
+                <td>Git history ของ <code>seed-data.mjs</code> / <code>prod/seed-data.mjs</code></td>
+                <td>
+                  ย้อนโค้ดแล้วรัน <code>db:seed</code> / <code>db:seed:prod</code> ใหม่
+                  จะเขียนทับกฎให้ตรงไฟล์นั้น
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>ย้อนกลับ (Rollback)</h2>
+        <ol>
+          <li>หยุดการ seed ซ้ำถ้ายังไม่เสร็จ</li>
+          <li>
+            กู้จากไฟล์ dump ที่ถ่ายก่อนอัปเดต
+            (restore เฉพาะตารางกฎ หรือทั้งฐานตามขอบเขตที่สำรอง)
+          </li>
+          <li>
+            ทางเลือก: checkout ไฟล์ seed เวอร์ชันก่อน แล้ว
+            <code>npm run db:seed</code> หรือ <code>db:seed:prod</code>
+            — จะลบกฎที่เพิ่มในเวอร์ชันใหม่ถ้าไม่มีในไฟล์เก่า
+          </li>
+          <li>
+            <code>npm run db:verify</code> ให้ตรงไฟล์ที่ใช้ย้อน
+          </li>
+          <li>
+            ตรวจ <code>badge_rules_version</code> และเคสที่ยืนยันแล้ว
+            (เช่น มี/ไม่มี <code>product-sel1224gm</code>)
+          </li>
+        </ol>
+        <pre># ตัวอย่าง restore ตารางกฎ (ปรับตามเครื่องมือที่อนุญาต)
+mysql --ssl-mode=REQUIRED -h &lt;host&gt; -P &lt;port&gt; -u &lt;user&gt; -p &lt;database&gt; \
+  &lt; badge-rules-backup-YYYYMMDD-HHMM.sql</pre>
+        <div class="note warn">
+          ถ้า restore ทับตารางที่มี FK ให้ทำตามลำดับที่ dump กำหนด หรือปิดตรวจ FK ชั่วคราวเฉพาะหน้าต่าง restore ที่ควบคุมได้
+          อย่า seed ชุด default ทับ UAT ที่ต้องมี SEL1224GM เป็นเหรียญสินค้า
+        </div>
+      </section>
+
+      <section>
+        <h2>เมื่อ seed ล้มระหว่างรัน</h2>
+        <p>
+          <code>seed.mjs</code> เรียก <code>beginTransaction</code> และ
+          <code>rollback</code> เมื่อ throw
+          ฐานควรกลับไปสถานะก่อนคำสั่งนั้น
+          จากนั้นแก้ข้อมูล seed หรือการเชื่อมต่อ แล้วยิงใหม่
+          ไม่ต้อง restore ถ้าธุรกรรมไม่ถูก commit
+        </p>
+        <p>
+          ไฟล์ SQL ที่ generate ใช้ <code>START TRANSACTION</code> / <code>COMMIT</code>
+          การ import ที่ล้มครึ่งทางขึ้นกับไคลเอนต์ — ถ้าไม่แน่ใจให้ restore จาก dump
+        </p>
+      </section>
+
+      <section>
+        <h2>Schema rollback</h2>
+        <p>
+          <code>migrate.mjs</code> ไม่มี down migration
+          คอลัมน์ที่เพิ่มแล้วจะไม่ถูกลบด้วยการรัน migrate ซ้ำ
+          ถ้าต้องถอดคอลัมน์ ต้องมี ALTER ด้วยมือและแผนทดสอบแยก
+          โดยทั่วไปการย้อนกฎไม่ต้องถอด schema
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,4 +1,4 @@
-export type MissionBadgeVisualState = "unlocked" | "partial";
+export type MissionBadgeVisualState = "unlocked" | "partial" | "empty";
 
 export function getMissionBadgeVisualState(
   progress: number,

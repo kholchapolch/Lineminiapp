@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculation Logic Document</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      code {
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      pre {
+        margin: 0 0 14px;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        line-height: 1.5;
+        font-size: 13px;
+        white-space: pre;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 880px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Calculation Logic Document</h1>
+        <p class="lede">
+          วิธีนับ Product Model, Unique Model, Threshold, การเลื่อนชั้น (Tier Upgrade)
+          และกรณีสินค้าซ้ำ
+        </p>
+        <p>
+          แหล่งตรรกะ: <code>uniqueEligibleProducts</code> /
+          <code>calculateRuleMatch</code> ใน
+          <code>src/lib/badge-engine.ts</code> ·
+          Product quantity ใน
+          <code>src/lib/badge-experience.ts</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#units">หน่วยที่นับ (Units)</a></li>
+            <li><a href="#product">Product Model</a></li>
+            <li><a href="#unique">Unique Model</a></li>
+            <li><a href="#threshold">Threshold</a></li>
+            <li><a href="#upgrade">Tier Upgrade</a></li>
+            <li><a href="#duplicate">สินค้าซ้ำ (Duplicates)</a></li>
+            <li><a href="#examples">ตัวอย่างคำนวณ</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="units">
+        <h2>หน่วยที่นับ (What is counted)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>Warranty row</strong>
+            หนึ่งแถวจาก Sony = หนึ่ง serial + <code>modelName</code> + วันที่ลงทะเบียน
+          </div>
+          <div class="box">
+            <strong>Product Model (แถวสินค้า)</strong>
+            ใช้บน Product Badge · นับทุก serial ที่จับคู่รุ่นนั้นได้
+          </div>
+          <div class="box">
+            <strong>Unique Model</strong>
+            ใช้บน Quest / Threshold · นับรหัสรุ่นที่ normalize แล้วไม่ซ้ำ
+          </div>
+        </div>
+        <p>
+          กุญแจ unique คือ <code>normalizeSku(modelName)</code> =
+          ตัดช่องว่างหัวท้ายแล้วทำเป็นตัวพิมพ์ใหญ่
+          <code>LENS-A</code> กับ <code>lens-a</code> คือรุ่นเดียวกัน
+        </p>
+        <div class="note warn">
+          ไม่ยุบ suffix ภูมิภาคเข้ากุญแจเดียวกัน
+          <code>SEL35F14GM</code> กับ <code>SEL35F14GM/QSYX</code>
+          เป็นสอง unique model ใน Quest แบบ <code>min_count</code>
+          ทั้งที่ทั้งคู่จับคู่กฎ <code>SEL35F14GM</code> ได้
+        </div>
+      </section>
+
+      <section id="product">
+        <h2>การนับ Product Model</h2>
+        <p>
+          สำหรับกฎ <code>badgeType: product</code> Mini App ไม่ใช้
+          <code>calculateRuleMatch</code> เพื่อปลดล็อก
+          กรองทุกแถว warranty ที่
+        </p>
+        <ol>
+          <li><code>matchesEligibleSku(sku, rule.skus)</code> เป็นจริง</li>
+          <li>วันที่ลงทะเบียนอยู่ในหน้าต่างของกฎ (ถ้ามี)</li>
+        </ol>
+        <p>แล้วเรียงวันที่จากเก่าไปใหม่</p>
+        <div class="tableWrap">
+          <table>
+            <caption>ฟิลด์ที่ได้</caption>
+            <thead>
+              <tr>
+                <th>ฟิลด์</th>
+                <th>สูตร</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>quantity</code></td>
+                <td>จำนวนแถวที่ผ่านตัวกรอง (นับ serial ซ้ำได้)</td>
+              </tr>
+              <tr>
+                <td><code>registrations</code></td>
+                <td>รายการ serial + วันที่ทั้งหมด</td>
+              </tr>
+              <tr>
+                <td><code>earnedAt</code></td>
+                <td>วันที่ของแถวแรกหลังเรียง (ลงทะเบียนเก่าสุด)</td>
+              </tr>
+              <tr>
+                <td>สถานะ</td>
+                <td>
+                  <code>unlocked</code> เมื่อ <code>quantity ≥ 1</code>
+                  ไม่เช่นนั้น <code>locked</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          เกณฑ์ในฐานข้อมูลของ Product Badge คือ
+          <code>requiredCount: 1</code> แต่ UI ไม่แสดง progress แบบ Quest
+        </p>
+      </section>
+
+      <section id="unique">
+        <h2>การนับ Unique Model</h2>
+        <p>
+          ฟังก์ชัน <code>uniqueEligibleProducts</code> เดินรายการสินค้าตามลำดับที่ Sony ส่งมา
+          เก็บแถวแรกต่อหนึ่งกุญแจ <code>normalizeSku</code> ที่
+        </p>
+        <ul>
+          <li>จับคู่รายการ SKU ของเงื่อนไขหรือของกฎได้</li>
+          <li>ผ่านหน้าต่างวันที่ลงทะเบียน</li>
+        </ul>
+        <p>
+          ความยาวของ Map นี้คือจำนวน unique ที่เข้าเงื่อนไขนั้น
+        </p>
+        <h3>รวมหลายเงื่อนไข (<code>calculateRuleMatch</code>)</h3>
+        <ol>
+          <li>
+            แต่ละเงื่อนไขสร้างชุด unique ของตัวเองจาก
+            <code>condition.sonySkus</code>
+          </li>
+          <li>เรียงชุดนั้นตาม <code>registeredAt</code></li>
+          <li>
+            เพดานการนับ:
+            <code>all</code> ใช้ความยาวรายการ SKU ·
+            <code>any</code> / <code>min_count</code> ใช้
+            <code>requiredCount</code> ของเงื่อนไข
+          </li>
+          <li>
+            <code>matchedCount += min(จำนวน unique ของเงื่อนไข, เพดาน)</code>
+          </li>
+          <li>
+            เก็บสินค้าที่ถูกนับจริงไว้ใน Map รวม (เช่น <code>any</code> ที่เพดาน 1
+            เก็บแค่รุ่นแรกตามวันที่)
+          </li>
+        </ol>
+        <p>
+          Trinity Master จึงนับได้สูงสุด 3 แม้ลูกค้าจะมีทั้ง GM และ GM II ในทุกครอบครัว
+        </p>
+      </section>
+
+      <section id="threshold">
+        <h2>Threshold</h2>
+        <p>
+          แต่ละกฎมีหนึ่งแถวขึ้นไปใน <code>badge_rule_thresholds</code>
+          เรียงด้วย <code>requiredCount</code> แล้วตาม <code>sortOrder</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>สูตรเทียบเกณฑ์</caption>
+            <thead>
+              <tr>
+                <th>ค่า</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>เกณฑ์ที่ถึงแล้ว</td>
+                <td>ทุก threshold ที่ <code>matchedCount ≥ requiredCount</code></td>
+              </tr>
+              <tr>
+                <td>ชั้นที่แสดงเป็น earned (engine)</td>
+                <td>threshold ที่ถึงแล้วซึ่ง <code>requiredCount</code> สูงสุด</td>
+              </tr>
+              <tr>
+                <td>เกณฑ์ถัดไป</td>
+                <td>threshold แรกที่ <code>matchedCount &lt; requiredCount</code></td>
+              </tr>
+              <tr>
+                <td><code>remainingCount</code></td>
+                <td>
+                  <code>max(requiredCount ของเกณฑ์ที่ใช้อ้างอิง − matchedCount, 0)</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>progress</code></td>
+                <td>
+                  <code>min(100, round(matchedCount / requiredCount × 100))</code>
+                  ถ้า <code>requiredCount ≤ 0</code> ให้ 100
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          บน Mini App แต่ละชั้น Quest แสดง
+          <code>matchedCount</code> ที่ตัดเพดานที่เกณฑ์ชั้นนั้น
+          (<code>min(matchedCount, requiredCount)</code>)
+          ดังนั้นชั้น Bronze ที่เกณฑ์ 2 เมื่อมี 4 รุ่นจะโชว์ความคืบหน้า 2/2 ไม่ใช่ 4/2
+        </p>
+      </section>
+
+      <section id="upgrade">
+        <h2>Tier Upgrade</h2>
+        <p>
+          ไม่มีตารางประวัติชั้นแยก
+          ทุกครั้งที่โหลดหน้าจะคำนวณใหม่จากรายการ warranty ปัจจุบัน
+        </p>
+        <ol>
+          <li>คำนวณ <code>matchedCount</code> ของ Quest</li>
+          <li>
+            ชั้นใดที่ <code>matchedCount ≥ requiredCount</code> เป็น
+            <code>achieved</code> พร้อมกันทั้งหมด (Bronze ไม่หายเมื่อได้ Gold)
+          </li>
+          <li>
+            ชั้นถัดจากชั้นสูงสุดที่ได้แล้วเป็น <code>in-progress</code>
+            ถ้ายังมีเกณฑ์ที่สูงกว่า
+          </li>
+          <li>
+            ถ้ายังไม่ได้แม้ Bronze แต่ <code>matchedCount &gt; 0</code>
+            ชั้นแรกเป็น <code>in-progress</code>
+          </li>
+          <li>
+            วันที่ได้แต่ละชั้น: เรียงสินค้าทั้งก้อนตามวันที่ แล้วค่อยใส่ทีละชิ้น
+            จน <code>calculateRuleMatch</code> ของ prefix นั้น ≥ เกณฑ์ชั้น
+            วันที่ของชิ้นที่ทำให้ถึงเกณฑ์คือ <code>earnedAt</code>
+          </li>
+        </ol>
+        <p>
+          ไม่มี “downgrade event”
+          ถ้า Sony เลิกรายการรุ่นในรอบถัดไป <code>matchedCount</code> จะลด
+          และชั้นที่เคยได้ใน UI อาจกลับเป็น locked / in-progress
+          เพราะไม่มี persist ชั้นที่เคยถึง
+        </p>
+        <div class="note">
+          Quest แบบ <code>ruleType: achievement</code> มี threshold เดียว
+          ไม่มีเส้นทางเลื่อน Bronze→Silver→Gold
+        </div>
+      </section>
+
+      <section id="duplicate">
+        <h2>กรณีสินค้าซ้ำ (Duplicate products)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ผลต่อตัวนับ</caption>
+            <thead>
+              <tr>
+                <th>สถานการณ์</th>
+                <th>Product Badge</th>
+                <th>Quest / Unique / Tier</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  สอง serial รหัสรุ่นเดียวกัน
+                  (ตัวพิมพ์ต่างกันถือว่ารุ่นเดียวกัน)
+                </td>
+                <td><code>quantity = 2</code> ปลดล็อกหนึ่งเหรียญ</td>
+                <td>นับ 1 unique ไม่ช่วยเลื่อนชั้น</td>
+              </tr>
+              <tr>
+                <td>สองเวอร์ชันในครอบครัว Trinity (GM และ GM II)</td>
+                <td>สอง Product Badge คนละรุ่น</td>
+                <td>
+                  เงื่อนไข <code>any</code> เพดาน 1 นับได้ 1 ต่อครอบครัว
+                </td>
+              </tr>
+              <tr>
+                <td>รุ่นเดียวกันปรากฏสองครั้งใน payload ตามลำดับ Sony</td>
+                <td>นับทั้งสองแถวถ้า serial ต่าง</td>
+                <td>
+                  unique เก็บแถวแรกในลำดับ payload
+                  (ไม่จำเป็นต้องเป็นวันที่เก่าสุด)
+                </td>
+              </tr>
+              <tr>
+                <td>รหัสฐานเดียวกันแต่ suffix แคตตาล็อกต่างกัน</td>
+                <td>จับคู่ Product Badge ของรหัสฐานได้ทั้งคู่</td>
+                <td>
+                  Quest <code>min_count</code> นับเป็นสอง unique
+                </td>
+              </tr>
+              <tr>
+                <td>รหัสพี่น้องสั้นกว่า (G vs GM)</td>
+                <td>ไม่ปลดล็อกเหรียญของรหัสสั้น</td>
+                <td>ไม่ถูกนับในรายการของรหัสสั้น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Hash แคชของ <code>/api/customer-products</code>
+          (<code>skuHash</code>) คือ SHA-256 ของชุด unique
+          <code>normalizeSku</code> ทั้งก้อนที่ถือครอง ไม่ใช่เฉพาะรุ่นในกฎ
+          Serial ซ้ำของรุ่นเดียวกันไม่เปลี่ยน hash
+        </p>
+      </section>
+
+      <section id="examples">
+        <h2>ตัวอย่างคำนวณ (Worked examples)</h2>
+        <h3>E1 · Serial ซ้ำบน Product + Quest</h3>
+        <pre>สินค้า: LENS-A/A-1 (1 Jan), lens-a/A-2 (3 Jan), LENS-B (2 Jan), LENS-C (4 Jan)
+Product LENS-A: unlocked, quantity=2, earnedAt=1 Jan
+Portrait-style min_count เป้า Gold=4 จากพูล A,B,C,D
+unique = {A, B, C} = 3
+Bronze 2 achieved earnedAt=2 Jan (วันที่ทำให้ครบ 2)
+Silver 3 achieved earnedAt=4 Jan
+Gold 4 in-progress remaining=1</pre>
+        <h3>E2 · Trinity Master สองเวอร์ชัน</h3>
+        <pre>สินค้า: SEL1635GM, SEL1635GM2
+เงื่อนไข any/1 ต่อครอบครัว
+ครอบครัว 16-35 นับ 1 (รุ่นที่ลงทะเบียนก่อน)
+24-70 = 0, 70-200 = 0
+matchedCount = 1 จาก 3 → ยังไม่ earned</pre>
+        <h3>E3 · All Rounder 3 จาก 4</h3>
+        <pre>ถือ SEL2070G + SELP1635G + SEL70200G → matchedCount=3 → earned
+ถือแค่สองรุ่น → matchedCount=2, remaining=1</pre>
+        <h3>E4 · เพดาน threshold บน UI</h3>
+        <pre>Wide Architect unique=5 (ถึง Gold)
+ชั้น Bronze required=3 แสดง matchedCount=3 (ถูก cap)
+ชั้น Gold required=5 แสดง matchedCount=5</pre>
+      </section>
+    </main>
+  </body>
+</html>

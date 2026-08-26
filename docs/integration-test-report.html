@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Integration Test Report</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+        --fail: #c1121f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 920px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .pass {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .gap {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      .fail {
+        color: var(--fail);
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Integration Test Report</h1>
+        <p class="lede">
+          รายงานผลทดสอบการเชื่อมต่อ Sony warranty API และเครื่องคำนวณเหรียญ
+          สำหรับกรณีสำเร็จ ข้อมูลไม่ครบ ข้อมูลซ้ำ ไม่พบสินค้า Timeout และ API Error
+        </p>
+        <p>
+          วันที่รันอัตโนมัติ: 19 Aug 2026 · Vitest v2.1.9 · 7 ไฟล์ที่เกี่ยวข้อง
+          46 tests ผ่านทั้งหมด · ไม่ใช่การลงนาม UAT กับ APIM จริง
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#scope">ขอบเขต (Scope)</a></li>
+            <li><a href="#summary">สรุปผล (Summary)</a></li>
+            <li><a href="#success">กรณีสำเร็จ (Success)</a></li>
+            <li><a href="#incomplete">ข้อมูลไม่ครบ (Incomplete)</a></li>
+            <li><a href="#duplicate">ข้อมูลซ้ำ (Duplicate)</a></li>
+            <li><a href="#not-found">ไม่พบสินค้า (Not found)</a></li>
+            <li><a href="#timeout">Timeout</a></li>
+            <li><a href="#api-error">API Error</a></li>
+            <li><a href="#gaps">ช่องว่าง (Gaps)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="scope">
+        <h2>ขอบเขต (Scope)</h2>
+        <p>
+          รายงานนี้สรุปพฤติกรรมที่พิสูจน์ได้จาก Vitest และจากโค้ดใน
+          <code>src/lib/sony-products-client.ts</code>,
+          <code>src/lib/sony-products.ts</code>,
+          <code>src/lib/badge-engine.ts</code>,
+          <code>src/lib/badge-experience.ts</code>
+          และ route <code>/api/customer-products</code>,
+          <code>/api/my-*</code>
+        </p>
+        <ul>
+          <li>
+            โหมด mock: ใช้ dataset ใน <code>getMockSonyCustomerProducts</code>
+            (เช่น <code>demo-line-earned</code>, <code>demo-line-empty</code>,
+            <code>demo-line-missing-data</code>)
+          </li>
+          <li>
+            โหมด live: ทดสอบอัตโนมัติเฉพาะ happy path ด้วย <code>fetch</code> ที่ mock
+            ไม่ได้ยิง APIM จริงในรอบนี้
+          </li>
+          <li>
+            การจับคู่ SKU ใช้ <code>matchesEligibleSku</code>
+            (uppercase/trim และ suffix ภูมิภาค เช่น <code>/QSYX</code>, <code> SYX</code>)
+          </li>
+        </ul>
+        <div class="note warn">
+          <code>GET /api/my-*</code> เมื่อ Sony ล้มเหลวจะพยายามคืนแคตตาล็อกที่ล็อก
+          (locked catalog) แทน JSON error ส่วน
+          <code>GET /api/customer-products</code> คืน 401 / 404 / 500 ตามชนิดข้อผิดพลาด
+        </div>
+      </section>
+
+      <section id="summary">
+        <h2>สรุปผล (Summary)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong class="pass">ผ่าน (Pass)</strong>
+            สำเร็จ · ข้อมูลซ้ำ · ไม่พบลูกค้า (mock) · SKU นอกแคตตาล็อก
+          </div>
+          <div class="box">
+            <strong class="pass">ผ่านบางส่วน (Partial)</strong>
+            ข้อมูลไม่ครบ — mock กับ live ต่างกัน
+          </div>
+          <div class="box">
+            <strong class="gap">ยังไม่รันอัตโนมัติ (Not automated)</strong>
+            Timeout · HTTP 404/5xx จาก APIM จริง
+          </div>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>ตารางสรุปเคส (Case summary)</caption>
+            <thead>
+              <tr>
+                <th>เคส (Case)</th>
+                <th>ผล (Result)</th>
+                <th>หลักฐาน (Evidence)</th>
+                <th>ผลต่อผู้ใช้ (Observed outcome)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>สำเร็จ (Success)</td>
+                <td class="pass">Pass</td>
+                <td>
+                  <code>sony-products-client.test.ts</code>,
+                  <code>customer-products/route.test.ts</code>,
+                  <code>badge-engine.test.ts</code>
+                </td>
+                <td>
+                  map <code>prodDetails</code> → สินค้าที่ถือครอง และปลดล็อกเหรียญที่ตรง SKU
+                </td>
+              </tr>
+              <tr>
+                <td>ข้อมูลไม่ครบ (Incomplete data)</td>
+                <td class="gap">Partial</td>
+                <td>
+                  mock: <code>demo-line-missing-data</code> ·
+                  live: บังคับ <code>modelName</code> + <code>registrationDate</code>
+                  (ยังไม่มี unit test ของ live)
+                </td>
+                <td>
+                  mock ยังคำนวณจาก SKU ได้ · live ทิ้งทั้ง payload เป็น
+                  <code>SONY_PRODUCT_API_ERROR</code>
+                </td>
+              </tr>
+              <tr>
+                <td>ข้อมูลซ้ำ (Duplicate)</td>
+                <td class="pass">Pass</td>
+                <td>
+                  <code>badge-experience.test.ts</code>,
+                  <code>badge-engine.test.ts</code>,
+                  <code>sku-mock.test.ts</code>
+                </td>
+                <td>
+                  Product badge นับ serial · Quest นับ unique SKU
+                </td>
+              </tr>
+              <tr>
+                <td>ไม่พบสินค้า / ไม่พบลูกค้า (Not found)</td>
+                <td class="pass">Pass (mock)</td>
+                <td>
+                  <code>unknown-lineuuid</code> → <code>CUSTOMER_NOT_FOUND</code> ·
+                  SKU นอกกฎ → locked
+                </td>
+                <td>
+                  customer-products: HTTP 404 ·
+                  my-*: แคตตาล็อกล็อก
+                </td>
+              </tr>
+              <tr>
+                <td>Timeout</td>
+                <td class="gap">Not automated</td>
+                <td>ไม่มี <code>AbortSignal</code> / timeout ใน <code>fetch</code></td>
+                <td>
+                  หากเครือข่ายค้าง จะตาม runtime ของแพลตฟอร์ม แล้วกลายเป็น API Error
+                </td>
+              </tr>
+              <tr>
+                <td>API Error</td>
+                <td class="gap">Specified, not automated</td>
+                <td>
+                  HTTP ที่ไม่ใช่ 200/404 → <code>SonyProductApiError</code>
+                </td>
+                <td>
+                  customer-products: 500
+                  <code>SONY_PRODUCT_API_ERROR</code> ·
+                  my-*: locked catalog
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="success">
+        <h2>กรณีสำเร็จ (Success)</h2>
+        <h3>IT-01 · Live warranty payload (mocked fetch)</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          <code>createSonyProductsClient</code> POST ไป APIM ด้วย
+          <code>countryCode</code>, <code>lineId</code>,
+          <code>Ocp-Apim-Subscription-Key</code> และ <code>cache: no-store</code>
+          จากนั้น map <code>modelName</code> เป็น <code>sku</code>,
+          <code>registrationDate</code> เป็น <code>registeredAt</code>
+          และละ <code>warrantyExpiryDate</code>
+        </p>
+        <p>
+          ตัวอย่างที่ผ่าน: <code>ZV-E10M2/BQ AP2</code> และ
+          <code>SEL70200GM2QSYX</code> จากสัญญา warranty ตัวอย่าง
+        </p>
+        <h3>IT-02 · Mock demo ที่ถือครองครบ</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          <code>demo-line-earned</code> คืน 26 รายการ
+          <code>GET /api/customer-products?lineuuid=demo-line-earned&amp;debug=1</code>
+          ได้ HTTP 200 และเหรียญเช่น <code>ff-camera-owner</code> สถานะ
+          <code>earned</code> โดยไม่ส่ง serial ออกไปใน payload แสดงผล
+        </p>
+        <h3>IT-03 · คำนวณเหรียญเมื่อ SKU ตรงกฎ</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          engine ปลดล็อก achievement / tier เมื่อจำนวน unique SKU ที่เข้าเงื่อนไขถึงเกณฑ์
+          รวม suffix ภูมิภาค เช่น <code>SEL70200GM/QSYX</code> ตรงกับกฎ
+          <code>SEL70200GM</code> แต่ไม่ตรง sibling สั้นกว่า
+          (<code>SEL70200G</code>)
+        </p>
+      </section>
+
+      <section id="incomplete">
+        <h2>ข้อมูลไม่ครบ (Incomplete data)</h2>
+        <h3>IT-04 · Mock: serial / ชื่อรุ่นเป็น null</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          <code>demo-line-missing-data</code> คืน
+          <code>sku: ILCE-7CM2</code>, <code>modelName: null</code>,
+          <code>serialNumber: null</code> แต่ยังมี <code>registeredAt</code>
+          เพื่อให้จับคู่กฎได้
+        </p>
+        <h3>IT-05 · Live: ขาด <code>modelName</code> หรือ <code>registrationDate</code></h3>
+        <p>
+          <span class="gap">Specified, not automated</span> —
+          <code>assertSonyWarrantyProduct</code> โยนทั้งชุดถ้าแถวใดแถวหนึ่งขาดสองฟิลด์นี้
+          <code>serialNumber</code> ว่างได้ (nullable)
+          ไม่มี unit test ที่ mock payload ไม่ครบในโหมด live
+        </p>
+        <h3>IT-06 · Live: ไม่มี <code>prodDetails</code></h3>
+        <p>
+          <span class="gap">Specified, not automated</span> —
+          โยน <code>SONY_PRODUCT_API_ERROR</code>
+          (“Sony warranty API response is missing prodDetails.”)
+        </p>
+        <h3>IT-07 · รายการสินค้าว่างแต่พบลูกค้า</h3>
+        <p>
+          <span class="pass">Pass (mock)</span> —
+          <code>demo-line-empty</code> คืน <code>products: []</code>
+          เหรียญทั้งหมด locked / no-badge ไม่ใช่ 404
+        </p>
+      </section>
+
+      <section id="duplicate">
+        <h2>ข้อมูลซ้ำ (Duplicate data)</h2>
+        <h3>IT-08 · สอง serial ของรุ่นเดียวกัน</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          <code>LENS-A</code> / <code>lens-a</code> สอง serial
+          Product badge: <code>status: unlocked</code>, <code>quantity: 2</code>,
+          เก็บทั้ง <code>A-1</code> และ <code>A-2</code>
+        </p>
+        <h3>IT-09 · Quest / tier นับ unique model</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          สองเครื่อง <code>ILCE-7M4</code> นับเป็น 1 SKU ใน
+          <code>calculateBadges</code>
+          Quest gold ที่ต้องการ 4 รุ่นต่างกันจะยัง in-progress เมื่อมีเพียง 3 รุ่น unique
+        </p>
+        <h3>IT-10 · SKU mock เก็บ registration ซ้ำ</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          <code>createMockSkuLineUuid(["SEL2470GM2", "SEL2470GM2", "SEL90M28G"])</code>
+          คืน 3 แถว serial คนละค่า
+        </p>
+        <h3>IT-11 · Trinity Master: สองเวอร์ชันในครอบครัวเดียวกัน</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          ถือทั้ง <code>SEL1635GM</code> และ <code>SEL1635GM2</code>
+          นับ 1 ในเงื่อนไข any-family ไม่ปลดล็อกทั้ง trinity
+        </p>
+      </section>
+
+      <section id="not-found">
+        <h2>ไม่พบสินค้า / ไม่พบลูกค้า (Product or customer not found)</h2>
+        <h3>IT-12 · ไม่มีโปรไฟล์ลูกค้า (mock)</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          <code>unknown-lineuuid</code> โยน
+          <code>CUSTOMER_NOT_FOUND</code>
+          (“Customer profile was not found.”)
+          <code>/api/customer-products</code> map เป็น HTTP 404
+        </p>
+        <h3>IT-13 · Live HTTP 404 จาก APIM</h3>
+        <p>
+          <span class="gap">Specified, not automated</span> —
+          <code>response.status === 404</code> โยน
+          <code>SonyCustomerNotFoundError</code> ชุดเดียวกับ mock
+        </p>
+        <h3>IT-14 · สินค้าที่ถือครองไม่อยู่ในกฎเหรียญ</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          ไม่ใช่ error ของ Sony API
+          Product badge ของรุ่นนั้นยัง locked
+          Quest ไม่เพิ่ม <code>matchedCount</code>
+          <code>SEL70200GM</code> ไม่จับคู่กฎ <code>SEL70200G</code>
+        </p>
+        <h3>IT-15 · my-products / my-missions ไม่พบรหัสเหรียญ</h3>
+        <p>
+          รายละเอียด path <code>/api/my-products/[productId]</code> และ
+          <code>/api/my-missions/[missionId]</code> คืน HTTP 404
+          <code>NOT_FOUND</code> เมื่อ id ไม่อยู่ในแคตตาล็อกกฎ
+          (ไม่เกี่ยวกับ warranty 404)
+        </p>
+      </section>
+
+      <section id="timeout">
+        <h2>Timeout</h2>
+        <h3>IT-16 · Sony fetch timeout</h3>
+        <p>
+          <span class="gap">Not automated / no named timeout</span> —
+          <code>LiveSonyProductsClient.getCustomerProducts</code> เรียก
+          <code>fetch</code> โดยไม่มี <code>signal</code>, ไม่มี deadline ในแอป
+        </p>
+        <p>ผลที่คาดเมื่อแพลตฟอร์มตัดการเชื่อมต่อ:</p>
+        <ul>
+          <li>ไม่มีรหัส <code>TIMEOUT</code> ใน <code>{ code, message }</code></li>
+          <li>
+            ข้อผิดพลาดของ fetch จะถูกห่อเป็น error ทั่วไป แล้ว
+            <code>/api/customer-products</code> คืน 500
+          </li>
+          <li>
+            <code>/api/my-*</code> ถ้าโหลดแคตตาล็อกล็อกได้ จะคืน HTTP 200 ที่ล็อกทั้งหมด
+            ไม่โชว์ข้อความ timeout แยก
+          </li>
+        </ul>
+        <div class="note warn">
+          รอบนี้ไม่ได้จำลอง network hang กับ APIM จริง
+          หากต้องการเคส UAT ควรกำหนด SLA (เช่น 5–10 วินาที) ที่ gateway แล้วบันทึกสถานะ HTTP
+        </div>
+      </section>
+
+      <section id="api-error">
+        <h2>API Error</h2>
+        <h3>IT-17 · HTTP ที่ไม่ใช่ 200 และไม่ใช่ 404</h3>
+        <p>
+          <span class="gap">Specified, not automated</span> —
+          โยน <code>SonyProductApiError</code>
+          (<code>code: SONY_PRODUCT_API_ERROR</code>,
+          <code>safeMessage: Badge data is temporarily unavailable.</code>)
+          รวม 401/403 จากคีย์ผิด, 5xx จาก APIM, และ payload ที่ parse ไม่ได้หลัง HTTP 200
+        </p>
+        <h3>IT-18 · ไม่มี subscription key ในโหมด live</h3>
+        <p>
+          <span class="pass">Pass (config)</span> —
+          <code>loadAppConfig</code> โยนเมื่อ
+          <code>SONY_PRODUCT_API_MODE=live</code> แต่ไม่มี
+          <code>SONY_PRODUCT_API_SUBSCRIPTION_KEY</code>
+          แอปไม่ควรบูตในสถานะนี้บน UAT/production
+        </p>
+        <h3>IT-19 · เซสชันไม่ผ่าน (ไม่ใช่ Sony แต่เป็น integration ชั้นหน้า)</h3>
+        <p>
+          <span class="pass">Pass</span> —
+          <code>/api/customer-products</code> ไม่มีคุกกี้เซสชัน → HTTP 401
+          <code>UNAUTHORIZED</code>
+          รวมกรณีส่ง <code>?lineuuid=</code> โดยไม่มี debug mock
+        </p>
+        <h3>IT-20 · พฤติกรรมต่างกันตาม API ผิว</h3>
+        <div class="tableWrap">
+          <table>
+            <caption>เมื่อ Sony ล้มเหลว (When Sony fails)</caption>
+            <thead>
+              <tr>
+                <th>Endpoint</th>
+                <th>HTTP</th>
+                <th>Body</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GET /api/customer-products</code></td>
+                <td>404 หรือ 500</td>
+                <td><code>{ code, message }</code> แบบปลอดภัย</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-badges</code>, <code>/api/my-products</code>, <code>/api/my-missions</code></td>
+                <td>200 (ถ้าโหลดกฎได้)</td>
+                <td>แคตตาล็อกล็อก · ไม่มีรหัส Sony ใน JSON</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="gaps">
+        <h2>ช่องว่างและข้อเสนอ (Gaps)</h2>
+        <ul>
+          <li>
+            เพิ่ม unit test โหมด live สำหรับ HTTP 404, 500, payload ไม่มี
+            <code>prodDetails</code>, และแถวที่ขาด <code>modelName</code>
+          </li>
+          <li>
+            กำหนด timeout + <code>AbortSignal</code> แล้วทดสอบว่าถูก map เป็น
+            <code>SONY_PRODUCT_API_ERROR</code> (หรือรหัสใหม่ที่ตกลงกับ Sony)
+          </li>
+          <li>
+            รันชุดเดียวกันกับ APIM UAT จริง (ไม่ใช่ mock fetch) สำหรับ lineId ที่ Sony จัดให้:
+            มีสินค้า, ไม่มีสินค้า, ไม่มีโปรไฟล์
+          </li>
+          <li>
+            ตัดสินใจว่า my-* ควรส่ง error JSON เหมือน customer-products หรือคง locked catalog
+          </li>
+        </ul>
+        <p>
+          คำสั่งที่ใช้ในรอบนี้:
+          <code>npx vitest run</code> บนไฟล์
+          <code>sony-products-client</code>,
+          <code>sony-products</code>,
+          <code>badge-engine</code>,
+          <code>badge-experience</code>,
+          <code>sku-mock</code>,
+          <code>customer-products/route</code>,
+          <code>my-product/get-my-product-data</code>
+          — 46/46 ผ่าน
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

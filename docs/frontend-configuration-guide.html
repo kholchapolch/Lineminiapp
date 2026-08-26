@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Frontend Configuration Guide</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      code {
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      pre {
+        margin: 0 0 14px;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .pub {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .sec {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Frontend Configuration Guide</h1>
+        <p class="lede">
+          LIFF ID, Environment Variable และ Configuration ที่ต้องตั้งค่า
+          ค่าในเอกสารนี้เป็นตัวแทน (placeholder) ไม่ใส่ secret จริง
+        </p>
+        <p>
+          ตัวแปรที่ขึ้นต้น <code>NEXT_PUBLIC_*</code> ถูกฝังตอน
+          <code>npm run build</code> อย่าใส่คีย์ API, รหัสผ่านฐานข้อมูล หรือ session secret ในชื่อนี้
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#rules">กฎปกปิด Secret</a></li>
+            <li><a href="#liff">LIFF ID</a></li>
+            <li><a href="#public">ตัวแปรฝั่งเบราว์เซอร์</a></li>
+            <li><a href="#server">ตัวแปรเซิร์ฟเวอร์ที่หน้าบ้านพึ่งพา</a></li>
+            <li><a href="#console">ตั้งค่า LINE Developers</a></li>
+            <li><a href="#env">ตัวอย่างไฟล์ env</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="rules">
+        <h2>กฎปกปิด Secret</h2>
+        <ul>
+          <li>
+            ไม่ commit <code>.env</code>, <code>.env.production</code>, <code>.env.uat</code>
+            ใช้ GitHub environment secret <code>UAT_ENV_FILE</code> สำหรับ UAT
+          </li>
+          <li>
+            ไม่ใส่ <code>SONY_PRODUCT_API_SUBSCRIPTION_KEY</code>,
+            <code>DATABASE_URL</code>, <code>APP_SESSION_SECRET</code>,
+            <code>LOG_HASH_SECRET</code>, publish profile Azure ในเอกสารสาธารณะหรือ
+            <code>NEXT_PUBLIC_*</code>
+          </li>
+          <li>
+            LIFF ID และ URL บัญชี Sony ปรากฏใน JavaScript ของเบราว์เซอร์ได้ตามออกแบบ
+            แต่เอกสารนี้ใช้ placeholder ไม่คัดลอกค่าโปรดักชัน
+          </li>
+          <li>
+            Azure App Service ถ้ามี env จริง จะทับค่าในไฟล์
+            แต่ <code>NEXT_PUBLIC_*</code> ยังต้องมีตอน build
+          </li>
+        </ul>
+      </section>
+
+      <section id="liff">
+        <h2>LIFF ID</h2>
+        <p>
+          ตัวแปร: <code>NEXT_PUBLIC_LIFF_ID</code>
+          รูปแบบที่สคริปต์ deploy ตรวจ: ขึ้นต้นด้วย
+          <code>{LINE_CHANNEL_ID}-</code>
+          เช่น <code>&lt;channel-id&gt;-&lt;liff-suffix&gt;</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>สภาพแวดล้อม</th>
+                <th>ต้องมีหรือไม่</th>
+                <th>ผลถ้าไม่ตั้ง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>local</td>
+                <td>ไม่บังคับ</td>
+                <td>
+                  <code>LineSessionProvider</code> เป็น unavailable
+                  หน้า badges โหมด local+mock ไป My Badges โดยไม่ผ่าน LIFF
+                </td>
+              </tr>
+              <tr>
+                <td>staging / production</td>
+                <td>บังคับ</td>
+                <td>
+                  <code>loadAppConfig</code> throw
+                  <code>NEXT_PUBLIC_LIFF_ID is required outside local mode.</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>โค้ดที่อ่านค่านี้ฝั่งไคลเอนต์:</p>
+        <ul>
+          <li><code>liff.init({ liffId })</code> ใน <code>src/lib/liff-session.ts</code></li>
+          <li>สร้างเซสชันและโปรไฟล์ใน <code>LineSessionProvider</code></li>
+          <li>
+            deep link กลับภารกิจ
+            <code>https://miniapp.line.me/{liffId}/th/my-missions/...</code>
+          </li>
+          <li>แชร์ Facebook ผ่าน <code>liff.openWindow</code></li>
+        </ul>
+        <div class="note">
+          Channel ID (<code>LINE_CHANNEL_ID</code>) ใช้ที่เซิร์ฟเวอร์ตอน verify ID token
+          ไม่ใส่ <code>NEXT_PUBLIC_</code>
+          ต้องเป็นตัวเลข และต้องเป็นเจ้าของ LIFF เดียวกัน
+        </div>
+      </section>
+
+      <section id="public">
+        <h2>ตัวแปรที่ฝังใน Frontend (<code>NEXT_PUBLIC_*</code>)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ค่าที่เบราว์เซอร์อ่านได้ — ไม่ใช่ secret</caption>
+            <thead>
+              <tr>
+                <th>ตัวแปร</th>
+                <th>ใช้ทำอะไร</th>
+                <th>ตัวอย่างรูปแบบ (ไม่ใช่ค่าจริง)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>NEXT_PUBLIC_LIFF_ID</code></td>
+                <td>init LIFF, deep link Mini App</td>
+                <td><code>&lt;channel-id&gt;-&lt;liff-id&gt;</code></td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_APP_BASE_URL</code></td>
+                <td>
+                  origin สำหรับ URL รูปแชร์ / OG
+                  <code>next.config.mjs</code> สำรองจาก <code>APP_BASE_URL</code>
+                </td>
+                <td><code>https://&lt;public-host&gt;</code> ไม่มี path ท้าย</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_ACCOUNT_URL</code></td>
+                <td>ลิงก์แถบล่าง Register (ลงทะเบียนสินค้า / บัญชี Sony)</td>
+                <td>HTTPS เต็มของหน้าภายนอก</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code></td>
+                <td>ปุ่มลงทะเบียนบนหน้ารายละเอียดภารกิจที่ยังไม่ครบ</td>
+                <td>HTTPS เต็ม; ถ้าว่างไม่แสดงปุ่ม</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_DEBUG_MOCK_JSON</code></td>
+                <td>
+                  ธงดีบักฝั่งเซิร์ฟเวอร์ร่วมกับ query
+                  deploy ต้องเป็น <code>false</code>
+                </td>
+                <td><code>false</code> บน UAT/production</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          ถ้า <code>NEXT_PUBLIC_ACCOUNT_URL</code> ว่าง แถบ Register ไม่มี href ที่ใช้ได้
+          ถ้า <code>NEXT_PUBLIC_APP_BASE_URL</code> ไม่ตรง <code>APP_BASE_URL</code>
+          สคริปต์ <code>verify-deploy-env.mjs</code> จะไม่ผ่าน และ URL แชร์อาจผิดโฮสต์
+        </p>
+      </section>
+
+      <section id="server">
+        <h2>ตัวแปรเซิร์ฟเวอร์ที่ Frontend พึ่งพา (ไม่ฝังใน JS)</h2>
+        <p>
+          หน้าบ้านเรียก API ของแอป ค่าเหล่านี้ต้องมีบนเซิร์ฟเวอร์/ตอน build ตามสภาพแวดล้อม
+          <strong>ห้าม</strong> ใส่ใน <code>NEXT_PUBLIC_*</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ตัวแปร</th>
+                <th>ชั้น</th>
+                <th>ผลต่อหน้าจอ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>APP_ENV</code></td>
+                <td class="pub">ไม่ลับ (ค่า local/staging/production)</td>
+                <td>
+                  local+mock ข้าม LIFF ไปพรีวิว
+                  ไม่รับค่า <code>uat</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>APP_BASE_URL</code></td>
+                <td class="pub">URL สาธารณะ</td>
+                <td>ต้องตรงกับ origin ที่ LINE และ Facebook เรียกได้</td>
+              </tr>
+              <tr>
+                <td><code>ALLOWED_ORIGINS</code> / <code>ALLOWED_REFERRERS</code></td>
+                <td class="pub">รายการ origin</td>
+                <td>หน้า <code>/entry</code> บล็อกแหล่งที่ไม่ได้อนุญาต</td>
+              </tr>
+              <tr>
+                <td><code>LINE_CHANNEL_ID</code></td>
+                <td class="sec">ไม่ใช่รหัสผ่าน แต่ไม่ควรโฆษณาในเอกสาร</td>
+                <td>verify ID token ล้ม → ผู้ใช้เข้า Mini App ไม่ผ่าน</td>
+              </tr>
+              <tr>
+                <td><code>LINE_VERIFY_ID_TOKEN_URL</code></td>
+                <td class="pub">ค่าเริ่มต้น LINE มาตรฐาน</td>
+                <td>
+                  ค่าเริ่มต้นในโค้ด
+                  <code>https://api.line.me/oauth2/v2.1/verify</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>APP_SESSION_SECRET</code></td>
+                <td class="sec">Secret ≥ 32 ตัวอักษรตอน deploy</td>
+                <td>เซ็นคุกกี้ <code>sony_line_session</code></td>
+              </tr>
+              <tr>
+                <td><code>LOG_HASH_SECRET</code></td>
+                <td class="sec">Secret ≥ 32 ตัวอักษรตอน deploy</td>
+                <td>hash LINE ID ใน log ไม่เกี่ยวกับ UI โดยตรง</td>
+              </tr>
+              <tr>
+                <td><code>SONY_PRODUCT_API_*</code></td>
+                <td class="sec">คีย์สมัครสมาชิก APIM เป็น secret</td>
+                <td>โหมด live ล้ม → my-* อาจเป็นแคตตาล็อกล็อก / วิวว่าง</td>
+              </tr>
+              <tr>
+                <td><code>DATABASE_URL</code> / <code>DATABASE_SSL</code></td>
+                <td class="sec">Secret + TLS</td>
+                <td>ไม่มีกฎเหรียญ → หน้าแคตตาล็อกว่างหรือ error</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="console">
+        <h2>Configuration บน LINE Developers (นอกไฟล์ env)</h2>
+        <ul>
+          <li>สร้าง LIFF / Mini App ภายใต้ Messaging API หรือ LINE Login channel เดียวกับ <code>LINE_CHANNEL_ID</code></li>
+          <li>Endpoint / Mini App URL ชี้ origin เดียวกับ <code>NEXT_PUBLIC_APP_BASE_URL</code> เช่น <code>https://&lt;host&gt;/th/my-badges</code></li>
+          <li>Scopes ที่แอปใช้จริง: ID token (openid) และโปรไฟล์สำหรับชื่อกับรูป</li>
+          <li>เปิดใช้งานใน LINE client เท่านั้น — โค้ดปฏิเสธเมื่อ <code>liff.isInClient()</code> เป็นเท็จ</li>
+        </ul>
+      </section>
+
+      <section id="env">
+        <h2>ตัวอย่างไฟล์ (placeholder เท่านั้น)</h2>
+        <pre># คัดลอกโครงสร้าง ไม่ใส่ค่าจริงลง git / แชท / เอกสารนี้
+APP_ENV=staging
+APP_BASE_URL=https://&lt;public-host&gt;
+NEXT_PUBLIC_APP_BASE_URL=https://&lt;public-host&gt;
+ALLOWED_ORIGINS=https://&lt;public-host&gt;
+ALLOWED_REFERRERS=https://&lt;public-host&gt;
+
+NEXT_PUBLIC_LIFF_ID=&lt;channel-id&gt;-&lt;liff-suffix&gt;
+LINE_CHANNEL_ID=&lt;digits-only&gt;
+LINE_VERIFY_ID_TOKEN_URL=https://api.line.me/oauth2/v2.1/verify
+
+NEXT_PUBLIC_ACCOUNT_URL=https://&lt;sony-account-or-register-page&gt;
+NEXT_PUBLIC_REGISTER_PRODUCT_URL=https://&lt;sony-product-register-page&gt;
+NEXT_PUBLIC_DEBUG_MOCK_JSON=false
+
+# ด้านล่างเป็น server-only — ห้าม NEXT_PUBLIC_
+APP_SESSION_SECRET=&lt;redacted&gt;
+LOG_HASH_SECRET=&lt;redacted&gt;
+DATABASE_URL=&lt;redacted&gt;
+DATABASE_SSL=true
+SONY_PRODUCT_API_MODE=live
+SONY_PRODUCT_API_BASE_URL=https://&lt;apim-host&gt;/.../QueryWarrantyMySonyByLine
+SONY_PRODUCT_API_SUBSCRIPTION_KEY=&lt;redacted&gt;
+SONY_PRODUCT_API_COUNTRY_CODE=th</pre>
+        <div class="note warn">
+          Local: <code>APP_ENV=local</code>, <code>SONY_PRODUCT_API_MODE=mock</code>
+          ลับฐานข้อมูล/คีย์ว่างได้
+          LIFF ว่างได้ถ้าไม่ทดสอบใน LINE
+          ตรวจ deploy ด้วย <code>node scripts/config/verify-deploy-env.mjs</code>
+          อย่ารันสคริปต์แล้วแปะไฟล์ env ที่มี secret ลงในเอกสาร
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

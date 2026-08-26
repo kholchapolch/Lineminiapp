@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirect Test Result</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background: #eef3f8; border-radius: 4px; padding: 1px 5px;
+      }
+      .hero, section {
+        border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+        padding: 22px; margin-bottom: 18px;
+      }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note {
+        border-left: 4px solid var(--accent); background: var(--accent-soft);
+        padding: 12px 14px; margin: 14px 0;
+      }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 920px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+      .pass { color: var(--ok); font-weight: 700; }
+      .gap { color: var(--warn); font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Redirect Test Result</h1>
+        <p class="lede">
+          ผลทดสอบกรณีมี/ไม่มี Session, Member/Non-member, URL ผิด และระบบปลายทางไม่พร้อม
+        </p>
+        <p>
+          Vitest ที่เกี่ยวข้องผ่านแล้ว (redirect-guard 4, badge-landing 2, mock-session 2, liff-session, line-session, customer-products 401)
+          ไม่มีเทส middleware และไม่มี e2e เปิด URL จริงใน LINE
+        </p>
+      </header>
+
+      <section>
+        <h2>มี / ไม่มี Session</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>ผลที่คาด</th>
+                <th>ผลทดสอบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>S-01</td>
+                <td>local mock ไม่บังคับคุกกี้ ไปบ้านตรง</td>
+                <td>landingMode local-preview → my-badges</td>
+                <td class="pass">Pass (badge-landing)</td>
+              </tr>
+              <tr>
+                <td>S-02</td>
+                <td>production ต้องผ่าน LINE</td>
+                <td>landingMode line-session</td>
+                <td class="pass">Pass (badge-landing)</td>
+              </tr>
+              <tr>
+                <td>S-03</td>
+                <td>มีคุกกี้เซสชันที่เซ็นแล้ว</td>
+                <td>อ่าน lineuuid จากคุกกี้ได้</td>
+                <td class="pass">Pass (line-session-storage / auth)</td>
+              </tr>
+              <tr>
+                <td>S-04</td>
+                <td>ไม่มีคุกกี้บน customer-products</td>
+                <td>401 UNAUTHORIZED ไม่ redirect</td>
+                <td class="pass">Pass (route test)</td>
+              </tr>
+              <tr>
+                <td>S-05</td>
+                <td>entry ไม่มีเซสชัน หลัง guard ผ่าน</td>
+                <td>redirect badges?entryError=missingLineSession</td>
+                <td class="gap">Specified (ไม่มีเทสหน้า entry)</td>
+              </tr>
+              <tr>
+                <td>S-06</td>
+                <td>LIFF สำเร็จ</td>
+                <td>POST /api/line-session แล้วไปบ้าน (client replace)</td>
+                <td class="pass">Pass เฉพาะ POST หน่วย · replace ไม่มี e2e</td>
+              </tr>
+              <tr>
+                <td>S-07</td>
+                <td>เปิดนอก LINE / ไม่มี token / verify 401</td>
+                <td>throw ไม่ตั้งเซสชัน</td>
+                <td class="pass">Pass (liff-session)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Member / Non-member</h2>
+        <p>
+          Member ในที่นี้ = LINE ID ที่มีรายการใน Sony warranty
+          ไม่ใช่การสมัครใน Mini App
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>ผลที่คาด</th>
+                <th>ผลทดสอบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>M-01</td>
+                <td>มี LINE + มีสินค้า (mock demo-line-earned)</td>
+                <td>คำนวณเหรียญได้ ไม่ redirect ออก</td>
+                <td class="pass">Pass (mock products / customer-products)</td>
+              </tr>
+              <tr>
+                <td>M-02</td>
+                <td>มี LINE แต่ไม่พบโปรไฟล์ Sony</td>
+                <td>
+                  ไม่ redirect login Sony ·
+                  customer-products 404 ·
+                  my-* แคตตาล็อกล็อกหรือวิวว่าง
+                </td>
+                <td class="pass">Pass หน่วย CUSTOMER_NOT_FOUND · หน้า my-* ไม่มี e2e</td>
+              </tr>
+              <tr>
+                <td>M-03</td>
+                <td>มี LINE รายการสินค้าว่าง</td>
+                <td>อยู่บ้าน เหรียญล็อก ข้อความให้ลงทะเบียน</td>
+                <td class="pass">Pass mock demo-line-empty · UI ไม่มีเทส</td>
+              </tr>
+              <tr>
+                <td>M-04</td>
+                <td>ยังไม่ใช่สมาชิก LINE ใน client</td>
+                <td>เข้า Mini App ไม่ได้ตาม S-07 ไม่พาไปหน้าสมัคร Sony</td>
+                <td class="pass">Pass (หน่วย LIFF)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>URL ผิด</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>ผลที่คาด</th>
+                <th>ผลทดสอบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>U-01</td>
+                <td>path เก่า /badge</td>
+                <td>middleware → /th/my-badges</td>
+                <td class="gap">Specified (ไม่มีเทส middleware)</td>
+              </tr>
+              <tr>
+                <td>U-02</td>
+                <td>entry จาก origin ที่ไม่อนุญาต</td>
+                <td>blocked-source</td>
+                <td class="pass">Pass (redirect-guard)</td>
+              </tr>
+              <tr>
+                <td>U-03</td>
+                <td>entry ไม่มี origin และ referer</td>
+                <td>missing-source</td>
+                <td class="pass">Pass (redirect-guard)</td>
+              </tr>
+              <tr>
+                <td>U-04</td>
+                <td>locale ใน path ไม่ใช่ th/en บนหน้า [locale]</td>
+                <td>notFound ของ layout</td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>U-05</td>
+                <td>productId / missionId / share id ไม่มีในกฎ</td>
+                <td>404 JSON หรือ notFound หน้า share</td>
+                <td class="gap">Specified (ไม่มีเทส route my-product 404)</td>
+              </tr>
+              <tr>
+                <td>U-06</td>
+                <td>mock-session ไม่มี sku</td>
+                <td>400 MISSING_SKU ไม่ redirect</td>
+                <td class="gap">Specified (เทสมีแค่มี sku และ 404 นอก local)</td>
+              </tr>
+              <tr>
+                <td>U-07</td>
+                <td>เรียก mock-session บน production</td>
+                <td>404 NOT_FOUND</td>
+                <td class="pass">Pass</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>ระบบปลายทางไม่พร้อม</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>ผลที่คาด</th>
+                <th>ผลทดสอบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>D-01</td>
+                <td>LINE verify ล่ม / 401</td>
+                <td>ไม่ตั้งคุกกี้ · หน้า badges ข้อความบล็อก</td>
+                <td class="pass">Pass หน่วย fetch 401 · UI ไม่มี e2e</td>
+              </tr>
+              <tr>
+                <td>D-02</td>
+                <td>Sony APIM 5xx / timeout</td>
+                <td>ไม่ redirect ออก · customer-products 500 · my-* ล็อกหรือค้างโหลด</td>
+                <td class="gap">Specified ใน client · ไม่มีเทส HTTP 5xx</td>
+              </tr>
+              <tr>
+                <td>D-03</td>
+                <td>MySQL ไม่พร้อม</td>
+                <td>UNKNOWN_ERROR / หน้าโหลดล้ม ไม่มีหน้า maintenance</td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>D-04</td>
+                <td>เว็บลงทะเบียน / FAQ ภายนอกล่ม</td>
+                <td>ผู้ใช้ออกโดเมนแล้วเจอของปลายทาง แอปไม่ตรวจสุขภาพลิงก์</td>
+                <td class="gap">Not in scope / not tested</td>
+              </tr>
+              <tr>
+                <td>D-05</td>
+                <td>LIFF ID ไม่ตั้งบน production</td>
+                <td>แอป throw ตอนโหลด config ไม่เสิร์ฟหน้า</td>
+                <td class="pass">Pass (app-config required LIFF)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          เคส U-01 และ entry→badges ทั้งก้อนยังไม่มี integration test ของ Next middleware/page
+          ควรเพิ่มก่อน UAT เปิดจาก rich menu จริง
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

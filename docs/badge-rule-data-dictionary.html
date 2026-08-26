@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Badge Rule Data Dictionary</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 860px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .ok {
+        border-left-color: var(--ok);
+        background: #e9f7ef;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .term {
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Badge Rule Data Dictionary</h1>
+        <p class="lede">
+          พจนานุกรม field ที่ใช้กำหนดเงื่อนไขเหรียญ (fields that define how a badge can be earned).
+          เอกสารนี้อธิบายคำธุรกิจ เช่น Eligible Product, Threshold, Tier, Status, และ Effective Date
+          แล้วผูกกับคอลัมน์จริงใน MySQL
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#map">ตารางเทียบคำ (Term map)</a></li>
+            <li><a href="#eligible">Eligible Product</a></li>
+            <li><a href="#threshold">Threshold</a></li>
+            <li><a href="#tier">Tier</a></li>
+            <li><a href="#status">Status</a></li>
+            <li><a href="#effective">Effective Date</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="map">
+        <h2>ตารางเทียบคำธุรกิจกับคอลัมน์ (Business term map)</h2>
+        <p>
+          ทีมและลูกค้ามักใช้คำด้านล่างตอนออกแบบกฎ ระบบเก็บค่าเหล่านี้ในตาราง configuration
+          ไม่ได้เก็บผลลัพธ์ของลูกค้าแต่ละคน
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>คำธุรกิจ → field ที่ persist</caption>
+            <thead>
+              <tr>
+                <th>คำธุรกิจ (Business term)</th>
+                <th>ตาราง / คอลัมน์ (Stored as)</th>
+                <th>ใช้ตอนไหน (Used for)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="term">Eligible Product</span><br />สินค้าที่ร่วมรายการ</td>
+                <td>
+                  <code>badge_rule_conditions.sony_skus</code> (JSON),
+                  <code>match_type</code>,
+                  <code>required_count</code><br />
+                  เหรียญผลิตภัณฑ์ยังมี <code>badge_rules.product_model_code</code>
+                </td>
+                <td>เลือกรุ่นที่นับได้ และวิธีนับในรายการนั้น</td>
+              </tr>
+              <tr>
+                <td><span class="term">Threshold</span><br />เกณฑ์ปลดล็อก</td>
+                <td>
+                  <code>badge_rule_thresholds.required_count</code>,
+                  <code>level</code>,
+                  <code>display_name</code>,
+                  รูปภาพ
+                </td>
+                <td>matched count เท่าไรจึงปลดล็อกระดับนั้น</td>
+              </tr>
+              <tr>
+                <td><span class="term">Tier</span><br />ระดับเหรียญ</td>
+                <td>
+                  <code>badge_rules.rule_type = 'tier'</code>
+                  และหลายแถวใน <code>badge_rule_thresholds</code>
+                  เช่น <code>bronze</code> / <code>silver</code> / <code>gold</code>
+                </td>
+                <td>เหรียญที่มีหลายระดับจากสินค้าชุดเดียวกัน</td>
+              </tr>
+              <tr>
+                <td><span class="term">Status</span><br />สถานะกฎ</td>
+                <td><code>badge_rules.is_active</code></td>
+                <td>เปิดหรือปิดกฎทั้งก้อน ก่อนคำนวณ</td>
+              </tr>
+              <tr>
+                <td><span class="term">Effective Date</span><br />วันที่มีผล</td>
+                <td>
+                  หน้าต่างแสดงผล:
+                  <code>active_from</code> / <code>active_to</code><br />
+                  หน้าต่างลงทะเบียน:
+                  <code>registration_start</code> / <code>registration_end</code>
+                </td>
+                <td>กฎโชว์เมื่อไร และสินค้านับเมื่อไร</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          สถานะที่ลูกค้าเห็นบน UI เช่น earned / locked ไม่ได้เก็บในตารางกฎ
+          เป็นค่าที่คำนวณตอน request จากสินค้า Sony + Threshold
+        </div>
+      </section>
+
+      <section id="eligible">
+        <h2>Eligible Product — สินค้าที่ร่วมรายการ</h2>
+        <p>
+          Eligible Product คือรุ่น Sony ที่เงื่อนไขเหรียญยอมรับ
+          ระบบเทียบกับสินค้าที่ลูกค้าลงทะเบียนจาก warranty API โดยใช้ SKU ที่ normalize แล้ว
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Field ที่ประกอบ Eligible Product</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>ค่าที่อนุญาต / ตัวอย่าง</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sony_skus</code></td>
+                <td>JSON array ของ string</td>
+                <td><code>["SEL2870GM", "SEL50150GM"]</code></td>
+                <td>รายการรุ่นที่ร่วมรายการในเงื่อนไขนี้ ไม่มีตาราง SKU แยก</td>
+              </tr>
+              <tr>
+                <td><code>match_type</code></td>
+                <td>VARCHAR(40)</td>
+                <td><code>any</code>, <code>all</code>, <code>min_count</code></td>
+                <td>วิธีนับสินค้าใน list นี้</td>
+              </tr>
+              <tr>
+                <td><code>required_count</code> (condition)</td>
+                <td>INT, default 1, ต้อง ≥ 0</td>
+                <td><code>1</code>, <code>3</code>, <code>4</code></td>
+                <td>
+                  จำนวนที่ต้องมีใน list นี้
+                  ถ้า <code>match_type = 'all'</code> ระบบใช้ความยาวของ <code>sony_skus</code> แทน
+                </td>
+              </tr>
+              <tr>
+                <td><code>condition_label</code></td>
+                <td>VARCHAR(255)</td>
+                <td><code>Own one 16-35 GM family model</code></td>
+                <td>ป้ายให้อ่านใน SQL / debug ไม่ได้ใช้คำนวณ</td>
+              </tr>
+              <tr>
+                <td><code>product_model_code</code></td>
+                <td>VARCHAR(120), nullable</td>
+                <td><code>SEL100M28GM</code></td>
+                <td>รหัสรุ่นหลักของเหรียญผลิตภัณฑ์ ใช้แสดงผล ไม่แทนที่ <code>sony_skus</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>วิธีนับในหนึ่งเงื่อนไข (Match type)</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th><code>match_type</code></th>
+                <th>ความหมายธุรกิจ</th>
+                <th>ตัวอย่าง seed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>any</code></td>
+                <td>มีสินค้าใดสินค้าหนึ่งใน list ตาม <code>required_count</code> (มักเป็น 1)</td>
+                <td>The Magnifier: macro รุ่นใดก็ได้ 1 ชิ้น</td>
+              </tr>
+              <tr>
+                <td><code>all</code></td>
+                <td>ต้องมีครบทุก SKU ใน list</td>
+                <td>F2 Master: ต้องมีทั้ง SEL2870GM และ SEL50150GM</td>
+              </tr>
+              <tr>
+                <td><code>min_count</code></td>
+                <td>ต้องมีอย่างน้อย N รุ่นที่ไม่ซ้ำจาก list</td>
+                <td>All Rounder: 3 จาก 4 รุ่น; Portrait Master Gold: สะสมถึง 4 รุ่น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid">
+          <div class="box">
+            <strong>นับรุ่นไม่ซ้ำ (unique SKU)</strong>
+            สินค้าที่ match SKU เดียวกันนับได้ครั้งเดียวต่อเงื่อนไข
+            ลงทะเบียนซีเรียลซ้ำของรุ่นเดียวกันจึงไม่เพิ่ม matched count
+          </div>
+          <div class="box">
+            <strong>เทียบ SKU แบบ suffix-aware</strong>
+            ระบบ uppercase + trim แล้วยอมรับส่วนท้ายแคตตาล็อก เช่น <code>/QSYX</code>
+            แต่ <code>SEL70200GM</code> จะไม่ match <code>SEL70200G</code>
+          </div>
+          <div class="box">
+            <strong>หลายเงื่อนไขในกฎเดียว</strong>
+            แต่ละ condition มี Eligible Product ของตัวเอง
+            matched count ของกฎคือผลรวมที่ cap ตาม required ของแต่ละ condition
+            เช่น Trinity Master = หนึ่งรุ่นจากสามตระกูล GM
+          </div>
+        </div>
+        <div class="note">
+          SKU เดียวกันไปอยู่ในหลายเหรียญได้ เช่นเลนส์ G Master อาจนับทั้งเหรียญผลิตภัณฑ์และ quest
+        </div>
+      </section>
+
+      <section id="threshold">
+        <h2>Threshold — เกณฑ์ปลดล็อก</h2>
+        <p>
+          Threshold คือระดับที่เหรียญจะเปลี่ยนจากยังไม่ปลดล็อกเป็นปลดล็อก
+          เมื่อ <em>matched count ของทั้งกฎ</em> ถึง <code>required_count</code> ของระดับนั้น
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Field ของ Threshold</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>ค่าที่อนุญาต / ตัวอย่าง</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>level</code></td>
+                <td>VARCHAR(80), unique ต่อกฎ</td>
+                <td><code>achievement</code>, <code>bronze</code>, <code>silver</code>, <code>gold</code></td>
+                <td>รหัสระดับ คงที่สำหรับ UI / ลิงก์รายละเอียด</td>
+              </tr>
+              <tr>
+                <td><code>display_name</code></td>
+                <td>VARCHAR(255)</td>
+                <td><code>Portrait Master Gold</code></td>
+                <td>ชื่อที่แสดงเมื่ออยู่ที่ระดับนี้</td>
+              </tr>
+              <tr>
+                <td><code>required_count</code> (threshold)</td>
+                <td>INT, ต้อง ≥ 0</td>
+                <td>เหรียญผลิตภัณฑ์ = 1; Portrait Master = 2 / 3 / 4</td>
+                <td>matched count ขั้นต่ำเพื่อปลดล็อกระดับนี้</td>
+              </tr>
+              <tr>
+                <td><code>achieved_image_url</code></td>
+                <td>TEXT, nullable</td>
+                <td><code>/quest-badge/portrait-gold.png</code></td>
+                <td>รูปสีเมื่อปลดล็อกแล้ว</td>
+              </tr>
+              <tr>
+                <td><code>locked_image_url</code></td>
+                <td>TEXT, nullable</td>
+                <td>null ใน seed ปัจจุบัน</td>
+                <td>รูปตอนยังไม่ปลดล็อก ถ้าว่างระบบใช้รูป achieved แล้วลดความสว่าง</td>
+              </tr>
+              <tr>
+                <td><code>share_image_url</code></td>
+                <td>TEXT, nullable</td>
+                <td>มักซ้ำกับ achieved</td>
+                <td>รูปแชร์ / OG</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td>INT</td>
+                <td>1001, 1002, 1003</td>
+                <td>ลำดับแสดง ถ้า <code>required_count</code> เท่ากัน ระบบเรียงด้วยค่านี้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>Required Count มีสองชั้น:</strong>
+          ของ condition จำกัดว่าเงื่อนไขหนึ่งข้อให้นับได้เท่าไร
+          ของ threshold ตัดสินว่าระดับไหนปลดล็อก
+          ตัวอย่าง The Visionary: condition <code>min_count</code> 4 จากรายการ telephoto
+          แล้ว threshold bronze=2, silver=3, gold=4
+        </div>
+        <div class="grid">
+          <div class="box">
+            <strong>เหรียญผลิตภัณฑ์</strong>
+            Threshold เดียว <code>level = achievement</code>, <code>required_count = 1</code>
+            มี Eligible Product รุ่นเดียว
+          </div>
+          <div class="box">
+            <strong>เหรียญ quest แบบ achievement</strong>
+            Threshold เดียวเช่นกัน แต่ <code>required_count</code> อาจเป็น 2 หรือ 3
+            เช่น Trinity Master ต้องครบ 3 ตระกูล
+          </div>
+        </div>
+      </section>
+
+      <section id="tier">
+        <h2>Tier — ระดับเหรียญ</h2>
+        <p>
+          Tier คือกฎที่มีหลาย Threshold จาก Eligible Product ชุดเดียวกัน
+          ลูกค้าสะสมรุ่นไม่ซ้ำแล้วขยับจาก Bronze → Silver → Gold
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Field ที่ทำให้กฎเป็น Tier</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ค่า</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_rules.rule_type</code></td>
+                <td><code>tier</code> หรือ <code>achievement</code></td>
+                <td>
+                  <code>tier</code> = มีหลายระดับที่มองเห็น
+                  <code>achievement</code> = ปลดล็อกก้อนเดียว
+                </td>
+              </tr>
+              <tr>
+                <td><code>badge_rules.badge_type</code></td>
+                <td><code>product</code> หรือ <code>quest</code></td>
+                <td>ชนิดบนชั้นเหรียญ ไม่ได้บอกว่ามีกี่ระดับ seed ปัจจุบันใช้ tier กับ quest เท่านั้น</td>
+              </tr>
+              <tr>
+                <td>จำนวนแถว threshold</td>
+                <td>มากกว่า 1 สำหรับ quest แบบสะสม</td>
+                <td>แต่ละแถวคือหนึ่ง tier พร้อมรูปและ required count ของตัวเอง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>ตัวอย่าง tier จาก seed ปัจจุบัน</caption>
+            <thead>
+              <tr>
+                <th>Badge</th>
+                <th>Bronze</th>
+                <th>Silver</th>
+                <th>Gold</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Portrait Master</td>
+                <td>2 รุ่น</td>
+                <td>3 รุ่น</td>
+                <td>4 รุ่น</td>
+              </tr>
+              <tr>
+                <td>Wide Architect</td>
+                <td>3 รุ่น</td>
+                <td>4 รุ่น</td>
+                <td>5 รุ่น</td>
+              </tr>
+              <tr>
+                <td>The Visionary</td>
+                <td>2 รุ่น</td>
+                <td>3 รุ่น</td>
+                <td>4 รุ่น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note ok">
+          Engine เรียง threshold ตาม <code>required_count</code> แล้วเลือกอันสูงสุดที่ matched count ถึง
+          ยังไม่ถึงระดับแรกเลยจะยังเป็น locked ที่ threshold ถัดไป
+        </div>
+      </section>
+
+      <section id="status">
+        <h2>Status — สถานะ</h2>
+        <p>
+          ในพจนานุกรมกฎ Status คือการเปิด/ปิดกฎทั้งก้อน
+          ไม่ใช่สถานะเหรียญของลูกค้าคนหนึ่ง
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Status ระดับ configuration</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>ค่า</th>
+                <th>ผลต่อระบบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_rules.is_active</code></td>
+                <td>BOOLEAN, default TRUE</td>
+                <td><code>true</code> / <code>false</code></td>
+                <td>
+                  <code>false</code> = กฎไม่เข้าการคำนวณและไม่โชว์บนชั้นเหรียญ
+                  ควรปิดกฎที่เคยแสดงแล้ว แทนการลบแถว
+                </td>
+              </tr>
+              <tr>
+                <td><code>badge_display_groups.is_active</code></td>
+                <td>BOOLEAN, default TRUE</td>
+                <td><code>true</code> / <code>false</code></td>
+                <td>ควบคุมกลุ่มแสดงผล ไม่ได้ปิดกฎลูกโดยอัตโนมัติผ่าน FK</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>Status ระดับ runtime (คำนวณ ไม่ persist ในตารางกฎ)</caption>
+            <thead>
+              <tr>
+                <th>ค่า</th>
+                <th>ความหมาย</th>
+                <th>เงื่อนไขโดยย่อ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>earned</code></td>
+                <td>ปลดล็อกแล้ว (achieved)</td>
+                <td>matched count ≥ threshold อย่างน้อยหนึ่งระดับ</td>
+              </tr>
+              <tr>
+                <td><code>locked</code></td>
+                <td>เริ่มสะสมแล้วแต่ยังไม่ถึงเกณฑ์</td>
+                <td>matched count &gt; 0 แต่ยังไม่ถึง threshold ใด</td>
+              </tr>
+              <tr>
+                <td><code>no-badge</code></td>
+                <td>ยังไม่มีสินค้าที่ร่วมรายการ</td>
+                <td>matched count = 0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          กฎที่ <code>is_active = false</code> จะไม่ถูกคำนวณเลย จึงไม่มี earned/locked
+          ปิดกฎไม่ลบประวัติสินค้าที่ Sony API เพราะ ownership ไม่อยู่ในฐานข้อมูลนี้
+        </div>
+      </section>
+
+      <section id="effective">
+        <h2>Effective Date — วันที่มีผล</h2>
+        <p>
+          ระบบแยกวันที่เป็นสองหน้าต่าง เพราะ “เหรียญโชว์บนชั้นเมื่อไร” กับ “สินค้านับเมื่อไร” ไม่ใช่เรื่องเดียวกัน
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>หน้าต่างแสดงผล (Display window)</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>เทียบกับ</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>active_from</code></td>
+                <td>DATE, nullable</td>
+                <td>วันปัจจุบันของเซิร์ฟเวอร์ (<code>now</code>)</td>
+                <td>ก่อนวันนี้กฎยังไม่โชว์ / ไม่คำนวณ</td>
+              </tr>
+              <tr>
+                <td><code>active_to</code></td>
+                <td>DATE, nullable</td>
+                <td>วันปัจจุบันของเซิร์ฟเวอร์</td>
+                <td>หลังวันนี้เหรียญหายจากชั้น ปล่อยว่างถ้าต้องการโชว์ต่อหลังแคมเปญ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>หน้าต่างลงทะเบียน (Earning / registration window)</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>เทียบกับ</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>registration_start</code></td>
+                <td>DATE, nullable</td>
+                <td>Sony product <code>registeredAt</code></td>
+                <td>สินค้าที่ลงก่อนวันนี้ไม่นับเป็น Eligible Product ของกฎนี้</td>
+              </tr>
+              <tr>
+                <td><code>registration_end</code></td>
+                <td>DATE, nullable</td>
+                <td>Sony product <code>registeredAt</code></td>
+                <td>สินค้าที่ลงหลังวันนี้ไม่นับ ถ้าลงในหน้าต่างแล้วยังโชว์เหรียญที่ได้ภายหลังได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <div class="box">
+            <strong>ค่า null = ไม่จำกัด</strong>
+            Seed ปัจจุบันใส่ null ทั้งสี่คอลัมน์
+            สินค้าที่ลงทะเบียนแล้วจึงนับได้ทุกวัน และเหรียญโชว์ตลอดที่กฎยัง active
+          </div>
+          <div class="box">
+            <strong>ขอบเขตวันที่รวมวันปลาย</strong>
+            ระบบเทียบแบบวันที่ (UTC midnight ของค่าที่เก็บ)
+            สินค้าที่ลงในวัน <code>registration_end</code> ยังนับ
+          </div>
+        </div>
+        <div class="note">
+          ตัวอย่างแคมเปญระยะสั้น: ตั้ง <code>registration_start/end</code> ตามช่วงลงทะเบียน
+          และปล่อย <code>active_to</code> เป็น null เพื่อให้ผู้ที่ได้เหรียญแล้วยังเห็นบนชั้น
+          ใส่ <code>active_to</code> เมื่อต้องการให้เหรียญหายจากชั้นหลังจบแคมเปญ
+        </div>
+      </section>
+
+      <section>
+        <h2>ลำดับที่ระบบใช้ field เหล่านี้</h2>
+        <ol>
+          <li><strong>Status</strong> — ถ้า <code>is_active</code> เป็น false จบที่กฎนี้</li>
+          <li><strong>Effective Date (แสดงผล)</strong> — ถ้าวันนี้ไม่อยู่ในช่วง <code>active_from</code> / <code>active_to</code> จบที่กฎนี้</li>
+          <li><strong>Eligible Product</strong> — คัดสินค้าที่ SKU ตรง list และอยู่ในหน้าต่างลงทะเบียน นับรุ่นไม่ซ้ำตาม <code>match_type</code></li>
+          <li><strong>Threshold / Tier</strong> — เทียบ matched count กับ <code>required_count</code> ของแต่ละระดับ แล้วเลือกสูงสุดที่ถึง</li>
+        </ol>
+        <div class="note warn">
+          หลังแก้ field เหล่านี้ในฐานข้อมูล ต้อง bump <code>app_config.badge_rules_version</code>
+          เพื่อไม่ให้ cache ใช้กฎเก่า
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

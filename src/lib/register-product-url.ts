@@ -28,10 +28,11 @@ export function buildRegisterProductUrl(
 
   try {
     const url = new URL(base);
-    url.searchParams.set("callback", callbackUrl);
+    // url.searchParams.set("callback", callbackUrl);
     return url.toString();
   } catch {
     const separator = base.includes("?") ? "&" : "?";
-    return `${base}${separator}callback=${encodeURIComponent(callbackUrl)}`;
+    // return `${base}${separator}callback=${encodeURIComponent(callbackUrl)}`;
+    return `${base}${separator}`;
   }
 }

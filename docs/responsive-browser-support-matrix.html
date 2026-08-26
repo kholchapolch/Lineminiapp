@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Responsive &amp; Browser Support Matrix</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 860px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .ok {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .lim {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      .no {
+        color: #66758a;
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Responsive &amp; Browser Support Matrix</h1>
+        <p class="lede">
+          อุปกรณ์ ระบบปฏิบัติการ เวอร์ชัน LINE และเบราว์เซอร์ที่รองรับ
+          สำหรับ Sony Thailand LINE Mini App
+        </p>
+        <p>
+          เป้าหมายออกแบบคือโทรศัพท์ใน LIFF browser ของแอป LINE
+          แพ็กเกจใช้ <code>@line/liff</code> ^2.27 (ล็อกใน lockfile เป็น 2.29.x)
+          เอกสารนี้รวมข้อจำกัดในโค้ดกับสภาพแวดล้อมที่ LINE แนะนำ
+          ไม่ใช่ผลแล็บอุปกรณ์ที่ลงนามในรอบนี้
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#target">เป้าหมาย (Target)</a></li>
+            <li><a href="#responsive">Responsive</a></li>
+            <li><a href="#os">OS / อุปกรณ์</a></li>
+            <li><a href="#line">LINE / LIFF</a></li>
+            <li><a href="#browser">Browser</a></li>
+            <li><a href="#features">ฟีเจอร์รายเบราว์เซอร์</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="target">
+        <h2>เป้าหมายการรองรับ (Support target)</h2>
+        <ul>
+          <li>
+            <strong>หลัก:</strong> เปิด Mini App ในแอป LINE บนสมาร์ตโฟน
+            (<code>liff.isInClient() === true</code>) มี ID token
+          </li>
+          <li>
+            <strong>รอง:</strong> หน้า OG
+            <code>/{locale}/share/...</code> ให้ Facebook crawler และเบราว์เซอร์ทั่วไปอ่านเมตา
+          </li>
+          <li>
+            <strong>พัฒนา:</strong> Chrome/Safari บนเดสก์ท็อปเมื่อ
+            <code>APP_ENV=local</code> + mock ไม่ต้องมี LIFF
+          </li>
+        </ul>
+        <div class="note warn">
+          โค้ดสร้างเซสชันจะ throw หากไม่ได้เปิดใน LINE client
+          เบราว์เซอร์ภายนอก (Chrome/Safari นอกแอป LINE) จึงไม่ใช่ช่องทางผู้ใช้แคมเปญ
+          แม้ LINE จะเริ่มเปิด Mini App นอกแอปได้ในบางภูมิภาค
+        </div>
+      </section>
+
+      <section id="responsive">
+        <h2>Responsive (เลย์เอาต์ในแอป)</h2>
+        <ul>
+          <li>
+            Viewport: <code>width=device-width</code>,
+            <code>initialScale=1</code>, <code>viewportFit=cover</code>
+          </li>
+          <li>
+            ความสูงหน้า: <code>min-height: 100dvh</code>
+            กันแถบที่อยู่ของ iOS
+          </li>
+          <li>
+            ระยะล่าง: <code>env(safe-area-inset-bottom)</code>
+            บน My Badges, Products, Missions, รายละเอียด, loading
+          </li>
+          <li>
+            หน้าบ้าน/แคตตาล็อกสินค้า: กริด 3 คอลัมน์
+            (<code>repeat(3, minmax(0, 1fr))</code>) ไม่มี breakpoint แยกแท็บเล็ต
+          </li>
+          <li>
+            <code>@media (max-width: 680px)</code> ใช้กับหน้าวินิจฉัย
+            <code>BadgeClient</code> ใน <code>globals.css</code> เป็นหลัก
+            ไม่ได้ปรับกริด My Badges
+          </li>
+        </ul>
+        <div class="tableWrap">
+          <table>
+            <caption>ความกว้างจอที่ออกแบบไว้</caption>
+            <thead>
+              <tr>
+                <th>ช่วงความกว้าง</th>
+                <th>ระดับ</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ประมาณ 360–430 px (โทรศัพท์แนวตั้ง)</td>
+                <td class="ok">เป้าหมาย</td>
+                <td>กริด 3 คอลัมน์การ์ดเหรียญ, แถบล่าง 3 ปุ่ม</td>
+              </tr>
+              <tr>
+                <td>แท็บเล็ต / แนวนอนกว้าง</td>
+                <td class="lim">ไม่ได้ปรับเลย์เอาต์แยก</td>
+                <td>เนื้อหายืดเต็มความกว้าง คอลัมน์การ์ดยังเป็น 3</td>
+              </tr>
+              <tr>
+                <td>เดสก์ท็อปกว้าง</td>
+                <td class="lim">ใช้พัฒนา/mock</td>
+                <td>ไม่ใช่ช่องทาง LIFF ของผู้ใช้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="os">
+        <h2>อุปกรณ์และระบบปฏิบัติการ</h2>
+        <p>
+          LINE กำหนดว่า LIFF ในแอปใช้ WKWebView (iOS) และ Android WebView
+          เวอร์ชันต่ำสุดตามสเปกระบบที่แอป LINE รองรับในขณะนั้น
+          แนะนำให้ใช้ OS และ LINE รุ่นล่าสุด
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>แพลตฟอร์ม</th>
+                <th>สถานะแอปนี้</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>iPhone + iOS (ล่าสุดที่ LINE รองรับ)</td>
+                <td class="ok">รองรับ (เป้าหมาย)</td>
+                <td>
+                  safe-area, 100dvh, แชร์ใช้ Web Share ก่อนเพราะลิงก์ Facebook บน iOS มักพังเมื่อมีแอป Facebook
+                </td>
+              </tr>
+              <tr>
+                <td>Android phone (ล่าสุดที่ LINE รองรับ)</td>
+                <td class="ok">รองรับ (เป้าหมาย)</td>
+                <td>WebView ของระบบ; ลิงก์ภายนอกผ่าน <code>liff.openWindow</code></td>
+              </tr>
+              <tr>
+                <td>iPad / Android tablet</td>
+                <td class="lim">ไม่ได้ทดสอบเป็นเป้าหมาย</td>
+                <td>ถ้า LINE บนเครื่องเปิด Mini App ได้ เลย์เอาต์ยังเป็นมือถือ 3 คอลัมน์</td>
+              </tr>
+              <tr>
+                <td>LINE PC / macOS / Chrome OS</td>
+                <td class="no">นอกขอบเขตผู้ใช้</td>
+                <td>เซสชันต้องการ in-client ของแอปมือถือ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="line">
+        <h2>เวอร์ชัน LINE และ LIFF</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>ค่าที่ใช้</th>
+                <th>ความหมายต่อแอปนี้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LIFF SDK ใน npm</td>
+                <td><code>@line/liff</code> ^2.27.1 (ติดตั้ง 2.29.x)</td>
+                <td>
+                  Mini App ของ LINE รับ SDK ตระกูล 2.1 ขึ้นไป
+                  แอปใช้ init, getIDToken, getProfile, isInClient, openWindow
+                </td>
+              </tr>
+              <tr>
+                <td>LINE แอป (แนะนำจาก LINE)</td>
+                <td>รุ่นล่าสุด</td>
+                <td>ต้องมี ID token ใน in-client</td>
+              </tr>
+              <tr>
+                <td>LINE แอป (ต่ำสุดจาก LINE)</td>
+                <td>ตามสเปกระบบของแอป LINE ไม่ได้ล็อกเลขรุ่นในรีโปนี้</td>
+                <td>
+                  ไม่มีเช็กเวอร์ชันในโค้ด
+                  ถ้ารุ่นเก่าไม่มี ID token ผู้ใช้เข้าบ้านไม่ได้
+                </td>
+              </tr>
+              <tr>
+                <td>LINE 26.7+ / 15.12+ UI ของ LIFF chrome</td>
+                <td>เมนูหัว LIFF ของแพลตฟอร์ม</td>
+                <td>ไม่เกี่ยวกับเลย์เอาต์เหรียญในหน้าเรา</td>
+              </tr>
+              <tr>
+                <td>OpenChat</td>
+                <td>LINE ไม่รับรอง LIFF อย่างเป็นทางการ</td>
+                <td>อย่าใช้เป็นช่องทางแคมเปญ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          สเปกอย่างเป็นทางการ:
+          <a href="https://developers.line.biz/en/docs/liff/overview/">LIFF overview — Recommended operating environment</a>
+          และ
+          <a href="https://developers.line.biz/en/docs/line-mini-app/discover/specifications/">LINE MINI App specifications</a>
+        </div>
+      </section>
+
+      <section id="browser">
+        <h2>Browser matrix</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>เบราว์เซอร์</th>
+                <th>บทบาท</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LIFF browser (WKWebView)</td>
+                <td>ผู้ใช้ iOS ใน LINE</td>
+                <td class="ok">รองรับ — ช่องทางหลัก</td>
+              </tr>
+              <tr>
+                <td>LIFF browser (Android WebView)</td>
+                <td>ผู้ใช้ Android ใน LINE</td>
+                <td class="ok">รองรับ — ช่องทางหลัก</td>
+              </tr>
+              <tr>
+                <td>Safari / Chrome / Edge / Firefox นอก LINE</td>
+                <td>เปิด URL Mini App โดยตรง</td>
+                <td class="no">
+                  ไม่รองรับโฟลว์เหรียญ
+                  (ไม่มี in-client / ID token)
+                </td>
+              </tr>
+              <tr>
+                <td>Facebook crawler / เบราว์เซอร์ทั่วไป</td>
+                <td>หน้า <code>/share/product|mission</code></td>
+                <td class="ok">อ่าน OG ได้ ไม่ต้อง LIFF</td>
+              </tr>
+              <tr>
+                <td>Chrome หรือ Safari เดสก์ท็อป</td>
+                <td>local mock</td>
+                <td class="lim">พัฒนาเท่านั้น</td>
+              </tr>
+              <tr>
+                <td>Internet Explorer / เบราว์เซอร์รุ่นก่อน Chromium เก่ามาก</td>
+                <td>—</td>
+                <td class="no">ไม่รองรับ (Next.js 14 / React 18)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          โปรเจกต์ไม่มี <code>browserslist</code> ของตัวเอง
+          ตามค่าเริ่มต้นของ Next.js 14
+        </p>
+      </section>
+
+      <section id="features">
+        <h2>ฟีเจอร์ที่ขึ้นกับเบราว์เซอร์</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ฟีเจอร์</th>
+                <th>ต้องการ</th>
+                <th>พฤติกรรมสำรอง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>สร้างเซสชัน</td>
+                <td>LIFF in-client + ID token</td>
+                <td>ข้อความเข้าถึงไม่ได้ / ไม่ตั้งคุกกี้</td>
+              </tr>
+              <tr>
+                <td>ลิงก์ Sony ภายนอก</td>
+                <td><code>liff.openWindow</code></td>
+                <td><code>window.open</code> หรือเปลี่ยนหน้า</td>
+              </tr>
+              <tr>
+                <td>แชร์เหรียญ</td>
+                <td><code>navigator.share</code> ถ้ามี</td>
+                <td>Facebook sharer ผ่าน LIFF แล้วจึง window.open</td>
+              </tr>
+              <tr>
+                <td>sessionStorage LINE uuid</td>
+                <td>storage ของ WebView</td>
+                <td>ถ้าถูกบล็อก ต้องพึ่งโปรไฟล์ LIFF ในรอบนั้น</td>
+              </tr>
+              <tr>
+                <td>คุกกี้เซสชัน HttpOnly</td>
+                <td>SameSite=Lax บน HTTPS ของโฮสต์แอป</td>
+                <td>หน้า my-* ยังส่ง lineuuid ใน query ได้อยู่</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          แนะนำชุดทดสอบ UAT อย่างน้อย: iPhone รุ่นปัจจุบันใน LINE ล่าสุด,
+          Android รุ่นปัจจุบันใน LINE ล่าสุด, ทั้งแนวตั้ง
+          และหนึ่งเคสแชร์เหรียญบน iOS ที่มีแอป Facebook ติดตั้ง
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

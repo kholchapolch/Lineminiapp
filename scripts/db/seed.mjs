@@ -1,11 +1,13 @@
 import { withConnection } from "./mysql-connection.mjs";
-import {
+import { loadSeedData } from "./seed-module.mjs";
+
+const {
   appConfig,
   badgeConditions,
   badgeDisplayGroups,
   badgeRules,
   badgeThresholds,
-} from "./seed-data.mjs";
+} = await loadSeedData(import.meta.url);
 
 async function upsertAppConfig(connection) {
   for (const [key, value] of appConfig) {

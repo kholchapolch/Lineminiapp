@@ -567,7 +567,7 @@ function mapRuleRows(rows: RuleRow[]): BadgeRuleConfig[] {
       .sort((left, right) => left.id - right.id || left.label.localeCompare(right.label))
       .map((condition) => ({
         ...condition,
-        sonySkus: [...condition.sonySkus].sort((left, right) => left.localeCompare(right)),
+        sonySkus: [...condition.sonySkus],
       })),
   }));
 }

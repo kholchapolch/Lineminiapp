@@ -6,7 +6,9 @@ import {
 import { toSafeError } from "@/lib/safe-logging";
 
 export async function GET(request: Request): Promise<NextResponse> {
-  const lineuuid = new URL(request.url).searchParams.get("lineuuid")?.trim() ?? "";
+  const lineuuid =
+    new URL(request.url).searchParams.get("lineuuid")?.trim() ?? "";
+  console.log({ lineuuid });
 
   try {
     if (!lineuuid) {
@@ -15,6 +17,8 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     return NextResponse.json(await getMyMissionsData(lineuuid));
   } catch (error) {
+    console.log({ error });
+    return NextResponse.json(await getMyMissionsLockedData());
     try {
       return NextResponse.json(await getMyMissionsLockedData());
     } catch {

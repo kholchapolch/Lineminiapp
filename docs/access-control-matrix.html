@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Access Control Matrix</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 860px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 920px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .allow {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .deny {
+        color: #9b1c1c;
+        font-weight: 700;
+      }
+
+      .limited {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Access Control Matrix</h1>
+        <p class="lede">
+          Role, สิทธิ์เข้าถึงข้อมูล และสิทธิ์จัดการระบบของ Sony Badge Pilot
+          ตามที่โค้ดและขั้นตอนปฏิบัติการรองรับจริง
+        </p>
+        <div class="note warn">
+          Pilot นี้ไม่มี CMS, ไม่มีตาราง user/role และไม่มี RBAC ในแอป
+          ตัวตนใน Mini App คือ LINE user ID
+          การเปลี่ยนกฎเหรียญทำผ่าน seed/config ที่รีวิวแล้ว ไม่มีหน้าแอดมิน
+        </div>
+        <nav>
+          <ul class="toc">
+            <li><a href="#roles">บทบาท (Roles)</a></li>
+            <li><a href="#legend">สัญลักษณ์</a></li>
+            <li><a href="#data">สิทธิ์เข้าถึงข้อมูล</a></li>
+            <li><a href="#system">สิทธิ์จัดการระบบ</a></li>
+            <li><a href="#enforced">สิ่งที่แอปบังคับเอง</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="roles">
+        <h2>บทบาท (Roles)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>บทบาทในแอป vs บทบาทปฏิบัติการ</caption>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>ชนิด</th>
+                <th>วิธีพิสูจน์ตัวตน</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE Customer</td>
+                <td>ในแอป</td>
+                <td>LIFF ID token → cookie และ/หรือ <code>sessionStorage</code> LINE user ID</td>
+                <td>ดูเหรียญของตนเอง ไม่แก้กฎ</td>
+              </tr>
+              <tr>
+                <td>Public visitor / OG crawler</td>
+                <td>ในแอป</td>
+                <td>ไม่มี session</td>
+                <td>หน้าแชร์, health, ชั้นเหรียญแบบล็อกเมื่อไม่มี <code>lineuuid</code></td>
+              </tr>
+              <tr>
+                <td>Local developer</td>
+                <td>ในแอป (เฉพาะ <code>APP_ENV=local</code>)</td>
+                <td>ข้าม LIFF ได้เมื่อ mock; <code>/api/mock-session</code></td>
+                <td>ใช้ไม่ได้บน staging/production</td>
+              </tr>
+              <tr>
+                <td>Omelet engineer</td>
+                <td>ปฏิบัติการ</td>
+                <td>Git repository access</td>
+                <td>แก้ seed/โค้ด ส่ง PR ไม่มี UI แอดมิน</td>
+              </tr>
+              <tr>
+                <td>UAT deployer</td>
+                <td>ปฏิบัติการ</td>
+                <td>GitHub environment <code>uat</code> + publish profile</td>
+                <td>deploy แอป ไม่รัน migrate ใน workflow</td>
+              </tr>
+              <tr>
+                <td>Database operator</td>
+                <td>ปฏิบัติการ</td>
+                <td>โฮสต์ที่เข้า Azure MySQL ได้ + <code>DATABASE_URL</code></td>
+                <td>migrate / seed / verify ด้วยมือ</td>
+              </tr>
+              <tr>
+                <td>Sony infra owner</td>
+                <td>ปฏิบัติการ</td>
+                <td>Azure App Service / APIM / MySQL ที่ Sony ถือสิทธิ์</td>
+                <td>เครือข่าย, TLS, subscription key, IP allowlist</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="legend">
+        <h2>สัญลักษณ์ในเมทริกซ์</h2>
+        <div class="grid">
+          <div class="box"><strong class="allow">R</strong> อ่าน (Read)</div>
+          <div class="box"><strong class="allow">W</strong> สร้างหรือแก้ไข (Write / update)</div>
+          <div class="box"><strong class="allow">D</strong> ลบ (Delete)</div>
+          <div class="box"><strong class="allow">X</strong> สั่งทำงาน (Execute)</div>
+          <div class="box"><strong class="deny">—</strong> ไม่มีสิทธิ์</div>
+          <div class="box"><strong class="limited">*</strong> มีเงื่อนไข หรือช่องว่างในโค้ด ดูเชิงอรรถ</div>
+        </div>
+      </section>
+
+      <section id="data">
+        <h2>สิทธิ์เข้าถึงข้อมูล (Data access)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Role × ข้อมูล</caption>
+            <thead>
+              <tr>
+                <th>ข้อมูล</th>
+                <th>LINE Customer</th>
+                <th>Public</th>
+                <th>Local developer</th>
+                <th>Omelet engineer</th>
+                <th>Database operator</th>
+                <th>Sony infra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>โปรไฟล์ LINE ของตนเอง (ชื่อ, รูป)</td>
+                <td class="allow">R</td>
+                <td class="deny">—</td>
+                <td class="limited">R*</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>สินค้า warranty ของตนเอง (รุ่น, ซีเรียล, วันลงทะเบียน)</td>
+                <td class="allow">R</td>
+                <td class="deny">—</td>
+                <td class="limited">R mock</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">R (แหล่งข้อมูลที่ Sony)</td>
+              </tr>
+              <tr>
+                <td>สินค้า / เหรียญของลูกค้าคนอื่น</td>
+                <td class="limited">— *</td>
+                <td class="deny">—</td>
+                <td class="limited">R* ถ้ารู้ lineuuid</td>
+                <td class="deny">—</td>
+                <td class="limited">R log hash เท่านั้น</td>
+                <td class="allow">R ที่ warranty API</td>
+              </tr>
+              <tr>
+                <td>ผลเหรียญที่คำนวณแล้ว (ชั้นของตนเอง)</td>
+                <td class="allow">R</td>
+                <td class="limited">R แบบล็อก / ไม่ระบุตัวตน</td>
+                <td class="allow">R</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>หน้าแชร์สาธารณะ (ชื่อเหรียญ, รูปกฎ)</td>
+                <td class="allow">R</td>
+                <td class="allow">R</td>
+                <td class="allow">R</td>
+                <td class="allow">R</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>Badge rules / thresholds / conditions / รูป</td>
+                <td class="allow">R ผ่าน UI</td>
+                <td class="allow">R รูปและชื่อบนหน้าแชร์</td>
+                <td class="allow">R</td>
+                <td class="allow">RW ผ่าน seed ใน Git</td>
+                <td class="allow">RWD ผ่าน SQL/seed</td>
+                <td class="limited">R โครงสร้าง DB</td>
+              </tr>
+              <tr>
+                <td><code>app_config</code> รวม <code>badge_rules_version</code></td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">RW local</td>
+                <td class="allow">W ผ่าน seed</td>
+                <td class="allow">RW</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td><code>badge_calculation_logs</code> (hash LINE ID)</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">R local</td>
+                <td class="deny">—</td>
+                <td class="allow">RD</td>
+                <td class="limited">R ถ้าเข้า DB ได้</td>
+              </tr>
+              <tr>
+                <td>ความลับ: DB URL, session secret, APIM key</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">R local <code>.env</code></td>
+                <td class="deny">ไม่เก็บใน Git</td>
+                <td class="allow">R ของ DB</td>
+                <td class="allow">RW ที่ Azure / APIM</td>
+              </tr>
+              <tr>
+                <td>Debug trace / mock JSON</td>
+                <td class="deny">production ปิด</td>
+                <td class="deny">—</td>
+                <td class="allow">R เมื่อ <code>?debug=1</code></td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          * เชิงอรรถ: <code>/api/my-*</code> ไม่ตรวจ cookie
+          ผู้ที่รู้ LINE user ID ของคนอื่นอาจ <span class="limited">R</span> ข้อมูลเหรียญและซีเรียลของคนนั้นได้
+        </p>
+      </section>
+
+      <section id="system">
+        <h2>สิทธิ์จัดการระบบ (System management)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Role × การดำเนินการระบบ</caption>
+            <thead>
+              <tr>
+                <th>การดำเนินการ</th>
+                <th>LINE Customer</th>
+                <th>Public</th>
+                <th>Local developer</th>
+                <th>Omelet engineer</th>
+                <th>UAT deployer</th>
+                <th>Database operator</th>
+                <th>Sony infra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>เปิด Mini App / ดูเหรียญ</td>
+                <td class="allow">X</td>
+                <td class="deny">— (ต้องใน LINE)</td>
+                <td class="allow">X mock</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>สร้าง LINE session (<code>/api/line-session</code>)</td>
+                <td class="allow">X</td>
+                <td class="deny">—</td>
+                <td class="allow">X</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>เรียก <code>/api/mock-session</code></td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">X</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>แก้กฎเหรียญผ่าน UI</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">ไม่มีหน้านี้</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>แก้ <code>seed-data.mjs</code> / PR</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">W local</td>
+                <td class="allow">W</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td><code>db:migrate</code> / <code>db:seed:prod</code></td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">X local</td>
+                <td class="deny">ไม่รันบน UAT จาก Git อย่างเดียว</td>
+                <td class="deny">workflow ไม่รัน</td>
+                <td class="allow">X</td>
+                <td class="limited">อนุญาตเครือข่าย</td>
+              </tr>
+              <tr>
+                <td><code>db:reset</code> (DROP ตาราง)</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">X local เท่านั้น</td>
+                <td class="deny">ห้ามใช้ UAT</td>
+                <td class="deny">—</td>
+                <td class="deny">ห้ามใช้ UAT</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>Deploy แอปไป App Service</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="limited">push ที่ trigger workflow</td>
+                <td class="allow">X</td>
+                <td class="deny">—</td>
+                <td class="allow">publish profile / แผน</td>
+              </tr>
+              <tr>
+                <td>แก้ <code>UAT_ENV_FILE</code> / secrets</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">W GitHub environment</td>
+                <td class="deny">—</td>
+                <td class="limited">App Service vars ถ้ามีสิทธิ์</td>
+              </tr>
+              <tr>
+                <td>เรียก <code>/api/health</code>, <code>/deployment-check.html</code></td>
+                <td class="limited">R ถ้า IP ผ่าน</td>
+                <td class="limited">R ถ้า IP ผ่าน</td>
+                <td class="allow">R</td>
+                <td class="allow">R</td>
+                <td class="allow">X ใน workflow</td>
+                <td class="deny">—</td>
+                <td class="allow">กำหนด allowlist</td>
+              </tr>
+              <tr>
+                <td>Sony APIM subscription / warranty data</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">ใช้ mock</td>
+                <td class="deny">—</td>
+                <td class="limited">key ใน env file</td>
+                <td class="deny">—</td>
+                <td class="allow">RW</td>
+              </tr>
+              <tr>
+                <td>ตั้งค่า LINE Login / LIFF</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="limited">LIFF ID ใน env</td>
+                <td class="deny">—</td>
+                <td class="limited">ใส่ใน env file</td>
+                <td class="deny">—</td>
+                <td class="allow">W ที่ LINE Developers (เจ้าของช่อง)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="enforced">
+        <h2>สิ่งที่แอปบังคับเอง (Enforced in code)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>จุดตรวจสิทธิ์</caption>
+            <thead>
+              <tr>
+                <th>พื้นผิว</th>
+                <th>ใครเข้าได้</th>
+                <th>กลไก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>POST /api/line-session</code></td>
+                <td>ไคลเอนต์ที่มี LINE ID token ใช้ได้</td>
+                <td>verify กับ LINE; ไม่มีรายการ role</td>
+              </tr>
+              <tr>
+                <td><code>GET /entry</code></td>
+                <td>request ที่ Origin/Referer อยู่ใน allowlist และมี cookie</td>
+                <td><code>evaluateRedirectGuard</code> + <code>resolveAuthorizedLineUuid</code></td>
+              </tr>
+              <tr>
+                <td><code>GET /api/customer-products</code></td>
+                <td>มี cookie session; query <code>lineuuid</code ได้เฉพาะ local debug+mock</td>
+                <td><code>resolveAuthorizedLineUuid</code></td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-*</code></td>
+                <td>มี <code>lineuuid</code> ใน query หรือได้ชั้นแบบล็อก</td>
+                <td>ไม่ตรวจ cookie — ช่องว่างของโมเดลสิทธิ์</td>
+              </tr>
+              <tr>
+                <td><code>GET /share/...</code></td>
+                <td>ทุกคน</td>
+                <td>อ่านเฉพาะ metadata ของกฎ</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/mock-session</code></td>
+                <td>local + mock เท่านั้น</td>
+                <td>อื่น ๆ ได้ 404</td>
+              </tr>
+              <tr>
+                <td>Debug JSON / trace</td>
+                <td>ไม่ใช่ production</td>
+                <td><code>isDebugModeEnabled</code> คืน false เมื่อ <code>APP_ENV=production</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          ไม่มี role <code>admin</code> ในฐานข้อมูล
+          การจัดการกฎ = สิทธิ์ Git + สิทธิ์เข้า MySQL
+          ลูกค้าไม่มีสิทธิ์ W/D ต่อข้อมูลกฎหรือข้อมูลคนอื่นผ่าน UI
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Configuration Checklist</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 920px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Configuration Checklist</h1>
+        <p class="lede">
+          รายการ Environment Variable, Domain, Callback URL, LIFF และ API Configuration
+          โดยไม่เปิดเผย Secret
+        </p>
+        <p>
+          ตรวจด้วย <code>npm run config:check</code> ต่อไฟล์ <code>.env.production</code>
+          ค่าจริงของ UAT อยู่ใน GitHub environment secret <code>UAT_ENV_FILE</code>
+          ไม่คัดลอกค่าในเอกสารนี้
+        </p>
+      </header>
+
+      <section>
+        <h2>Environment Variable</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>เครื่องหมาย: Public = ฝังในคลายเอนต์ · Server = เซิร์ฟเวอร์เท่านั้น · Secret = ห้ามใส่เอกสาร/คอมมิต</caption>
+            <thead>
+              <tr>
+                <th>ตัวแปร</th>
+                <th>ชั้น</th>
+                <th>ตรวจอะไร (ไม่ใส่ค่าจริง)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>APP_ENV</code></td>
+                <td>Server</td>
+                <td>UAT ใช้ <code>staging</code> · โปรดักชันใช้ <code>production</code> · ห้าม <code>uat</code></td>
+              </tr>
+              <tr>
+                <td><code>APP_BASE_URL</code> / <code>NEXT_PUBLIC_APP_BASE_URL</code></td>
+                <td>Server + Public</td>
+                <td>HTTPS เดียวกันทั้งคู่ และอยู่ในรายการ origin/referrer</td>
+              </tr>
+              <tr>
+                <td><code>DATABASE_URL</code></td>
+                <td>Secret</td>
+                <td>โปรโตคอล <code>mysql:</code> ไม่มี prefix http ที่โฮสต์</td>
+              </tr>
+              <tr>
+                <td><code>DATABASE_SSL</code></td>
+                <td>Server</td>
+                <td>deploy ต้องเปิด TLS (<code>true</code> / <code>?ssl=true</code>)</td>
+              </tr>
+              <tr>
+                <td><code>ALLOWED_ORIGINS</code> / <code>ALLOWED_REFERRERS</code></td>
+                <td>Server</td>
+                <td>รายการ HTTPS คั่นด้วยจุลภาค รวม origin ของแอป — ใช้กับ <code>/entry</code></td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_LIFF_ID</code></td>
+                <td>Public</td>
+                <td>ขึ้นต้นด้วย <code>{LINE_CHANNEL_ID}-</code> ห้ามวางค่าเต็มในวิกิสาธารณะถ้าถือเป็นรหัสช่อง</td>
+              </tr>
+              <tr>
+                <td><code>LINE_CHANNEL_ID</code></td>
+                <td>Server</td>
+                <td>ตัวเลขเท่านั้น ใช้ verify ID token</td>
+              </tr>
+              <tr>
+                <td><code>LINE_VERIFY_ID_TOKEN_URL</code></td>
+                <td>Server</td>
+                <td>ค่าเริ่มต้นในโค้ด: <code>https://api.line.me/oauth2/v2.1/verify</code></td>
+              </tr>
+              <tr>
+                <td><code>APP_SESSION_SECRET</code> / <code>LOG_HASH_SECRET</code></td>
+                <td>Secret</td>
+                <td>ยาวอย่างน้อย 32 ตัว · HMAC คุกกี้และ hash ในปูม</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_DEBUG_MOCK_JSON</code></td>
+                <td>Public</td>
+                <td>deploy ต้องเป็น <code>false</code></td>
+              </tr>
+              <tr>
+                <td><code>SONY_PRODUCT_API_MODE</code></td>
+                <td>Server</td>
+                <td><code>mock</code> หรือ <code>live</code></td>
+              </tr>
+              <tr>
+                <td><code>SONY_PRODUCT_API_BASE_URL</code></td>
+                <td>Server</td>
+                <td>URL เต็มรวม path เมื่อโหมด live</td>
+              </tr>
+              <tr>
+                <td><code>SONY_PRODUCT_API_SUBSCRIPTION_KEY</code></td>
+                <td>Secret</td>
+                <td>จำเป็นเมื่อ live · ส่งเป็นหัว <code>Ocp-Apim-Subscription-Key</code></td>
+              </tr>
+              <tr>
+                <td><code>SONY_PRODUCT_API_COUNTRY_CODE</code></td>
+                <td>Server</td>
+                <td>ISO สองตัวพิมพ์เล็ก ค่าเริ่มต้นในโค้ด <code>th</code></td>
+              </tr>
+              <tr>
+                <td><code>SONY_DEMO_LINE_UUID</code></td>
+                <td>Server</td>
+                <td>ตัวระบุ mock ในเครื่อง ไม่ใช้แทนเซสชันที่หายบน staging</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_ACCOUNT_URL</code></td>
+                <td>Public</td>
+                <td>HTTPS · ลิงก์ลงทะเบียนที่แถบล่าง</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code></td>
+                <td>Public</td>
+                <td>HTTPS · ใช้ตอนภารกิจยังไม่ครบ (ไม่ต่อ query callback)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          ห้ามใส่ <code>NEXT_PUBLIC_*</code> ให้กับรหัสผ่าน, subscription key, session secret
+          ค่า Public ถูกฝังตอน <code>npm run build</code>
+        </div>
+      </section>
+
+      <section>
+        <h2>Domain</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>บทบาท</th>
+                <th>ค่าที่ระบุในรีโป / ที่ต้องตั้ง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>แอป UAT</td>
+                <td><code>https://stglineminiapp.sony.co.th</code> ต้องเท่ากับ <code>APP_BASE_URL</code></td>
+              </tr>
+              <tr>
+                <td>App Service</td>
+                <td>ชื่อ <code>mysonybadgestg</code> (ไม่ใช่โดเมนผู้ใช้)</td>
+              </tr>
+              <tr>
+                <td>LINE verify</td>
+                <td><code>api.line.me</code></td>
+              </tr>
+              <tr>
+                <td>Sony APIM</td>
+                <td>โฮสต์ใน <code>SONY_PRODUCT_API_BASE_URL</code> (ไม่ใส่ค่าในเอกสารนี้)</td>
+              </tr>
+              <tr>
+                <td>MySQL</td>
+                <td>โฮสต์ใน <code>DATABASE_URL</code></td>
+              </tr>
+              <tr>
+                <td>FAQ ใน UI</td>
+                <td><code>https://www.sony.co.th/microsite/digital-badge/</code> (ฮาร์ดโค้ด)</td>
+              </tr>
+              <tr>
+                <td>Facebook sharer</td>
+                <td><code>https://www.facebook.com</code> — ไม่มีแอป Facebook OAuth ในโปรเจกต์</td>
+              </tr>
+              <tr>
+                <td>Production แอป</td>
+                <td>ยังไม่มีโดเมนในรีโป</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>LIFF</h2>
+        <ul>
+          <li>ใน LINE Developers: สร้าง LIFF (Mini App) ให้ <code>liffId</code> ตรง <code>NEXT_PUBLIC_LIFF_ID</code></li>
+          <li>
+            Endpoint URL ในคอนโซล LINE ต้องเป็น HTTPS ของแอป เช่น
+            <code>https://&lt;host&gt;/th/my-badges</code>
+            (ต้องตรงโดเมนที่อนุญาต)
+          </li>
+          <li>ขนาด/ประเภทตามคอนโซล LINE — โค้ดบังคับ <code>liff.isInClient()</code> ก่อนสร้างเซสชัน</li>
+          <li>Channel ID ของ Login ต้องเป็นชุดเดียวกับ <code>LINE_CHANNEL_ID</code></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Callback URL</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ชนิด</th>
+                <th>มีในแอปหรือไม่</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE OAuth redirect_uri ของเว็บ Login</td>
+                <td>ไม่มี route รับ code</td>
+                <td>ใช้ LIFF ID token → <code>POST /api/line-session</code></td>
+              </tr>
+              <tr>
+                <td>แลกเซสชันแอป</td>
+                <td><code>POST https://&lt;host&gt;/api/line-session</code></td>
+                <td>บอดี้ <code>{ "idToken": "…" }</code> ตั้งคุกกี้ HttpOnly</td>
+              </tr>
+              <tr>
+                <td>LINE Mini App deep link (สร้างในโค้ดแต่ยังไม่ส่งออก)</td>
+                <td>
+                  รูปแบบ
+                  <code>https://miniapp.line.me/{liffId}/th/my-missions/{missionId}</code>
+                </td>
+                <td>
+                  <code>buildRegisterProductUrl</code> คอมเมนต์การใส่ <code>callback</code>
+                  จึงไม่ต่อเข้า URL ลงทะเบียนสินค้า
+                </td>
+              </tr>
+              <tr>
+                <td>Facebook Login / OAuth</td>
+                <td>ไม่มี</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>API Configuration</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>API</th>
+                <th>วิธีตั้ง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>แอปเอง (health / my-* / line-session)</td>
+                <td>origin จาก <code>APP_BASE_URL</code> ไม่มีคีย์แยก</td>
+              </tr>
+              <tr>
+                <td>LINE verify ID token</td>
+                <td><code>LINE_VERIFY_ID_TOKEN_URL</code> + <code>LINE_CHANNEL_ID</code></td>
+              </tr>
+              <tr>
+                <td>Sony QueryWarrantyMySonyByLine</td>
+                <td>
+                  <code>POST</code> ไป <code>SONY_PRODUCT_API_BASE_URL</code>
+                  บอดี้ <code>countryCode</code> + <code>lineId</code>
+                  โหมด mock ใช้ <code>{APP_BASE_URL}/api/mock/sony</code>
+                </td>
+              </tr>
+              <tr>
+                <td>MySQL</td>
+                <td><code>DATABASE_URL</code> + TLS</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

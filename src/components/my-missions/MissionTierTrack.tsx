@@ -10,11 +10,17 @@ type MissionTierTrackProps = {
   tiers: MissionTier[];
 };
 
-export function MissionTierTrack({ locale, tiers }: MissionTierTrackProps): JSX.Element {
+export function MissionTierTrack({
+  locale,
+  tiers,
+}: MissionTierTrackProps): JSX.Element {
   return (
     <div className="missionTierTrack">
       {tiers.map((tier) => {
-        const visualState = getMissionBadgeVisualState(tier.progress, tier.target);
+        const visualState = getMissionBadgeVisualState(
+          tier.progress,
+          tier.target,
+        );
 
         return (
           <Link

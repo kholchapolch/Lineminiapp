@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data Flow Diagram</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ol,
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 860px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .diagramWrap {
+        overflow-x: auto;
+        margin: 14px 0 4px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfdff;
+      }
+
+      .diagramWrap svg {
+        display: block;
+        min-width: 1080px;
+        width: 100%;
+        height: auto;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 860px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .step:last-child {
+        border-bottom: 0;
+      }
+
+      .num {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Data Flow Diagram</h1>
+        <p class="lede">
+          การส่งข้อมูลระหว่าง LINE, LIFF/Mini App, Omelet System และ Sony System
+          ตามเส้นทางที่โค้ดปัจจุบันใช้จริง
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#systems">ขอบเขตระบบ (Systems)</a></li>
+            <li><a href="#context">แผนภาพบริบท (Context DFD)</a></li>
+            <li><a href="#flows">รายการ data flow</a></li>
+            <li><a href="#sequence">ลำดับหลัก (Happy path)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="systems">
+        <h2>ขอบเขตระบบ (System boundaries)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>LINE</strong>
+            LINE App, LIFF SDK, และ
+            <code>https://api.line.me/oauth2/v2.1/verify</code>
+            ให้ ID token, LINE user ID (<code>sub</code>), ชื่อและรูปโปรไฟล์
+          </div>
+          <div class="box">
+            <strong>LIFF / Mini App</strong>
+            หน้าเว็บที่รันใน LINE webview:
+            my-badges, my-products, my-missions, share
+            เก็บ <code>sessionStorage</code> และเรียก API ของ Omelet
+          </div>
+          <div class="box">
+            <strong>Omelet System</strong>
+            Next.js บน Azure App Service ของโดเมน Mini App:
+            session, badge engine, API <code>/api/*</code>
+            และ MySQL ที่เก็บกฎเหรียญ (ไม่เก็บสินค้าของลูกค้า)
+          </div>
+          <div class="box">
+            <strong>Sony System</strong>
+            Azure APIM warranty
+            (<code>QueryWarrantyMySonyByLine</code>)
+            และเว็บ Sony Thailand สำหรับบัญชี / ลงทะเบียน / หน้า digital-badge
+          </div>
+        </div>
+      </section>
+
+      <section id="context">
+        <h2>แผนภาพบริบท (Context data flow)</h2>
+        <p>
+          ลูกศรทึบคือข้อมูลที่ระบบส่งใน happy path ของ Mini App
+          ลูกศรประคือการนำทางผู้ใช้ไปเว็บ Sony โดยแอปไม่ส่ง LINE ID ติดไป
+        </p>
+        <div class="diagramWrap" role="img" aria-labelledby="dfd-title dfd-desc">
+          <svg viewBox="0 0 1120 620" xmlns="http://www.w3.org/2000/svg">
+            <title id="dfd-title">Context data flow among LINE, Mini App, Omelet, and Sony</title>
+            <desc id="dfd-desc">
+              LINE issues LIFF identity to the Mini App. The Mini App talks to Omelet APIs.
+              Omelet verifies the ID token with LINE, loads badge rules from MySQL,
+              and fetches owned products from Sony APIM.
+            </desc>
+            <rect width="1120" height="620" fill="#fbfdff" />
+
+            <!-- arrows behind boxes -->
+            <g fill="none" stroke="#2557a7" stroke-width="2" marker-end="url(#arrow)">
+              <path d="M250 230 H300" />
+              <path d="M520 230 H590" />
+              <path d="M840 230 H890" />
+              <path d="M650 155 V72 H145 V170" />
+              <path d="M715 350 V400" />
+            </g>
+            <g fill="none" stroke="#2557a7" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow)">
+              <path d="M430 290 V520 H890 V270" />
+            </g>
+
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 z" fill="#2557a7" />
+              </marker>
+            </defs>
+
+            <!-- LINE -->
+            <g>
+              <rect x="40" y="170" width="210" height="140" rx="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.5" />
+              <text x="145" y="208" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">LINE</text>
+              <text x="145" y="232" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">App / LIFF SDK</text>
+              <text x="145" y="252" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">ID token verify</text>
+              <text x="145" y="286" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">api.line.me</text>
+            </g>
+
+            <!-- LIFF Mini App -->
+            <g>
+              <rect x="300" y="170" width="220" height="140" rx="18" fill="#e8f0ff" stroke="#2557a7" stroke-width="1.5" />
+              <text x="410" y="208" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">LIFF / Mini App</text>
+              <text x="410" y="232" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">webview ใน LINE</text>
+              <text x="410" y="252" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">my-badges / products</text>
+              <text x="410" y="286" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">sessionStorage</text>
+            </g>
+
+            <!-- Omelet -->
+            <g>
+              <rect x="590" y="155" width="250" height="195" rx="18" fill="#e8f0ff" stroke="#2557a7" stroke-width="1.5" />
+              <text x="715" y="192" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">Omelet System</text>
+              <text x="715" y="216" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">Next.js App Service</text>
+              <text x="715" y="236" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">session + badge engine</text>
+              <text x="715" y="270" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">/api/line-session</text>
+              <text x="715" y="288" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">/api/my-*</text>
+            </g>
+
+            <!-- Sony -->
+            <g>
+              <rect x="890" y="150" width="190" height="140" rx="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.5" />
+              <text x="985" y="188" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">Sony System</text>
+              <text x="985" y="212" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">APIM warranty</text>
+              <text x="985" y="232" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">Account / register</text>
+              <text x="985" y="266" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">QueryWarranty...</text>
+            </g>
+
+            <!-- D1 -->
+            <g>
+              <path d="M620 400 H810" stroke="#1d2733" fill="none" stroke-width="1.5" />
+              <path d="M620 400 V455 H810 V400" stroke="#1d2733" fill="none" stroke-width="1.5" />
+              <ellipse cx="715" cy="400" rx="95" ry="14" fill="#ffffff" stroke="#1d2733" stroke-width="1.5" />
+              <text x="715" y="438" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">D1 Badge MySQL</text>
+              <text x="715" y="478" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">rules / hashed logs — ไม่เก็บสินค้าลูกค้า</text>
+            </g>
+
+            <!-- flow numbers -->
+            <g font-size="11" font-weight="700" fill="#2557a7" font-family="Inter, ui-sans-serif, sans-serif">
+              <text x="262" y="218">1–2</text>
+              <text x="538" y="218">3,6,7,11</text>
+              <text x="848" y="218">8–9</text>
+              <text x="280" y="64">4–5 Omelet ยืนยัน ID token กับ LINE</text>
+              <text x="728" y="378">10</text>
+              <text x="620" y="545">12 ไปเว็บ Sony (ไม่มี LINE ID ใน query)</text>
+            </g>
+          </svg>
+        </div>
+        <p>
+          สี่เหลี่ยมมุมแหลม = ระบบภายนอก (LINE, Sony)
+          มุมโค้ง = กระบวนการของแอป (Mini App, Omelet)
+          สี่เหลี่ยมเปิด = ที่เก็บข้อมูล
+        </p>
+      </section>
+
+      <section id="flows">
+        <h2>รายการ data flow</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>หมายเลขบนแผนภาพ</caption>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>จาก</th>
+                <th>ถึง</th>
+                <th>ข้อมูล</th>
+                <th>ช่องทาง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>LINE</td>
+                <td>LIFF / Mini App</td>
+                <td>LIFF SDK, ID token, LINE user ID, ชื่อและรูปโปรไฟล์</td>
+                <td><code>liff.init</code>, <code>getIDToken()</code>, <code>getProfile()</code></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>LIFF / Mini App</td>
+                <td>LINE</td>
+                <td>คำขอ init / token / profile ต้องเปิดใน LINE client</td>
+                <td>LIFF SDK</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>LIFF / Mini App</td>
+                <td>Omelet</td>
+                <td>ID token (ใช้ครั้งเดียว ไม่ persist)</td>
+                <td><code>POST /api/line-session</code></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Omelet</td>
+                <td>LINE</td>
+                <td><code>id_token</code> + <code>client_id</code> (LINE channel ID)</td>
+                <td><code>POST</code> LINE verify</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>LINE</td>
+                <td>Omelet</td>
+                <td><code>sub</code> (LINE user ID), <code>aud</code>, <code>exp</code></td>
+                <td>JSON จาก LINE</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Omelet</td>
+                <td>LIFF / Mini App</td>
+                <td>cookie <code>sony_line_session</code> ที่เซ็น HMAC และ <code>{ ok: true }</code></td>
+                <td><code>Set-Cookie</code> HttpOnly</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>LIFF / Mini App</td>
+                <td>Omelet</td>
+                <td>LINE user ID ใน query <code>lineuuid</code> (หน้า Mini App ปัจจุบัน)</td>
+                <td><code>GET /api/my-badges</code> และ <code>/api/my-products</code> / <code>/api/my-missions</code></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>Omelet</td>
+                <td>Sony APIM</td>
+                <td><code>{ countryCode, lineId }</code> + subscription key</td>
+                <td><code>POST QueryWarrantyMySonyByLine</code></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>Sony APIM</td>
+                <td>Omelet</td>
+                <td><code>prodDetails[]</code>: modelName, serialNumber, registrationDate</td>
+                <td>JSON ตอน request ไม่ persist ที่ Omelet</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>Omelet ↔ D1</td>
+                <td>MySQL</td>
+                <td>อ่านกฎเหรียญ; เขียน log ที่ hash LINE ID (เส้นทาง legacy shelf)</td>
+                <td>TLS เมื่อ <code>DATABASE_SSL=true</code></td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>Omelet</td>
+                <td>LIFF / Mini App</td>
+                <td>สถานะเหรียญ, รูป, ความคืบหน้า; ซีเรียลเฉพาะหน้ารายละเอียดสินค้าที่ปลดล็อก</td>
+                <td>JSON <code>cache: no-store</code></td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>LIFF / Mini App</td>
+                <td>Sony websites</td>
+                <td>ผู้ใช้กดลงทะเบียน / บัญชี / inquiry — แอปไม่แนบ LINE ID ใน query</td>
+                <td><code>NEXT_PUBLIC_ACCOUNT_URL</code>, register URL, sony.co.th microsite</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          เส้นทางเสริม: <code>/entry</code> ตรวจ Origin/Referer แล้วดู cookie ก่อนส่งไป <code>/badges</code>
+          หน้า <code>/share/...</code> ให้ Facebook/OG อ่านแค่ชื่อและรูปเหรียญจากกฎ ไม่เรียก Sony API
+        </div>
+      </section>
+
+      <section id="sequence">
+        <h2>ลำดับหลักเมื่อเปิด Mini App (Happy path)</h2>
+        <div class="step">
+          <div class="num">1</div>
+          <div>
+            <strong>LINE → Mini App</strong>
+            ผู้ใช้เปิด LIFF endpoint ผู้ใช้เห็นหน้า my-badges ใน webview
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div>
+            <strong>Mini App → LINE → Omelet → LINE</strong>
+            ไคลเอนต์ init LIFF, ส่ง ID token ไป Omelet, Omelet verify กับ LINE แล้วตั้ง cookie
+            ไคลเอนต์เก็บ LINE user ID ใน <code>sessionStorage</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div>
+            <strong>Mini App → Omelet → Sony → Omelet</strong>
+            เรียก <code>/api/my-*</code> ด้วย <code>lineuuid</code>
+            Omelet ขอสินค้าจาก warranty API แล้วอ่านกฎจาก MySQL
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <div>
+            <strong>Omelet → Mini App</strong>
+            คำนวณ Eligible Product / Threshold / Tier ในโปรเซส แล้วส่ง JSON แสดงผล
+            ไม่บันทึก ownership ลงฐานข้อมูลของ Omelet
+          </div>
+        </div>
+        <div class="note warn">
+          Cookie ใช้บังคับตัวตนบน <code>/api/customer-products</code> และ <code>/entry</code>
+          หน้า Mini App ปัจจุบันส่ง LINE ID ผ่าน query ไป <code>/api/my-*</code>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

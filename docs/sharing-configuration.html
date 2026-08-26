@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sharing Configuration Document</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      pre { margin: 0 0 14px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: #101923; color: #f7fbff; padding: 16px; font-size: 13px; line-height: 1.5; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Sharing Configuration Document</h1>
+        <p class="lede">
+          Open Graph, Share URL, Redirect URL, Domain และ Environment ที่เกี่ยวข้อง
+          ไม่ใส่ secret
+        </p>
+      </header>
+
+      <section>
+        <h2>Environment</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ตัวแปร</th>
+                <th>บทบาทต่อการแชร์</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>NEXT_PUBLIC_APP_BASE_URL</code></td>
+                <td>
+                  origin ที่ไคลเอนต์ใช้ประกอบ URL รูป
+                  ต้อง HTTPS บน staging/production และตรง <code>APP_BASE_URL</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>APP_BASE_URL</code></td>
+                <td>
+                  origin ฝั่งเซิร์ฟเวอร์สำหรับ OG
+                  <code>metadataBase</code> และ <code>og:url</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_LIFF_ID</code></td>
+                <td><code>liff.openWindow</code> เมื่อไม่มี Web Share หรือ Web Share ใช้ไม่ได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          ไฟล์สาธารณะรูปเหรียญอยู่ภายใต้
+          <code>/product-badge/</code> และ <code>/quest-badge/</code>
+          (หรือ URL เต็มถ้ากฎเก็บ absolute เช่น blob storage)
+        </p>
+      </section>
+
+      <section>
+        <h2>Domain</h2>
+        <ul>
+          <li>แอป Mini App / OG: โฮสต์ใน <code>APP_BASE_URL</code> (placeholder <code>https://&lt;public-host&gt;</code>)</li>
+          <li>Facebook: <code>www.facebook.com</code> (sharer) — ต้องอนุญาตเปิดหน้าต่างภายนอกจาก LIFF</li>
+          <li>ถ้าเก็ปรูปนอกแอป: origin ของ CDN/blob ตามค่าในฐานข้อมูล</li>
+        </ul>
+        <div class="note warn">
+          ไม่มี Facebook App ID, redirect_uri ของ Facebook Login หรือ OAuth ในโปรเจกต์นี้
+          “Redirect” ของแชร์คือการเปิด sharer หรือ share sheet ไม่มีการกลับ callback เข้าแอป
+        </div>
+      </section>
+
+      <section>
+        <h2>Share URL</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ชนิด</th>
+                <th>รูปแบบ</th>
+                <th>ใครใช้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Asset (ปุ่มในแอป)</td>
+                <td><code>{APP_BASE}/product-badge/{MODEL}.png</code> หรือ quest-badge</td>
+                <td>FacebookShareAction</td>
+              </tr>
+              <tr>
+                <td>Facebook sharer</td>
+                <td><code>https://www.facebook.com/sharer/sharer.php?u={encoded-asset}</code></td>
+                <td>openWindow / window.open</td>
+              </tr>
+              <tr>
+                <td>OG หน้าสินค้า</td>
+                <td><code>/{locale}/share/product/{productRuleCode}</code></td>
+                <td>crawler / เปิดตรง</td>
+              </tr>
+              <tr>
+                <td>OG หน้าภารกิจ</td>
+                <td><code>/{locale}/share/mission/{questCode}-{level}</code></td>
+                <td>เช่น portrait-master-gold, trinity-master-achievement</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Open Graph (หน้า /share/...)</h2>
+        <pre>og:type         website
+og:title        messages.shareOg.title   (ค่าคงที่ ไม่ใช่ชื่อรุ่น)
+og:description  messages.shareOg.description
+og:url          absolute ของ pagePath
+og:image        shareImageUrl หรือ achievedImageUrl ของกฎ/ชั้น
+twitter:card    summary_large_image
+image type      image/png เมื่อนามสกุล .png</pre>
+        <p>
+          ถ้าไม่พบกฎ: metadata ยังมี title/description ของแคมเปญ แต่หน้าเรนเดอร์เป็น <code>notFound</code>
+        </p>
+        <p>
+          ต้องให้ Facebook crawler เข้าถึงรูปและหน้า OG ได้โดยไม่ต้อง LIFF
+          โฮสต์ต้อง HTTPS ตามสเปก deploy
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
