@@ -1,0 +1,2544 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DB Schema Summary — Sony Badge Pilot</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+.req { color: #9b1c1c; font-weight: 700; }
+.opt { color: var(--muted); }
+.term { font-weight: 700; color: var(--accent); }
+.status-ok { color: var(--ok); font-weight: 700; }
+.status-manual { color: var(--warn); font-weight: 700; }
+.erdWrap { overflow-x: auto; margin: 14px 0 4px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdff; }
+.erdWrap svg { display: block; min-width: 1080px; width: 100%; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+.legendItem { display: flex; align-items: center; gap: 8px; }
+.swatch { width: 36px; height: 0; border-top: 3px solid var(--accent); }
+.swatch.dashed { border-top-style: dashed; }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 14px; color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 600; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#database-schema">Schema</a>
+    <a href="#entity-relationship-diagram">ERD</a>
+    <a href="#badge-rule-data-dictionary">Data Dictionary</a>
+    <a href="#database-setup-migration-record">Migration</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>DB Schema Summary</h1>
+      <p class="lede">
+        รวมและสรุปเอกสาร 4 ฉบับในโฟลเดอร์ <code>docs/db_schema/</code>
+        เป็นไฟล์เดียวสำหรับอ่าน/แชร์
+      </p>
+      <p>
+        แหล่งความจริงของ schema คือ <code>scripts/db/migrate.mjs</code>
+        · กฎเหรียญ seed จาก <code>scripts/db/seed-data.mjs</code>
+        · ระบบเป็น MySQL relational ไม่ใช่ MongoDB
+      </p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li><a href="#database-schema">Database Schema Document</a><span>ตาราง MySQL, คอลัมน์, type, required/optional และความสัมพันธ์</span></li>
+<li><a href="#entity-relationship-diagram">Entity Relationship Diagram / Data Model</a><span>แผนภาพ ERD และรายละเอียดคอลัมน์ของแต่ละ entity</span></li>
+<li><a href="#badge-rule-data-dictionary">Badge Rule Data Dictionary</a><span>คำธุรกิจ (Eligible Product, Threshold, Tier, Status) เทียบคอลัมน์จริง</span></li>
+<li><a href="#database-setup-migration-record">Database Setup / Migration Record</a><span>บันทึก setup/migrate, สคริปต์ และสถานะตามสภาพแวดล้อม</span></li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        เก็บกฎเหรียญในตาราง
+        <code>badge_rules</code> + <code>badge_rule_thresholds</code> + <code>badge_rule_conditions</code>
+        จัดกลุ่มด้วย <code>badge_display_groups</code>
+        และเวอร์ชันกฎที่ <code>app_config.badge_rules_version</code>
+        แล้วคำนวณผลตอน request จากสินค้าที่ลูกค้ามี (Sony API)
+      </div>
+    </header>
+    
+<section class="doc" id="database-schema">
+  <p class="doc-source">แหล่งที่มา: <code>database-schema.html</code> — ตาราง MySQL, คอลัมน์, type, required/optional และความสัมพันธ์</p>
+  <header class="hero">
+        <h2 class="doc-heading">Database Schema Document</h2>
+        <p class="lede">
+          โครงสร้างฐานข้อมูล MySQL ของ Sony Badge Pilot:
+          ตาราง (tables), ชื่อ field, data type, required/optional, default value
+          และความสัมพันธ์ของข้อมูล
+        </p>
+        <p>
+          แหล่งความจริงของ schema คือ <code>scripts/db/migrate.mjs</code>
+          ไม่ใช้ document collection — ระบบนี้เป็น relational MySQL ไม่ใช่ MongoDB
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#database-schema-overview">ภาพรวม (Overview)</a></li>
+            <li><a href="#database-schema-app-config">app_config</a></li>
+            <li><a href="#database-schema-display-groups">badge_display_groups</a></li>
+            <li><a href="#database-schema-badge-rules">badge_rules</a></li>
+            <li><a href="#database-schema-thresholds">badge_rule_thresholds</a></li>
+            <li><a href="#database-schema-conditions">badge_rule_conditions</a></li>
+            <li><a href="#database-schema-logs">badge_calculation_logs</a></li>
+            <li><a href="#database-schema-relationships">ความสัมพันธ์ (Relationships)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="database-schema-overview">
+        <h2>ภาพรวมฐานข้อมูล (Database overview)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>ชนิดฐานข้อมูล</strong>
+            MySQL InnoDB (relational tables)
+            <code>BOOLEAN</code> เก็บเป็น <code>TINYINT(1)</code>
+          </div>
+          <div class="box">
+            <strong>สิ่งที่เก็บ</strong>
+            การตั้งค่าเหรียญ (rules, groups, thresholds, conditions),
+            ค่าคอนฟิกแอป และ log สรุปการคำนวณ
+          </div>
+          <div class="box">
+            <strong>สิ่งที่ไม่เก็บ</strong>
+            สินค้าที่ลูกค้ามี (Sony API), LINE session,
+            และผลลัพธ์ชั้นเหรียญในเบราว์เซอร์
+          </div>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>รายการตาราง (Table inventory)</caption>
+            <thead>
+              <tr>
+                <th>ตาราง (Table)</th>
+                <th>หน้าที่ (Purpose)</th>
+                <th>PK</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>app_config</code></td>
+                <td>ค่าคอนฟิกระดับแอปแบบ key/value</td>
+                <td><code>key</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_display_groups</code></td>
+                <td>กลุ่มแสดงผลบนชั้นเหรียญ</td>
+                <td><code>group_code</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td>ตัวตนเหรียญ หน้าต่างวันที่ และสถานะกฎ</td>
+                <td><code>id</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_thresholds</code></td>
+                <td>ระดับปลดล็อกและรูปภาพ</td>
+                <td><code>id</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_conditions</code></td>
+                <td>เงื่อนไข Eligible Product / SKU</td>
+                <td><code>id</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_calculation_logs</code></td>
+                <td>log สรุปการคำนวณ ไม่ผูก FK กับกฎ</td>
+                <td><code>id</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          Required = <code>NOT NULL</code> ต้องมีค่าตอน insert
+          Optional = อนุญาต <code>NULL</code>
+          Default ที่ว่างหมายถึงต้องใส่ค่าเอง ยกเว้นคอลัมน์ที่ระบบสร้างให้ เช่น <code>AUTO_INCREMENT</code>
+        </div>
+      </section>
+
+      <section id="database-schema-app-config">
+        <h2><code>app_config</code></h2>
+        <p>ตารางอิสระ เก็บค่าคอนฟิก เช่นเวอร์ชันกฎ ไม่มี foreign key</p>
+        <div class="tableWrap">
+          <table>
+            <caption>Fields</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Data type</th>
+                <th>Required / Optional</th>
+                <th>Default</th>
+                <th>Keys</th>
+                <th>คำอธิบาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>key</code></td>
+                <td class="mono">VARCHAR(100)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>PK</td>
+                <td>ชื่อค่าคอนฟิก</td>
+              </tr>
+              <tr>
+                <td><code>value</code></td>
+                <td class="mono">TEXT</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td></td>
+                <td>ค่าที่เก็บ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          แถวที่ seed ใส่:
+          <code>badge_rules_version</code>,
+          <code>campaign_name</code>,
+          <code>support_message</code>
+        </p>
+      </section>
+
+      <section id="database-schema-display-groups">
+        <h2><code>badge_display_groups</code></h2>
+        <p>กลุ่มบนชั้นเหรียญ เช่น Full Frame Camera หรือ Quest Badge</p>
+        <div class="tableWrap">
+          <table>
+            <caption>Fields</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Data type</th>
+                <th>Required / Optional</th>
+                <th>Default</th>
+                <th>Keys / Check</th>
+                <th>คำอธิบาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>group_code</code></td>
+                <td class="mono">VARCHAR(120)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>PK</td>
+                <td>รหัสกลุ่มคงที่ เช่น <code>prime-lens</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_type</code></td>
+                <td class="mono">VARCHAR(40)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>CHECK <code>product</code> | <code>quest</code></td>
+                <td>ประเภทกลุ่ม</td>
+              </tr>
+              <tr>
+                <td><code>display_name</code></td>
+                <td class="mono">VARCHAR(255)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td></td>
+                <td>ชื่อกลุ่มที่แสดง</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td><code>0</code></td>
+                <td></td>
+                <td>ลำดับแสดงกลุ่ม</td>
+              </tr>
+              <tr>
+                <td><code>is_active</code></td>
+                <td class="mono">BOOLEAN</td>
+                <td class="req">Required</td>
+                <td><code>TRUE</code></td>
+                <td></td>
+                <td>กลุ่มนี้ยังใช้แสดงหรือไม่</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="database-schema-badge-rules">
+        <h2><code>badge_rules</code></h2>
+        <p>ตารางกลางของเหรียญ ลูกมี thresholds และ conditions</p>
+        <div class="tableWrap">
+          <table>
+            <caption>Fields</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Data type</th>
+                <th>Required / Optional</th>
+                <th>Default</th>
+                <th>Keys / Check</th>
+                <th>คำอธิบาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>AUTO_INCREMENT</td>
+                <td>PK</td>
+                <td>รหัสภายในของกฎ</td>
+              </tr>
+              <tr>
+                <td><code>badge_code</code></td>
+                <td class="mono">VARCHAR(120)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>UNIQUE</td>
+                <td>รหัสคงที่ เช่น <code>product-sel2470gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_name</code></td>
+                <td class="mono">VARCHAR(255)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td></td>
+                <td>ชื่อเหรียญ</td>
+              </tr>
+              <tr>
+                <td><code>badge_type</code></td>
+                <td class="mono">VARCHAR(40)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>CHECK <code>product</code> | <code>quest</code></td>
+                <td>ชนิดเหรียญบนชั้น</td>
+              </tr>
+              <tr>
+                <td><code>rule_type</code></td>
+                <td class="mono">VARCHAR(40)</td>
+                <td class="req">Required</td>
+                <td><code>'achievement'</code></td>
+                <td>CHECK <code>tier</code> | <code>achievement</code></td>
+                <td>ระดับเดียว หรือหลาย tier</td>
+              </tr>
+              <tr>
+                <td><code>display_category</code></td>
+                <td class="mono">VARCHAR(120)</td>
+                <td class="req">Required</td>
+                <td><code>'Achievement badge'</code></td>
+                <td></td>
+                <td>ป้ายหมวดบนชั้นเหรียญ seed มักใส่ Product/Quest Badge</td>
+              </tr>
+              <tr>
+                <td><code>display_group</code></td>
+                <td class="mono">VARCHAR(120)</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>ชื่อกลุ่มแบบข้อความ</td>
+              </tr>
+              <tr>
+                <td><code>display_group_code</code></td>
+                <td class="mono">VARCHAR(120)</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td>index ร่วมกับ <code>sort_order</code></td>
+                <td>อ้าง <code>badge_display_groups.group_code</code> แบบ logical ไม่มี FK</td>
+              </tr>
+              <tr>
+                <td><code>product_model_code</code></td>
+                <td class="mono">VARCHAR(120)</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>รหัสรุ่นของเหรียญผลิตภัณฑ์</td>
+              </tr>
+              <tr>
+                <td><code>product_url</code></td>
+                <td class="mono">TEXT</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>ลิงก์หน้ารายละเอียดสินค้า</td>
+              </tr>
+              <tr>
+                <td><code>description</code></td>
+                <td class="mono">TEXT</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>คำอธิบายเหรียญ</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td><code>0</code></td>
+                <td>index ร่วมกับ <code>is_active</code></td>
+                <td>ลำดับแสดงเหรียญ</td>
+              </tr>
+              <tr>
+                <td><code>is_active</code></td>
+                <td class="mono">BOOLEAN</td>
+                <td class="req">Required</td>
+                <td><code>TRUE</code></td>
+                <td></td>
+                <td>เปิด/ปิดกฎ</td>
+              </tr>
+              <tr>
+                <td><code>active_from</code></td>
+                <td class="mono">DATE</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>วันเริ่มแสดงผล <code>NULL</code> = ไม่จำกัด</td>
+              </tr>
+              <tr>
+                <td><code>active_to</code></td>
+                <td class="mono">DATE</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>วันสิ้นสุดแสดงผล</td>
+              </tr>
+              <tr>
+                <td><code>registration_start</code></td>
+                <td class="mono">DATE</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>วันเริ่มนับการลงทะเบียนสินค้า</td>
+              </tr>
+              <tr>
+                <td><code>registration_end</code></td>
+                <td class="mono">DATE</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>วันสิ้นสุดนับการลงทะเบียนสินค้า</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Indexes:
+          <code>idx_badge_rules_active_sort (is_active, sort_order)</code>,
+          <code>idx_badge_rules_group_sort (display_group_code, sort_order)</code>
+        </p>
+      </section>
+
+      <section id="database-schema-thresholds">
+        <h2><code>badge_rule_thresholds</code></h2>
+        <p>ลูกของ <code>badge_rules</code> หนึ่งกฎมีได้หลายระดับ ลบกฎแล้วลบระดับตาม (CASCADE)</p>
+        <div class="tableWrap">
+          <table>
+            <caption>Fields</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Data type</th>
+                <th>Required / Optional</th>
+                <th>Default</th>
+                <th>Keys / Check</th>
+                <th>คำอธิบาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>AUTO_INCREMENT</td>
+                <td>PK</td>
+                <td>รหัสภายในของระดับ</td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_id</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>FK → <code>badge_rules.id</code> ON DELETE CASCADE</td>
+                <td>กฎเจ้าของระดับนี้</td>
+              </tr>
+              <tr>
+                <td><code>level</code></td>
+                <td class="mono">VARCHAR(80)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>UNIQUE ร่วมกับ <code>badge_rule_id</code></td>
+                <td>รหัสระดับ เช่น <code>bronze</code>, <code>achievement</code></td>
+              </tr>
+              <tr>
+                <td><code>display_name</code></td>
+                <td class="mono">VARCHAR(255)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td></td>
+                <td>ชื่อระดับที่แสดง</td>
+              </tr>
+              <tr>
+                <td><code>required_count</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>CHECK ≥ 0</td>
+                <td>matched count ที่ต้องถึงเพื่อปลดล็อก</td>
+              </tr>
+              <tr>
+                <td><code>achieved_image_url</code></td>
+                <td class="mono">TEXT</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>รูปสีเมื่อปลดล็อก</td>
+              </tr>
+              <tr>
+                <td><code>locked_image_url</code></td>
+                <td class="mono">TEXT</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>รูปตอนยังไม่ปลดล็อก</td>
+              </tr>
+              <tr>
+                <td><code>share_image_url</code></td>
+                <td class="mono">TEXT</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>รูปแชร์ / OG</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td><code>0</code></td>
+                <td>index ร่วมกับ <code>badge_rule_id</code></td>
+                <td>ลำดับแสดงระดับ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="database-schema-conditions">
+        <h2><code>badge_rule_conditions</code></h2>
+        <p>ลูกของ <code>badge_rules</code> เก็บ Eligible Product เป็น JSON ลบกฎแล้วลบเงื่อนไขตาม (CASCADE)</p>
+        <div class="tableWrap">
+          <table>
+            <caption>Fields</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Data type</th>
+                <th>Required / Optional</th>
+                <th>Default</th>
+                <th>Keys / Check</th>
+                <th>คำอธิบาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>AUTO_INCREMENT</td>
+                <td>PK</td>
+                <td>รหัสภายในของเงื่อนไข</td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_id</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>FK → <code>badge_rules.id</code> ON DELETE CASCADE</td>
+                <td>กฎเจ้าของเงื่อนไขนี้</td>
+              </tr>
+              <tr>
+                <td><code>condition_label</code></td>
+                <td class="mono">VARCHAR(255)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>UNIQUE ร่วมกับ <code>badge_rule_id</code></td>
+                <td>ป้ายอ่านใน SQL / debug</td>
+              </tr>
+              <tr>
+                <td><code>match_type</code></td>
+                <td class="mono">VARCHAR(40)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>CHECK <code>any</code> | <code>all</code> | <code>min_count</code></td>
+                <td>วิธีนับ SKU ใน list</td>
+              </tr>
+              <tr>
+                <td><code>required_count</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td><code>1</code></td>
+                <td>CHECK ≥ 0</td>
+                <td>จำนวนที่ต้องมีในเงื่อนไขนี้ ถ้า <code>all</code> ระบบใช้ความยาวของ SKU list</td>
+              </tr>
+              <tr>
+                <td><code>sony_skus</code></td>
+                <td class="mono">JSON</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td></td>
+                <td>รายการ Eligible Product เช่น <code>["SEL2870GM","SEL50150GM"]</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Index: <code>idx_badge_rule_conditions_rule (badge_rule_id)</code></p>
+      </section>
+
+      <section id="database-schema-logs">
+        <h2><code>badge_calculation_logs</code></h2>
+        <p>
+          ตารางปฏิบัติการ ไม่มี FK ไปยังกฎเหรียญ
+          เก็บ hash ของ LINE user id ไม่เก็บค่าดิบ
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Fields</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Data type</th>
+                <th>Required / Optional</th>
+                <th>Default</th>
+                <th>Keys / Check</th>
+                <th>คำอธิบาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>AUTO_INCREMENT</td>
+                <td>PK</td>
+                <td>รหัสรายการ log</td>
+              </tr>
+              <tr>
+                <td><code>customer_line_uuid_hash</code></td>
+                <td class="mono">VARCHAR(128)</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td></td>
+                <td>hash ของ LINE user id</td>
+              </tr>
+              <tr>
+                <td><code>source_sku_count</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>CHECK ≥ 0</td>
+                <td>จำนวน SKU ต้นทางจาก Sony API</td>
+              </tr>
+              <tr>
+                <td><code>matched_sku_count</code></td>
+                <td class="mono">INT</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td>CHECK ≥ 0</td>
+                <td>จำนวน SKU ที่ match กฎ</td>
+              </tr>
+              <tr>
+                <td><code>earned_badges_json</code></td>
+                <td class="mono">JSON</td>
+                <td class="req">Required</td>
+                <td>—</td>
+                <td></td>
+                <td>สรุปเหรียญที่ได้</td>
+              </tr>
+              <tr>
+                <td><code>error_code</code></td>
+                <td class="mono">VARCHAR(120)</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>รหัสข้อผิดพลาดถ้าคำนวณไม่สำเร็จ</td>
+              </tr>
+              <tr>
+                <td><code>error_message</code></td>
+                <td class="mono">TEXT</td>
+                <td class="opt">Optional</td>
+                <td><code>NULL</code></td>
+                <td></td>
+                <td>ข้อความข้อผิดพลาด</td>
+              </tr>
+              <tr>
+                <td><code>created_at</code></td>
+                <td class="mono">TIMESTAMP</td>
+                <td class="req">Required</td>
+                <td><code>CURRENT_TIMESTAMP</code></td>
+                <td>index DESC</td>
+                <td>เวลาที่บันทึก</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="database-schema-relationships">
+        <h2>ความสัมพันธ์ของข้อมูล (Relationships)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Parent → child</caption>
+            <thead>
+              <tr>
+                <th>ตารางต้น (Parent)</th>
+                <th>ตารางปลาย (Child)</th>
+                <th>Cardinality</th>
+                <th>คอลัมน์เชื่อม</th>
+                <th>ชนิด</th>
+                <th>ตอนลบ parent</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_display_groups</code></td>
+                <td><code>badge_rules</code></td>
+                <td>1 ต่อ 0..*</td>
+                <td><code>group_code</code> = <code>display_group_code</code></td>
+                <td>Logical เท่านั้น ไม่มี CONSTRAINT</td>
+                <td>ไม่ cascade ต้องจัดการเอง</td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>badge_rule_thresholds</code></td>
+                <td>1 ต่อ 0..*</td>
+                <td><code>badge_rule_id</code> → <code>id</code></td>
+                <td>Physical FK <code>fk_badge_rule_thresholds_rule</code></td>
+                <td>ON DELETE CASCADE</td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>badge_rule_conditions</code></td>
+                <td>1 ต่อ 0..*</td>
+                <td><code>badge_rule_id</code> → <code>id</code></td>
+                <td>Physical FK <code>fk_badge_rule_conditions_rule</code></td>
+                <td>ON DELETE CASCADE</td>
+              </tr>
+              <tr>
+                <td><code>app_config</code></td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+                <td>Standalone</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>badge_calculation_logs</code></td>
+                <td>—</td>
+                <td>—</td>
+                <td>—</td>
+                <td>Standalone (operational log)</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <div class="box">
+            <strong>ไม่มีตาราง SKU</strong>
+            Eligible Product อยู่ใน <code>sony_skus</code> เป็น JSON
+            SQL จึงไม่มี FK ไปยังรหัสรุ่น Sony
+          </div>
+          <div class="box">
+            <strong>ไม่มีตารางลูกค้า / สินค้าที่ถือครอง</strong>
+            ownership มาจาก Sony warranty API ตอน request
+            log เก็บแค่ hash และสรุปผล
+          </div>
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="entity-relationship-diagram">
+  <p class="doc-source">แหล่งที่มา: <code>entity-relationship-diagram.html</code> — แผนภาพ ERD และรายละเอียดคอลัมน์ของแต่ละ entity</p>
+  <header class="hero">
+        <h2 class="doc-heading">Entity Relationship Diagram / Data Model Diagram</h2>
+        <p class="lede">
+          เอกสารนี้อธิบายตารางที่ persist ใน MySQL ของ Sony Badge Pilot
+          (the persisted MySQL tables for badge configuration).
+          แหล่งความจริงของ schema คือ <code>scripts/db/migrate.mjs</code>.
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#entity-relationship-diagram-scope">ขอบเขต (Scope)</a></li>
+            <li><a href="#entity-relationship-diagram-erd">แผนภาพ ERD (Diagram)</a></li>
+            <li><a href="#entity-relationship-diagram-cardinality">Cardinality</a></li>
+            <li><a href="#entity-relationship-diagram-columns">แคตตาล็อกคอลัมน์ (Columns)</a></li>
+            <li><a href="#entity-relationship-diagram-constraints">ข้อจำกัดและ index</a></li>
+            <li><a href="#entity-relationship-diagram-design">จุดออกแบบ (Design notes)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="entity-relationship-diagram-scope">
+        <h2>ขอบเขต (Scope)</h2>
+        <p>
+          ERD นี้ครอบคลุมตารางที่เก็บ <strong>การตั้งค่าเหรียญ (badge configuration)</strong> เท่านั้น
+          ไม่รวมข้อมูลลูกค้าที่มาจาก Sony API หรือเซสชัน LINE
+        </p>
+        <div class="grid">
+          <div class="box">
+            <strong>อยู่ในแผนภาพ (In diagram)</strong>
+            <code>app_config</code>,
+            <code>badge_display_groups</code>,
+            <code>badge_rules</code>,
+            <code>badge_rule_thresholds</code>,
+            <code>badge_rule_conditions</code>
+          </div>
+          <div class="box">
+            <strong>อยู่นอกโมเดลนี้ (Out of this model)</strong>
+            Sony products จาก warranty API,
+            LINE session cookie / <code>sessionStorage</code>,
+            และผลลัพธ์ที่ cache ในเบราว์เซอร์ <code>localStorage</code>
+            ไม่ได้เก็บเป็นตารางในฐานข้อมูลนี้
+          </div>
+        </div>
+        <div class="note">
+          <code>badge_calculation_logs</code> มีใน schema แต่ไม่มี foreign key ไปยังกฎ
+          และไม่ใช่ data model ของการตั้งค่าเหรียญ — ดูส่วนท้ายของเอกสาร
+          (present in schema, but it is an operational log, not a rule entity).
+        </div>
+      </section>
+
+      <section id="entity-relationship-diagram-erd">
+        <h2>แผนภาพความสัมพันธ์ (Entity Relationship Diagram)</h2>
+        <p>
+          กล่องแสดง entity ตามตารางจริง คีย์หลักขีดเส้นใต้
+          เส้นทึบคือ foreign key จริง เส้นประคือความสัมพันธ์เชิงตรรกะที่ไม่มี CONSTRAINT
+        </p>
+        <div class="erdWrap" role="img" aria-labelledby="erd-title erd-desc">
+          <svg viewBox="0 0 1120 700" xmlns="http://www.w3.org/2000/svg">
+            <title id="entity-relationship-diagram-erd-title">Sony Badge MySQL entity relationship diagram</title>
+            <desc id="entity-relationship-diagram-erd-desc">
+              app_config is standalone.
+              badge_display_groups logically groups badge_rules through display_group_code with no foreign key.
+              badge_rules has one-to-many physical foreign keys to badge_rule_thresholds and badge_rule_conditions with ON DELETE CASCADE.
+            </desc>
+
+            <rect x="0" y="0" width="1120" height="700" fill="#fbfdff" />
+
+            <!-- connectors: display_groups (1) to badge_rules (0..*) logical -->
+            <g stroke="#2557a7" fill="none" stroke-width="2" stroke-dasharray="6 5">
+              <path d="M270 372 H330 V328 H376" />
+            </g>
+            <g stroke="#2557a7" fill="none" stroke-width="2">
+              <path d="M270 364 V380" />
+              <path d="M276 364 V380" />
+              <path d="M390 328 L376 320" />
+              <path d="M390 328 L376 328" />
+              <path d="M390 328 L376 336" />
+              <circle cx="368" cy="328" r="6" fill="#fbfdff" />
+            </g>
+            <text x="300" y="358" fill="#66758a" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">1</text>
+            <text x="348" y="318" fill="#66758a" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">0..*</text>
+
+            <!-- connectors: badge_rules (1) to thresholds (0..*) physical -->
+            <g stroke="#2557a7" fill="none" stroke-width="2">
+              <path d="M700 236 H768 V126 H816" />
+              <path d="M700 228 V244" />
+              <path d="M706 228 V244" />
+              <path d="M840 126 L826 118" />
+              <path d="M840 126 L826 126" />
+              <path d="M840 126 L826 134" />
+              <circle cx="818" cy="126" r="6" fill="#fbfdff" />
+            </g>
+            <text x="712" y="222" fill="#66758a" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">1</text>
+            <text x="778" y="116" fill="#66758a" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">0..*</text>
+
+            <!-- connectors: badge_rules (1) to conditions (0..*) physical -->
+            <g stroke="#2557a7" fill="none" stroke-width="2">
+              <path d="M700 396 H768 V470 H816" />
+              <path d="M700 388 V404" />
+              <path d="M706 388 V404" />
+              <path d="M840 470 L826 462" />
+              <path d="M840 470 L826 470" />
+              <path d="M840 470 L826 478" />
+              <circle cx="818" cy="470" r="6" fill="#fbfdff" />
+            </g>
+            <text x="712" y="382" fill="#66758a" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">1</text>
+            <text x="778" y="460" fill="#66758a" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">0..*</text>
+
+            <!-- app_config -->
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">
+              <rect x="20" y="20" width="250" height="116" rx="8" fill="#ffffff" stroke="#d8e0ea" />
+              <rect x="20" y="20" width="250" height="36" rx="8" fill="#2557a7" />
+              <rect x="20" y="40" width="250" height="16" fill="#2557a7" />
+              <text x="34" y="43" fill="#ffffff" font-weight="700">app_config</text>
+              <text x="34" y="74" fill="#1d2733" text-decoration="underline">PK key</text>
+              <text x="34" y="98" fill="#1d2733">value</text>
+              <text x="34" y="122" fill="#66758a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">ไม่มี FK (standalone)</text>
+            </g>
+
+            <!-- badge_display_groups -->
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">
+              <rect x="20" y="280" width="250" height="184" rx="8" fill="#ffffff" stroke="#d8e0ea" />
+              <rect x="20" y="280" width="250" height="36" rx="8" fill="#2557a7" />
+              <rect x="20" y="300" width="250" height="16" fill="#2557a7" />
+              <text x="34" y="303" fill="#ffffff" font-weight="700">badge_display_groups</text>
+              <text x="34" y="338" fill="#1d2733" text-decoration="underline">PK group_code</text>
+              <text x="34" y="362" fill="#1d2733">badge_type</text>
+              <text x="34" y="386" fill="#1d2733">display_name</text>
+              <text x="34" y="410" fill="#1d2733">sort_order</text>
+              <text x="34" y="434" fill="#1d2733">is_active</text>
+            </g>
+
+            <!-- badge_rules -->
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">
+              <rect x="390" y="160" width="310" height="280" rx="8" fill="#ffffff" stroke="#2557a7" stroke-width="1.5" />
+              <rect x="390" y="160" width="310" height="36" rx="8" fill="#2557a7" />
+              <rect x="390" y="180" width="310" height="16" fill="#2557a7" />
+              <text x="404" y="183" fill="#ffffff" font-weight="700">badge_rules</text>
+              <text x="404" y="218" fill="#1d2733" text-decoration="underline">PK id</text>
+              <text x="404" y="242" fill="#1d2733">UK badge_code</text>
+              <text x="404" y="266" fill="#1d2733">badge_name</text>
+              <text x="404" y="290" fill="#1d2733">badge_type / rule_type</text>
+              <text x="404" y="314" fill="#1d2733">display_group</text>
+              <text x="404" y="338" fill="#1d2733">display_group_code</text>
+              <text x="404" y="362" fill="#1d2733">active_from / active_to</text>
+              <text x="404" y="386" fill="#1d2733">registration_start / end</text>
+              <text x="404" y="418" fill="#66758a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">กฎเหรียญ (Badge Rule)</text>
+            </g>
+
+            <!-- badge_rule_thresholds -->
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">
+              <rect x="840" y="20" width="260" height="212" rx="8" fill="#ffffff" stroke="#d8e0ea" />
+              <rect x="840" y="20" width="260" height="36" rx="8" fill="#2557a7" />
+              <rect x="840" y="40" width="260" height="16" fill="#2557a7" />
+              <text x="854" y="43" fill="#ffffff" font-weight="700">badge_rule_thresholds</text>
+              <text x="854" y="78" fill="#1d2733" text-decoration="underline">PK id</text>
+              <text x="854" y="102" fill="#1d2733">FK badge_rule_id</text>
+              <text x="854" y="126" fill="#1d2733">UK level</text>
+              <text x="854" y="150" fill="#1d2733">display_name</text>
+              <text x="854" y="174" fill="#1d2733">required_count</text>
+              <text x="854" y="198" fill="#1d2733">achieved / locked / share</text>
+              <text x="854" y="218" fill="#66758a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">ระดับปลดล็อก (Threshold)</text>
+            </g>
+
+            <!-- badge_rule_conditions -->
+            <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">
+              <rect x="840" y="360" width="260" height="212" rx="8" fill="#ffffff" stroke="#d8e0ea" />
+              <rect x="840" y="360" width="260" height="36" rx="8" fill="#2557a7" />
+              <rect x="840" y="380" width="260" height="16" fill="#2557a7" />
+              <text x="854" y="383" fill="#ffffff" font-weight="700">badge_rule_conditions</text>
+              <text x="854" y="418" fill="#1d2733" text-decoration="underline">PK id</text>
+              <text x="854" y="442" fill="#1d2733">FK badge_rule_id</text>
+              <text x="854" y="466" fill="#1d2733">UK condition_label</text>
+              <text x="854" y="490" fill="#1d2733">match_type</text>
+              <text x="854" y="514" fill="#1d2733">required_count</text>
+              <text x="854" y="538" fill="#1d2733">sony_skus JSON</text>
+              <text x="854" y="558" fill="#66758a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="11">เงื่อนไข SKU (Condition)</text>
+            </g>
+          </svg>
+        </div>
+        <div class="legend">
+          <span class="legendItem"><span class="swatch"></span> เส้นทึบ = physical FK (ON DELETE CASCADE)</span>
+          <span class="legendItem"><span class="swatch dashed"></span> เส้นประ = logical only ไม่มี FOREIGN KEY</span>
+          <span class="legendItem">|| = หนึ่ง (one) &nbsp; o&lt; = ศูนย์หรือหลาย (zero or many)</span>
+        </div>
+      </section>
+
+      <section id="entity-relationship-diagram-cardinality">
+        <h2>Cardinality และชนิดความสัมพันธ์</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ความสัมพันธ์ระหว่างตาราง (Relationships)</caption>
+            <thead>
+              <tr>
+                <th>จาก (From)</th>
+                <th>ไป (To)</th>
+                <th>Cardinality</th>
+                <th>ชนิด (Kind)</th>
+                <th>คอลัมน์เชื่อม (Join)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_display_groups</code></td>
+                <td><code>badge_rules</code></td>
+                <td>1 ต่อ 0..*</td>
+                <td>เชิงตรรกะ (logical) ไม่มี CONSTRAINT</td>
+                <td><code>group_code</code> = <code>display_group_code</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>badge_rule_thresholds</code></td>
+                <td>1 ต่อ 0..*</td>
+                <td>physical FK <code>fk_badge_rule_thresholds_rule</code></td>
+                <td><code>badge_rule_id</code> → <code>badge_rules.id</code>, ON DELETE CASCADE</td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>badge_rule_conditions</code></td>
+                <td>1 ต่อ 0..*</td>
+                <td>physical FK <code>fk_badge_rule_conditions_rule</code></td>
+                <td><code>badge_rule_id</code> → <code>badge_rules.id</code>, ON DELETE CASCADE</td>
+              </tr>
+              <tr>
+                <td><code>app_config</code></td>
+                <td>—</td>
+                <td>—</td>
+                <td>ตารางอิสระ (standalone)</td>
+                <td>ไม่มี FK</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Schema ไม่บังคับว่ากฎต้องมี threshold หรือ condition อย่างน้อยหนึ่งแถว
+          จึงใช้ <code>0..*</code> ตามข้อจำกัดจริง แม้ seed ปัจจุบันจะใส่ทั้งสองอย่างครบทุกกฎ
+        </p>
+      </section>
+
+      <section id="entity-relationship-diagram-columns">
+        <h2>แคตตาล็อกคอลัมน์ (Column catalog)</h2>
+        <p>
+          ชนิดข้อมูลตาม <code>scripts/db/migrate.mjs</code>
+          MySQL เก็บ <code>BOOLEAN</code> เป็น <code>TINYINT(1)</code>
+        </p>
+
+        <div class="tableWrap">
+          <table>
+            <caption><code>app_config</code> — ค่าคอนฟิกระดับแอป (application key/value)</caption>
+            <thead>
+              <tr>
+                <th>คอลัมน์ (Column)</th>
+                <th>ชนิด (Type)</th>
+                <th>Keys / Null</th>
+                <th>คำอธิบาย (Description)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>key</code></td>
+                <td>VARCHAR(100)</td>
+                <td class="keys">PK, NOT NULL</td>
+                <td>ชื่อค่าคอนฟิก (configuration key)</td>
+              </tr>
+              <tr>
+                <td><code>value</code></td>
+                <td>TEXT</td>
+                <td class="keys">NOT NULL</td>
+                <td>ค่าที่เก็บ (stored value)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          คีย์ที่ seed ใช้: <code>badge_rules_version</code> สำหรับ invalidate cache เมื่อเปลี่ยนกฎ,
+          <code>campaign_name</code>, และ <code>support_message</code>
+        </div>
+
+        <div class="tableWrap">
+          <table>
+            <caption><code>badge_display_groups</code> — กลุ่มบนชั้นเหรียญ (display groups)</caption>
+            <thead>
+              <tr>
+                <th>คอลัมน์ (Column)</th>
+                <th>ชนิด (Type)</th>
+                <th>Keys / Null</th>
+                <th>คำอธิบาย (Description)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>group_code</code></td>
+                <td>VARCHAR(120)</td>
+                <td class="keys">PK, NOT NULL</td>
+                <td>รหัสกลุ่ม เช่น <code>prime-lens</code>, <code>quest</code> (stable group code)</td>
+              </tr>
+              <tr>
+                <td><code>badge_type</code></td>
+                <td>VARCHAR(40)</td>
+                <td class="keys">NOT NULL</td>
+                <td>ประเภทกลุ่ม: <code>product</code> หรือ <code>quest</code></td>
+              </tr>
+              <tr>
+                <td><code>display_name</code></td>
+                <td>VARCHAR(255)</td>
+                <td class="keys">NOT NULL</td>
+                <td>ชื่อกลุ่มที่แสดงบน UI (visible group name)</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td>INT</td>
+                <td class="keys">NOT NULL, default 0</td>
+                <td>ลำดับแสดงกลุ่ม (group display order)</td>
+              </tr>
+              <tr>
+                <td><code>is_active</code></td>
+                <td>BOOLEAN</td>
+                <td class="keys">NOT NULL, default TRUE</td>
+                <td>กลุ่มนี้ยังใช้แสดงหรือไม่ (whether the group is shown)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tableWrap">
+          <table>
+            <caption><code>badge_rules</code> — กฎเหรียญ (badge identity, grouping, and date windows)</caption>
+            <thead>
+              <tr>
+                <th>คอลัมน์ (Column)</th>
+                <th>ชนิด (Type)</th>
+                <th>Keys / Null</th>
+                <th>คำอธิบาย (Description)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td>INT</td>
+                <td class="keys">PK, AUTO_INCREMENT</td>
+                <td>รหัสภายในของกฎ (internal rule id)</td>
+              </tr>
+              <tr>
+                <td><code>badge_code</code></td>
+                <td>VARCHAR(120)</td>
+                <td class="keys">UK, NOT NULL</td>
+                <td>รหัสคงที่ของเหรียญ ที่ UI และ analytics อ้างถึง (stable badge code)</td>
+              </tr>
+              <tr>
+                <td><code>badge_name</code></td>
+                <td>VARCHAR(255)</td>
+                <td class="keys">NOT NULL</td>
+                <td>ชื่อเหรียญ (badge display name)</td>
+              </tr>
+              <tr>
+                <td><code>badge_type</code></td>
+                <td>VARCHAR(40)</td>
+                <td class="keys">NOT NULL</td>
+                <td>ชนิดเหรียญ: <code>product</code> หรือ <code>quest</code></td>
+              </tr>
+              <tr>
+                <td><code>rule_type</code></td>
+                <td>VARCHAR(40)</td>
+                <td class="keys">NOT NULL, default <code>achievement</code></td>
+                <td>รูปแบบกฎ: <code>achievement</code> (ระดับเดียว) หรือ <code>tier</code> (หลายระดับ)</td>
+              </tr>
+              <tr>
+                <td><code>display_category</code></td>
+                <td>VARCHAR(120)</td>
+                <td class="keys">NOT NULL, default <code>Achievement badge</code></td>
+                <td>หมวดที่แสดงบนชั้นเหรียญ (shelf category label)</td>
+              </tr>
+              <tr>
+                <td><code>display_group</code></td>
+                <td>VARCHAR(120)</td>
+                <td class="keys">NULL</td>
+                <td>ชื่อกลุ่มแบบข้อความ (legacy / human-readable group label)</td>
+              </tr>
+              <tr>
+                <td><code>display_group_code</code></td>
+                <td>VARCHAR(120)</td>
+                <td class="keys">NULL</td>
+                <td>รหัสกลุ่มที่อ้าง <code>badge_display_groups.group_code</code> แบบ logical ไม่มี FK</td>
+              </tr>
+              <tr>
+                <td><code>product_model_code</code></td>
+                <td>VARCHAR(120)</td>
+                <td class="keys">NULL</td>
+                <td>รหัสรุ่นสินค้าสำหรับเหรียญผลิตภัณฑ์ (product model code)</td>
+              </tr>
+              <tr>
+                <td><code>product_url</code></td>
+                <td>TEXT</td>
+                <td class="keys">NULL</td>
+                <td>ลิงก์หน้ารายละเอียดสินค้า (product page URL)</td>
+              </tr>
+              <tr>
+                <td><code>description</code></td>
+                <td>TEXT</td>
+                <td class="keys">NULL</td>
+                <td>คำอธิบายเหรียญ (badge description)</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td>INT</td>
+                <td class="keys">NOT NULL, default 0</td>
+                <td>ลำดับแสดงเหรียญ (badge display order)</td>
+              </tr>
+              <tr>
+                <td><code>is_active</code></td>
+                <td>BOOLEAN</td>
+                <td class="keys">NOT NULL, default TRUE</td>
+                <td>กฎนี้ยังใช้งานหรือไม่ ปิดด้วย <code>false</code> แทนการลบแถวที่เคยแสดงแล้ว</td>
+              </tr>
+              <tr>
+                <td><code>active_from</code></td>
+                <td>DATE</td>
+                <td class="keys">NULL</td>
+                <td>วันเริ่มแสดงบนชั้นเหรียญ (display window start)</td>
+              </tr>
+              <tr>
+                <td><code>active_to</code></td>
+                <td>DATE</td>
+                <td class="keys">NULL</td>
+                <td>วันสิ้นสุดการแสดงผล ใส่เมื่อต้องการให้เหรียญหายจากชั้น (display window end)</td>
+              </tr>
+              <tr>
+                <td><code>registration_start</code></td>
+                <td>DATE</td>
+                <td class="keys">NULL</td>
+                <td>วันเริ่มหน้าต่างลงทะเบียนที่นับความคืบหน้า (earning window start)</td>
+              </tr>
+              <tr>
+                <td><code>registration_end</code></td>
+                <td>DATE</td>
+                <td class="keys">NULL</td>
+                <td>วันสิ้นสุดหน้าต่างลงทะเบียน สินค้าที่ลงในหน้าต่างนี้ยังแสดงเหรียญที่ได้ภายหลังได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tableWrap">
+          <table>
+            <caption><code>badge_rule_thresholds</code> — ระดับปลดล็อก (unlock levels and images)</caption>
+            <thead>
+              <tr>
+                <th>คอลัมน์ (Column)</th>
+                <th>ชนิด (Type)</th>
+                <th>Keys / Null</th>
+                <th>คำอธิบาย (Description)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td>INT</td>
+                <td class="keys">PK, AUTO_INCREMENT</td>
+                <td>รหัสภายในของระดับ (internal threshold id)</td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_id</code></td>
+                <td>INT</td>
+                <td class="keys">FK, NOT NULL</td>
+                <td>อ้าง <code>badge_rules.id</code> ลบกฎแล้วลบระดับตาม (ON DELETE CASCADE)</td>
+              </tr>
+              <tr>
+                <td><code>level</code></td>
+                <td>VARCHAR(80)</td>
+                <td class="keys">NOT NULL, UK ร่วมกับ <code>badge_rule_id</code></td>
+                <td>รหัสระดับ เช่น <code>achievement</code>, <code>bronze</code>, <code>silver</code>, <code>gold</code></td>
+              </tr>
+              <tr>
+                <td><code>display_name</code></td>
+                <td>VARCHAR(255)</td>
+                <td class="keys">NOT NULL</td>
+                <td>ชื่อระดับที่แสดง (visible level name)</td>
+              </tr>
+              <tr>
+                <td><code>required_count</code></td>
+                <td>INT</td>
+                <td class="keys">NOT NULL</td>
+                <td>matched count ที่ต้องถึงเพื่อปลดล็อกระดับนี้ (count needed to unlock this level)</td>
+              </tr>
+              <tr>
+                <td><code>achieved_image_url</code></td>
+                <td>TEXT</td>
+                <td class="keys">NULL</td>
+                <td>รูปสีเมื่อปลดล็อกแล้ว (color / achieved image)</td>
+              </tr>
+              <tr>
+                <td><code>locked_image_url</code></td>
+                <td>TEXT</td>
+                <td class="keys">NULL</td>
+                <td>รูปตอนยังไม่ปลดล็อก ถ้าเป็น null ระบบใช้รูป achieved แล้วลดความสว่าง</td>
+              </tr>
+              <tr>
+                <td><code>share_image_url</code></td>
+                <td>TEXT</td>
+                <td class="keys">NULL</td>
+                <td>รูปสำหรับแชร์ / OG (share image)</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td>INT</td>
+                <td class="keys">NOT NULL, default 0</td>
+                <td>ลำดับแสดงระดับ (level display order)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tableWrap">
+          <table>
+            <caption><code>badge_rule_conditions</code> — เงื่อนไข SKU (product matching conditions)</caption>
+            <thead>
+              <tr>
+                <th>คอลัมน์ (Column)</th>
+                <th>ชนิด (Type)</th>
+                <th>Keys / Null</th>
+                <th>คำอธิบาย (Description)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td>INT</td>
+                <td class="keys">PK, AUTO_INCREMENT</td>
+                <td>รหัสภายในของเงื่อนไข (internal condition id)</td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_id</code></td>
+                <td>INT</td>
+                <td class="keys">FK, NOT NULL</td>
+                <td>อ้าง <code>badge_rules.id</code> ลบกฎแล้วลบเงื่อนไขตาม (ON DELETE CASCADE)</td>
+              </tr>
+              <tr>
+                <td><code>condition_label</code></td>
+                <td>VARCHAR(255)</td>
+                <td class="keys">NOT NULL, UK ร่วมกับ <code>badge_rule_id</code></td>
+                <td>ป้ายเงื่อนไขสำหรับอ่านใน SQL / debug (human-readable condition label)</td>
+              </tr>
+              <tr>
+                <td><code>match_type</code></td>
+                <td>VARCHAR(40)</td>
+                <td class="keys">NOT NULL</td>
+                <td>วิธีนับ SKU: <code>any</code>, <code>all</code>, หรือ <code>min_count</code></td>
+              </tr>
+              <tr>
+                <td><code>required_count</code></td>
+                <td>INT</td>
+                <td class="keys">NOT NULL, default 1</td>
+                <td>จำนวนสินค้าที่ต้อง match ในรายการ SKU ของเงื่อนไขนี้ (count required inside this SKU list)</td>
+              </tr>
+              <tr>
+                <td><code>sony_skus</code></td>
+                <td>JSON</td>
+                <td class="keys">NOT NULL</td>
+                <td>รายการ SKU ของ Sony เป็น JSON array ไม่มีตาราง SKU แยก (SKU list stored as JSON)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="entity-relationship-diagram-constraints">
+        <h2>ข้อจำกัดและ index (Constraints and indexes)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>CHECK constraints</caption>
+            <thead>
+              <tr>
+                <th>ตาราง (Table)</th>
+                <th>ชื่อ (Name)</th>
+                <th>กฎ (Rule)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_display_groups</code></td>
+                <td><code>chk_badge_display_groups_badge_type</code></td>
+                <td><code>badge_type IN ('product', 'quest')</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>chk_badge_rules_badge_type</code></td>
+                <td><code>badge_type IN ('product', 'quest')</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>chk_badge_rules_rule_type</code></td>
+                <td><code>rule_type IN ('tier', 'achievement')</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_thresholds</code></td>
+                <td><code>chk_badge_rule_thresholds_required_count</code></td>
+                <td><code>required_count &gt;= 0</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_conditions</code></td>
+                <td><code>chk_badge_rule_conditions_match_type</code></td>
+                <td><code>match_type IN ('any', 'all', 'min_count')</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_conditions</code></td>
+                <td><code>chk_badge_rule_conditions_required_count</code></td>
+                <td><code>required_count &gt;= 0</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tableWrap">
+          <table>
+            <caption>Unique keys และ indexes</caption>
+            <thead>
+              <tr>
+                <th>ตาราง (Table)</th>
+                <th>ชื่อ (Name)</th>
+                <th>คอลัมน์ (Columns)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>badge_code</code> (UNIQUE)</td>
+                <td><code>badge_code</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>idx_badge_rules_active_sort</code></td>
+                <td><code>is_active, sort_order</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rules</code></td>
+                <td><code>idx_badge_rules_group_sort</code></td>
+                <td><code>display_group_code, sort_order</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_thresholds</code></td>
+                <td><code>uq_badge_rule_threshold_level</code></td>
+                <td><code>badge_rule_id, level</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_thresholds</code></td>
+                <td><code>idx_badge_rule_thresholds_rule_sort</code></td>
+                <td><code>badge_rule_id, sort_order</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_conditions</code></td>
+                <td><code>uq_badge_rule_condition_label</code></td>
+                <td><code>badge_rule_id, condition_label</code></td>
+              </tr>
+              <tr>
+                <td><code>badge_rule_conditions</code></td>
+                <td><code>idx_badge_rule_conditions_rule</code></td>
+                <td><code>badge_rule_id</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="entity-relationship-diagram-design">
+        <h2>จุดออกแบบที่ต้องรู้ (Design notes)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong><code>sony_skus</code> เป็น JSON</strong>
+            ไม่มีตาราง SKU แยก SQL จึง enforce รายการ SKU เป็นแถวไม่ได้
+            ยอมรับใน pilot เพราะ SKU เป็นตัวระบุภายนอกจาก Sony (ADR 0001)
+          </div>
+          <div class="box">
+            <strong>หน้าต่างวันที่สองแบบ</strong>
+            <code>active_from</code> / <code>active_to</code> ควบคุมการแสดงผลบนชั้นเหรียญ
+            <code>registration_start</code> / <code>registration_end</code> ควบคุมหน้าต่างลงทะเบียนที่นับความคืบหน้า
+          </div>
+          <div class="box">
+            <strong>เวอร์ชันกฎ</strong>
+            เมื่อเปลี่ยนกฎ ระดับ หรือเงื่อนไข ต้อง bump <code>app_config.badge_rules_version</code>
+            เพื่อให้ cache ของเบราว์เซอร์และ cache ในโปรเซสไม่ใช้ของเก่า
+          </div>
+          <div class="box">
+            <strong>Composed rule</strong>
+            กฎหนึ่งอันมีได้หลาย condition และหลาย threshold
+            เช่น Trinity Master ใช้หลายแถว <code>any</code> เพื่อบังคับครบทุกตระกูลเลนส์
+            โมเดลนี้ไม่ใช่ boolean expression แบบซ้อนชั้น
+          </div>
+        </div>
+        <div class="note warn">
+          การคำนวณเหรียญทำใน application code เพราะสินค้าที่ลูกค้ามีมาเป็น JSON จาก Sony API ตอน request
+          ไม่ได้เก็บ ownership เป็นตารางใน MySQL นี้
+        </div>
+      </section>
+
+      <section>
+        <h2>ตารางปฏิบัติการที่ไม่อยู่ใน ERD หลัก (Operational table)</h2>
+        <p>
+          <code>badge_calculation_logs</code> บันทึกสรุปการคำนวณ ไม่ผูก FK กับกฎเหรียญ
+          และไม่ใช่ส่วนของการตั้งค่า shelf
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption><code>badge_calculation_logs</code></caption>
+            <thead>
+              <tr>
+                <th>คอลัมน์ (Column)</th>
+                <th>ชนิด (Type)</th>
+                <th>Keys / Null</th>
+                <th>คำอธิบาย (Description)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code></td>
+                <td>INT</td>
+                <td class="keys">PK, AUTO_INCREMENT</td>
+                <td>รหัสรายการ log</td>
+              </tr>
+              <tr>
+                <td><code>customer_line_uuid_hash</code></td>
+                <td>VARCHAR(128)</td>
+                <td class="keys">NOT NULL</td>
+                <td>hash ของ LINE user id ไม่เก็บค่าดิบ (hashed customer identifier)</td>
+              </tr>
+              <tr>
+                <td><code>source_sku_count</code></td>
+                <td>INT</td>
+                <td class="keys">NOT NULL</td>
+                <td>จำนวน SKU ต้นทางจาก Sony API</td>
+              </tr>
+              <tr>
+                <td><code>matched_sku_count</code></td>
+                <td>INT</td>
+                <td class="keys">NOT NULL</td>
+                <td>จำนวน SKU ที่ match กฎ</td>
+              </tr>
+              <tr>
+                <td><code>earned_badges_json</code></td>
+                <td>JSON</td>
+                <td class="keys">NOT NULL</td>
+                <td>สรุปเหรียญที่ได้ (earned badge summary)</td>
+              </tr>
+              <tr>
+                <td><code>error_code</code></td>
+                <td>VARCHAR(120)</td>
+                <td class="keys">NULL</td>
+                <td>รหัสข้อผิดพลาดถ้าคำนวณไม่สำเร็จ</td>
+              </tr>
+              <tr>
+                <td><code>error_message</code></td>
+                <td>TEXT</td>
+                <td class="keys">NULL</td>
+                <td>ข้อความข้อผิดพลาด</td>
+              </tr>
+              <tr>
+                <td><code>created_at</code></td>
+                <td>TIMESTAMP</td>
+                <td class="keys">NOT NULL, default CURRENT_TIMESTAMP</td>
+                <td>เวลาที่บันทึก มี index <code>idx_badge_calculation_logs_created</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="badge-rule-data-dictionary">
+  <p class="doc-source">แหล่งที่มา: <code>badge-rule-data-dictionary.html</code> — คำธุรกิจ (Eligible Product, Threshold, Tier, Status) เทียบคอลัมน์จริง</p>
+  <header class="hero">
+        <h2 class="doc-heading">Badge Rule Data Dictionary</h2>
+        <p class="lede">
+          พจนานุกรม field ที่ใช้กำหนดเงื่อนไขเหรียญ (fields that define how a badge can be earned).
+          เอกสารนี้อธิบายคำธุรกิจ เช่น Eligible Product, Threshold, Tier, Status, และ Effective Date
+          แล้วผูกกับคอลัมน์จริงใน MySQL
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#badge-rule-data-dictionary-map">ตารางเทียบคำ (Term map)</a></li>
+            <li><a href="#badge-rule-data-dictionary-eligible">Eligible Product</a></li>
+            <li><a href="#badge-rule-data-dictionary-threshold">Threshold</a></li>
+            <li><a href="#badge-rule-data-dictionary-tier">Tier</a></li>
+            <li><a href="#badge-rule-data-dictionary-status">Status</a></li>
+            <li><a href="#badge-rule-data-dictionary-effective">Effective Date</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="badge-rule-data-dictionary-map">
+        <h2>ตารางเทียบคำธุรกิจกับคอลัมน์ (Business term map)</h2>
+        <p>
+          ทีมและลูกค้ามักใช้คำด้านล่างตอนออกแบบกฎ ระบบเก็บค่าเหล่านี้ในตาราง configuration
+          ไม่ได้เก็บผลลัพธ์ของลูกค้าแต่ละคน
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>คำธุรกิจ → field ที่ persist</caption>
+            <thead>
+              <tr>
+                <th>คำธุรกิจ (Business term)</th>
+                <th>ตาราง / คอลัมน์ (Stored as)</th>
+                <th>ใช้ตอนไหน (Used for)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="term">Eligible Product</span><br />สินค้าที่ร่วมรายการ</td>
+                <td>
+                  <code>badge_rule_conditions.sony_skus</code> (JSON),
+                  <code>match_type</code>,
+                  <code>required_count</code><br />
+                  เหรียญผลิตภัณฑ์ยังมี <code>badge_rules.product_model_code</code>
+                </td>
+                <td>เลือกรุ่นที่นับได้ และวิธีนับในรายการนั้น</td>
+              </tr>
+              <tr>
+                <td><span class="term">Threshold</span><br />เกณฑ์ปลดล็อก</td>
+                <td>
+                  <code>badge_rule_thresholds.required_count</code>,
+                  <code>level</code>,
+                  <code>display_name</code>,
+                  รูปภาพ
+                </td>
+                <td>matched count เท่าไรจึงปลดล็อกระดับนั้น</td>
+              </tr>
+              <tr>
+                <td><span class="term">Tier</span><br />ระดับเหรียญ</td>
+                <td>
+                  <code>badge_rules.rule_type = 'tier'</code>
+                  และหลายแถวใน <code>badge_rule_thresholds</code>
+                  เช่น <code>bronze</code> / <code>silver</code> / <code>gold</code>
+                </td>
+                <td>เหรียญที่มีหลายระดับจากสินค้าชุดเดียวกัน</td>
+              </tr>
+              <tr>
+                <td><span class="term">Status</span><br />สถานะกฎ</td>
+                <td><code>badge_rules.is_active</code></td>
+                <td>เปิดหรือปิดกฎทั้งก้อน ก่อนคำนวณ</td>
+              </tr>
+              <tr>
+                <td><span class="term">Effective Date</span><br />วันที่มีผล</td>
+                <td>
+                  หน้าต่างแสดงผล:
+                  <code>active_from</code> / <code>active_to</code><br />
+                  หน้าต่างลงทะเบียน:
+                  <code>registration_start</code> / <code>registration_end</code>
+                </td>
+                <td>กฎโชว์เมื่อไร และสินค้านับเมื่อไร</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          สถานะที่ลูกค้าเห็นบน UI เช่น earned / locked ไม่ได้เก็บในตารางกฎ
+          เป็นค่าที่คำนวณตอน request จากสินค้า Sony + Threshold
+        </div>
+      </section>
+
+      <section id="badge-rule-data-dictionary-eligible">
+        <h2>Eligible Product — สินค้าที่ร่วมรายการ</h2>
+        <p>
+          Eligible Product คือรุ่น Sony ที่เงื่อนไขเหรียญยอมรับ
+          ระบบเทียบกับสินค้าที่ลูกค้าลงทะเบียนจาก warranty API โดยใช้ SKU ที่ normalize แล้ว
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Field ที่ประกอบ Eligible Product</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>ค่าที่อนุญาต / ตัวอย่าง</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sony_skus</code></td>
+                <td>JSON array ของ string</td>
+                <td><code>["SEL2870GM", "SEL50150GM"]</code></td>
+                <td>รายการรุ่นที่ร่วมรายการในเงื่อนไขนี้ ไม่มีตาราง SKU แยก</td>
+              </tr>
+              <tr>
+                <td><code>match_type</code></td>
+                <td>VARCHAR(40)</td>
+                <td><code>any</code>, <code>all</code>, <code>min_count</code></td>
+                <td>วิธีนับสินค้าใน list นี้</td>
+              </tr>
+              <tr>
+                <td><code>required_count</code> (condition)</td>
+                <td>INT, default 1, ต้อง ≥ 0</td>
+                <td><code>1</code>, <code>3</code>, <code>4</code></td>
+                <td>
+                  จำนวนที่ต้องมีใน list นี้
+                  ถ้า <code>match_type = 'all'</code> ระบบใช้ความยาวของ <code>sony_skus</code> แทน
+                </td>
+              </tr>
+              <tr>
+                <td><code>condition_label</code></td>
+                <td>VARCHAR(255)</td>
+                <td><code>Own one 16-35 GM family model</code></td>
+                <td>ป้ายให้อ่านใน SQL / debug ไม่ได้ใช้คำนวณ</td>
+              </tr>
+              <tr>
+                <td><code>product_model_code</code></td>
+                <td>VARCHAR(120), nullable</td>
+                <td><code>SEL100M28GM</code></td>
+                <td>รหัสรุ่นหลักของเหรียญผลิตภัณฑ์ ใช้แสดงผล ไม่แทนที่ <code>sony_skus</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>วิธีนับในหนึ่งเงื่อนไข (Match type)</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th><code>match_type</code></th>
+                <th>ความหมายธุรกิจ</th>
+                <th>ตัวอย่าง seed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>any</code></td>
+                <td>มีสินค้าใดสินค้าหนึ่งใน list ตาม <code>required_count</code> (มักเป็น 1)</td>
+                <td>The Magnifier: macro รุ่นใดก็ได้ 1 ชิ้น</td>
+              </tr>
+              <tr>
+                <td><code>all</code></td>
+                <td>ต้องมีครบทุก SKU ใน list</td>
+                <td>F2 Master: ต้องมีทั้ง SEL2870GM และ SEL50150GM</td>
+              </tr>
+              <tr>
+                <td><code>min_count</code></td>
+                <td>ต้องมีอย่างน้อย N รุ่นที่ไม่ซ้ำจาก list</td>
+                <td>All Rounder: 3 จาก 4 รุ่น; Portrait Master Gold: สะสมถึง 4 รุ่น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid">
+          <div class="box">
+            <strong>นับรุ่นไม่ซ้ำ (unique SKU)</strong>
+            สินค้าที่ match SKU เดียวกันนับได้ครั้งเดียวต่อเงื่อนไข
+            ลงทะเบียนซีเรียลซ้ำของรุ่นเดียวกันจึงไม่เพิ่ม matched count
+          </div>
+          <div class="box">
+            <strong>เทียบ SKU แบบ suffix-aware</strong>
+            ระบบ uppercase + trim แล้วยอมรับส่วนท้ายแคตตาล็อก เช่น <code>/QSYX</code>
+            แต่ <code>SEL70200GM</code> จะไม่ match <code>SEL70200G</code>
+          </div>
+          <div class="box">
+            <strong>หลายเงื่อนไขในกฎเดียว</strong>
+            แต่ละ condition มี Eligible Product ของตัวเอง
+            matched count ของกฎคือผลรวมที่ cap ตาม required ของแต่ละ condition
+            เช่น Trinity Master = หนึ่งรุ่นจากสามตระกูล GM
+          </div>
+        </div>
+        <div class="note">
+          SKU เดียวกันไปอยู่ในหลายเหรียญได้ เช่นเลนส์ G Master อาจนับทั้งเหรียญผลิตภัณฑ์และ quest
+        </div>
+      </section>
+
+      <section id="badge-rule-data-dictionary-threshold">
+        <h2>Threshold — เกณฑ์ปลดล็อก</h2>
+        <p>
+          Threshold คือระดับที่เหรียญจะเปลี่ยนจากยังไม่ปลดล็อกเป็นปลดล็อก
+          เมื่อ <em>matched count ของทั้งกฎ</em> ถึง <code>required_count</code> ของระดับนั้น
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Field ของ Threshold</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>ค่าที่อนุญาต / ตัวอย่าง</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>level</code></td>
+                <td>VARCHAR(80), unique ต่อกฎ</td>
+                <td><code>achievement</code>, <code>bronze</code>, <code>silver</code>, <code>gold</code></td>
+                <td>รหัสระดับ คงที่สำหรับ UI / ลิงก์รายละเอียด</td>
+              </tr>
+              <tr>
+                <td><code>display_name</code></td>
+                <td>VARCHAR(255)</td>
+                <td><code>Portrait Master Gold</code></td>
+                <td>ชื่อที่แสดงเมื่ออยู่ที่ระดับนี้</td>
+              </tr>
+              <tr>
+                <td><code>required_count</code> (threshold)</td>
+                <td>INT, ต้อง ≥ 0</td>
+                <td>เหรียญผลิตภัณฑ์ = 1; Portrait Master = 2 / 3 / 4</td>
+                <td>matched count ขั้นต่ำเพื่อปลดล็อกระดับนี้</td>
+              </tr>
+              <tr>
+                <td><code>achieved_image_url</code></td>
+                <td>TEXT, nullable</td>
+                <td><code>/quest-badge/portrait-gold.png</code></td>
+                <td>รูปสีเมื่อปลดล็อกแล้ว</td>
+              </tr>
+              <tr>
+                <td><code>locked_image_url</code></td>
+                <td>TEXT, nullable</td>
+                <td>null ใน seed ปัจจุบัน</td>
+                <td>รูปตอนยังไม่ปลดล็อก ถ้าว่างระบบใช้รูป achieved แล้วลดความสว่าง</td>
+              </tr>
+              <tr>
+                <td><code>share_image_url</code></td>
+                <td>TEXT, nullable</td>
+                <td>มักซ้ำกับ achieved</td>
+                <td>รูปแชร์ / OG</td>
+              </tr>
+              <tr>
+                <td><code>sort_order</code></td>
+                <td>INT</td>
+                <td>1001, 1002, 1003</td>
+                <td>ลำดับแสดง ถ้า <code>required_count</code> เท่ากัน ระบบเรียงด้วยค่านี้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          <strong>Required Count มีสองชั้น:</strong>
+          ของ condition จำกัดว่าเงื่อนไขหนึ่งข้อให้นับได้เท่าไร
+          ของ threshold ตัดสินว่าระดับไหนปลดล็อก
+          ตัวอย่าง The Visionary: condition <code>min_count</code> 4 จากรายการ telephoto
+          แล้ว threshold bronze=2, silver=3, gold=4
+        </div>
+        <div class="grid">
+          <div class="box">
+            <strong>เหรียญผลิตภัณฑ์</strong>
+            Threshold เดียว <code>level = achievement</code>, <code>required_count = 1</code>
+            มี Eligible Product รุ่นเดียว
+          </div>
+          <div class="box">
+            <strong>เหรียญ quest แบบ achievement</strong>
+            Threshold เดียวเช่นกัน แต่ <code>required_count</code> อาจเป็น 2 หรือ 3
+            เช่น Trinity Master ต้องครบ 3 ตระกูล
+          </div>
+        </div>
+      </section>
+
+      <section id="badge-rule-data-dictionary-tier">
+        <h2>Tier — ระดับเหรียญ</h2>
+        <p>
+          Tier คือกฎที่มีหลาย Threshold จาก Eligible Product ชุดเดียวกัน
+          ลูกค้าสะสมรุ่นไม่ซ้ำแล้วขยับจาก Bronze → Silver → Gold
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Field ที่ทำให้กฎเป็น Tier</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ค่า</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_rules.rule_type</code></td>
+                <td><code>tier</code> หรือ <code>achievement</code></td>
+                <td>
+                  <code>tier</code> = มีหลายระดับที่มองเห็น
+                  <code>achievement</code> = ปลดล็อกก้อนเดียว
+                </td>
+              </tr>
+              <tr>
+                <td><code>badge_rules.badge_type</code></td>
+                <td><code>product</code> หรือ <code>quest</code></td>
+                <td>ชนิดบนชั้นเหรียญ ไม่ได้บอกว่ามีกี่ระดับ seed ปัจจุบันใช้ tier กับ quest เท่านั้น</td>
+              </tr>
+              <tr>
+                <td>จำนวนแถว threshold</td>
+                <td>มากกว่า 1 สำหรับ quest แบบสะสม</td>
+                <td>แต่ละแถวคือหนึ่ง tier พร้อมรูปและ required count ของตัวเอง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>ตัวอย่าง tier จาก seed ปัจจุบัน</caption>
+            <thead>
+              <tr>
+                <th>Badge</th>
+                <th>Bronze</th>
+                <th>Silver</th>
+                <th>Gold</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Portrait Master</td>
+                <td>2 รุ่น</td>
+                <td>3 รุ่น</td>
+                <td>4 รุ่น</td>
+              </tr>
+              <tr>
+                <td>Wide Architect</td>
+                <td>3 รุ่น</td>
+                <td>4 รุ่น</td>
+                <td>5 รุ่น</td>
+              </tr>
+              <tr>
+                <td>The Visionary</td>
+                <td>2 รุ่น</td>
+                <td>3 รุ่น</td>
+                <td>4 รุ่น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note ok">
+          Engine เรียง threshold ตาม <code>required_count</code> แล้วเลือกอันสูงสุดที่ matched count ถึง
+          ยังไม่ถึงระดับแรกเลยจะยังเป็น locked ที่ threshold ถัดไป
+        </div>
+      </section>
+
+      <section id="badge-rule-data-dictionary-status">
+        <h2>Status — สถานะ</h2>
+        <p>
+          ในพจนานุกรมกฎ Status คือการเปิด/ปิดกฎทั้งก้อน
+          ไม่ใช่สถานะเหรียญของลูกค้าคนหนึ่ง
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Status ระดับ configuration</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>ค่า</th>
+                <th>ผลต่อระบบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>badge_rules.is_active</code></td>
+                <td>BOOLEAN, default TRUE</td>
+                <td><code>true</code> / <code>false</code></td>
+                <td>
+                  <code>false</code> = กฎไม่เข้าการคำนวณและไม่โชว์บนชั้นเหรียญ
+                  ควรปิดกฎที่เคยแสดงแล้ว แทนการลบแถว
+                </td>
+              </tr>
+              <tr>
+                <td><code>badge_display_groups.is_active</code></td>
+                <td>BOOLEAN, default TRUE</td>
+                <td><code>true</code> / <code>false</code></td>
+                <td>ควบคุมกลุ่มแสดงผล ไม่ได้ปิดกฎลูกโดยอัตโนมัติผ่าน FK</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>Status ระดับ runtime (คำนวณ ไม่ persist ในตารางกฎ)</caption>
+            <thead>
+              <tr>
+                <th>ค่า</th>
+                <th>ความหมาย</th>
+                <th>เงื่อนไขโดยย่อ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>earned</code></td>
+                <td>ปลดล็อกแล้ว (achieved)</td>
+                <td>matched count ≥ threshold อย่างน้อยหนึ่งระดับ</td>
+              </tr>
+              <tr>
+                <td><code>locked</code></td>
+                <td>เริ่มสะสมแล้วแต่ยังไม่ถึงเกณฑ์</td>
+                <td>matched count &gt; 0 แต่ยังไม่ถึง threshold ใด</td>
+              </tr>
+              <tr>
+                <td><code>no-badge</code></td>
+                <td>ยังไม่มีสินค้าที่ร่วมรายการ</td>
+                <td>matched count = 0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          กฎที่ <code>is_active = false</code> จะไม่ถูกคำนวณเลย จึงไม่มี earned/locked
+          ปิดกฎไม่ลบประวัติสินค้าที่ Sony API เพราะ ownership ไม่อยู่ในฐานข้อมูลนี้
+        </div>
+      </section>
+
+      <section id="badge-rule-data-dictionary-effective">
+        <h2>Effective Date — วันที่มีผล</h2>
+        <p>
+          ระบบแยกวันที่เป็นสองหน้าต่าง เพราะ “เหรียญโชว์บนชั้นเมื่อไร” กับ “สินค้านับเมื่อไร” ไม่ใช่เรื่องเดียวกัน
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>หน้าต่างแสดงผล (Display window)</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>เทียบกับ</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>active_from</code></td>
+                <td>DATE, nullable</td>
+                <td>วันปัจจุบันของเซิร์ฟเวอร์ (<code>now</code>)</td>
+                <td>ก่อนวันนี้กฎยังไม่โชว์ / ไม่คำนวณ</td>
+              </tr>
+              <tr>
+                <td><code>active_to</code></td>
+                <td>DATE, nullable</td>
+                <td>วันปัจจุบันของเซิร์ฟเวอร์</td>
+                <td>หลังวันนี้เหรียญหายจากชั้น ปล่อยว่างถ้าต้องการโชว์ต่อหลังแคมเปญ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>หน้าต่างลงทะเบียน (Earning / registration window)</caption>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>ชนิด</th>
+                <th>เทียบกับ</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>registration_start</code></td>
+                <td>DATE, nullable</td>
+                <td>Sony product <code>registeredAt</code></td>
+                <td>สินค้าที่ลงก่อนวันนี้ไม่นับเป็น Eligible Product ของกฎนี้</td>
+              </tr>
+              <tr>
+                <td><code>registration_end</code></td>
+                <td>DATE, nullable</td>
+                <td>Sony product <code>registeredAt</code></td>
+                <td>สินค้าที่ลงหลังวันนี้ไม่นับ ถ้าลงในหน้าต่างแล้วยังโชว์เหรียญที่ได้ภายหลังได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <div class="box">
+            <strong>ค่า null = ไม่จำกัด</strong>
+            Seed ปัจจุบันใส่ null ทั้งสี่คอลัมน์
+            สินค้าที่ลงทะเบียนแล้วจึงนับได้ทุกวัน และเหรียญโชว์ตลอดที่กฎยัง active
+          </div>
+          <div class="box">
+            <strong>ขอบเขตวันที่รวมวันปลาย</strong>
+            ระบบเทียบแบบวันที่ (UTC midnight ของค่าที่เก็บ)
+            สินค้าที่ลงในวัน <code>registration_end</code> ยังนับ
+          </div>
+        </div>
+        <div class="note">
+          ตัวอย่างแคมเปญระยะสั้น: ตั้ง <code>registration_start/end</code> ตามช่วงลงทะเบียน
+          และปล่อย <code>active_to</code> เป็น null เพื่อให้ผู้ที่ได้เหรียญแล้วยังเห็นบนชั้น
+          ใส่ <code>active_to</code> เมื่อต้องการให้เหรียญหายจากชั้นหลังจบแคมเปญ
+        </div>
+      </section>
+
+      <section>
+        <h2>ลำดับที่ระบบใช้ field เหล่านี้</h2>
+        <ol>
+          <li><strong>Status</strong> — ถ้า <code>is_active</code> เป็น false จบที่กฎนี้</li>
+          <li><strong>Effective Date (แสดงผล)</strong> — ถ้าวันนี้ไม่อยู่ในช่วง <code>active_from</code> / <code>active_to</code> จบที่กฎนี้</li>
+          <li><strong>Eligible Product</strong> — คัดสินค้าที่ SKU ตรง list และอยู่ในหน้าต่างลงทะเบียน นับรุ่นไม่ซ้ำตาม <code>match_type</code></li>
+          <li><strong>Threshold / Tier</strong> — เทียบ matched count กับ <code>required_count</code> ของแต่ละระดับ แล้วเลือกสูงสุดที่ถึง</li>
+        </ol>
+        <div class="note warn">
+          หลังแก้ field เหล่านี้ในฐานข้อมูล ต้อง bump <code>app_config.badge_rules_version</code>
+          เพื่อไม่ให้ cache ใช้กฎเก่า
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="database-setup-migration-record">
+  <p class="doc-source">แหล่งที่มา: <code>database-setup-migration-record.html</code> — บันทึก setup/migrate, สคริปต์ และสถานะตามสภาพแวดล้อม</p>
+  <header class="hero">
+        <h2 class="doc-heading">Database Setup / Migration Record</h2>
+        <p class="lede">
+          รายการ script และ configuration ที่ใช้สร้างและปรับปรุงฐานข้อมูล
+          พร้อมสถานะการดำเนินการใน local, CI และ UAT
+        </p>
+        <p>
+          ระบบนี้ไม่มีตาราง <code>schema_migrations</code>
+          ประวัติ schema คือลำดับ statement ใน <code>scripts/db/migrate.mjs</code>
+          ซึ่งรันซ้ำได้ (idempotent)
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#database-setup-migration-record-config">Configuration</a></li>
+            <li><a href="#database-setup-migration-record-scripts">Scripts</a></li>
+            <li><a href="#database-setup-migration-record-changes">Schema change log</a></li>
+            <li><a href="#database-setup-migration-record-status">สถานะตามสภาพแวดล้อม</a></li>
+            <li><a href="#database-setup-migration-record-howto">ลำดับการรัน</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="database-setup-migration-record-config">
+        <h2>Configuration ที่ต้องมีก่อนรัน</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ตัวแปรสภาพแวดล้อม (Environment)</caption>
+            <thead>
+              <tr>
+                <th>ชื่อ</th>
+                <th>ตัวอย่าง local</th>
+                <th>จำเป็นเมื่อ</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>DATABASE_URL</code></td>
+                <td><code>mysql://sony:sony@127.0.0.1:3307/sony_badges</code></td>
+                <td>ทุกคำสั่ง <code>db:*</code></td>
+                <td>ห้ามใส่ prefix <code>http://</code> ที่ hostname</td>
+              </tr>
+              <tr>
+                <td><code>DATABASE_SSL</code></td>
+                <td><code>false</code> local / <code>true</code> Azure MySQL</td>
+                <td>UAT/production ที่บังคับ TLS</td>
+                <td>หรือใส่ <code>?ssl=true</code> ใน URL ไม่ปิดการตรวจใบรับรอง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <div class="box">
+            <strong>Local MySQL</strong>
+            <code>docker-compose.yml</code> ใช้ image <code>mysql:8.4</code>
+            database <code>sony_badges</code> พอร์ตโฮสต์ <code>3307</code>
+            user/password สำหรับ local เท่านั้น: <code>sony</code> / <code>sony</code>
+          </div>
+          <div class="box">
+            <strong>UAT MySQL</strong>
+            Azure MySQL เข้าถึงจากเครื่องที่อนุญาตเท่านั้น
+            ค่าเชื่อมต่ออยู่ใน GitHub environment secret <code>UAT_ENV_FILE</code>
+            ไม่ commit <code>.env*</code>
+          </div>
+        </div>
+      </section>
+
+      <section id="database-setup-migration-record-scripts">
+        <h2>รายการ Script</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>คำสั่ง npm และไฟล์ที่เรียก</caption>
+            <thead>
+              <tr>
+                <th>คำสั่ง (Command)</th>
+                <th>ไฟล์ (Script)</th>
+                <th>หน้าที่</th>
+                <th>ทำลายข้อมูลหรือไม่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>npm run db:migrate</code></td>
+                <td><code>scripts/db/migrate.mjs</code></td>
+                <td>สร้างตาราง/คอลัมน์/index ตาม schema ปัจจุบัน</td>
+                <td>ไม่ลบข้อมูล</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed</code></td>
+                <td><code>scripts/db/seed.mjs</code> + <code>seed-data.mjs</code></td>
+                <td>upsert กฎจาก seed เริ่มต้น (path รูปใน <code>/public</code>)</td>
+                <td>แทนที่ groups / thresholds / conditions ของกฎที่ seed</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:prod</code></td>
+                <td><code>seed.mjs --seed ./prod/seed-data.mjs</code></td>
+                <td>seed ชุด production/UAT (URL รูปจาก dump)</td>
+                <td>เหมือน <code>db:seed</code> แต่คนละไฟล์ข้อมูล</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:all</code></td>
+                <td><code>scripts/db/seed-all-rules.mjs</code></td>
+                <td>migrate → seed → verify ติดกัน</td>
+                <td>ตาม seed ที่เลือก</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:all:prod</code></td>
+                <td><code>seed-all-rules.mjs --seed ./prod/seed-data.mjs</code></td>
+                <td>migrate + prod seed + verify</td>
+                <td>ใช้กับโฮสต์ที่เข้า Azure MySQL ได้</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:verify</code> / <code>db:verify:prod</code></td>
+                <td><code>scripts/db/verify.mjs</code></td>
+                <td>ตรวจจำนวนแถวและมี <code>badge_rules_version</code></td>
+                <td>อ่านอย่างเดียว</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql</code></td>
+                <td><code>scripts/db/generate-seed-sql.mjs</code></td>
+                <td>สร้าง <code>seed-all-rules.sql</code> จาก <code>seed-data.mjs</code></td>
+                <td>ไม่แตะฐานข้อมูล</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql:check</code></td>
+                <td><code>generate-seed-sql.mjs --check</code></td>
+                <td>CI ตรวจว่า SQL ที่ commit ไม่ล้าสมัย</td>
+                <td>ไม่แตะฐานข้อมูล</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:reset</code></td>
+                <td><code>scripts/db/reset.mjs</code></td>
+                <td>DROP ตารางทั้งหมด แล้ว migrate + seed + verify</td>
+                <td class="status-manual">ลบข้อมูลทั้งหมด ใช้แค่ local</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>ไฟล์ข้อมูลและไฟล์ประกอบ</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ไฟล์</th>
+                <th>บทบาท</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>scripts/db/migrate.mjs</code></td>
+                <td>แหล่งความจริงของ schema</td>
+                <td class="status-ok">Active</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/seed-data.mjs</code></td>
+                <td>แหล่งความจริงของกฎชุด local/default</td>
+                <td class="status-ok">Active — version <code>2026-07-24-product-urls-001</code></td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/prod/seed-data.mjs</code></td>
+                <td>กฎชุด prod/UAT (รูปและ URL จาก dump)</td>
+                <td class="status-ok">Active — version เดียวกัน</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/seed-all-rules.sql</code></td>
+                <td>SQL สำหรับ import ด้วยมือ ต้อง generate จาก seed</td>
+                <td class="status-ok">Generated — ห้ามแก้ด้วยมือ</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/mysql-connection.mjs</code></td>
+                <td>สร้าง connection pool และ TLS</td>
+                <td class="status-ok">Active</td>
+              </tr>
+              <tr>
+                <td><code>docker-compose.yml</code></td>
+                <td>MySQL 8.4 สำหรับพัฒนา</td>
+                <td class="status-ok">Active สำหรับ local</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/uat_sony_table.sql</code></td>
+                <td>Dump จาก TablePlus (UAT snapshot)</td>
+                <td class="status-skip">อ้างอิงเท่านั้น ไม่ใช่สคริปต์ migrate</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/prod/generate-seed-data.mjs</code></td>
+                <td>สร้าง prod seed จาก dump</td>
+                <td class="status-skip">เครื่องมือ regenerate ไม่รันใน CI</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/seed-all-rules_backup.sql</code></td>
+                <td>สำเนา SQL เก่า</td>
+                <td class="status-skip">Backup — อย่าใช้เป็นแหล่งความจริง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="database-setup-migration-record-changes">
+        <h2>Schema change log</h2>
+        <p>
+          ไม่มี migration runner แบบมีเลขเวอร์ชันในฐานข้อมูล
+          <code>migrate.mjs</code> รัน statement ตามลำดับ
+          <code>CREATE TABLE IF NOT EXISTS</code> และถ้า ALTER/INDEX ซ้ำจะข้ามเมื่อเจอ
+          <code>ER_DUP_FIELDNAME</code> หรือ <code>ER_DUP_KEYNAME</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>ลำดับ statement ใน <code>migrate.mjs</code></caption>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>การเปลี่ยนแปลง</th>
+                <th>ชนิด</th>
+                <th>สถานะในรีโป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>M01</td>
+                <td>สร้าง <code>app_config</code></td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M02</td>
+                <td>สร้าง <code>badge_display_groups</code></td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M03</td>
+                <td>สร้าง <code>badge_rules</code></td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M04</td>
+                <td>สร้าง <code>badge_rule_thresholds</code> + FK CASCADE</td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M05</td>
+                <td>สร้าง <code>badge_rule_conditions</code> + FK CASCADE</td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M06</td>
+                <td>สร้าง <code>badge_calculation_logs</code></td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M07</td>
+                <td>เพิ่ม <code>badge_rules.display_group_code</code></td>
+                <td>ALTER TABLE</td>
+                <td class="status-ok">Committed, skip ถ้ามีคอลัมน์แล้ว</td>
+              </tr>
+              <tr>
+                <td>M08</td>
+                <td>เพิ่ม <code>badge_rules.product_model_code</code></td>
+                <td>ALTER TABLE</td>
+                <td class="status-ok">Committed, skip ถ้ามีคอลัมน์แล้ว</td>
+              </tr>
+              <tr>
+                <td>M09</td>
+                <td>เพิ่ม <code>badge_rules.product_url</code></td>
+                <td>ALTER TABLE</td>
+                <td class="status-ok">Committed, skip ถ้ามีคอลัมน์แล้ว</td>
+              </tr>
+              <tr>
+                <td>M10</td>
+                <td>เพิ่ม <code>badge_rule_thresholds.share_image_url</code></td>
+                <td>ALTER TABLE</td>
+                <td class="status-ok">Committed, skip ถ้ามีคอลัมน์แล้ว</td>
+              </tr>
+              <tr>
+                <td>M11</td>
+                <td><code>idx_badge_rules_active_sort</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+              <tr>
+                <td>M12</td>
+                <td><code>idx_badge_rules_group_sort</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+              <tr>
+                <td>M13</td>
+                <td><code>idx_badge_rule_thresholds_rule_sort</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+              <tr>
+                <td>M14</td>
+                <td><code>idx_badge_rule_conditions_rule</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+              <tr>
+                <td>M15</td>
+                <td><code>idx_badge_calculation_logs_created</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          ข้อมูลกฎปัจจุบันระบุด้วย <code>app_config.badge_rules_version = 2026-07-24-product-urls-001</code>
+          ในทั้ง <code>seed-data.mjs</code> และ <code>prod/seed-data.mjs</code>
+          bump ค่านี้ทุกครั้งที่เปลี่ยนกฎ ระดับ หรือเงื่อนไข
+        </div>
+      </section>
+
+      <section id="database-setup-migration-record-status">
+        <h2>สถานะการดำเนินการตามสภาพแวดล้อม</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ใครรันอะไรบ้าง</caption>
+            <thead>
+              <tr>
+                <th>สภาพแวดล้อม</th>
+                <th>สร้าง schema</th>
+                <th>ใส่ข้อมูลกฎ</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Local (Docker MySQL :3307)</td>
+                <td><code>npm run db:migrate</code> หรือ <code>db:reset</code></td>
+                <td><code>npm run db:seed</code> / <code>db:seed:all</code></td>
+                <td class="status-manual">ผู้พัฒนาเป็นคนรัน</td>
+              </tr>
+              <tr>
+                <td>GitHub Actions (UAT workflow)</td>
+                <td>ไม่รัน</td>
+                <td>ไม่รัน — ตรวจแค่ <code>db:seed:sql:check</code></td>
+                <td class="status-skip">ตรวจ SQL ให้ตรง seed เท่านั้น</td>
+              </tr>
+              <tr>
+                <td>UAT Azure MySQL</td>
+                <td>รัน <code>db:migrate</code> จากโฮสต์ที่เข้า DB ได้</td>
+                <td><code>db:seed:prod</code> หรือ import <code>seed-all-rules.sql</code> หลัง migrate</td>
+                <td class="status-manual">ไม่อยู่ในขั้นตอน deploy แอป</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Workflow <code>.github/workflows/main_mysonybadgestg.yml</code> ไม่ migrate และไม่ seed
+          เพราะ runner ของ GitHub ไม่ถูกสมมติว่าเข้าถึง Azure MySQL ได้
+          ไฟล์ workflow ปัจจุบัน trigger เมื่อ push ไปสาขา <code>dev</code> หรือ <code>workflow_dispatch</code>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>บันทึกการนำไปใช้ที่ทราบจากรีโป</caption>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>หลักฐาน</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Schema M01–M15 ในโค้ด</td>
+                <td><code>scripts/db/migrate.mjs</code></td>
+                <td class="status-ok">อยู่ในรีโป พร้อมรันซ้ำ</td>
+              </tr>
+              <tr>
+                <td>Generated SQL ตรงกับ seed เริ่มต้น</td>
+                <td>CI step <code>npm run db:seed:sql:check</code></td>
+                <td class="status-ok">บังคับทุกครั้งที่ workflow รัน</td>
+              </tr>
+              <tr>
+                <td>Snapshot โครงสร้าง UAT</td>
+                <td><code>uat_sony_table.sql</code> (TablePlus, 2026-08-17)</td>
+                <td class="status-skip">สำเนา ณ วัน dump ไม่ใช่ใบรับรองว่า apply ล่าสุดแล้ว</td>
+              </tr>
+              <tr>
+                <td>Apply บน Azure MySQL ครั้งล่าสุด</td>
+                <td>ต้องบันทึก Git SHA + <code>badge_rules_version</code> หลังรันด้วยมือ</td>
+                <td class="status-manual">อยู่นอก Git — ผู้ปฏิบัติการเป็นคนจด</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="database-setup-migration-record-howto">
+        <h2>ลำดับการรันที่แนะนำ</h2>
+        <h3>Local</h3>
+        <pre>docker compose up -d
+export DATABASE_URL=mysql://sony:sony@127.0.0.1:3307/sony_badges
+npm run db:reset</pre>
+        <p>
+          <code>db:reset</code> เหมาะกับเครื่องพัฒนาเพราะ DROP ตารางก่อน
+          อย่าใช้คำสั่งนี้กับ UAT
+        </p>
+
+        <h3>UAT / Azure MySQL (จากโฮสต์ที่เข้าถึงได้)</h3>
+        <ol>
+          <li>ตั้ง <code>DATABASE_URL</code> และ <code>DATABASE_SSL=true</code></li>
+          <li>รัน <code>npm run db:migrate</code></li>
+          <li>รัน <code>npm run db:seed:all:prod</code> หรือ migrate แล้ว import SQL ที่ generate จาก prod seed</li>
+          <li>ตรวจด้วย <code>npm run db:verify:prod</code></li>
+          <li>บันทึก Git SHA ที่ใช้และค่า <code>app_config.badge_rules_version</code></li>
+        </ol>
+        <div class="note warn">
+          ห้ามแก้ <code>seed-all-rules.sql</code> ด้วยมือ
+          แก้ที่ <code>seed-data.mjs</code> หรือ <code>prod/seed-data.mjs</code> แล้ว generate ใหม่
+        </div>
+      </section>
+</section>
+
+  </main>
+</body>
+</html>
