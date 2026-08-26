@@ -1,0 +1,1280 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LIFF Mini App Summary — Sony Badge Pilot</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 12px; color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+svg, img { max-width: 100%; height: auto; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#screen-user-flow">Screen Flow</a>
+<a href="#frontend-functional-specification">Frontend Functional Specification</a>
+<a href="#frontend-configuration-guide">Frontend Configuration Guide</a>
+<a href="#responsive-browser-support-matrix">Responsive &amp; Browser Support Matrix</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>LIFF Mini App Summary</h1>
+      <p class="lede">
+        รวมและสรุปเอกสารในโฟลเดอร์ <code>docs/liff_miniapp/</code>
+        เป็นไฟล์เดียวสำหรับอ่าน/แชร์
+      </p>
+      <p>
+        ครอบคลุม user flow, สเปกฟังก์ชัน frontend, การตั้งค่า LIFF
+        และตารางรองรับ responsive / browser
+      </p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li><a href="#screen-user-flow">Screen Flow / User Flow</a><span>โฟลว์หน้าจอและเส้นทางผู้ใช้ใน LIFF Mini App</span></li>
+<li><a href="#frontend-functional-specification">Frontend Functional Specification</a><span>สเปกฟังก์ชันฝั่ง frontend / LIFF</span></li>
+<li><a href="#frontend-configuration-guide">Frontend Configuration Guide</a><span>คู่มือตั้งค่า frontend (env, LIFF, URL)</span></li>
+<li><a href="#responsive-browser-support-matrix">Responsive &amp; Browser Support Matrix</a><span>รองรับ responsive และเบราว์เซอร์ / LINE in-app</span></li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        ผู้ใช้เปิดผ่าน LINE LIFF → ตรวจ session → ดู My Badges / Products / Missions
+        ตาม flow ที่กำหนด; ตั้งค่าด้วย env/LIFF ID; รองรับหน้าจอมือถือและ LINE in-app browser เป็นหลัก
+      </div>
+    </header>
+    
+<section class="doc" id="screen-user-flow">
+  <p class="doc-source">แหล่งที่มา: <code>screen-user-flow.html</code> — โฟลว์หน้าจอและเส้นทางผู้ใช้ใน LIFF Mini App</p>
+  <header class="hero">
+        <h2 class="doc-heading">Screen Flow / User Flow</h2>
+        <p class="lede">
+          เส้นทางตั้งแต่เข้าใช้งาน เชื่อมสมาชิก ดูเหรียญ ดู Tier และแชร์เหรียญ
+          ใน LINE Mini App
+        </p>
+        <p>
+          บ้านของแคมเปญคือ <code>/{locale}/my-badges</code>
+          สมาชิกในแอปคือ LINE user ที่ผูกกับสินค้าผ่าน Sony warranty API
+          ไม่มีหน้าสมัครสมาชิกใน Mini App
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#screen-user-flow-happy">เส้นทางหลัก (Happy path)</a></li>
+            <li><a href="#screen-user-flow-enter">เข้าใช้งาน</a></li>
+            <li><a href="#screen-user-flow-member">เชื่อมสมาชิก</a></li>
+            <li><a href="#screen-user-flow-badges">ดูเหรียญ</a></li>
+            <li><a href="#screen-user-flow-tier">ดู Tier</a></li>
+            <li><a href="#screen-user-flow-share">แชร์เหรียญ</a></li>
+            <li><a href="#screen-user-flow-alt">เส้นทางแยก (Exceptions)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="screen-user-flow-happy">
+        <h2>เส้นทางหลัก (Happy path)</h2>
+        <pre>เปิด Mini App ใน LINE
+  → LIFF init + ID token
+  → POST /api/line-session  (คุกกี้เซสชัน 1 ชม.)
+  → เก็บ LINE user id ฝั่งไคลเอนต์
+  → /{locale}/my-badges
+  → GET /api/my-badges?lineuuid=
+       ├─ LINE verify แล้ว (ครั้งเข้า)
+       └─ Sony QueryWarrantyMySonyByLine + กฎ MySQL
+  → เห็นโปรไฟล์ + นับเหรียญ + พรีวิว
+
+แตกได้สี่ทางจากบ้าน:
+  A. ดูเหรียญสินค้าทั้งหมด / รายละเอียด / แชร์
+  B. ดูภารกิจ + ชั้น (Tier) / รายละเอียดชั้น / แชร์เมื่อครบ
+  C. แถบ Register → เว็บลงทะเบียนสินค้า Sony (ออกจาก Mini App)
+  D. แถบ FAQ → microsite</pre>
+      </section>
+
+      <section id="screen-user-flow-enter">
+        <h2>เข้าใช้งาน (Entry)</h2>
+        <ol>
+          <li>
+            ผู้ใช้เปิดจาก LINE (LIFF ID)
+            middleware ดึง <code>/</code> และ <code>/badge</code> ไป
+            <code>/th/my-badges</code>
+          </li>
+          <li>
+            Production ที่เข้า <code>/{locale}/badges</code> จะเห็นหน้าโหลด
+            <code>BadgeSessionBootstrap</code> จนกว่า verify ID token สำเร็จ
+            แล้ว <code>router.replace</code> ไป My Badges
+          </li>
+          <li>
+            ทุกหน้าภายใต้ <code>/{locale}</code> มี
+            <code>LineSessionProvider</code> ทำ LIFF อีกครั้งถ้ายังไม่มีเซสชันในหน่วยความจำ
+          </li>
+          <li>
+            My Badges แสดง skeleton จนกว่า status ไม่ใช่ idle/loading
+            และมี <code>lineUuid</code> แล้วจึงยิง API
+          </li>
+        </ol>
+        <div class="tableWrap">
+          <table>
+            <caption>จุดเข้าที่เป็นไปได้</caption>
+            <thead>
+              <tr>
+                <th>จุดเข้า</th>
+                <th>จอถัดไป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ไอคอน Mini App / deep link บ้าน</td>
+                <td>My Badges (หลัง LIFF)</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td>
+                  ถ้า origin/referrer ผ่านและมีคุกกี้ → badges แล้วต่อไปบ้าน
+                  ถ้าไม่ผ่าน → badges พร้อมข้อความเข้าถึงไม่ได้
+                </td>
+              </tr>
+              <tr>
+                <td>Deep link ชั้นภารกิจ</td>
+                <td>
+                  <code>/{locale}/my-missions/{tierId}</code>
+                  ยังต้องมี LINE id เพื่อคำนวณความคืบหน้า
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="screen-user-flow-member">
+        <h2>เชื่อมสมาชิก (Membership)</h2>
+        <p>
+          ระบบไม่เก็บบัญชีลูกค้าเอง
+          “สมาชิก” คือ LINE ID ที่ Sony ใช้ค้น warranty
+        </p>
+        <pre>เชื่อม LINE (ในแอป)
+  LIFF getIDToken → LINE Login verify → คุกกี้ sony_line_session
+  + โปรไฟล์ displayName / pictureUrl บนการ์ดบ้าน
+
+ผูกสินค้า (นอกแอป)
+  ลูกค้าต้องลงทะเบียนสินค้าบนระบบ Sony อยู่แล้ว
+  แอปเรียก APIM ด้วย { countryCode, lineId } ทุกครั้งที่โหลด my-*
+  ไม่มีหน้า “เชื่อมบัญชี Sony” ใน Mini App
+
+เพิ่มสินค้าใหม่
+  แถบล่าง Register → NEXT_PUBLIC_ACCOUNT_URL
+  หรือปุ่มลงทะเบียนบนหน้ารายละเอียดภารกิจที่ยังไม่ครบ
+    → NEXT_PUBLIC_REGISTER_PRODUCT_URL
+  เมื่อกลับมา Mini App โหลดหน้าใหม่จึงดึง warranty รอบใหม่</pre>
+        <div class="note warn">
+          ไม่มี login ด้วยอีเมล/รหัสผ่านในแอป
+          ถ้า LINE ยังไม่ผูกกับรายการ warranty Sony จะเห็นแคตตาล็อกล็อกหรือวิวว่าง
+          ไม่มีหน้า wizard เชื่อมสมาชิกแยก
+        </div>
+      </section>
+
+      <section id="screen-user-flow-badges">
+        <h2>ดูเหรียญ (View badges)</h2>
+        <pre>My Badges
+  ├─ สถิติ Product ได้/ทั้งหมด, Quest ชั้นที่ achieved/ทั้งหมด
+  ├─ พรีวิวสินค้าล่าสุดสูงสุด 3 (เรียงวันใหม่ก่อน, วันเดียวกันเรียงชื่อ)
+  │     ดูทั้งหมด → My Products (กรองกลุ่ม)
+  │     การ์ด → Product detail (เฉพาะที่ปลดล็อกในพรีวิว)
+  └─ พรีวิวภารกิจล่าสุดสูงสุด 3 (ชั้นสูงสุดที่ได้แล้ว)
+        ดูทั้งหมด → My Missions</pre>
+        <p>
+          แคตตาล็อกสินค้า: เหรียญล็อกกดไม่ได้
+          เหรียญปลดล็อกเข้าหน้ารายละเอียด เห็นวันปลดล็อกและจำนวน serial
+        </p>
+      </section>
+
+      <section id="screen-user-flow-tier">
+        <h2>ดู Tier</h2>
+        <pre>My Missions
+  แต่ละ Quest เป็นแถวชั้น
+    Portrait / Wide / Visionary → Bronze, Silver, Gold
+    Quest ชุด → ชั้นเดียว (achievement)
+  ตัวเลข progress/target บนแต่ละโหนด
+  กดชั้นใดก็ได้ (รวมที่ยังไม่ครบ)
+
+รายละเอียดชั้น  /my-missions/{quest}-{level}
+  ยังไม่ครบ → การ์ดสรุป + รายการรุ่น (ตั๋ว) + ลงทะเบียนสินค้า + กลับรายการภารกิจ
+  ครบแล้ว   → เลย์เอาต์ได้รับเหรียญ + แชร์ + กลับบ้าน
+
+จากบ้าน: การ์ดภารกิจพรีวิวไปชั้นสูงสุดที่ได้ ไม่ได้ไปหน้าแทร็กทั้งหมด</pre>
+        <p>
+          สถานะภาพโหนด: ครบเกณฑ์ชั้นนั้นเป็นสีเต็ม (<code>unlocked</code>)
+          ยังไม่ครบเป็น <code>partial</code>
+          การคำนวณชั้นเป็น unique รุ่นตามกฎ Quest ไม่ใช่จำนวน serial
+        </p>
+      </section>
+
+      <section id="screen-user-flow-share">
+        <h2>แชร์เหรียญ (Share)</h2>
+        <pre>ได้เหรียญสินค้า  → Product detail → ปุ่มแชร์ Facebook
+ได้ชั้นภารกิจ    → Mission detail (โหมดครบ) → ปุ่มแชร์ Facebook
+
+ลำดับในปุ่ม:
+  1. ระบบ share sheet ของเครื่อง (navigator.share) ถ้ามี — ผู้ใช้เลือก Facebook เอง
+  2. ไม่ได้ → LIFF openWindow ไป Facebook sharer
+  3. ไม่ได้ → window.open / เปลี่ยนหน้า
+
+สิ่งที่แชร์: URL รูปเหรียญแบบ absolute (shareImageUrl)
+ไม่ใช่ลิงก์ Mini App และไม่บังคับเปิดหน้า /share/...</pre>
+        <p>
+          หน้า <code>/{locale}/share/product/{id}</code> และ
+          <code>/{locale}/share/mission/{id}</code>
+          เป็นหน้า OG สำหรับ crawler ถ้ามีการแชร์ URL นั้น
+          ไม่ได้อยู่ในปุ่มแชร์ของโฟลว์หลัก
+        </p>
+        <p>
+          ปุ่มแชร์ disabled เมื่อสร้าง URL รูปไม่ได้
+          ภารกิจที่ยังไม่ครบไม่มีปุ่มแชร์
+          สินค้าที่ล็อกในแคตตาล็อกเข้าหน้าแชร์ไม่ได้
+        </p>
+      </section>
+
+      <section id="screen-user-flow-alt">
+        <h2>เส้นทางแยก (Exceptions)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>เหตุ</th>
+                <th>เส้นทางที่ผู้ใช้เจอ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>เปิดนอก LINE / ไม่มี ID token</td>
+                <td>หน้า badges ค้างข้อความเข้าถึงไม่ได้ หรือ My Badges โหลดแล้ววิวว่าง</td>
+              </tr>
+              <tr>
+                <td>Sony ไม่พบลูกค้า / API ล้ม บน my-products, my-missions</td>
+                <td>แคตตาล็อกล็อกทั้งชุด (ดูเหมือนยังไม่ได้เหรียญ)</td>
+              </tr>
+              <tr>
+                <td>Sony ล้ม บน my-badges</td>
+                <td>HTTP error → วิวว่าง ไม่มีปุ่มลองใหม่</td>
+              </tr>
+              <tr>
+                <td>เปิดรายละเอียดสินค้าที่ยังไม่ปลดล็อก</td>
+                <td>API 404 → PageError</td>
+              </tr>
+              <tr>
+                <td>ไม่มี URL ลงทะเบียนใน env</td>
+                <td>ไม่แสดงปุ่มลงทะเบียนบนภารกิจ; แถบล่าง Register อาจไม่มี href</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="frontend-functional-specification">
+  <p class="doc-source">แหล่งที่มา: <code>frontend-functional-specification.html</code> — สเปกฟังก์ชันฝั่ง frontend / LIFF</p>
+  <header class="hero">
+        <h2 class="doc-heading">Frontend Functional Specification</h2>
+        <p class="lede">
+          รายการหน้าจอ ฟังก์ชัน ปุ่ม เงื่อนไขการแสดงผล และ Navigation
+          ของ LINE Mini App
+        </p>
+        <p>
+          หน้าหลักของผู้ใช้คือ <code>/{locale}/my-badges</code>
+          ไม่ใช่เส้นทางเก่า <code>/badge</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#frontend-functional-specification-nav">แผนนำทาง (Navigation)</a></li>
+            <li><a href="#frontend-functional-specification-global">พฤติกรรมร่วม</a></li>
+            <li><a href="#frontend-functional-specification-screens">รายการหน้าจอ</a></li>
+            <li><a href="#frontend-functional-specification-states">เงื่อนไขแสดงผล</a></li>
+            <li><a href="#frontend-functional-specification-buttons">ปุ่มและการกระทำ</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="frontend-functional-specification-nav">
+        <h2>แผนนำทาง (Navigation map)</h2>
+        <pre> /  และ /badge  →  /th/my-badges   (middleware)
+ /{locale}/badges
+    ├─ local + mock     → /{locale}/my-badges
+    ├─ production LIFF  → bootstrap เซสชัน แล้ว replace my-badges
+    └─ ?debug=1         → BadgeClient (วินิจฉัย)
+ /{locale}/entry        → ตรวจ referrer/เซสชัน แล้วไป badges หรือ badges?entryError=
+ /{locale}/my-badges    ← บ้าน (Home)
+    ├─ ดูทั้งหมดสินค้า  → /{locale}/my-products
+    ├─ การ์ดสินค้าล่าสุด → /{locale}/my-product/{productId}
+    ├─ ดูทั้งหมดภารกิจ  → /{locale}/my-missions
+    └─ การ์ดภารกิจล่าสุด → /{locale}/my-missions/{tierId}
+ /{locale}/my-products  → กรองกลุ่ม → เฉพาะ unlocked ไปรายละเอียดสินค้า
+ /{locale}/my-missions  → ทุกชั้น (bronze/silver/gold/achievement) ไปรายละเอียดภารกิจ
+ /{locale}/share/...    → หน้า OG สำหรับ Facebook (ไม่ใช่โฟลว์ใน LIFF หลัก)</pre>
+        <div class="tableWrap">
+          <table>
+            <caption>Redirect ที่ระบบทำให้อัตโนมัติ</caption>
+            <thead>
+              <tr>
+                <th>จาก</th>
+                <th>ไป</th>
+                <th>เมื่อ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/</code>, <code>/badge</code>, <code>/my-badges</code></td>
+                <td><code>/th/my-badges</code></td>
+                <td>middleware (locale เริ่มต้น <code>th</code>)</td>
+              </tr>
+              <tr>
+                <td><code>/entry</code></td>
+                <td><code>/th/entry</code></td>
+                <td>middleware</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges?mock=1</code></td>
+                <td><code>/api/mock-session</code></td>
+                <td>เฉพาะ local + Sony mock</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="frontend-functional-specification-global">
+        <h2>พฤติกรรมร่วม (Cross-cutting)</h2>
+        <ul>
+          <li>
+            <code>LineSessionProvider</code> ครอบทุกหน้าใน
+            <code>/{locale}/*</code> — init LIFF, ตั้งคุกกี้ผ่าน
+            <code>POST /api/line-session</code>, เก็บ LINE user id ใน sessionStorage
+          </li>
+          <li>
+            หน้า my-* ดึงข้อมูลด้วย <code>lineuuid</code> ใน query (ไม่ผูกคุกกี้ที่ route)
+            ระหว่าง idle/loading แสดง <code>PageLoading</code>
+          </li>
+          <li>
+            ลิงก์ภายนอกใน LIFF ใช้ <code>liff.openWindow({ external: true })</code>
+            ผ่าน <code>ExternalLink</code>
+          </li>
+        </ul>
+      </section>
+
+      <section id="frontend-functional-specification-screens">
+        <h2>รายการหน้าจอ (Screens)</h2>
+
+        <h3>SC-01 · My Badges — <code>/{locale}/my-badges</code></h3>
+        <p>
+          หน้าที่บ้านของแคมเปญ ฟังก์ชัน: แสดงโปรไฟล์ LINE, นับเหรียญที่ได้/ทั้งหมด,
+          พรีวิวสินค้าและภารกิจอย่างละไม่เกิน 3 รายการล่าสุด, แถบนำทางล่าง
+        </p>
+        <ul>
+          <li>การ์ดโปรไฟล์: รูปจาก LIFF ถ้ามี ไม่เช่นนั้นตัวอักษรแรกของชื่อ</li>
+          <li>สถิติ: Product ได้/ทั้งหมด และ Mission (นับชั้นที่ achieved)</li>
+          <li>ดูทั้งหมด → รายการเต็มสินค้า / ภารกิจ</li>
+          <li>แถบล่าง Home (หน้านี้) / Register / Inquiry</li>
+        </ul>
+
+        <h3>SC-02 · My Products — <code>/{locale}/my-products</code></h3>
+        <p>
+          แคตตาล็อก Product Badge ทั้งกลุ่ม มีตัวกรอง
+          all, full-frame-camera, prime-lens, wide-normal-zoom-lens,
+          telephoto-super-telephoto-lens, macro-lens
+        </p>
+        <p>
+          การ์ดที่ <code>unlocked</code> และมีรูปกดได้
+          การ์ดล็อกแสดงโดยไม่มีรูปและกดไม่ได้
+        </p>
+
+        <h3>SC-03 · Product detail — <code>/{locale}/my-product/{productId}</code></h3>
+        <p>
+          แสดงเมื่อ API คืนข้อมูลสินค้าที่ปลดล็อกแล้ว
+          ชื่อเหรียญ, วันปลดล็อก, จำนวน serial, ปุ่มแชร์ Facebook, กลับบ้าน
+        </p>
+
+        <h3>SC-04 · My Missions — <code>/{locale}/my-missions</code></h3>
+        <p>
+          แปดส่วนตาม Quest (Portrait, Wide, Visionary, Trinity Master/Junior,
+          All Rounder, F2, Magnifier) แต่ละส่วนมีแทร็กชั้น
+          กดชั้นใดก็ได้รวมที่ยังไม่ครบ เพื่อเข้าหน้ารายละเอียดชั้นนั้น
+        </p>
+
+        <h3>SC-05 · Mission detail — <code>/{locale}/my-missions/{missionId}</code></h3>
+        <p>สองเลย์เอาต์ตามความคืบหน้าของชั้นนั้น:</p>
+        <ul>
+          <li>
+            ยังไม่ครบ (<code>progress &lt; target</code>): การ์ดสรุป, ปุ่มลงทะเบียนสินค้า (ถ้ามี URL),
+            รายการตั๋วรุ่น, ปุ่มกลับไป My Missions
+          </li>
+          <li>
+            ครบแล้ว: เลย์เอาต์คล้ายรายละเอียดสินค้า — แชร์ Facebook, กลับบ้าน (My Badges)
+          </li>
+        </ul>
+
+        <h3>SC-06 · LIFF bootstrap — <code>/{locale}/badges</code></h3>
+        <p>
+          Production: หน้าโหลด/บล็อกระหว่างสร้างเซสชัน แล้วไป My Badges
+          Local mock: redirect ตรงไป My Badges
+          <code>?debug=1</code>: UI วินิจฉัย <code>BadgeClient</code>
+        </p>
+
+        <h3>SC-07 · Entry guard — <code>/{locale}/entry</code></h3>
+        <p>
+          ไม่มี UI คงที่ ตรวจ referrer/origin แล้ว redirect
+          ถ้าไม่ผ่านไป <code>badges?entryError=</code>
+        </p>
+
+        <h3>SC-08 · Share OG — <code>/{locale}/share/product|mission/{id}</code></h3>
+        <p>
+          หน้าสาธารณะสำหรับ crawler Facebook แสดงชื่อ/คำอธิบายแคมเปญและรูปเหรียญ
+          ถ้าไม่มี meta → <code>notFound</code>
+        </p>
+
+        <h3>SC-09 · Loading / Error</h3>
+        <p>
+          <code>PageLoading</code> ตาม variant ของหน้า
+          รายละเอียดสินค้าที่ API ไม่สำเร็จใช้ <code>PageError</code>
+          My Badges เมื่อโหลดไม่สำเร็จยังเรนเดอร์วิวว่าง (interactive) ไม่ใช้ PageError
+          My Products / My Missions เมื่อ isLoading หรือยังไม่มี data วนที่ loading
+          (รวมกรณี error ของ hook ที่ไม่มี data)
+        </p>
+      </section>
+
+      <section id="frontend-functional-specification-states">
+        <h2>เงื่อนไขการแสดงผล (Display rules)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>พื้นที่</th>
+                <th>เงื่อนไข</th>
+                <th>สิ่งที่ผู้ใช้เห็น</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>My Badges พรีวิว</td>
+                <td>ไม่มีเหรียญล่าสุด</td>
+                <td>ข้อความว่างของหมวด</td>
+              </tr>
+              <tr>
+                <td>My Badges การ์ด</td>
+                <td>มีรายการ และ interactive</td>
+                <td>ลิงก์ไปรายละเอียด (สินค้าใช้รหัสกฎ, ภารกิจใช้รหัสชั้น)</td>
+              </tr>
+              <tr>
+                <td>Product catalog</td>
+                <td>status unlocked + มี imageUrl</td>
+                <td>รูปสี + ลิงก์รายละเอียด</td>
+              </tr>
+              <tr>
+                <td>Product catalog</td>
+                <td>locked หรือไม่มีรูป</td>
+                <td>การ์ดไม่มีรูป, aria-disabled, ไม่มีลิงก์</td>
+              </tr>
+              <tr>
+                <td>ตัวกรองสินค้า</td>
+                <td>เลือกกลุ่มหนึ่ง</td>
+                <td>เหลือหมวดนั้นหมวดเดียว</td>
+              </tr>
+              <tr>
+                <td>Mission node</td>
+                <td>progress ≥ target และ target &gt; 0</td>
+                <td>คลาส visual <code>unlocked</code></td>
+              </tr>
+              <tr>
+                <td>Mission node</td>
+                <td>ยังไม่ครบ</td>
+                <td>คลาส <code>partial</code> (โค้ดไม่ใช้สถานะ empty)</td>
+              </tr>
+              <tr>
+                <td>ตั๋วภารกิจ</td>
+                <td>status completed</td>
+                <td>ป้าย completed ไม่มีลิงก์รายละเอียด</td>
+              </tr>
+              <tr>
+                <td>ตั๋วภารกิจ</td>
+                <td>pending + มี productUrl</td>
+                <td>ลิงก์ Details ออกเว็บ Sony</td>
+              </tr>
+              <tr>
+                <td>ตั๋วภารกิจ</td>
+                <td>pending ไม่มี productUrl</td>
+                <td>ข้อความ Details แบบ disabled</td>
+              </tr>
+              <tr>
+                <td>ปุ่มลงทะเบียนบนภารกิจ</td>
+                <td>ไม่มี LIFF ID หรือไม่มี REGISTER URL</td>
+                <td>ไม่เรนเดอร์ปุ่ม</td>
+              </tr>
+              <tr>
+                <td>วันปลดล็อกภารกิจที่ครบ</td>
+                <td>ไม่มี unlockedAt</td>
+                <td>ไม่แสดงบรรทัดวันที่</td>
+              </tr>
+              <tr>
+                <td>แชร์ Facebook</td>
+                <td>สร้าง URL รูปไม่ได้</td>
+                <td>ปุ่ม disabled</td>
+              </tr>
+              <tr>
+                <td>โปรไฟล์</td>
+                <td>มีรูป LINE</td>
+                <td>avatar รูป</td>
+              </tr>
+              <tr>
+                <td>handle</td>
+                <td>ว่างเสมอใน API ปัจจุบัน</td>
+                <td>ไม่แสดงบรรทัด handle</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="frontend-functional-specification-buttons">
+        <h2>ปุ่มและการกระทำ (Actions)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>รายการควบคุมหลัก</caption>
+            <thead>
+              <tr>
+                <th>ปุ่ม / ลิงก์</th>
+                <th>หน้า</th>
+                <th>ปลายทาง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ดูทั้งหมด (สินค้า)</td>
+                <td>My Badges</td>
+                <td><code>/{locale}/my-products</code></td>
+              </tr>
+              <tr>
+                <td>ดูทั้งหมด (ภารกิจ)</td>
+                <td>My Badges</td>
+                <td><code>/{locale}/my-missions</code></td>
+              </tr>
+              <tr>
+                <td>Home</td>
+                <td>แถบล่าง My Badges</td>
+                <td><code>/{locale}/my-badges</code></td>
+              </tr>
+              <tr>
+                <td>Register</td>
+                <td>แถบล่าง</td>
+                <td>
+                  <code>NEXT_PUBLIC_ACCOUNT_URL</code>
+                  (ภายนอก; ถ้าไม่ตั้งค่า href ว่างเป็นปุ่มไม่มีลิงก์)
+                </td>
+              </tr>
+              <tr>
+                <td>Inquiry</td>
+                <td>แถบล่าง</td>
+                <td>
+                  <code>https://www.sony.co.th/microsite/digital-badge/</code>
+                  (hardcode)
+                </td>
+              </tr>
+              <tr>
+                <td>กลับไปเหรียญของฉัน</td>
+                <td>My Products / รายละเอียดสินค้า / ภารกิจที่ครบ</td>
+                <td>My Badges</td>
+              </tr>
+              <tr>
+                <td>กลับ (ลูกศร)</td>
+                <td>ภารกิจยังไม่ครบ</td>
+                <td>My Missions</td>
+              </tr>
+              <tr>
+                <td>ลงทะเบียนสินค้า</td>
+                <td>ภารกิจยังไม่ครบ</td>
+                <td>
+                  <code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code>
+                  (พารามิเตอร์ callback ในโค้ดถูกคอมเมนต์ไว้ จึงไม่ส่ง URL กลับ Mini App)
+                </td>
+              </tr>
+              <tr>
+                <td>Details</td>
+                <td>ตั๋ว pending</td>
+                <td><code>productUrl</code> จากกฎ (ไซต์ Sony)</td>
+              </tr>
+              <tr>
+                <td>แชร์ Facebook</td>
+                <td>สินค้าที่ปลดล็อก / ภารกิจที่ครบ</td>
+                <td>
+                  ลำดับ: Web Share API ถ้ามี → LIFF openWindow ไป Facebook sharer
+                  → <code>window.open</code>
+                  แชร์ URL รูปเหรียญที่แปลงเป็น absolute ไม่ใช่หน้า Mini App
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Deep link กลับภารกิจถูกสร้างเป็น
+          <code>https://miniapp.line.me/{liffId}/th/my-missions/{id}</code>
+          เสมอ (locale ฝัง <code>th</code>) แต่ยังไม่ได้ต่อเข้า query ของหน้าลงทะเบียน
+        </div>
+        <p>
+          รหัส <code>productId</code> = รหัสกฎ เช่น
+          <code>product-sel35f14gm</code>
+          รหัส <code>missionId</code> = รหัสชั้น เช่น
+          <code>portrait-master-bronze</code> หรือ
+          <code>trinity-master-achievement</code>
+        </p>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="frontend-configuration-guide">
+  <p class="doc-source">แหล่งที่มา: <code>frontend-configuration-guide.html</code> — คู่มือตั้งค่า frontend (env, LIFF, URL)</p>
+  <header class="hero">
+        <h2 class="doc-heading">Frontend Configuration Guide</h2>
+        <p class="lede">
+          LIFF ID, Environment Variable และ Configuration ที่ต้องตั้งค่า
+          ค่าในเอกสารนี้เป็นตัวแทน (placeholder) ไม่ใส่ secret จริง
+        </p>
+        <p>
+          ตัวแปรที่ขึ้นต้น <code>NEXT_PUBLIC_*</code> ถูกฝังตอน
+          <code>npm run build</code> อย่าใส่คีย์ API, รหัสผ่านฐานข้อมูล หรือ session secret ในชื่อนี้
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#frontend-configuration-guide-rules">กฎปกปิด Secret</a></li>
+            <li><a href="#frontend-configuration-guide-liff">LIFF ID</a></li>
+            <li><a href="#frontend-configuration-guide-public">ตัวแปรฝั่งเบราว์เซอร์</a></li>
+            <li><a href="#frontend-configuration-guide-server">ตัวแปรเซิร์ฟเวอร์ที่หน้าบ้านพึ่งพา</a></li>
+            <li><a href="#frontend-configuration-guide-console">ตั้งค่า LINE Developers</a></li>
+            <li><a href="#frontend-configuration-guide-env">ตัวอย่างไฟล์ env</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="frontend-configuration-guide-rules">
+        <h2>กฎปกปิด Secret</h2>
+        <ul>
+          <li>
+            ไม่ commit <code>.env</code>, <code>.env.production</code>, <code>.env.uat</code>
+            ใช้ GitHub environment secret <code>UAT_ENV_FILE</code> สำหรับ UAT
+          </li>
+          <li>
+            ไม่ใส่ <code>SONY_PRODUCT_API_SUBSCRIPTION_KEY</code>,
+            <code>DATABASE_URL</code>, <code>APP_SESSION_SECRET</code>,
+            <code>LOG_HASH_SECRET</code>, publish profile Azure ในเอกสารสาธารณะหรือ
+            <code>NEXT_PUBLIC_*</code>
+          </li>
+          <li>
+            LIFF ID และ URL บัญชี Sony ปรากฏใน JavaScript ของเบราว์เซอร์ได้ตามออกแบบ
+            แต่เอกสารนี้ใช้ placeholder ไม่คัดลอกค่าโปรดักชัน
+          </li>
+          <li>
+            Azure App Service ถ้ามี env จริง จะทับค่าในไฟล์
+            แต่ <code>NEXT_PUBLIC_*</code> ยังต้องมีตอน build
+          </li>
+        </ul>
+      </section>
+
+      <section id="frontend-configuration-guide-liff">
+        <h2>LIFF ID</h2>
+        <p>
+          ตัวแปร: <code>NEXT_PUBLIC_LIFF_ID</code>
+          รูปแบบที่สคริปต์ deploy ตรวจ: ขึ้นต้นด้วย
+          <code>{LINE_CHANNEL_ID}-</code>
+          เช่น <code>&lt;channel-id&gt;-&lt;liff-suffix&gt;</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>สภาพแวดล้อม</th>
+                <th>ต้องมีหรือไม่</th>
+                <th>ผลถ้าไม่ตั้ง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>local</td>
+                <td>ไม่บังคับ</td>
+                <td>
+                  <code>LineSessionProvider</code> เป็น unavailable
+                  หน้า badges โหมด local+mock ไป My Badges โดยไม่ผ่าน LIFF
+                </td>
+              </tr>
+              <tr>
+                <td>staging / production</td>
+                <td>บังคับ</td>
+                <td>
+                  <code>loadAppConfig</code> throw
+                  <code>NEXT_PUBLIC_LIFF_ID is required outside local mode.</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>โค้ดที่อ่านค่านี้ฝั่งไคลเอนต์:</p>
+        <ul>
+          <li><code>liff.init({ liffId })</code> ใน <code>src/lib/liff-session.ts</code></li>
+          <li>สร้างเซสชันและโปรไฟล์ใน <code>LineSessionProvider</code></li>
+          <li>
+            deep link กลับภารกิจ
+            <code>https://miniapp.line.me/{liffId}/th/my-missions/...</code>
+          </li>
+          <li>แชร์ Facebook ผ่าน <code>liff.openWindow</code></li>
+        </ul>
+        <div class="note">
+          Channel ID (<code>LINE_CHANNEL_ID</code>) ใช้ที่เซิร์ฟเวอร์ตอน verify ID token
+          ไม่ใส่ <code>NEXT_PUBLIC_</code>
+          ต้องเป็นตัวเลข และต้องเป็นเจ้าของ LIFF เดียวกัน
+        </div>
+      </section>
+
+      <section id="frontend-configuration-guide-public">
+        <h2>ตัวแปรที่ฝังใน Frontend (<code>NEXT_PUBLIC_*</code>)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ค่าที่เบราว์เซอร์อ่านได้ — ไม่ใช่ secret</caption>
+            <thead>
+              <tr>
+                <th>ตัวแปร</th>
+                <th>ใช้ทำอะไร</th>
+                <th>ตัวอย่างรูปแบบ (ไม่ใช่ค่าจริง)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>NEXT_PUBLIC_LIFF_ID</code></td>
+                <td>init LIFF, deep link Mini App</td>
+                <td><code>&lt;channel-id&gt;-&lt;liff-id&gt;</code></td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_APP_BASE_URL</code></td>
+                <td>
+                  origin สำหรับ URL รูปแชร์ / OG
+                  <code>next.config.mjs</code> สำรองจาก <code>APP_BASE_URL</code>
+                </td>
+                <td><code>https://&lt;public-host&gt;</code> ไม่มี path ท้าย</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_ACCOUNT_URL</code></td>
+                <td>ลิงก์แถบล่าง Register (ลงทะเบียนสินค้า / บัญชี Sony)</td>
+                <td>HTTPS เต็มของหน้าภายนอก</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code></td>
+                <td>ปุ่มลงทะเบียนบนหน้ารายละเอียดภารกิจที่ยังไม่ครบ</td>
+                <td>HTTPS เต็ม; ถ้าว่างไม่แสดงปุ่ม</td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_DEBUG_MOCK_JSON</code></td>
+                <td>
+                  ธงดีบักฝั่งเซิร์ฟเวอร์ร่วมกับ query
+                  deploy ต้องเป็น <code>false</code>
+                </td>
+                <td><code>false</code> บน UAT/production</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          ถ้า <code>NEXT_PUBLIC_ACCOUNT_URL</code> ว่าง แถบ Register ไม่มี href ที่ใช้ได้
+          ถ้า <code>NEXT_PUBLIC_APP_BASE_URL</code> ไม่ตรง <code>APP_BASE_URL</code>
+          สคริปต์ <code>verify-deploy-env.mjs</code> จะไม่ผ่าน และ URL แชร์อาจผิดโฮสต์
+        </p>
+      </section>
+
+      <section id="frontend-configuration-guide-server">
+        <h2>ตัวแปรเซิร์ฟเวอร์ที่ Frontend พึ่งพา (ไม่ฝังใน JS)</h2>
+        <p>
+          หน้าบ้านเรียก API ของแอป ค่าเหล่านี้ต้องมีบนเซิร์ฟเวอร์/ตอน build ตามสภาพแวดล้อม
+          <strong>ห้าม</strong> ใส่ใน <code>NEXT_PUBLIC_*</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ตัวแปร</th>
+                <th>ชั้น</th>
+                <th>ผลต่อหน้าจอ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>APP_ENV</code></td>
+                <td class="pub">ไม่ลับ (ค่า local/staging/production)</td>
+                <td>
+                  local+mock ข้าม LIFF ไปพรีวิว
+                  ไม่รับค่า <code>uat</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>APP_BASE_URL</code></td>
+                <td class="pub">URL สาธารณะ</td>
+                <td>ต้องตรงกับ origin ที่ LINE และ Facebook เรียกได้</td>
+              </tr>
+              <tr>
+                <td><code>ALLOWED_ORIGINS</code> / <code>ALLOWED_REFERRERS</code></td>
+                <td class="pub">รายการ origin</td>
+                <td>หน้า <code>/entry</code> บล็อกแหล่งที่ไม่ได้อนุญาต</td>
+              </tr>
+              <tr>
+                <td><code>LINE_CHANNEL_ID</code></td>
+                <td class="sec">ไม่ใช่รหัสผ่าน แต่ไม่ควรโฆษณาในเอกสาร</td>
+                <td>verify ID token ล้ม → ผู้ใช้เข้า Mini App ไม่ผ่าน</td>
+              </tr>
+              <tr>
+                <td><code>LINE_VERIFY_ID_TOKEN_URL</code></td>
+                <td class="pub">ค่าเริ่มต้น LINE มาตรฐาน</td>
+                <td>
+                  ค่าเริ่มต้นในโค้ด
+                  <code>https://api.line.me/oauth2/v2.1/verify</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>APP_SESSION_SECRET</code></td>
+                <td class="sec">Secret ≥ 32 ตัวอักษรตอน deploy</td>
+                <td>เซ็นคุกกี้ <code>sony_line_session</code></td>
+              </tr>
+              <tr>
+                <td><code>LOG_HASH_SECRET</code></td>
+                <td class="sec">Secret ≥ 32 ตัวอักษรตอน deploy</td>
+                <td>hash LINE ID ใน log ไม่เกี่ยวกับ UI โดยตรง</td>
+              </tr>
+              <tr>
+                <td><code>SONY_PRODUCT_API_*</code></td>
+                <td class="sec">คีย์สมัครสมาชิก APIM เป็น secret</td>
+                <td>โหมด live ล้ม → my-* อาจเป็นแคตตาล็อกล็อก / วิวว่าง</td>
+              </tr>
+              <tr>
+                <td><code>DATABASE_URL</code> / <code>DATABASE_SSL</code></td>
+                <td class="sec">Secret + TLS</td>
+                <td>ไม่มีกฎเหรียญ → หน้าแคตตาล็อกว่างหรือ error</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="frontend-configuration-guide-console">
+        <h2>Configuration บน LINE Developers (นอกไฟล์ env)</h2>
+        <ul>
+          <li>สร้าง LIFF / Mini App ภายใต้ Messaging API หรือ LINE Login channel เดียวกับ <code>LINE_CHANNEL_ID</code></li>
+          <li>Endpoint / Mini App URL ชี้ origin เดียวกับ <code>NEXT_PUBLIC_APP_BASE_URL</code> เช่น <code>https://&lt;host&gt;/th/my-badges</code></li>
+          <li>Scopes ที่แอปใช้จริง: ID token (openid) และโปรไฟล์สำหรับชื่อกับรูป</li>
+          <li>เปิดใช้งานใน LINE client เท่านั้น — โค้ดปฏิเสธเมื่อ <code>liff.isInClient()</code> เป็นเท็จ</li>
+        </ul>
+      </section>
+
+      <section id="frontend-configuration-guide-env">
+        <h2>ตัวอย่างไฟล์ (placeholder เท่านั้น)</h2>
+        <pre># คัดลอกโครงสร้าง ไม่ใส่ค่าจริงลง git / แชท / เอกสารนี้
+APP_ENV=staging
+APP_BASE_URL=https://&lt;public-host&gt;
+NEXT_PUBLIC_APP_BASE_URL=https://&lt;public-host&gt;
+ALLOWED_ORIGINS=https://&lt;public-host&gt;
+ALLOWED_REFERRERS=https://&lt;public-host&gt;
+
+NEXT_PUBLIC_LIFF_ID=&lt;channel-id&gt;-&lt;liff-suffix&gt;
+LINE_CHANNEL_ID=&lt;digits-only&gt;
+LINE_VERIFY_ID_TOKEN_URL=https://api.line.me/oauth2/v2.1/verify
+
+NEXT_PUBLIC_ACCOUNT_URL=https://&lt;sony-account-or-register-page&gt;
+NEXT_PUBLIC_REGISTER_PRODUCT_URL=https://&lt;sony-product-register-page&gt;
+NEXT_PUBLIC_DEBUG_MOCK_JSON=false
+
+# ด้านล่างเป็น server-only — ห้าม NEXT_PUBLIC_
+APP_SESSION_SECRET=&lt;redacted&gt;
+LOG_HASH_SECRET=&lt;redacted&gt;
+DATABASE_URL=&lt;redacted&gt;
+DATABASE_SSL=true
+SONY_PRODUCT_API_MODE=live
+SONY_PRODUCT_API_BASE_URL=https://&lt;apim-host&gt;/.../QueryWarrantyMySonyByLine
+SONY_PRODUCT_API_SUBSCRIPTION_KEY=&lt;redacted&gt;
+SONY_PRODUCT_API_COUNTRY_CODE=th</pre>
+        <div class="note warn">
+          Local: <code>APP_ENV=local</code>, <code>SONY_PRODUCT_API_MODE=mock</code>
+          ลับฐานข้อมูล/คีย์ว่างได้
+          LIFF ว่างได้ถ้าไม่ทดสอบใน LINE
+          ตรวจ deploy ด้วย <code>node scripts/config/verify-deploy-env.mjs</code>
+          อย่ารันสคริปต์แล้วแปะไฟล์ env ที่มี secret ลงในเอกสาร
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="responsive-browser-support-matrix">
+  <p class="doc-source">แหล่งที่มา: <code>responsive-browser-support-matrix.html</code> — รองรับ responsive และเบราว์เซอร์ / LINE in-app</p>
+  <header class="hero">
+        <h2 class="doc-heading">Responsive &amp; Browser Support Matrix</h2>
+        <p class="lede">
+          อุปกรณ์ ระบบปฏิบัติการ เวอร์ชัน LINE และเบราว์เซอร์ที่รองรับ
+          สำหรับ Sony Thailand LINE Mini App
+        </p>
+        <p>
+          เป้าหมายออกแบบคือโทรศัพท์ใน LIFF browser ของแอป LINE
+          แพ็กเกจใช้ <code>@line/liff</code> ^2.27 (ล็อกใน lockfile เป็น 2.29.x)
+          เอกสารนี้รวมข้อจำกัดในโค้ดกับสภาพแวดล้อมที่ LINE แนะนำ
+          ไม่ใช่ผลแล็บอุปกรณ์ที่ลงนามในรอบนี้
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#responsive-browser-support-matrix-target">เป้าหมาย (Target)</a></li>
+            <li><a href="#responsive-browser-support-matrix-responsive">Responsive</a></li>
+            <li><a href="#responsive-browser-support-matrix-os">OS / อุปกรณ์</a></li>
+            <li><a href="#responsive-browser-support-matrix-line">LINE / LIFF</a></li>
+            <li><a href="#responsive-browser-support-matrix-browser">Browser</a></li>
+            <li><a href="#responsive-browser-support-matrix-features">ฟีเจอร์รายเบราว์เซอร์</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="responsive-browser-support-matrix-target">
+        <h2>เป้าหมายการรองรับ (Support target)</h2>
+        <ul>
+          <li>
+            <strong>หลัก:</strong> เปิด Mini App ในแอป LINE บนสมาร์ตโฟน
+            (<code>liff.isInClient() === true</code>) มี ID token
+          </li>
+          <li>
+            <strong>รอง:</strong> หน้า OG
+            <code>/{locale}/share/...</code> ให้ Facebook crawler และเบราว์เซอร์ทั่วไปอ่านเมตา
+          </li>
+          <li>
+            <strong>พัฒนา:</strong> Chrome/Safari บนเดสก์ท็อปเมื่อ
+            <code>APP_ENV=local</code> + mock ไม่ต้องมี LIFF
+          </li>
+        </ul>
+        <div class="note warn">
+          โค้ดสร้างเซสชันจะ throw หากไม่ได้เปิดใน LINE client
+          เบราว์เซอร์ภายนอก (Chrome/Safari นอกแอป LINE) จึงไม่ใช่ช่องทางผู้ใช้แคมเปญ
+          แม้ LINE จะเริ่มเปิด Mini App นอกแอปได้ในบางภูมิภาค
+        </div>
+      </section>
+
+      <section id="responsive-browser-support-matrix-responsive">
+        <h2>Responsive (เลย์เอาต์ในแอป)</h2>
+        <ul>
+          <li>
+            Viewport: <code>width=device-width</code>,
+            <code>initialScale=1</code>, <code>viewportFit=cover</code>
+          </li>
+          <li>
+            ความสูงหน้า: <code>min-height: 100dvh</code>
+            กันแถบที่อยู่ของ iOS
+          </li>
+          <li>
+            ระยะล่าง: <code>env(safe-area-inset-bottom)</code>
+            บน My Badges, Products, Missions, รายละเอียด, loading
+          </li>
+          <li>
+            หน้าบ้าน/แคตตาล็อกสินค้า: กริด 3 คอลัมน์
+            (<code>repeat(3, minmax(0, 1fr))</code>) ไม่มี breakpoint แยกแท็บเล็ต
+          </li>
+          <li>
+            <code>@media (max-width: 680px)</code> ใช้กับหน้าวินิจฉัย
+            <code>BadgeClient</code> ใน <code>globals.css</code> เป็นหลัก
+            ไม่ได้ปรับกริด My Badges
+          </li>
+        </ul>
+        <div class="tableWrap">
+          <table>
+            <caption>ความกว้างจอที่ออกแบบไว้</caption>
+            <thead>
+              <tr>
+                <th>ช่วงความกว้าง</th>
+                <th>ระดับ</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ประมาณ 360–430 px (โทรศัพท์แนวตั้ง)</td>
+                <td class="ok">เป้าหมาย</td>
+                <td>กริด 3 คอลัมน์การ์ดเหรียญ, แถบล่าง 3 ปุ่ม</td>
+              </tr>
+              <tr>
+                <td>แท็บเล็ต / แนวนอนกว้าง</td>
+                <td class="lim">ไม่ได้ปรับเลย์เอาต์แยก</td>
+                <td>เนื้อหายืดเต็มความกว้าง คอลัมน์การ์ดยังเป็น 3</td>
+              </tr>
+              <tr>
+                <td>เดสก์ท็อปกว้าง</td>
+                <td class="lim">ใช้พัฒนา/mock</td>
+                <td>ไม่ใช่ช่องทาง LIFF ของผู้ใช้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="responsive-browser-support-matrix-os">
+        <h2>อุปกรณ์และระบบปฏิบัติการ</h2>
+        <p>
+          LINE กำหนดว่า LIFF ในแอปใช้ WKWebView (iOS) และ Android WebView
+          เวอร์ชันต่ำสุดตามสเปกระบบที่แอป LINE รองรับในขณะนั้น
+          แนะนำให้ใช้ OS และ LINE รุ่นล่าสุด
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>แพลตฟอร์ม</th>
+                <th>สถานะแอปนี้</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>iPhone + iOS (ล่าสุดที่ LINE รองรับ)</td>
+                <td class="ok">รองรับ (เป้าหมาย)</td>
+                <td>
+                  safe-area, 100dvh, แชร์ใช้ Web Share ก่อนเพราะลิงก์ Facebook บน iOS มักพังเมื่อมีแอป Facebook
+                </td>
+              </tr>
+              <tr>
+                <td>Android phone (ล่าสุดที่ LINE รองรับ)</td>
+                <td class="ok">รองรับ (เป้าหมาย)</td>
+                <td>WebView ของระบบ; ลิงก์ภายนอกผ่าน <code>liff.openWindow</code></td>
+              </tr>
+              <tr>
+                <td>iPad / Android tablet</td>
+                <td class="lim">ไม่ได้ทดสอบเป็นเป้าหมาย</td>
+                <td>ถ้า LINE บนเครื่องเปิด Mini App ได้ เลย์เอาต์ยังเป็นมือถือ 3 คอลัมน์</td>
+              </tr>
+              <tr>
+                <td>LINE PC / macOS / Chrome OS</td>
+                <td class="no">นอกขอบเขตผู้ใช้</td>
+                <td>เซสชันต้องการ in-client ของแอปมือถือ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="responsive-browser-support-matrix-line">
+        <h2>เวอร์ชัน LINE และ LIFF</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>ค่าที่ใช้</th>
+                <th>ความหมายต่อแอปนี้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LIFF SDK ใน npm</td>
+                <td><code>@line/liff</code> ^2.27.1 (ติดตั้ง 2.29.x)</td>
+                <td>
+                  Mini App ของ LINE รับ SDK ตระกูล 2.1 ขึ้นไป
+                  แอปใช้ init, getIDToken, getProfile, isInClient, openWindow
+                </td>
+              </tr>
+              <tr>
+                <td>LINE แอป (แนะนำจาก LINE)</td>
+                <td>รุ่นล่าสุด</td>
+                <td>ต้องมี ID token ใน in-client</td>
+              </tr>
+              <tr>
+                <td>LINE แอป (ต่ำสุดจาก LINE)</td>
+                <td>ตามสเปกระบบของแอป LINE ไม่ได้ล็อกเลขรุ่นในรีโปนี้</td>
+                <td>
+                  ไม่มีเช็กเวอร์ชันในโค้ด
+                  ถ้ารุ่นเก่าไม่มี ID token ผู้ใช้เข้าบ้านไม่ได้
+                </td>
+              </tr>
+              <tr>
+                <td>LINE 26.7+ / 15.12+ UI ของ LIFF chrome</td>
+                <td>เมนูหัว LIFF ของแพลตฟอร์ม</td>
+                <td>ไม่เกี่ยวกับเลย์เอาต์เหรียญในหน้าเรา</td>
+              </tr>
+              <tr>
+                <td>OpenChat</td>
+                <td>LINE ไม่รับรอง LIFF อย่างเป็นทางการ</td>
+                <td>อย่าใช้เป็นช่องทางแคมเปญ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          สเปกอย่างเป็นทางการ:
+          <a href="https://developers.line.biz/en/docs/liff/overview/">LIFF overview — Recommended operating environment</a>
+          และ
+          <a href="https://developers.line.biz/en/docs/line-mini-app/discover/specifications/">LINE MINI App specifications</a>
+        </div>
+      </section>
+
+      <section id="responsive-browser-support-matrix-browser">
+        <h2>Browser matrix</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>เบราว์เซอร์</th>
+                <th>บทบาท</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LIFF browser (WKWebView)</td>
+                <td>ผู้ใช้ iOS ใน LINE</td>
+                <td class="ok">รองรับ — ช่องทางหลัก</td>
+              </tr>
+              <tr>
+                <td>LIFF browser (Android WebView)</td>
+                <td>ผู้ใช้ Android ใน LINE</td>
+                <td class="ok">รองรับ — ช่องทางหลัก</td>
+              </tr>
+              <tr>
+                <td>Safari / Chrome / Edge / Firefox นอก LINE</td>
+                <td>เปิด URL Mini App โดยตรง</td>
+                <td class="no">
+                  ไม่รองรับโฟลว์เหรียญ
+                  (ไม่มี in-client / ID token)
+                </td>
+              </tr>
+              <tr>
+                <td>Facebook crawler / เบราว์เซอร์ทั่วไป</td>
+                <td>หน้า <code>/share/product|mission</code></td>
+                <td class="ok">อ่าน OG ได้ ไม่ต้อง LIFF</td>
+              </tr>
+              <tr>
+                <td>Chrome หรือ Safari เดสก์ท็อป</td>
+                <td>local mock</td>
+                <td class="lim">พัฒนาเท่านั้น</td>
+              </tr>
+              <tr>
+                <td>Internet Explorer / เบราว์เซอร์รุ่นก่อน Chromium เก่ามาก</td>
+                <td>—</td>
+                <td class="no">ไม่รองรับ (Next.js 14 / React 18)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          โปรเจกต์ไม่มี <code>browserslist</code> ของตัวเอง
+          ตามค่าเริ่มต้นของ Next.js 14
+        </p>
+      </section>
+
+      <section id="responsive-browser-support-matrix-features">
+        <h2>ฟีเจอร์ที่ขึ้นกับเบราว์เซอร์</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ฟีเจอร์</th>
+                <th>ต้องการ</th>
+                <th>พฤติกรรมสำรอง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>สร้างเซสชัน</td>
+                <td>LIFF in-client + ID token</td>
+                <td>ข้อความเข้าถึงไม่ได้ / ไม่ตั้งคุกกี้</td>
+              </tr>
+              <tr>
+                <td>ลิงก์ Sony ภายนอก</td>
+                <td><code>liff.openWindow</code></td>
+                <td><code>window.open</code> หรือเปลี่ยนหน้า</td>
+              </tr>
+              <tr>
+                <td>แชร์เหรียญ</td>
+                <td><code>navigator.share</code> ถ้ามี</td>
+                <td>Facebook sharer ผ่าน LIFF แล้วจึง window.open</td>
+              </tr>
+              <tr>
+                <td>sessionStorage LINE uuid</td>
+                <td>storage ของ WebView</td>
+                <td>ถ้าถูกบล็อก ต้องพึ่งโปรไฟล์ LIFF ในรอบนั้น</td>
+              </tr>
+              <tr>
+                <td>คุกกี้เซสชัน HttpOnly</td>
+                <td>SameSite=Lax บน HTTPS ของโฮสต์แอป</td>
+                <td>หน้า my-* ยังส่ง lineuuid ใน query ได้อยู่</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          แนะนำชุดทดสอบ UAT อย่างน้อย: iPhone รุ่นปัจจุบันใน LINE ล่าสุด,
+          Android รุ่นปัจจุบันใน LINE ล่าสุด, ทั้งแนวตั้ง
+          และหนึ่งเคสแชร์เหรียญบน iOS ที่มีแอป Facebook ติดตั้ง
+        </p>
+      </section>
+</section>
+
+  </main>
+</body>
+</html>

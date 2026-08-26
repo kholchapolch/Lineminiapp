@@ -1,0 +1,1929 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Security &amp; PDPA Summary — Sony Badge Pilot</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+.req { color: #9b1c1c; font-weight: 700; }
+.opt { color: var(--muted); }
+.term { font-weight: 700; color: var(--accent); }
+.status-ok { color: var(--ok); font-weight: 700; }
+.status-manual { color: var(--warn); font-weight: 700; }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 12px; color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+.flow, .diagram, .mermaid, svg { max-width: 100%; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#security-pdpa">Security &amp; PDPA Technical Do</a>
+<a href="#security-checklist-assessment">Security Checklist</a>
+<a href="#access-control-matrix">Access Control Matrix</a>
+<a href="#data-flow-diagram">Data Flow Diagram</a>
+<a href="#pdpa-data-inventory-retention">PDPA Data Inventory</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>Security &amp; PDPA Summary</h1>
+      <p class="lede">
+        รวมและสรุปเอกสารในโฟลเดอร์ <code>docs/security_pdpa/</code>
+        เป็นไฟล์เดียวสำหรับอ่าน/แชร์
+      </p>
+      <p>
+        ครอบคลุมความปลอดภัยของระบบ LIFF badge, การควบคุมสิทธิ์, การไหลของข้อมูล
+        และข้อกำหนด PDPA (บัญชีข้อมูล / retention)
+      </p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li><a href="#security-pdpa">Security &amp; PDPA Technical Document</a><span>ภาพรวมความปลอดภัยและ PDPA ของระบบ badge / LIFF</span></li>
+<li><a href="#security-checklist-assessment">Security Checklist / Assessment Result</a><span>เช็คลิสต์ประเมินความปลอดภัยและผลการตรวจ</span></li>
+<li><a href="#access-control-matrix">Access Control Matrix</a><span>เมทริกซ์สิทธิ์เข้าถึง (ใครทำอะไรได้บ้าง)</span></li>
+<li><a href="#data-flow-diagram">Data Flow Diagram</a><span>แผนภาพการไหลของข้อมูลในระบบ</span></li>
+<li><a href="#pdpa-data-inventory-retention">PDPA Data Inventory / Retention</a><span>บัญชีข้อมูลส่วนบุคคลและระยะเวลาเก็บรักษา</span></li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        ข้อมูลระบุตัวตน (เช่น LINE UUID) เก็บ/ส่งแบบจำกัดสิทธิ์และ hash เมื่อล็อก;
+        secret อยู่ฝั่ง server เท่านั้น; การเข้าถึงแยกตามบทบาท;
+        ข้อมูลส่วนบุคคลต้องมี inventory และกำหนดระยะเก็บตาม PDPA
+      </div>
+    </header>
+    
+<section class="doc" id="security-pdpa">
+  <p class="doc-source">แหล่งที่มา: <code>security-pdpa.html</code> — ภาพรวมความปลอดภัยและ PDPA ของระบบ badge / LIFF</p>
+  <header class="hero">
+        <h2 class="doc-heading">Security &amp; PDPA Technical Document</h2>
+        <p class="lede">
+          วิธีที่ Sony Badge Pilot จัดเก็บ ประมวลผล ส่งต่อ และป้องกันข้อมูลส่วนบุคคล
+          (how the Mini App stores, processes, transfers, and protects personal data)
+        </p>
+        <div class="note warn">
+          เอกสารนี้เป็นคำอธิบายเทคนิคจากโค้ดปัจจุบัน ไม่ใช่ความเห็นทางกฎหมาย
+          และยังรอการยืนยันจาก Security / PDPA ของ Sony
+          ห้ามวาง LINE ID, ซีเรียล, หรือข้อมูลลูกค้าลง GitHub issue, screenshot, หรือแชท
+        </div>
+        <nav>
+          <ul class="toc">
+            <li><a href="#security-pdpa-inventory">รายการข้อมูล (Inventory)</a></li>
+            <li><a href="#security-pdpa-collect">การจัดเก็บ (Collection)</a></li>
+            <li><a href="#security-pdpa-store">ที่เก็บ (Storage)</a></li>
+            <li><a href="#security-pdpa-process">การประมวลผล (Processing)</a></li>
+            <li><a href="#security-pdpa-transfer">การส่งต่อ (Transfer)</a></li>
+            <li><a href="#security-pdpa-protect">การป้องกัน (Controls)</a></li>
+            <li><a href="#security-pdpa-risks">ความเสี่ยงที่ยังเหลือ (Gaps)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="security-pdpa-inventory">
+        <h2>รายการข้อมูลส่วนบุคคล (Personal data inventory)</h2>
+        <p>
+          ระบบนี้ไม่เป็นแหล่งข้อมูลหลักของลูกค้า
+          ข้อมูลการถือครองสินค้าอยู่ที่ Sony warranty API
+          Mini App ดึงมาคำนวณเหรียญตอน request
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>ข้อมูลที่เกี่ยวกับบุคคล</caption>
+            <thead>
+              <tr>
+                <th>ข้อมูล (Data)</th>
+                <th>แหล่งที่มา (Source)</th>
+                <th>ใช้เพื่อ (Purpose)</th>
+                <th>Persist ใน MySQL หรือไม่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE user ID (<code>lineuuid</code> / <code>sub</code>)</td>
+                <td>LIFF ID token และ <code>liff.getProfile()</code></td>
+                <td>ระบุผู้ใช้ แล้วเรียก warranty API</td>
+                <td>ไม่เก็บค่าดิบ — log เก็บแค่ HMAC/SHA-256 hash</td>
+              </tr>
+              <tr>
+                <td>LINE display name, picture URL</td>
+                <td>LIFF profile บนเบราว์เซอร์</td>
+                <td>แสดงโปรไฟล์บนหน้า my-badges</td>
+                <td>ไม่</td>
+              </tr>
+              <tr>
+                <td>LINE ID token</td>
+                <td>LIFF <code>getIDToken()</code></td>
+                <td>ยืนยันตัวตนกับ LINE แล้วทิ้ง</td>
+                <td>ไม่ — ส่งไป LINE ครั้งเดียวตอนสร้าง session</td>
+              </tr>
+              <tr>
+                <td>Model name / SKU, วันลงทะเบียน, หมายเลขซีเรียล</td>
+                <td>Sony APIM <code>QueryWarrantyMySonyByLine</code></td>
+                <td>คำนวณเหรียญ และแสดงบนหน้ารายละเอียดสินค้าที่ปลดล็อกแล้ว</td>
+                <td>ไม่ — ดึงใหม่ทุกครั้งที่โหลดหน้า</td>
+              </tr>
+              <tr>
+                <td>สรุปเหรียญที่ได้</td>
+                <td>คำนวณในแอป</td>
+                <td>log การทำงานของเส้นทาง legacy shelf</td>
+                <td>ใช่ ใน <code>badge_calculation_logs.earned_badges_json</code> (รหัสเหรียญ ไม่มีซีเรียล)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <div class="box">
+            <strong>ไม่ใช่ข้อมูลส่วนบุคคลของลูกค้า</strong>
+            กฎเหรียญ, รายการ SKU ในเงื่อนไข, รูปเหรียญ, URL สินค้า
+            เป็นข้อมูลแคมเปญ ไม่ผูกกับบุคคล
+          </div>
+          <div class="box">
+            <strong>วันหมดประกัน</strong>
+            API อาจส่ง <code>warrantyExpiryDate</code>
+            ตัวแปลงปัจจุบันไม่เก็บและไม่แสดงค่านี้
+          </div>
+        </div>
+      </section>
+
+      <section id="security-pdpa-collect">
+        <h2>การเก็บรวบรวม (Collection)</h2>
+        <ol>
+          <li>
+            ผู้ใช้เปิด Mini App ใน LINE
+            ไคลเอนต์ init LIFF แล้วส่ง ID token ไป <code>POST /api/line-session</code>
+          </li>
+          <li>
+            เซิร์ฟเวอร์ยืนยัน token กับ LINE (<code>LINE_VERIFY_ID_TOKEN_URL</code>)
+            แล้วอ่าน <code>sub</code> เป็น LINE user ID
+          </li>
+          <li>
+            เซิร์ฟเวอร์เรียก Sony warranty API ด้วย <code>lineId</code> และ <code>countryCode</code>
+            รับ <code>prodDetails</code> (model, serial, registration date)
+          </li>
+          <li>
+            ไคลเอนต์เก็บ LINE user ID ใน <code>sessionStorage</code>
+            และใส่เป็น query <code>lineuuid</code> เมื่อเรียก <code>/api/my-*</code>
+          </li>
+        </ol>
+        <div class="note">
+          หน้าแชร์สาธารณะ <code>/share/product/...</code> และ <code>/share/mission/...</code>
+          โหลดแค่ชื่อเหรียญและรูปจากกฎ ไม่ดึงข้อมูลลูกค้า
+        </div>
+      </section>
+
+      <section id="security-pdpa-store">
+        <h2>ที่จัดเก็บ (Storage locations)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ที่ข้อมูลพักอยู่</caption>
+            <thead>
+              <tr>
+                <th>ที่เก็บ</th>
+                <th>สิ่งที่อยู่</th>
+                <th>อายุโดยประมาณ</th>
+                <th>เข้าถึงจาก JS ได้หรือไม่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cookie <code>sony_line_session</code></td>
+                <td>payload base64 ของ <code>{ lineuuid, expiresAt }</code> + HMAC-SHA256</td>
+                <td>1 ชั่วโมง (<code>Max-Age=3600</code>)</td>
+                <td>ไม่ได้ — <code>HttpOnly</code>, <code>SameSite=Lax</code>, <code>Secure</code> นอก local</td>
+              </tr>
+              <tr>
+                <td><code>sessionStorage</code> คีย์ <code>sony_line_uuid</code></td>
+                <td>LINE user ID ค่าดิบ</td>
+                <td>จนปิดแท็บ</td>
+                <td>ได้ — สคริปต์ในหน้าเดียวกันอ่านได้</td>
+              </tr>
+              <tr>
+                <td><code>localStorage</code> คีย์ <code>sonyBadgeCache:v1</code></td>
+                <td>ผลเหรียญของเส้นทาง legacy <code>/badges</code> + cache key ที่เป็น hash</td>
+                <td>จนกว่าจะ invalidate ด้วย <code>badge_rules_version</code></td>
+                <td>ได้ — ใช้เฉพาะ diagnostic shelf ไม่ใช่หน้า my-badges</td>
+              </tr>
+              <tr>
+                <td>MySQL <code>badge_calculation_logs</code></td>
+                <td>HMAC ของ LINE ID, จำนวน SKU, JSON สรุปรหัสเหรียญ</td>
+                <td>ไม่มี job ลบอัตโนมัติในโค้ด</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>หน่วยความจำเซิร์ฟเวอร์</td>
+                <td>กฎเหรียญ cache 60 วินาที ไม่ใช่ข้อมูลลูกค้า</td>
+                <td>TTL สั้น</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>หน้า my-product ที่ปลดล็อกแล้ว</td>
+                <td>ซีเรียลและวันลงทะเบียนใน JSON ของ API</td>
+                <td>แค่ตอนแสดงผล ไม่ persist ที่แอป</td>
+                <td>ได้ใน DOM/network ของผู้ใช้นั้น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note ok">
+          หน้า Mini App ปัจจุบัน (<code>/api/my-*</code>) เรียกแบบ <code>cache: "no-store"</code>
+          ไม่เขียนผลลัพธ์ลง <code>localStorage</code>
+        </div>
+      </section>
+
+      <section id="security-pdpa-process">
+        <h2>การประมวลผล (Processing)</h2>
+        <ol>
+          <li>Normalize SKU แล้วเทียบกับ Eligible Product ของกฎ</li>
+          <li>นับรุ่นไม่ซ้ำ ภายในหน้าต่าง <code>registration_start/end</code> ถ้ามี</li>
+          <li>เทียบ matched count กับ Threshold / Tier</li>
+          <li>ส่งผลลัพธ์ที่จำเป็นต่อ UI — ซีเรียลออกเฉพาะหน้ารายละเอียดสินค้าที่ปลดล็อกแล้ว</li>
+        </ol>
+        <p>
+          เส้นทาง legacy <code>/api/customer-products</code> ตัด payload ก่อนส่งเบราว์เซอร์:
+          ไม่ใส่ <code>lineuuid</code>, ซีเรียล, หรือรายการสินค้าดิบ
+          โหมด debug ใน production ถูกปิด
+          แผง debug JSON แสดงแค่ว่ามีฟิลด์หรือไม่ ไม่แสดงค่าดิบ
+        </p>
+      </section>
+
+      <section id="security-pdpa-transfer">
+        <h2>การส่งต่อ (Transfer / disclosure)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ผู้รับข้อมูลภายนอกแอป</caption>
+            <thead>
+              <tr>
+                <th>ผู้รับ</th>
+                <th>ช่องทาง</th>
+                <th>ข้อมูลที่ส่ง</th>
+                <th>ทิศทาง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE</td>
+                <td><code>POST</code> verify ID token</td>
+                <td>ID token + channel ID</td>
+                <td>แอป → LINE เพื่อยืนยันตัวตน</td>
+              </tr>
+              <tr>
+                <td>Sony APIM (warranty)</td>
+                <td><code>POST</code> พร้อม <code>Ocp-Apim-Subscription-Key</code></td>
+                <td><code>countryCode</code>, <code>lineId</code></td>
+                <td>แอป → Sony แล้วรับรายการสินค้ากลับ</td>
+              </tr>
+              <tr>
+                <td>เบราว์เซอร์ของผู้ใช้</td>
+                <td>HTTPS ไปหน้า Mini App และ <code>/api/my-*</code></td>
+                <td>โปรไฟล์ที่แสดง, สถานะเหรียญ, ซีเรียลบนหน้ารายละเอียดสินค้า</td>
+                <td>แอป → อุปกรณ์ของผู้ใช้</td>
+              </tr>
+              <tr>
+                <td>Facebook / OG crawler</td>
+                <td>หน้า <code>/share/...</code> สาธารณะ</td>
+                <td>ชื่อเหรียญและรูปจากกฎเท่านั้น</td>
+                <td>ไม่มีข้อมูลลูกค้า</td>
+              </tr>
+              <tr>
+                <td>ลิงก์ภายนอก (ลงทะเบียน / บัญชี Sony)</td>
+                <td><code>NEXT_PUBLIC_ACCOUNT_URL</code> และ URL สินค้า</td>
+                <td>ผู้ใช้เดินทางไปโดเมน Sony — แอปนี้ไม่ส่ง LINE ID ติดไปใน query</td>
+                <td>การนำทางของผู้ใช้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Azure App Service และ Azure MySQL อยู่ฝั่งโครงสร้างพื้นฐาน UAT
+          การเชื่อม DB ใช้ TLS เมื่อตั้ง <code>DATABASE_SSL=true</code> และยังตรวจใบรับรอง
+        </p>
+      </section>
+
+      <section id="security-pdpa-protect">
+        <h2>การป้องกัน (Protection controls)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>มาตรการในโค้ดปัจจุบัน</caption>
+            <thead>
+              <tr>
+                <th>ชั้น (Layer)</th>
+                <th>มาตรการ</th>
+                <th>รายละเอียด</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ความลับ</td>
+                <td>Server-only secrets</td>
+                <td>
+                  <code>DATABASE_URL</code>,
+                  <code>APP_SESSION_SECRET</code>,
+                  <code>LOG_HASH_SECRET</code>,
+                  <code>SONY_PRODUCT_API_SUBSCRIPTION_KEY</code>
+                  ห้ามใส่ <code>NEXT_PUBLIC_*</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Session</td>
+                <td>Signed HttpOnly cookie</td>
+                <td>HMAC-SHA256, ตรวจด้วย <code>timingSafeEqual</code>, TTL 1 ชั่วโมง ใช้กับ <code>/entry</code> และ <code>/api/customer-products</code></td>
+              </tr>
+              <tr>
+                <td>ทางเข้า</td>
+                <td>Origin / Referer guard</td>
+                <td><code>/entry</code> ตรวจ <code>ALLOWED_ORIGINS</code> และ <code>ALLOWED_REFERRERS</code></td>
+              </tr>
+              <tr>
+                <td>LIFF</td>
+                <td>ต้องเปิดใน LINE client</td>
+                <td>สร้าง session จาก ID token เฉพาะเมื่อ <code>liff.isInClient()</code></td>
+              </tr>
+              <tr>
+                <td>Log</td>
+                <td>Hash LINE ID</td>
+                <td>
+                  <code>hashLineUuid</code> ใช้ HMAC-SHA256 เมื่อมี
+                  <code>LOG_HASH_SECRET</code> หรือ <code>APP_SESSION_SECRET</code>
+                </td>
+              </tr>
+              <tr>
+                <td>API error</td>
+                <td>Safe error message</td>
+                <td><code>toSafeError</code> ไม่ส่ง stack หรือข้อความภายในให้ไคลเอนต์</td>
+              </tr>
+              <tr>
+                <td>Debug</td>
+                <td>ปิดใน production</td>
+                <td><code>?debug=1</code> และ <code>NEXT_PUBLIC_DEBUG_MOCK_JSON</code> ใช้ไม่ได้เมื่อ <code>APP_ENV=production</code></td>
+              </tr>
+              <tr>
+                <td>Cache เบราว์เซอร์ (legacy)</td>
+                <td>ไม่เก็บ SKU ดิบ</td>
+                <td>คีย์ cache เป็น hash ของลูกค้า + hash ของชุด SKU + เวอร์ชันกฎ</td>
+              </tr>
+              <tr>
+                <td>ฐานข้อมูล</td>
+                <td>TLS</td>
+                <td>UAT ต้องเปิด SSL และไม่ปิด certificate verification</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="security-pdpa-risks">
+        <h2>ความเสี่ยงที่ยังเหลือและข้อจำกัด (Residual risks)</h2>
+        <p>
+          จุดด้านล่างเป็นพฤติกรรมจริงในโค้ด ที่ทีม Security / PDPA ควรทราบ
+          ยังไม่ถือว่าปิดความเสี่ยงแล้ว
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>หัวข้อ</th>
+                <th>พฤติกรรมปัจจุบัน</th>
+                <th>ผลต่อข้อมูลส่วนบุคคล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>สองช่องทางระบุตัวตน</td>
+                <td>
+                  Cookie ใช้กับ <code>/api/customer-products</code>
+                  แต่ <code>/api/my-badges</code>, <code>/api/my-products</code>, <code>/api/my-missions</code>
+                  รับ <code>?lineuuid=</code> โดยไม่ตรวจ cookie
+                </td>
+                <td>ผู้ที่รู้ LINE user ID อาจเรียกดูผลเหรียญและซีเรียลของคนนั้นได้</td>
+              </tr>
+              <tr>
+                <td>Query string และ sessionStorage</td>
+                <td>LINE user ID ค่าดิบอยู่ใน URL ของ XHR และใน <code>sessionStorage</code></td>
+                <td>อาจโผล่ใน proxy log, analytics, หรือสคริปต์ที่รันในหน้า</td>
+              </tr>
+              <tr>
+                <td><code>console.log</code></td>
+                <td>
+                  <code>/api/my-badges</code>, <code>/api/my-missions</code>,
+                  และ <code>getCustomerProducts</code> ยังพิมพ์ <code>lineuuid</code>
+                </td>
+                <td>ค่าดิบอาจเข้า App Service / container logs</td>
+              </tr>
+              <tr>
+                <td>Cookie payload</td>
+                <td>LINE ID ใน cookie เป็น base64 ไม่ได้เข้ารหัส แค่เซ็น HMAC</td>
+                <td>ผู้ที่อ่าน cookie จากเครือข่าย/ดิสก์เห็น LINE ID ได้ แม้แก้ค่าแล้วเซ็นไม่ผ่าน</td>
+              </tr>
+              <tr>
+                <td>Retention ของ log</td>
+                <td>ไม่มีงานลบ <code>badge_calculation_logs</code></td>
+                <td>hash สะสมจนกว่าจะลบด้วยปฏิบัติการ</td>
+              </tr>
+              <tr>
+                <td>Fallback session secret</td>
+                <td>ถ้าไม่ตั้ง <code>APP_SESSION_SECRET</code> local ใช้ค่าคงที่ในโค้ด</td>
+                <td>ต้องมี secret จริงบน staging/production</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          จนกว่า Security / PDPA จะยืนยันแนวทาง
+          ห้ามส่งออกข้อมูลลูกค้าจากระบบนี้ไปรายงาน ไฟล์ทดสอบ หรือเอกสารสาธารณะ
+          และควรตั้ง <code>LOG_HASH_SECRET</code> คนละค่ากับ secret อื่นเมื่อเป็นไปได้
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="security-checklist-assessment">
+  <p class="doc-source">แหล่งที่มา: <code>security-checklist-assessment.html</code> — เช็คลิสต์ประเมินความปลอดภัยและผลการตรวจ</p>
+  <header class="hero">
+        <h2 class="doc-heading">Security Checklist / Assessment Result</h2>
+        <p class="lede">
+          ผลตรวจจากโค้ดปัจจุบัน: Authentication, Authorization, Encryption, Logging,
+          Session, API Security และช่องโหว่พื้นฐาน
+        </p>
+        <div class="note warn">
+          นี่คือ technical review จาก repository ไม่ใช่ penetration test
+          และยังไม่ใช่ใบรับรอง PDPA / ISO
+          วันที่ทบทวน: 19 สิงหาคม 2026 อ้างอิงไฟล์ใน Sony Badge Pilot
+        </div>
+        <nav>
+          <ul class="toc">
+            <li><a href="#security-checklist-assessment-summary">สรุปผล</a></li>
+            <li><a href="#security-checklist-assessment-checklist">Checklist ตามหัวข้อ</a></li>
+            <li><a href="#security-checklist-assessment-findings">Findings</a></li>
+            <li><a href="#security-checklist-assessment-baseline">ช่องโหว่พื้นฐาน</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="security-checklist-assessment-summary">
+        <h2>สรุปผล (Overall)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>Authentication</strong>
+            <span class="partial">Partial</span>
+            LIFF + LINE verify ใช้ได้; Mini App ยังพึ่ง query <code>lineuuid</code>
+          </div>
+          <div class="box">
+            <strong>Authorization</strong>
+            <span class="fail">Fail</span>
+            <code>/api/my-*</code> ไม่ผูกกับ session cookie
+          </div>
+          <div class="box">
+            <strong>Encryption</strong>
+            <span class="partial">Partial</span>
+            HTTPS/TLS DB บังคับตอน deploy; cookie เซ็นแต่ไม่เข้ารหัสตัว payload
+          </div>
+          <div class="box">
+            <strong>Logging</strong>
+            <span class="partial">Partial</span>
+            log ตารางใช้ hash แต่ยังมี <code>console.log</code> ค่าดิบ
+          </div>
+          <div class="box">
+            <strong>Session</strong>
+            <span class="pass">Pass*</span>
+            Cookie HttpOnly + HMAC ดี แต่ไม่ได้ใช้ครอบคลุมทุก API
+          </div>
+          <div class="box">
+            <strong>API Security</strong>
+            <span class="partial">Partial</span>
+            error ถูกตัดแล้ว ไม่มี rate limit / security headers ของแอป
+          </div>
+        </div>
+        <p>
+          * Session mechanism ผ่านเกณฑ์พื้นฐาน แต่ขอบเขตการใช้ยังไม่ครอบคลุมหน้า Mini App หลัก
+        </p>
+      </section>
+
+      <section id="security-checklist-assessment-checklist">
+        <h2>Checklist ตามหัวข้อ</h2>
+
+        <h3>Authentication</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ยืนยัน LINE ID token กับ LINE ไม่เชื่อ token จากไคลเอนต์อย่างเดียว</td>
+                <td class="pass">Pass</td>
+                <td><code>verifyLineIdToken</code> เรียก <code>api.line.me</code> ตรวจ <code>aud</code> / <code>sub</code> / <code>exp</code></td>
+              </tr>
+              <tr>
+                <td>LIFF ต้องรันใน LINE client</td>
+                <td class="pass">Pass</td>
+                <td><code>liff.isInClient()</code> ก่อนสร้าง session</td>
+              </tr>
+              <tr>
+                <td>staging/production บังคับ LIFF ID, channel ID, session secret</td>
+                <td class="pass">Pass</td>
+                <td><code>loadAppConfig</code> + <code>config:check</code> (secret ≥ 32 ตัว, LIFF ต้องเป็นของ channel)</td>
+              </tr>
+              <tr>
+                <td>หน้า Mini App หลักใช้ session ที่ verify แล้วเป็นตัวระบุตัวตน</td>
+                <td class="fail">Fail</td>
+                <td><code>/api/my-*</code> อ่าน <code>?lineuuid=</code> โดยไม่เรียก <code>resolveAuthorizedLineUuid</code></td>
+              </tr>
+              <tr>
+                <td>Mock / demo identity ถูกจำกัดเฉพาะ local</td>
+                <td class="pass">Pass</td>
+                <td><code>/api/mock-session</code> คืน 404 นอก local+mock; query demo บน customer-products เฉพาะ debug+mock</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Authorization</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ไม่มีหน้า admin ให้ลูกค้าแก้กฎ</td>
+                <td class="pass">Pass</td>
+                <td>ไม่มี CMS; กฎมาจาก seed</td>
+              </tr>
+              <tr>
+                <td>ลูกค้าเห็นแต่ข้อมูลของตนเอง</td>
+                <td class="fail">Fail</td>
+                <td>IDOR: ใส่ LINE user ID ของผู้อื่นใน query ของ <code>/api/my-*</code> แล้วได้เหรียญและซีเรียล</td>
+              </tr>
+              <tr>
+                <td><code>/entry</code> จำกัดแหล่งที่มา</td>
+                <td class="pass">Pass</td>
+                <td>Origin/Referer ต้องอยู่ใน allowlist และต้องมี cookie</td>
+              </tr>
+              <tr>
+                <td>เส้นทาง legacy shelf ใช้ cookie</td>
+                <td class="pass">Pass</td>
+                <td><code>/api/customer-products</code> ใช้ <code>resolveAuthorizedLineUuid</code></td>
+              </tr>
+              <tr>
+                <td>หน้าแชร์ไม่เปิดข้อมูลลูกค้า</td>
+                <td class="pass">Pass</td>
+                <td><code>getPublicShareMeta</code> อ่านแค่กฎและรูป</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Encryption</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>UAT บังคับ HTTPS ของแอปและ URL ภายนอก</td>
+                <td class="pass">Pass</td>
+                <td><code>config:check</code> ตรวจ <code>https:</code>; App Service HTTPS Only ตาม runbook</td>
+              </tr>
+              <tr>
+                <td>MySQL ใช้ TLS และยังตรวจใบรับรอง</td>
+                <td class="pass">Pass</td>
+                <td><code>rejectUnauthorized: true</code>; deploy ต้องมี <code>DATABASE_SSL</code></td>
+              </tr>
+              <tr>
+                <td>ความลับไม่ถูกใส่ <code>NEXT_PUBLIC_*</code></td>
+                <td class="pass">Pass</td>
+                <td>APIM key, DB, session secret เป็น server-only</td>
+              </tr>
+              <tr>
+                <td>ข้อมูลระบุตัวตนใน cookie ถูกเข้ารหัส</td>
+                <td class="partial">Partial</td>
+                <td>HMAC-SHA256 ป้องกันการแก้ค่า แต่ payload เป็น base64 อ่าน LINE ID ได้ถ้าได้คุกกี้</td>
+              </tr>
+              <tr>
+                <td>ความลับใน Git</td>
+                <td class="pass">Pass</td>
+                <td>ไม่ commit <code>.env*</code>; UAT ใช้ environment secret</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Logging</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ตาราง log ไม่เก็บ LINE ID ดิบ</td>
+                <td class="pass">Pass</td>
+                <td><code>hashLineUuid</code> HMAC-SHA256 เมื่อมี <code>LOG_HASH_SECRET</code></td>
+              </tr>
+              <tr>
+                <td>ข้อความ error ถึงไคลเอนต์ไม่รั่วรายละเอียดภายใน</td>
+                <td class="pass">Pass</td>
+                <td><code>toSafeError</code></td>
+              </tr>
+              <tr>
+                <td>ไม่มี PII ใน stdout / App Service log</td>
+                <td class="fail">Fail</td>
+                <td>
+                  <code>console.log({ lineuuid })</code> ใน
+                  <code>my-badges</code>, <code>my-missions</code>
+                  และ <code>getCustomerProducts</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Debug payload ไม่ส่งซีเรียลดิบใน production</td>
+                <td class="pass">Pass</td>
+                <td>debug ปิดเมื่อ <code>APP_ENV=production</code>; debug JSON ใช้ธง present</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Session</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Cookie เป็น HttpOnly, SameSite, มีอายุ</td>
+                <td class="pass">Pass</td>
+                <td><code>HttpOnly</code>, <code>SameSite=Lax</code>, <code>Max-Age=3600</code>, <code>Secure</code> นอก local</td>
+              </tr>
+              <tr>
+                <td>ลายเซ็นกันการปลอมแปลง</td>
+                <td class="pass">Pass</td>
+                <td>HMAC-SHA256 + <code>timingSafeEqual</code></td>
+              </tr>
+              <tr>
+                <td>ไม่เก็บ session ใน JS ที่อ่านได้</td>
+                <td class="fail">Fail</td>
+                <td><code>sessionStorage.sony_line_uuid</code> เก็บ LINE ID ดิบ และส่งต่อใน URL</td>
+              </tr>
+              <tr>
+                <td>ไม่มี fallback secret อ่อนบน staging</td>
+                <td class="pass">Pass</td>
+                <td>นอก local ต้องมี <code>APP_SESSION_SECRET</code>; ค่าคงที่ในโค้ดใช้แค่ local</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>API Security</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ข้อตรวจ</th>
+                <th>ผล</th>
+                <th>หลักฐาน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SQL injection บน input จากผู้ใช้</td>
+                <td class="pass">Pass</td>
+                <td>insert/log ใช้ parameterized <code>execute</code>; query กฎเป็น SQL คงที่</td>
+              </tr>
+              <tr>
+                <td>Rate limiting / abuse control</td>
+                <td class="fail">Fail</td>
+                <td>ไม่มีในแอป — เรียก Sony APIM ได้ตามปริมาณ request ของ Mini App API</td>
+              </tr>
+              <tr>
+                <td>Security headers (CSP, HSTS, X-Frame-Options)</td>
+                <td class="partial">Partial</td>
+                <td>แอปไม่ตั้ง CSP/frame options; HSTS พึ่ง HTTPS ของ Azure/IIS</td>
+              </tr>
+              <tr>
+                <td>CSRF บนการเปลี่ยนสถานะ</td>
+                <td class="partial">Partial</td>
+                <td>
+                  <code>POST /api/line-session</code> เป็น same-site จาก LIFF
+                  แต่ GET <code>/api/my-*</code> ใช้ตัวตนใน query จึงเสี่ยง IDOR มากกว่า CSRF แบบคลาสสิก
+                </td>
+              </tr>
+              <tr>
+                <td>Endpoint อันตรายถูกล็อกนอก local</td>
+                <td class="pass">Pass</td>
+                <td>mock-session 404; debug ปิดใน production; <code>NEXT_PUBLIC_DEBUG_MOCK_JSON</code> ต้องเป็น false ตอน deploy</td>
+              </tr>
+              <tr>
+                <td>Health ไม่เปิดข้อมูลภายใน</td>
+                <td class="pass">Pass</td>
+                <td><code>{"status":"ok","runtime":"nodejs"}</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="security-checklist-assessment-findings">
+        <h2>Findings ที่ควรปิด</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>ความรุนแรง</th>
+                <th>หัวข้อ</th>
+                <th>รายละเอียด</th>
+                <th>แนวทางแก้ (ไม่ลงมือในเอกสารนี้)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>F1</td>
+                <td class="sev-high">High</td>
+                <td>Authorization / IDOR</td>
+                <td>
+                  <code>/api/my-badges</code>, <code>/api/my-products</code>,
+                  <code>/api/my-missions</code> เชื่อ <code>lineuuid</code> จาก query
+                </td>
+                <td>ใช้ <code>resolveAuthorizedLineUuid</code> จาก cookie เหมือน customer-products</td>
+              </tr>
+              <tr>
+                <td>F2</td>
+                <td class="sev-med">Medium</td>
+                <td>Logging</td>
+                <td>stdout ยังพิมพ์ LINE user ID ดิบตอน live warranty และบาง my-* API</td>
+                <td>ลบ <code>console.log</code> หรือใช้ <code>hashLineUuid</code></td>
+              </tr>
+              <tr>
+                <td>F3</td>
+                <td class="sev-med">Medium</td>
+                <td>Session / PII in browser</td>
+                <td>LINE ID อยู่ใน <code>sessionStorage</code> และ query string ของ XHR</td>
+                <td>พึ่ง cookie อย่างเดียว ไม่ส่ง identity ใน URL</td>
+              </tr>
+              <tr>
+                <td>F4</td>
+                <td class="sev-low">Low</td>
+                <td>Encryption at rest (cookie)</td>
+                <td>cookie อ่าน LINE ID ได้ถ้าขโมยคุกกี้</td>
+                <td>เก็บแค่ opaque session id หรือเข้ารหัส payload</td>
+              </tr>
+              <tr>
+                <td>F5</td>
+                <td class="sev-low">Low</td>
+                <td>API abuse</td>
+                <td>ไม่มี rate limit ไปยัง Sony APIM</td>
+                <td>จำกัดต่อ session / IP ที่ขอบแอปหรือ APIM</td>
+              </tr>
+              <tr>
+                <td>F6</td>
+                <td class="sev-low">Low</td>
+                <td>Security headers</td>
+                <td><code>next.config.mjs</code> ไม่ใส่ CSP / clickjacking headers</td>
+                <td>ตั้ง headers ที่ IIS หรือ Next</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="security-checklist-assessment-baseline">
+        <h2>ช่องโหว่พื้นฐาน (Baseline vulns)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>กลุ่ม</th>
+                <th>ผลตรวจ</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Injection (SQL)</td>
+                <td class="pass">ไม่พบรูปแบบ query ต่อสตริงจากผู้ใช้</td>
+                <td>input จาก LINE/SKU ไม่ถูกต่อเป็น SQL ของกฎ</td>
+              </tr>
+              <tr>
+                <td>XSS</td>
+                <td class="partial">ความเสี่ยงต่ำ</td>
+                <td>
+                  ไม่พบ <code>dangerouslySetInnerHTML</code>
+                  รูปเหรียญมาจาก URL ใน DB — ผู้มีสิทธิ์ seed/DB ตั้ง URL ได้
+                  ลูกค้าทั่วไปตั้งค่านี้ไม่ได้
+                </td>
+              </tr>
+              <tr>
+                <td>SSRF</td>
+                <td class="pass">ความเสี่ยงต่ำ</td>
+                <td>warranty URL มาจาก env ไม่ใช่จากผู้ใช้</td>
+              </tr>
+              <tr>
+                <td>Secret exposure</td>
+                <td class="pass">ควบคุมในรีโป</td>
+                <td>มี <code>console.log</code> ของ subscription key ที่ถูก comment แล้วใน <code>app-config.ts</code></td>
+              </tr>
+              <tr>
+                <td>Information disclosure</td>
+                <td class="partial">บางจุด</td>
+                <td>
+                  debug ปิดใน production
+                  <code>getPublicDbSchema</code> / debug tables มีได้เฉพาะโหมด debug
+                  health ไม่เปิดเวอร์ชันรายละเอียด
+                </td>
+              </tr>
+              <tr>
+                <td>Broken access control</td>
+                <td class="fail">พบ</td>
+                <td>F1 เป็นช่องโหว่หลักของ Mini App API</td>
+              </tr>
+              <tr>
+                <td>Security misconfiguration</td>
+                <td class="partial">บางจุด</td>
+                <td>deploy check เข้มเรื่อง HTTPS/TLS/debug; แอปไม่มี CSP; workflow ไม่รัน <code>npm audit</code></td>
+              </tr>
+              <tr>
+                <td>Open mock/debug in prod</td>
+                <td class="pass">ถูกบล็อก</td>
+                <td>mock-session และ debug flag</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          จุดที่ควรแก้ก่อนขยาย production ตามลำดับ: F1 (ผูก my-* กับ cookie) แล้ว F2–F3 (log และไม่ใส่ LINE ID ใน URL)
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="access-control-matrix">
+  <p class="doc-source">แหล่งที่มา: <code>access-control-matrix.html</code> — เมทริกซ์สิทธิ์เข้าถึง (ใครทำอะไรได้บ้าง)</p>
+  <header class="hero">
+        <h2 class="doc-heading">Access Control Matrix</h2>
+        <p class="lede">
+          Role, สิทธิ์เข้าถึงข้อมูล และสิทธิ์จัดการระบบของ Sony Badge Pilot
+          ตามที่โค้ดและขั้นตอนปฏิบัติการรองรับจริง
+        </p>
+        <div class="note warn">
+          Pilot นี้ไม่มี CMS, ไม่มีตาราง user/role และไม่มี RBAC ในแอป
+          ตัวตนใน Mini App คือ LINE user ID
+          การเปลี่ยนกฎเหรียญทำผ่าน seed/config ที่รีวิวแล้ว ไม่มีหน้าแอดมิน
+        </div>
+        <nav>
+          <ul class="toc">
+            <li><a href="#access-control-matrix-roles">บทบาท (Roles)</a></li>
+            <li><a href="#access-control-matrix-legend">สัญลักษณ์</a></li>
+            <li><a href="#access-control-matrix-data">สิทธิ์เข้าถึงข้อมูล</a></li>
+            <li><a href="#access-control-matrix-system">สิทธิ์จัดการระบบ</a></li>
+            <li><a href="#access-control-matrix-enforced">สิ่งที่แอปบังคับเอง</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="access-control-matrix-roles">
+        <h2>บทบาท (Roles)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>บทบาทในแอป vs บทบาทปฏิบัติการ</caption>
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>ชนิด</th>
+                <th>วิธีพิสูจน์ตัวตน</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE Customer</td>
+                <td>ในแอป</td>
+                <td>LIFF ID token → cookie และ/หรือ <code>sessionStorage</code> LINE user ID</td>
+                <td>ดูเหรียญของตนเอง ไม่แก้กฎ</td>
+              </tr>
+              <tr>
+                <td>Public visitor / OG crawler</td>
+                <td>ในแอป</td>
+                <td>ไม่มี session</td>
+                <td>หน้าแชร์, health, ชั้นเหรียญแบบล็อกเมื่อไม่มี <code>lineuuid</code></td>
+              </tr>
+              <tr>
+                <td>Local developer</td>
+                <td>ในแอป (เฉพาะ <code>APP_ENV=local</code>)</td>
+                <td>ข้าม LIFF ได้เมื่อ mock; <code>/api/mock-session</code></td>
+                <td>ใช้ไม่ได้บน staging/production</td>
+              </tr>
+              <tr>
+                <td>Omelet engineer</td>
+                <td>ปฏิบัติการ</td>
+                <td>Git repository access</td>
+                <td>แก้ seed/โค้ด ส่ง PR ไม่มี UI แอดมิน</td>
+              </tr>
+              <tr>
+                <td>UAT deployer</td>
+                <td>ปฏิบัติการ</td>
+                <td>GitHub environment <code>uat</code> + publish profile</td>
+                <td>deploy แอป ไม่รัน migrate ใน workflow</td>
+              </tr>
+              <tr>
+                <td>Database operator</td>
+                <td>ปฏิบัติการ</td>
+                <td>โฮสต์ที่เข้า Azure MySQL ได้ + <code>DATABASE_URL</code></td>
+                <td>migrate / seed / verify ด้วยมือ</td>
+              </tr>
+              <tr>
+                <td>Sony infra owner</td>
+                <td>ปฏิบัติการ</td>
+                <td>Azure App Service / APIM / MySQL ที่ Sony ถือสิทธิ์</td>
+                <td>เครือข่าย, TLS, subscription key, IP allowlist</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="access-control-matrix-legend">
+        <h2>สัญลักษณ์ในเมทริกซ์</h2>
+        <div class="grid">
+          <div class="box"><strong class="allow">R</strong> อ่าน (Read)</div>
+          <div class="box"><strong class="allow">W</strong> สร้างหรือแก้ไข (Write / update)</div>
+          <div class="box"><strong class="allow">D</strong> ลบ (Delete)</div>
+          <div class="box"><strong class="allow">X</strong> สั่งทำงาน (Execute)</div>
+          <div class="box"><strong class="deny">—</strong> ไม่มีสิทธิ์</div>
+          <div class="box"><strong class="limited">*</strong> มีเงื่อนไข หรือช่องว่างในโค้ด ดูเชิงอรรถ</div>
+        </div>
+      </section>
+
+      <section id="access-control-matrix-data">
+        <h2>สิทธิ์เข้าถึงข้อมูล (Data access)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Role × ข้อมูล</caption>
+            <thead>
+              <tr>
+                <th>ข้อมูล</th>
+                <th>LINE Customer</th>
+                <th>Public</th>
+                <th>Local developer</th>
+                <th>Omelet engineer</th>
+                <th>Database operator</th>
+                <th>Sony infra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>โปรไฟล์ LINE ของตนเอง (ชื่อ, รูป)</td>
+                <td class="allow">R</td>
+                <td class="deny">—</td>
+                <td class="limited">R*</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>สินค้า warranty ของตนเอง (รุ่น, ซีเรียล, วันลงทะเบียน)</td>
+                <td class="allow">R</td>
+                <td class="deny">—</td>
+                <td class="limited">R mock</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">R (แหล่งข้อมูลที่ Sony)</td>
+              </tr>
+              <tr>
+                <td>สินค้า / เหรียญของลูกค้าคนอื่น</td>
+                <td class="limited">— *</td>
+                <td class="deny">—</td>
+                <td class="limited">R* ถ้ารู้ lineuuid</td>
+                <td class="deny">—</td>
+                <td class="limited">R log hash เท่านั้น</td>
+                <td class="allow">R ที่ warranty API</td>
+              </tr>
+              <tr>
+                <td>ผลเหรียญที่คำนวณแล้ว (ชั้นของตนเอง)</td>
+                <td class="allow">R</td>
+                <td class="limited">R แบบล็อก / ไม่ระบุตัวตน</td>
+                <td class="allow">R</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>หน้าแชร์สาธารณะ (ชื่อเหรียญ, รูปกฎ)</td>
+                <td class="allow">R</td>
+                <td class="allow">R</td>
+                <td class="allow">R</td>
+                <td class="allow">R</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>Badge rules / thresholds / conditions / รูป</td>
+                <td class="allow">R ผ่าน UI</td>
+                <td class="allow">R รูปและชื่อบนหน้าแชร์</td>
+                <td class="allow">R</td>
+                <td class="allow">RW ผ่าน seed ใน Git</td>
+                <td class="allow">RWD ผ่าน SQL/seed</td>
+                <td class="limited">R โครงสร้าง DB</td>
+              </tr>
+              <tr>
+                <td><code>app_config</code> รวม <code>badge_rules_version</code></td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">RW local</td>
+                <td class="allow">W ผ่าน seed</td>
+                <td class="allow">RW</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td><code>badge_calculation_logs</code> (hash LINE ID)</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">R local</td>
+                <td class="deny">—</td>
+                <td class="allow">RD</td>
+                <td class="limited">R ถ้าเข้า DB ได้</td>
+              </tr>
+              <tr>
+                <td>ความลับ: DB URL, session secret, APIM key</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">R local <code>.env</code></td>
+                <td class="deny">ไม่เก็บใน Git</td>
+                <td class="allow">R ของ DB</td>
+                <td class="allow">RW ที่ Azure / APIM</td>
+              </tr>
+              <tr>
+                <td>Debug trace / mock JSON</td>
+                <td class="deny">production ปิด</td>
+                <td class="deny">—</td>
+                <td class="allow">R เมื่อ <code>?debug=1</code></td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          * เชิงอรรถ: <code>/api/my-*</code> ไม่ตรวจ cookie
+          ผู้ที่รู้ LINE user ID ของคนอื่นอาจ <span class="limited">R</span> ข้อมูลเหรียญและซีเรียลของคนนั้นได้
+        </p>
+      </section>
+
+      <section id="access-control-matrix-system">
+        <h2>สิทธิ์จัดการระบบ (System management)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Role × การดำเนินการระบบ</caption>
+            <thead>
+              <tr>
+                <th>การดำเนินการ</th>
+                <th>LINE Customer</th>
+                <th>Public</th>
+                <th>Local developer</th>
+                <th>Omelet engineer</th>
+                <th>UAT deployer</th>
+                <th>Database operator</th>
+                <th>Sony infra</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>เปิด Mini App / ดูเหรียญ</td>
+                <td class="allow">X</td>
+                <td class="deny">— (ต้องใน LINE)</td>
+                <td class="allow">X mock</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>สร้าง LINE session (<code>/api/line-session</code>)</td>
+                <td class="allow">X</td>
+                <td class="deny">—</td>
+                <td class="allow">X</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>เรียก <code>/api/mock-session</code></td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">X</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>แก้กฎเหรียญผ่าน UI</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">ไม่มีหน้านี้</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>แก้ <code>seed-data.mjs</code> / PR</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">W local</td>
+                <td class="allow">W</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td><code>db:migrate</code> / <code>db:seed:prod</code></td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">X local</td>
+                <td class="deny">ไม่รันบน UAT จาก Git อย่างเดียว</td>
+                <td class="deny">workflow ไม่รัน</td>
+                <td class="allow">X</td>
+                <td class="limited">อนุญาตเครือข่าย</td>
+              </tr>
+              <tr>
+                <td><code>db:reset</code> (DROP ตาราง)</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">X local เท่านั้น</td>
+                <td class="deny">ห้ามใช้ UAT</td>
+                <td class="deny">—</td>
+                <td class="deny">ห้ามใช้ UAT</td>
+                <td class="deny">—</td>
+              </tr>
+              <tr>
+                <td>Deploy แอปไป App Service</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="limited">push ที่ trigger workflow</td>
+                <td class="allow">X</td>
+                <td class="deny">—</td>
+                <td class="allow">publish profile / แผน</td>
+              </tr>
+              <tr>
+                <td>แก้ <code>UAT_ENV_FILE</code> / secrets</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="allow">W GitHub environment</td>
+                <td class="deny">—</td>
+                <td class="limited">App Service vars ถ้ามีสิทธิ์</td>
+              </tr>
+              <tr>
+                <td>เรียก <code>/api/health</code>, <code>/deployment-check.html</code></td>
+                <td class="limited">R ถ้า IP ผ่าน</td>
+                <td class="limited">R ถ้า IP ผ่าน</td>
+                <td class="allow">R</td>
+                <td class="allow">R</td>
+                <td class="allow">X ใน workflow</td>
+                <td class="deny">—</td>
+                <td class="allow">กำหนด allowlist</td>
+              </tr>
+              <tr>
+                <td>Sony APIM subscription / warranty data</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="deny">ใช้ mock</td>
+                <td class="deny">—</td>
+                <td class="limited">key ใน env file</td>
+                <td class="deny">—</td>
+                <td class="allow">RW</td>
+              </tr>
+              <tr>
+                <td>ตั้งค่า LINE Login / LIFF</td>
+                <td class="deny">—</td>
+                <td class="deny">—</td>
+                <td class="limited">LIFF ID ใน env</td>
+                <td class="deny">—</td>
+                <td class="limited">ใส่ใน env file</td>
+                <td class="deny">—</td>
+                <td class="allow">W ที่ LINE Developers (เจ้าของช่อง)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="access-control-matrix-enforced">
+        <h2>สิ่งที่แอปบังคับเอง (Enforced in code)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>จุดตรวจสิทธิ์</caption>
+            <thead>
+              <tr>
+                <th>พื้นผิว</th>
+                <th>ใครเข้าได้</th>
+                <th>กลไก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>POST /api/line-session</code></td>
+                <td>ไคลเอนต์ที่มี LINE ID token ใช้ได้</td>
+                <td>verify กับ LINE; ไม่มีรายการ role</td>
+              </tr>
+              <tr>
+                <td><code>GET /entry</code></td>
+                <td>request ที่ Origin/Referer อยู่ใน allowlist และมี cookie</td>
+                <td><code>evaluateRedirectGuard</code> + <code>resolveAuthorizedLineUuid</code></td>
+              </tr>
+              <tr>
+                <td><code>GET /api/customer-products</code></td>
+                <td>มี cookie session; query <code>lineuuid</code ได้เฉพาะ local debug+mock</td>
+                <td><code>resolveAuthorizedLineUuid</code></td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-*</code></td>
+                <td>มี <code>lineuuid</code> ใน query หรือได้ชั้นแบบล็อก</td>
+                <td>ไม่ตรวจ cookie — ช่องว่างของโมเดลสิทธิ์</td>
+              </tr>
+              <tr>
+                <td><code>GET /share/...</code></td>
+                <td>ทุกคน</td>
+                <td>อ่านเฉพาะ metadata ของกฎ</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/mock-session</code></td>
+                <td>local + mock เท่านั้น</td>
+                <td>อื่น ๆ ได้ 404</td>
+              </tr>
+              <tr>
+                <td>Debug JSON / trace</td>
+                <td>ไม่ใช่ production</td>
+                <td><code>isDebugModeEnabled</code> คืน false เมื่อ <code>APP_ENV=production</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          ไม่มี role <code>admin</code> ในฐานข้อมูล
+          การจัดการกฎ = สิทธิ์ Git + สิทธิ์เข้า MySQL
+          ลูกค้าไม่มีสิทธิ์ W/D ต่อข้อมูลกฎหรือข้อมูลคนอื่นผ่าน UI
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="data-flow-diagram">
+  <p class="doc-source">แหล่งที่มา: <code>data-flow-diagram.html</code> — แผนภาพการไหลของข้อมูลในระบบ</p>
+  <header class="hero">
+        <h2 class="doc-heading">Data Flow Diagram</h2>
+        <p class="lede">
+          การส่งข้อมูลระหว่าง LINE, LIFF/Mini App, Omelet System และ Sony System
+          ตามเส้นทางที่โค้ดปัจจุบันใช้จริง
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#data-flow-diagram-systems">ขอบเขตระบบ (Systems)</a></li>
+            <li><a href="#data-flow-diagram-context">แผนภาพบริบท (Context DFD)</a></li>
+            <li><a href="#data-flow-diagram-flows">รายการ data flow</a></li>
+            <li><a href="#data-flow-diagram-sequence">ลำดับหลัก (Happy path)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="data-flow-diagram-systems">
+        <h2>ขอบเขตระบบ (System boundaries)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>LINE</strong>
+            LINE App, LIFF SDK, และ
+            <code>https://api.line.me/oauth2/v2.1/verify</code>
+            ให้ ID token, LINE user ID (<code>sub</code>), ชื่อและรูปโปรไฟล์
+          </div>
+          <div class="box">
+            <strong>LIFF / Mini App</strong>
+            หน้าเว็บที่รันใน LINE webview:
+            my-badges, my-products, my-missions, share
+            เก็บ <code>sessionStorage</code> และเรียก API ของ Omelet
+          </div>
+          <div class="box">
+            <strong>Omelet System</strong>
+            Next.js บน Azure App Service ของโดเมน Mini App:
+            session, badge engine, API <code>/api/*</code>
+            และ MySQL ที่เก็บกฎเหรียญ (ไม่เก็บสินค้าของลูกค้า)
+          </div>
+          <div class="box">
+            <strong>Sony System</strong>
+            Azure APIM warranty
+            (<code>QueryWarrantyMySonyByLine</code>)
+            และเว็บ Sony Thailand สำหรับบัญชี / ลงทะเบียน / หน้า digital-badge
+          </div>
+        </div>
+      </section>
+
+      <section id="data-flow-diagram-context">
+        <h2>แผนภาพบริบท (Context data flow)</h2>
+        <p>
+          ลูกศรทึบคือข้อมูลที่ระบบส่งใน happy path ของ Mini App
+          ลูกศรประคือการนำทางผู้ใช้ไปเว็บ Sony โดยแอปไม่ส่ง LINE ID ติดไป
+        </p>
+        <div class="diagramWrap" role="img" aria-labelledby="dfd-title dfd-desc">
+          <svg viewBox="0 0 1120 620" xmlns="http://www.w3.org/2000/svg">
+            <title id="data-flow-diagram-dfd-title">Context data flow among LINE, Mini App, Omelet, and Sony</title>
+            <desc id="data-flow-diagram-dfd-desc">
+              LINE issues LIFF identity to the Mini App. The Mini App talks to Omelet APIs.
+              Omelet verifies the ID token with LINE, loads badge rules from MySQL,
+              and fetches owned products from Sony APIM.
+            </desc>
+            <rect width="1120" height="620" fill="#fbfdff" />
+
+            <!-- arrows behind boxes -->
+            <g fill="none" stroke="#2557a7" stroke-width="2" marker-end="url(#arrow)">
+              <path d="M250 230 H300" />
+              <path d="M520 230 H590" />
+              <path d="M840 230 H890" />
+              <path d="M650 155 V72 H145 V170" />
+              <path d="M715 350 V400" />
+            </g>
+            <g fill="none" stroke="#2557a7" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow)">
+              <path d="M430 290 V520 H890 V270" />
+            </g>
+
+            <defs>
+              <marker id="data-flow-diagram-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 z" fill="#2557a7" />
+              </marker>
+            </defs>
+
+            <!-- LINE -->
+            <g>
+              <rect x="40" y="170" width="210" height="140" rx="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.5" />
+              <text x="145" y="208" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">LINE</text>
+              <text x="145" y="232" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">App / LIFF SDK</text>
+              <text x="145" y="252" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">ID token verify</text>
+              <text x="145" y="286" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">api.line.me</text>
+            </g>
+
+            <!-- LIFF Mini App -->
+            <g>
+              <rect x="300" y="170" width="220" height="140" rx="18" fill="#e8f0ff" stroke="#2557a7" stroke-width="1.5" />
+              <text x="410" y="208" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">LIFF / Mini App</text>
+              <text x="410" y="232" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">webview ใน LINE</text>
+              <text x="410" y="252" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">my-badges / products</text>
+              <text x="410" y="286" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">sessionStorage</text>
+            </g>
+
+            <!-- Omelet -->
+            <g>
+              <rect x="590" y="155" width="250" height="195" rx="18" fill="#e8f0ff" stroke="#2557a7" stroke-width="1.5" />
+              <text x="715" y="192" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">Omelet System</text>
+              <text x="715" y="216" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">Next.js App Service</text>
+              <text x="715" y="236" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">session + badge engine</text>
+              <text x="715" y="270" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">/api/line-session</text>
+              <text x="715" y="288" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">/api/my-*</text>
+            </g>
+
+            <!-- Sony -->
+            <g>
+              <rect x="890" y="150" width="190" height="140" rx="4" fill="#ffffff" stroke="#1d2733" stroke-width="1.5" />
+              <text x="985" y="188" text-anchor="middle" font-size="16" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">Sony System</text>
+              <text x="985" y="212" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">APIM warranty</text>
+              <text x="985" y="232" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">Account / register</text>
+              <text x="985" y="266" text-anchor="middle" font-size="11" fill="#2557a7" font-family="ui-monospace, monospace">QueryWarranty...</text>
+            </g>
+
+            <!-- D1 -->
+            <g>
+              <path d="M620 400 H810" stroke="#1d2733" fill="none" stroke-width="1.5" />
+              <path d="M620 400 V455 H810 V400" stroke="#1d2733" fill="none" stroke-width="1.5" />
+              <ellipse cx="715" cy="400" rx="95" ry="14" fill="#ffffff" stroke="#1d2733" stroke-width="1.5" />
+              <text x="715" y="438" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733" font-family="Inter, ui-sans-serif, sans-serif">D1 Badge MySQL</text>
+              <text x="715" y="478" text-anchor="middle" font-size="12" fill="#66758a" font-family="Inter, ui-sans-serif, sans-serif">rules / hashed logs — ไม่เก็บสินค้าลูกค้า</text>
+            </g>
+
+            <!-- flow numbers -->
+            <g font-size="11" font-weight="700" fill="#2557a7" font-family="Inter, ui-sans-serif, sans-serif">
+              <text x="262" y="218">1–2</text>
+              <text x="538" y="218">3,6,7,11</text>
+              <text x="848" y="218">8–9</text>
+              <text x="280" y="64">4–5 Omelet ยืนยัน ID token กับ LINE</text>
+              <text x="728" y="378">10</text>
+              <text x="620" y="545">12 ไปเว็บ Sony (ไม่มี LINE ID ใน query)</text>
+            </g>
+          </svg>
+        </div>
+        <p>
+          สี่เหลี่ยมมุมแหลม = ระบบภายนอก (LINE, Sony)
+          มุมโค้ง = กระบวนการของแอป (Mini App, Omelet)
+          สี่เหลี่ยมเปิด = ที่เก็บข้อมูล
+        </p>
+      </section>
+
+      <section id="data-flow-diagram-flows">
+        <h2>รายการ data flow</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>หมายเลขบนแผนภาพ</caption>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>จาก</th>
+                <th>ถึง</th>
+                <th>ข้อมูล</th>
+                <th>ช่องทาง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>LINE</td>
+                <td>LIFF / Mini App</td>
+                <td>LIFF SDK, ID token, LINE user ID, ชื่อและรูปโปรไฟล์</td>
+                <td><code>liff.init</code>, <code>getIDToken()</code>, <code>getProfile()</code></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>LIFF / Mini App</td>
+                <td>LINE</td>
+                <td>คำขอ init / token / profile ต้องเปิดใน LINE client</td>
+                <td>LIFF SDK</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>LIFF / Mini App</td>
+                <td>Omelet</td>
+                <td>ID token (ใช้ครั้งเดียว ไม่ persist)</td>
+                <td><code>POST /api/line-session</code></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Omelet</td>
+                <td>LINE</td>
+                <td><code>id_token</code> + <code>client_id</code> (LINE channel ID)</td>
+                <td><code>POST</code> LINE verify</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>LINE</td>
+                <td>Omelet</td>
+                <td><code>sub</code> (LINE user ID), <code>aud</code>, <code>exp</code></td>
+                <td>JSON จาก LINE</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>Omelet</td>
+                <td>LIFF / Mini App</td>
+                <td>cookie <code>sony_line_session</code> ที่เซ็น HMAC และ <code>{ ok: true }</code></td>
+                <td><code>Set-Cookie</code> HttpOnly</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>LIFF / Mini App</td>
+                <td>Omelet</td>
+                <td>LINE user ID ใน query <code>lineuuid</code> (หน้า Mini App ปัจจุบัน)</td>
+                <td><code>GET /api/my-badges</code> และ <code>/api/my-products</code> / <code>/api/my-missions</code></td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>Omelet</td>
+                <td>Sony APIM</td>
+                <td><code>{ countryCode, lineId }</code> + subscription key</td>
+                <td><code>POST QueryWarrantyMySonyByLine</code></td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>Sony APIM</td>
+                <td>Omelet</td>
+                <td><code>prodDetails[]</code>: modelName, serialNumber, registrationDate</td>
+                <td>JSON ตอน request ไม่ persist ที่ Omelet</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>Omelet ↔ D1</td>
+                <td>MySQL</td>
+                <td>อ่านกฎเหรียญ; เขียน log ที่ hash LINE ID (เส้นทาง legacy shelf)</td>
+                <td>TLS เมื่อ <code>DATABASE_SSL=true</code></td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>Omelet</td>
+                <td>LIFF / Mini App</td>
+                <td>สถานะเหรียญ, รูป, ความคืบหน้า; ซีเรียลเฉพาะหน้ารายละเอียดสินค้าที่ปลดล็อก</td>
+                <td>JSON <code>cache: no-store</code></td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>LIFF / Mini App</td>
+                <td>Sony websites</td>
+                <td>ผู้ใช้กดลงทะเบียน / บัญชี / inquiry — แอปไม่แนบ LINE ID ใน query</td>
+                <td><code>NEXT_PUBLIC_ACCOUNT_URL</code>, register URL, sony.co.th microsite</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          เส้นทางเสริม: <code>/entry</code> ตรวจ Origin/Referer แล้วดู cookie ก่อนส่งไป <code>/badges</code>
+          หน้า <code>/share/...</code> ให้ Facebook/OG อ่านแค่ชื่อและรูปเหรียญจากกฎ ไม่เรียก Sony API
+        </div>
+      </section>
+
+      <section id="data-flow-diagram-sequence">
+        <h2>ลำดับหลักเมื่อเปิด Mini App (Happy path)</h2>
+        <div class="step">
+          <div class="num">1</div>
+          <div>
+            <strong>LINE → Mini App</strong>
+            ผู้ใช้เปิด LIFF endpoint ผู้ใช้เห็นหน้า my-badges ใน webview
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div>
+            <strong>Mini App → LINE → Omelet → LINE</strong>
+            ไคลเอนต์ init LIFF, ส่ง ID token ไป Omelet, Omelet verify กับ LINE แล้วตั้ง cookie
+            ไคลเอนต์เก็บ LINE user ID ใน <code>sessionStorage</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div>
+            <strong>Mini App → Omelet → Sony → Omelet</strong>
+            เรียก <code>/api/my-*</code> ด้วย <code>lineuuid</code>
+            Omelet ขอสินค้าจาก warranty API แล้วอ่านกฎจาก MySQL
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <div>
+            <strong>Omelet → Mini App</strong>
+            คำนวณ Eligible Product / Threshold / Tier ในโปรเซส แล้วส่ง JSON แสดงผล
+            ไม่บันทึก ownership ลงฐานข้อมูลของ Omelet
+          </div>
+        </div>
+        <div class="note warn">
+          Cookie ใช้บังคับตัวตนบน <code>/api/customer-products</code> และ <code>/entry</code>
+          หน้า Mini App ปัจจุบันส่ง LINE ID ผ่าน query ไป <code>/api/my-*</code>
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="pdpa-data-inventory-retention">
+  <p class="doc-source">แหล่งที่มา: <code>pdpa-data-inventory-retention.html</code> — บัญชีข้อมูลส่วนบุคคลและระยะเวลาเก็บรักษา</p>
+  <header class="hero">
+        <h2 class="doc-heading">PDPA Data Inventory / Retention</h2>
+        <p class="lede">
+          ประเภทข้อมูล วัตถุประสงค์ ระยะเวลาจัดเก็บ และแนวทางลบข้อมูล
+          ตามที่ Sony Badge Pilot ทำจริงในโค้ด
+        </p>
+        <div class="note warn">
+          เอกสารนี้เป็นคลังข้อมูลเทคนิค ไม่กำหนดนโยบายกฎหมายให้ Sony
+          ระยะเวลาที่ระบุคืออายุที่ระบบตั้งไว้ หรือช่องว่างเมื่อโค้ดไม่ลบอัตโนมัติ
+          ยังรอ Security / PDPA ยืนยันระยะเก็บที่ถูกต้องตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล
+        </div>
+        <nav>
+          <ul class="toc">
+            <li><a href="#pdpa-data-inventory-retention-scope">ขอบเขต</a></li>
+            <li><a href="#pdpa-data-inventory-retention-inventory">คลังข้อมูล</a></li>
+            <li><a href="#pdpa-data-inventory-retention-retention">ระยะเวลาจัดเก็บ</a></li>
+            <li><a href="#pdpa-data-inventory-retention-deletion">แนวทางลบ</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="pdpa-data-inventory-retention-scope">
+        <h2>ขอบเขต (Scope)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>ผู้ควบคุมแหล่งสินค้า</strong>
+            รายการสินค้าที่ลงทะเบียน (รุ่น, ซีเรียล, วันลงทะเบียน) อยู่ที่ Sony warranty API
+            Mini App ดึงมาคำนวณตอน request แล้วทิ้ง ไม่เก็บสำเนาใน MySQL ของแอป
+          </div>
+          <div class="box">
+            <strong>สิ่งที่แอปถือครอง</strong>
+            ตัวตนชั่วคราว (cookie / sessionStorage),
+            ผลคำนวณที่ส่งกลับเบราว์เซอร์,
+            และ log ที่ hash LINE ID บนเส้นทาง legacy shelf
+          </div>
+          <div class="box">
+            <strong>ไม่ใช่ข้อมูลส่วนบุคคลของลูกค้า</strong>
+            กฎเหรียญ, รายการ SKU ในเงื่อนไข, รูปเหรียญ, URL สินค้า, ข้อความ support
+          </div>
+        </div>
+        <p>
+          ไม่มี API สำหรับสิทธิเข้าถึง / ลบข้อมูลตามคำขอเจ้าของข้อมูล (DSAR) ในแอปนี้
+          การลบข้อมูลลูกค้าในระบบสินค้าต้องทำที่ Sony ไม่ใช่ที่ตารางกฎเหรียญ
+        </p>
+      </section>
+
+      <section id="pdpa-data-inventory-retention-inventory">
+        <h2>คลังข้อมูล (Data inventory)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ข้อมูลส่วนบุคคลและข้อมูลที่เกี่ยวข้องกับบุคคล</caption>
+            <thead>
+              <tr>
+                <th>ประเภทข้อมูล</th>
+                <th>ตัวอย่างฟิลด์</th>
+                <th>แหล่งที่มา</th>
+                <th>วัตถุประสงค์</th>
+                <th>ผู้ที่เห็นในแอป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ตัวระบุ LINE</td>
+                <td>LINE user ID (<code>sub</code> / <code>lineuuid</code>)</td>
+                <td>LIFF ID token และ <code>liff.getProfile()</code></td>
+                <td>ระบุผู้ใช้เพื่อเรียก warranty และแสดงเหรียญของผู้นั้น</td>
+                <td>เซิร์ฟเวอร์; ไคลเอนต์เก็บใน sessionStorage และ query</td>
+              </tr>
+              <tr>
+                <td>โทเคนยืนยันตัวตน</td>
+                <td>LINE ID token</td>
+                <td>LIFF <code>getIDToken()</code></td>
+                <td>ยืนยันกับ LINE ครั้งเดียวตอนสร้าง session</td>
+                <td>ส่งไป LINE แล้วไม่ persist</td>
+              </tr>
+              <tr>
+                <td>โปรไฟล์ LINE</td>
+                <td>display name, picture URL</td>
+                <td>LIFF profile บนอุปกรณ์ผู้ใช้</td>
+                <td>แสดงชื่อและรูปบนหน้า my-badges</td>
+                <td>เบราว์เซอร์ของผู้ใช้; ไม่เขียนลง MySQL</td>
+              </tr>
+              <tr>
+                <td>ความเป็นเจ้าของสินค้า</td>
+                <td>modelName/SKU, serialNumber, registrationDate</td>
+                <td>Sony APIM <code>prodDetails</code></td>
+                <td>คำนวณ Eligible Product / Threshold / Tier และแสดงซีเรียลบนหน้ารายละเอียดที่ปลดล็อก</td>
+                <td>เซิร์ฟเวอร์ตอน request; ไคลเอนต์เฉพาะสินค้าที่ปลดล็อก</td>
+              </tr>
+              <tr>
+                <td>ผลเหรียญที่คำนวณ</td>
+                <td>สถานะ earned/locked, จำนวนที่ match, รูปเหรียญ</td>
+                <td>คำนวณในแอปจากสินค้า + กฎ</td>
+                <td>แสดงชั้นเหรียญและความคืบหน้า</td>
+                <td>ผู้ใช้บน Mini App; หน้าแชร์มีแค่ชื่อ/รูปกฎ</td>
+              </tr>
+              <tr>
+                <td>บันทึกการคำนวณ (legacy)</td>
+                <td>
+                  <code>customer_line_uuid_hash</code>,
+                  จำนวน SKU,
+                  <code>earned_badges_json</code> (รหัสเหรียญ ไม่มีซีเรียล)
+                </td>
+                <td>เส้นทาง <code>/api/customer-products</code></td>
+                <td>ตรวจสอบการทำงาน ไม่ใช่คลังลูกค้า</td>
+                <td>ผู้มีสิทธิ์เข้า MySQL</td>
+              </tr>
+              <tr>
+                <td>ข้อมูลที่รับแล้วไม่ใช้</td>
+                <td><code>warrantyExpiryDate</code></td>
+                <td>Sony APIM</td>
+                <td>—</td>
+                <td>ตัวแปลงปัจจุบันทิ้งค่านี้ ไม่แสดง ไม่เก็บ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="pdpa-data-inventory-retention-retention">
+        <h2>ระยะเวลาจัดเก็บ (Retention)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>อายุที่ระบบกำหนด vs สิ่งที่ยังไม่มีนโยบายในโค้ด</caption>
+            <thead>
+              <tr>
+                <th>ที่เก็บ</th>
+                <th>ข้อมูล</th>
+                <th>ระยะเวลาในโค้ด</th>
+                <th>หมดอายุอัตโนมัติหรือไม่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>หน่วยความจำ request (เซิร์ฟเวอร์)</td>
+                <td>warranty JSON, LINE ID ตอนคำนวณ</td>
+                <td>จบ request</td>
+                <td>ใช่ — ไม่เขียนตารางสินค้า</td>
+              </tr>
+              <tr>
+                <td>Cookie <code>sony_line_session</code></td>
+                <td>LINE ID + <code>expiresAt</code> (base64 + HMAC)</td>
+                <td>1 ชั่วโมง (<code>Max-Age=3600</code>)</td>
+                <td>ใช่ — เบราว์เซอร์ทิ้งคุกกี้; เซิร์ฟเวอร์ปฏิเสธเมื่อหมดอายุ</td>
+              </tr>
+              <tr>
+                <td><code>sessionStorage</code> คีย์ <code>sony_line_uuid</code></td>
+                <td>LINE user ID ดิบ</td>
+                <td>จนปิดแท็บ</td>
+                <td>ใช่ ตามพฤติกรรมเบราว์เซอร์ ไม่มีปุ่มลบในแอป</td>
+              </tr>
+              <tr>
+                <td><code>localStorage</code> <code>sonyBadgeCache:v1</code></td>
+                <td>ผลเหรียญเส้นทาง legacy + cache key ที่เป็น hash</td>
+                <td>จนกว่าจะไม่ตรง <code>badge_rules_version</code> หรือโค้ดลบคีย์</td>
+                <td>บางส่วน — invalidate เมื่อกฎเปลี่ยน; ไม่มี TTL ปฏิทิน</td>
+              </tr>
+              <tr>
+                <td>MySQL <code>badge_calculation_logs</code></td>
+                <td>HMAC ของ LINE ID และสรุปเหรียญ</td>
+                <td>ไม่กำหนด</td>
+                <td>ไม่ — ไม่มี job ลบหรือ archive</td>
+              </tr>
+              <tr>
+                <td>Cache กฎในโปรเซส</td>
+                <td>กฎเหรียญ ไม่ใช่ข้อมูลลูกค้า</td>
+                <td>60 วินาที</td>
+                <td>ใช่</td>
+              </tr>
+              <tr>
+                <td>Sony warranty (นอกแอป)</td>
+                <td>สินค้าที่ลูกค้าลงทะเบียน</td>
+                <td>อยู่ที่นโยบาย Sony</td>
+                <td>แอปนี้ไม่ควบคุม</td>
+              </tr>
+              <tr>
+                <td>App Service / stdout logs</td>
+                <td>อาจมี LINE ID ดิบจาก <code>console.log</code> บางจุด</td>
+                <td>ตามการตั้งค่า Azure / แพลตฟอร์ม</td>
+                <td>แอปไม่ลบ log โครงสร้างพื้นฐาน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          หน้า Mini App ปัจจุบัน (<code>/api/my-*</code>) ใช้ <code>cache: "no-store"</code>
+          จึงไม่เก็บผลเหรียญลง <code>localStorage</code>
+        </div>
+      </section>
+
+      <section id="pdpa-data-inventory-retention-deletion">
+        <h2>แนวทางลบข้อมูล (Deletion)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>สิ่งที่ทำได้อัตโนมัติ vs ที่ต้องทำด้วยปฏิบัติการ</caption>
+            <thead>
+              <tr>
+                <th>ข้อมูล</th>
+                <th>แนวทางลบที่มีในระบบ</th>
+                <th>แนวทางปฏิบัติการที่ยังต้องกำหนด</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE ID token</td>
+                <td>ไม่เก็บหลัง verify — ไม่มีสำเนาให้ลบ</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>Cookie session</td>
+                <td>หมดอายุใน 1 ชั่วโมง; ผู้ใช้ล้างคุกกี้ของโดเมนได้</td>
+                <td>ไม่มี endpoint เพิกถอน session ทั้งเครื่อง</td>
+              </tr>
+              <tr>
+                <td>sessionStorage LINE ID</td>
+                <td>หายเมื่อปิดแท็บ; มีฟังก์ชัน <code>clearStoredLineUuid</code> ในโค้ดแต่ไม่ได้ผูกปุ่มลบบัญชี</td>
+                <td>ถ้าต้องการลบตอน logout ให้เรียกเคลียร์ storage และไม่ใส่ lineuuid ใน URL</td>
+              </tr>
+              <tr>
+                <td>ผลเหรียญในเบราว์เซอร์ (legacy cache)</td>
+                <td>โค้ดลบคีย์เมื่อ cache ไม่ตรงหรือโหลดไม่สำเร็จ</td>
+                <td>ผู้ใช้ล้างข้อมูลเว็บไซต์ได้เอง</td>
+              </tr>
+              <tr>
+                <td>สินค้า / ซีเรียลใน MySQL ของแอป</td>
+                <td>ไม่มีแถวให้ลบ — แอปไม่ persist</td>
+                <td>แก้หรือลบที่ระบบลงทะเบียนสินค้าของ Sony</td>
+              </tr>
+              <tr>
+                <td><code>badge_calculation_logs</code></td>
+                <td>ไม่มีงานลบอัตโนมัติ</td>
+                <td>
+                  ผู้ดูแล DB ลบตามช่วงเวลา เช่น
+                  <code>DELETE FROM badge_calculation_logs WHERE created_at &lt; ...</code>
+                  หรือลบแถวที่ hash ตรงกับเจ้าของข้อมูล
+                  (ต้องมี <code>LOG_HASH_SECRET</code> ชุดเดียวกับตอนเขียน)
+                </td>
+              </tr>
+              <tr>
+                <td>กฎเหรียญ</td>
+                <td>ไม่ลบตามคำขอลูกค้า — ไม่ใช่ข้อมูลบุคคล</td>
+                <td>ปิดด้วย <code>is_active = false</code> ผ่าน seed ที่รีวิว</td>
+              </tr>
+              <tr>
+                <td>สำเนาใน log โครงสร้างพื้นฐาน</td>
+                <td>แอปไม่จัดการ</td>
+                <td>นโยบาย retention ของ Azure App Service / SIEM ของ Sony</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>เมื่อมีคำขอลบจากเจ้าของข้อมูล</h3>
+        <ol>
+          <li>ยืนยันตัวตนกับกระบวนการ PDPA ของ Sony ไม่ใช้ Mini App เป็นช่องรับคำขอ</li>
+          <li>ลบหรือแก้ความเป็นเจ้าของสินค้าที่ warranty / ระบบลงทะเบียนของ Sony (แหล่งข้อมูลหลัก)</li>
+          <li>ถ้ายังเก็บ log การคำนวณ: คำนวณ HMAC ของ LINE ID ด้วย secret ปัจจุบัน แล้วลบแถวใน <code>badge_calculation_logs</code></li>
+          <li>แจ้งว่า cookie และ sessionStorage อยู่บนเครื่องผู้ใช้ — แนะนำให้ล้างข้อมูลเว็บของโดเมน Mini App</li>
+          <li>ตรวจ log แพลตฟอร์มหากช่วงนั้นมี <code>console.log</code> ของ LINE ID ดิบ</li>
+        </ol>
+        <div class="note warn">
+          Pilot ยังไม่มี retention job, ไม่มีหน้าลบบัญชี และไม่ลบ hash log อัตโนมัติ
+          ต้องกำหนดระยะเก็บ (เช่น 90 วัน) นอกโค้ดแล้วให้ผู้ดูแล DB ทำให้สอดคล้องก่อนขึ้น production กว้าง
+        </div>
+      </section>
+</section>
+
+  </main>
+</body>
+</html>

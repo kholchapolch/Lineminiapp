@@ -1,0 +1,2957 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Badge Issues Summary — Sony Badge Pilot</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 12px; color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+svg, img { max-width: 100%; height: auto; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#badge-rule-specification">Badge Rule Specification</a>
+<a href="#calculation-logic">Calculation Logic Document</a>
+<a href="#logic-decision-table">Logic Decision Table</a>
+<a href="#product-badge-mapping">Product</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>Badge Issues Summary</h1>
+      <p class="lede">
+        รวมและสรุปเอกสารในโฟลเดอร์ <code>docs/badge_issues/</code>
+        เป็นไฟล์เดียวสำหรับอ่าน/แชร์
+      </p>
+      <p>
+        ครอบคลุมสเปกกฎเหรียญ, ตรรกะการคำนวณ, ตารางตัดสินใจ
+        และการแมปรุ่นสินค้ากับเหรียญ
+      </p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li><a href="#badge-rule-specification">Badge Rule Specification</a><span>สเปกกฎ Product / Quest และการจับคู่ SKU</span></li>
+<li><a href="#calculation-logic">Calculation Logic Document</a><span>ตรรกะการคำนวณเหรียญจากสินค้าที่ถือครอง</span></li>
+<li><a href="#logic-decision-table">Logic Decision Table</a><span>ตารางตัดสินใจเงื่อนไขปลดล็อกเหรียญ</span></li>
+<li><a href="#product-badge-mapping">Product–Badge Mapping</a><span>แมปรุ่นสินค้า ↔ Product Badge / Quest</span></li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        Product Badge = หนึ่งรุ่นหนึ่งเหรียญ; Quest Badge = นับรุ่นไม่ซ้ำตามเงื่อนไข
+        <code>any</code> / <code>all</code> / <code>min_count</code> และ tier;
+        การคำนวณทำในแอปจาก SKU ที่ถือครอง แล้วเทียบกับตารางกฎใน MySQL
+      </div>
+    </header>
+    
+<section class="doc" id="badge-rule-specification">
+  <p class="doc-source">แหล่งที่มา: <code>badge-rule-specification.html</code> — สเปกกฎ Product / Quest และการจับคู่ SKU</p>
+  <header class="hero">
+        <h2 class="doc-heading">Badge Rule Specification</h2>
+        <p class="lede">
+          เงื่อนไขการได้รับ Product Badge, Quest Badge และ Tier
+          ตามกฎที่ seed ในฐานข้อมูลและเครื่องคำนวณในแอป
+        </p>
+        <p>
+          เวอร์ชันกฎ: <code>2026-07-24-product-urls-001</code>
+          แหล่ง: <code>scripts/db/seed-data.mjs</code> ·
+          เครื่องคำนวณ: <code>src/lib/badge-engine.ts</code>,
+          <code>src/lib/badge-experience.ts</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#badge-rule-specification-overview">ภาพรวม (Overview)</a></li>
+            <li><a href="#badge-rule-specification-match">วิธีจับคู่ SKU</a></li>
+            <li><a href="#badge-rule-specification-product">Product Badge</a></li>
+            <li><a href="#badge-rule-specification-quest">Quest Badge</a></li>
+            <li><a href="#badge-rule-specification-tier">Tier (Bronze / Silver / Gold)</a></li>
+            <li><a href="#badge-rule-specification-engine">สถานะในเครื่องคำนวณ</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="badge-rule-specification-overview">
+        <h2>ภาพรวม (Overview)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>Product Badge</strong>
+            หนึ่งกฎต่อหนึ่งรุ่น · ปลดล็อกเมื่อมีอย่างน้อยหนึ่ง serial ที่จับคู่ SKU ได้
+            จำนวน serial ไม่ทำให้ได้เหรียญซ้ำ แต่แสดงเป็น <code>quantity</code>
+          </div>
+          <div class="box">
+            <strong>Quest Badge</strong>
+            เงื่อนไขหลายรุ่น · นับ <strong>unique SKU</strong> ไม่นับ serial ซ้ำของรุ่นเดียวกัน
+          </div>
+          <div class="box">
+            <strong>Tier</strong>
+            Quest สามรายการใช้ <code>ruleType: tier</code>
+            Bronze / Silver / Gold จากจำนวนรุ่น unique ที่สะสมได้
+          </div>
+        </div>
+        <p>
+          ชุดปัจจุบัน: 56 Product Badge + 8 Quest
+          (3 แบบมี tier, 5 แบบ achievement ชั้นเดียว)
+        </p>
+        <div class="note">
+          ทุกกฎใน seed ตั้ง <code>isActive</code> ใช้งาน,
+          <code>activeFrom</code> / <code>activeTo</code> /
+          <code>registrationStart</code> / <code>registrationEnd</code> เป็น null
+          จึงยังไม่มีหน้าต่างวันที่จำกัด
+          <code>warrantyExpiryDate</code> จาก Sony <strong>ไม่ใช้</strong>
+        </div>
+      </section>
+
+      <section id="badge-rule-specification-match">
+        <h2>วิธีจับคู่ SKU และวันที่ (Matching)</h2>
+        <ol>
+          <li>
+            ใช้ <code>modelName</code> จาก warranty เป็น SKU ภายใน
+            เปรียบเทียบแบบ uppercase / trim
+          </li>
+          <li>
+            ตรงทั้งรหัส หรือรหัสกฎตามด้วย suffix ภูมิภาค
+            (<code>/QSYX</code>, <code>QSYX</code>, <code> SYX</code>, <code>/CSYX</code> ฯลฯ)
+          </li>
+          <li>
+            ไม่ต่อท้ายด้วยตัวอักษรรุ่นอื่น เช่น
+            <code>SEL70200GM</code> ไม่ตรงกฎ <code>SEL70200G</code>
+          </li>
+          <li>
+            ถ้ามีหน้าต่างลงทะเบียน ใช้เฉพาะ <code>registrationDate</code>
+            ที่อยู่ในช่วง (รวมวันเริ่มและวันสิ้นสุด ตาม UTC วันที่)
+          </li>
+        </ol>
+        <p>
+          ประเภทเงื่อนไข (<code>matchType</code>):
+        </p>
+        <ul>
+          <li>
+            <code>any</code> — นับ unique SKU ในรายการ สูงสุดเท่า
+            <code>requiredCount</code> ของเงื่อนไขนั้น (มักเป็น 1)
+          </li>
+          <li>
+            <code>all</code> — ต้องครบทุกรุ่นในรายการ
+            เครื่องคำนวณใช้ <code>requiredCount = ความยาวรายการ SKU</code>
+          </li>
+          <li>
+            <code>min_count</code> — นับ unique SKU ในรายการ
+            เทียบกับ <code>requiredCount</code>
+          </li>
+        </ul>
+        <p>
+          ถ้ากฎมีหลายเงื่อนไข (เช่น Trinity Master) ค่า
+          <code>matchedCount</code> คือผลรวมของแต่ละเงื่อนไข
+          สินค้าชิ้นเดียวถูกนับในเงื่อนไขที่ตรงได้ แต่ไม่นับสองครั้งใน Map แสดงผล
+        </p>
+      </section>
+
+      <section id="badge-rule-specification-product">
+        <h2>Product Badge</h2>
+        <h3>เงื่อนไขได้รับ (Earn rule)</h3>
+        <ul>
+          <li>
+            <code>badgeType: product</code>, <code>ruleType: achievement</code>
+          </li>
+          <li>
+            เงื่อนไขเดียว: <code>any</code> / <code>requiredCount: 1</code>
+            SKU = <code>productModelCode</code> ของกฎนั้น
+          </li>
+          <li>
+            เกณฑ์: <code>level: achievement</code>, <code>requiredCount: 1</code>
+          </li>
+          <li>
+            Mini App: <code>unlocked</code> เมื่อมีอย่างน้อยหนึ่ง registration ที่จับคู่ได้
+            <code>earnedAt</code> = วันที่ลงทะเบียนที่เก่าที่สุดของรุ่นนั้น
+          </li>
+          <li>
+            serial เพิ่มของรุ่นเดียวกันเพิ่ม <code>quantity</code> และรายการ registrations
+            ไม่สร้าง Product Badge แถวใหม่
+          </li>
+        </ul>
+        <div class="note warn">
+          <code>SEL1224GM</code> อยู่ใน Quest Wide Architect เท่านั้น
+          ไม่มีแถว Product Badge
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>กลุ่มสินค้า (56 รุ่น) — หนึ่งเหรียญต่อรหัส</caption>
+            <thead>
+              <tr>
+                <th>กลุ่ม (Group)</th>
+                <th>จำนวน</th>
+                <th>รหัสรุ่นที่เป็นเงื่อนไข (Eligible model codes)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Full Frame Camera<br /><code>full-frame-camera</code></td>
+                <td>10</td>
+                <td class="skus">
+                  ILCE-1M2, ILCE-9M3, ILCE-7RM5, ILCE-7M5, ILCE-7M4,
+                  ILCE-7M3, ILCE-7CM2, ILCE-7C, ILCE-7CR, ILCE-7SM3
+                </td>
+              </tr>
+              <tr>
+                <td>Prime Lens<br /><code>prime-lens</code></td>
+                <td>14</td>
+                <td class="skus">
+                  SEL30M35, SEL135F18GM, SEL14F18GM, SEL16F18G, SEL20F18G,
+                  SEL24F14GM, SEL24F28G, SEL35F14GM, SEL35F18F, SEL50F12GM,
+                  SEL50F14GM, SEL50M28, SEL85F14GM, SEL85F14GM2
+                </td>
+              </tr>
+              <tr>
+                <td>Wide &amp; Normal Zoom<br /><code>wide-normal-zoom-lens</code></td>
+                <td>18</td>
+                <td class="skus">
+                  SEL1655G, SEL55210, SELP18110G, SEL1625G, SEL1635GM, SEL1635GM2,
+                  SEL2070G, SEL24105G, SEL2450G, SEL2470GM, SEL2470GM2, SEL2870GM,
+                  SEL50150GM, SELC1635G, SELP1635G, SELP28135G, SEL1635Z, SEL2470Z
+                </td>
+              </tr>
+              <tr>
+                <td>Telephoto<br /><code>telephoto-super-telephoto-lens</code></td>
+                <td>12</td>
+                <td class="skus">
+                  SEL70350G, SEL100400MC, SEL100400GM, SEL200600G, SEL300F28GM,
+                  SEL400800G, SEL400F28GM, SEL600F40GM, SEL70200GM, SEL70200GM2,
+                  SEL70200G, SEL70200G2
+                </td>
+              </tr>
+              <tr>
+                <td>Macro Lens<br /><code>macro-lens</code></td>
+                <td>2</td>
+                <td class="skus">SEL100M28GM, SEL90M28G</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          รหัสกฎ: <code>product-{model ตัวพิมพ์เล็ก}</code>
+          เช่น <code>product-ilce-7m4</code>, <code>product-sel35f14gm</code>
+        </p>
+      </section>
+
+      <section id="badge-rule-specification-quest">
+        <h2>Quest Badge</h2>
+        <p>
+          ทุก Quest อยู่ในกลุ่มแสดงผล <code>quest</code>
+          เงื่อนไขด้านล่างคือชุดที่ seed แล้ว
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Quest แบบสะสม (tier) — นับ unique รุ่นในรายการ</caption>
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อ</th>
+                <th>matchType</th>
+                <th>Bronze / Silver / Gold</th>
+                <th>รายการรุ่นที่นับได้ (Eligible SKUs)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>portrait-master</code></td>
+                <td>Portrait Master</td>
+                <td><code>min_count</code></td>
+                <td>2 / 3 / 4</td>
+                <td class="skus">
+                  SEL35F14GM, SEL50F14GM, SEL50F12GM, SEL85F14GM, SEL85F14GM2,
+                  SEL100M28GM, SEL135F18GM
+                </td>
+              </tr>
+              <tr>
+                <td><code>wide-architect</code></td>
+                <td>Wide Architect</td>
+                <td><code>min_count</code></td>
+                <td>3 / 4 / 5</td>
+                <td class="skus">
+                  SEL1224GM, SEL14F18GM, SEL16F18G, SEL20F18G, SEL1625G,
+                  SEL1635GM, SEL1635GM2, SEL1635Z, SEL2470GM, SEL2470GM2,
+                  SEL2450G, SELC1635G, SEL1655G, SEL2070G, SEL24105G, SEL2470Z,
+                  SEL24F14GM, SEL24F28G, SEL2870GM, SEL35F14GM, SEL35F18F,
+                  SELP1635G, SELP18110G, SELP28135G
+                </td>
+              </tr>
+              <tr>
+                <td><code>the-visionary</code></td>
+                <td>The Visionary</td>
+                <td><code>min_count</code></td>
+                <td>2 / 3 / 4</td>
+                <td class="skus">
+                  SEL100400GM, SEL400800G, SEL200600G, SEL300F28GM, SEL400F28GM,
+                  SEL600F40GM, SEL70350G, SEL55210, SEL100400MC
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          เงื่อนไข <code>min_count</code> ในฐานข้อมูลตั้ง
+          <code>requiredCount</code> เท่ากับเป้า Gold (4, 5, 4)
+          ชั้น Bronze/Silver ใช้เกณฑ์ต่ำกว่าบน <code>matchedCount</code> เดียวกัน
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Quest แบบชุด (achievement) — ชั้นเดียว</caption>
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อ</th>
+                <th>ตรรกะ</th>
+                <th>ต้องครบ</th>
+                <th>รายการ / ครอบครัว</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>trinity-master</code></td>
+                <td>Trinity Master</td>
+                <td>สามเงื่อนไข <code>any</code> × 1</td>
+                <td>3 (ครอบครัวละ 1)</td>
+                <td class="skus">
+                  16–35 GM: SEL1635GM หรือ SEL1635GM2<br />
+                  24–70 GM: SEL2470GM หรือ SEL2470GM2<br />
+                  70–200 GM: SEL70200GM หรือ SEL70200GM2<br />
+                  สองเวอร์ชันในครอบครัวเดียวกันนับได้เพียง 1
+                </td>
+              </tr>
+              <tr>
+                <td><code>trinity-junior</code></td>
+                <td>Trinity Junior</td>
+                <td><code>all</code></td>
+                <td>3 จาก 3</td>
+                <td class="skus">SEL2450G, SEL1625G, SEL70200G2</td>
+              </tr>
+              <tr>
+                <td><code>all-rounder</code></td>
+                <td>All Rounder</td>
+                <td><code>min_count</code></td>
+                <td>3 จาก 4</td>
+                <td class="skus">SEL2070G, SELP1635G, SEL1635Z, SEL70200G</td>
+              </tr>
+              <tr>
+                <td><code>f2-master</code></td>
+                <td>F2 Master</td>
+                <td><code>all</code></td>
+                <td>2 จาก 2</td>
+                <td class="skus">SEL2870GM, SEL50150GM</td>
+              </tr>
+              <tr>
+                <td><code>the-magnifier</code></td>
+                <td>The Magnifier</td>
+                <td><code>any</code> × 1</td>
+                <td>1 จาก 4</td>
+                <td class="skus">SEL100M28GM, SEL90M28G, SEL50M28, SEL30M35</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="badge-rule-specification-tier">
+        <h2>Tier (Bronze / Silver / Gold)</h2>
+        <p>
+          ใช้เฉพาะ Quest ที่ <code>ruleType: tier</code>
+          Product Badge ไม่มีชั้นโลหะ — มีแค่ปลดล็อก / ล็อก
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>เกณฑ์จำนวน unique รุ่น (Unique model count)</caption>
+            <thead>
+              <tr>
+                <th>Quest</th>
+                <th>Bronze</th>
+                <th>Silver</th>
+                <th>Gold</th>
+                <th>ขนาดพูลสูงสุดในรายการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Portrait Master</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>7 รุ่น</td>
+              </tr>
+              <tr>
+                <td>Wide Architect</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>24 รุ่น (รวม SEL1224GM)</td>
+              </tr>
+              <tr>
+                <td>The Visionary</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>9 รุ่น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>สถานะแต่ละชั้นบน Mini App</h3>
+        <ul>
+          <li>
+            <code>achieved</code> — <code>matchedCount ≥ requiredCount</code> ของชั้นนั้น
+            <code>earnedAt</code> = วันที่ลงทะเบียนของรุ่นที่ทำให้ถึงเกณฑ์
+            (เรียงวันที่ แล้วหยิบชิ้นที่ลำดับเท่าเกณฑ์)
+          </li>
+          <li>
+            <code>in-progress</code> — ชั้นถัดจากชั้นสูงสุดที่ได้แล้ว
+            หรือชั้นแรกเมื่อมี matchedCount &gt; 0 แต่ยังไม่ถึง Bronze
+          </li>
+          <li>
+            <code>locked</code> — ชั้นที่ไกลกว่านั้น หรือยังไม่มีรุ่นที่นับได้เลย
+          </li>
+        </ul>
+        <p>
+          <code>highestEarnedTier</code> คือชั้น <code>achieved</code> ที่สูงสุด
+          หน้า my-badges โชว์ภารกิจล่าสุดจากวันที่ของชั้นนี้
+        </p>
+        <div class="note">
+          ได้ Gold แล้วยังคงถือ Bronze และ Silver เป็น achieved ด้วย
+          ไม่มีการลดชั้นเมื่อสินค้าหายจาก warranty ในรอบถัดไปจนกว่า Sony จะไม่ส่งรุ่นนั้นมา
+        </div>
+      </section>
+
+      <section id="badge-rule-specification-engine">
+        <h2>สถานะในเครื่องคำนวณ (Engine vs Mini App)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>คำศัพท์สถานะ</caption>
+            <thead>
+              <tr>
+                <th>ชั้น</th>
+                <th>ค่า</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>calculateBadges</code></td>
+                <td><code>earned</code></td>
+                <td>ถึงเกณฑ์อย่างน้อยหนึ่ง threshold</td>
+              </tr>
+              <tr>
+                <td><code>calculateBadges</code></td>
+                <td><code>locked</code></td>
+                <td>มี matchedCount &gt; 0 แต่ยังไม่ถึงเกณฑ์ต่ำสุด</td>
+              </tr>
+              <tr>
+                <td><code>calculateBadges</code></td>
+                <td><code>no-badge</code></td>
+                <td>matchedCount = 0</td>
+              </tr>
+              <tr>
+                <td>Product Mini App</td>
+                <td><code>unlocked</code> / <code>locked</code></td>
+                <td>มี serial ที่จับคู่ได้หรือไม่มี</td>
+              </tr>
+              <tr>
+                <td>Quest Mini App</td>
+                <td>ดูตาราง Tier</td>
+                <td>แยกสถานะรายชั้น ไม่ใช้คำว่า earned</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          กฎที่ <code>isActive = false</code> หรืออยู่นอก
+          <code>activeFrom</code>–<code>activeTo</code> จะไม่ปรากฏในประสบการณ์ Mini App
+          ถ้าเคยได้เหรียญแล้วแต่ปิดการแสดงผลทั้งกฎ เหรียญจะหายจากรายการ
+          (ต่างจากหน้าต่างลงทะเบียนที่ยังคงเหรียญถ้าสินค้าลงทะเบียนในช่วงที่กำหนด)
+        </p>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="calculation-logic">
+  <p class="doc-source">แหล่งที่มา: <code>calculation-logic.html</code> — ตรรกะการคำนวณเหรียญจากสินค้าที่ถือครอง</p>
+  <header class="hero">
+        <h2 class="doc-heading">Calculation Logic Document</h2>
+        <p class="lede">
+          วิธีนับ Product Model, Unique Model, Threshold, การเลื่อนชั้น (Tier Upgrade)
+          และกรณีสินค้าซ้ำ
+        </p>
+        <p>
+          แหล่งตรรกะ: <code>uniqueEligibleProducts</code> /
+          <code>calculateRuleMatch</code> ใน
+          <code>src/lib/badge-engine.ts</code> ·
+          Product quantity ใน
+          <code>src/lib/badge-experience.ts</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#calculation-logic-units">หน่วยที่นับ (Units)</a></li>
+            <li><a href="#calculation-logic-product">Product Model</a></li>
+            <li><a href="#calculation-logic-unique">Unique Model</a></li>
+            <li><a href="#calculation-logic-threshold">Threshold</a></li>
+            <li><a href="#calculation-logic-upgrade">Tier Upgrade</a></li>
+            <li><a href="#calculation-logic-duplicate">สินค้าซ้ำ (Duplicates)</a></li>
+            <li><a href="#calculation-logic-examples">ตัวอย่างคำนวณ</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="calculation-logic-units">
+        <h2>หน่วยที่นับ (What is counted)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>Warranty row</strong>
+            หนึ่งแถวจาก Sony = หนึ่ง serial + <code>modelName</code> + วันที่ลงทะเบียน
+          </div>
+          <div class="box">
+            <strong>Product Model (แถวสินค้า)</strong>
+            ใช้บน Product Badge · นับทุก serial ที่จับคู่รุ่นนั้นได้
+          </div>
+          <div class="box">
+            <strong>Unique Model</strong>
+            ใช้บน Quest / Threshold · นับรหัสรุ่นที่ normalize แล้วไม่ซ้ำ
+          </div>
+        </div>
+        <p>
+          กุญแจ unique คือ <code>normalizeSku(modelName)</code> =
+          ตัดช่องว่างหัวท้ายแล้วทำเป็นตัวพิมพ์ใหญ่
+          <code>LENS-A</code> กับ <code>lens-a</code> คือรุ่นเดียวกัน
+        </p>
+        <div class="note warn">
+          ไม่ยุบ suffix ภูมิภาคเข้ากุญแจเดียวกัน
+          <code>SEL35F14GM</code> กับ <code>SEL35F14GM/QSYX</code>
+          เป็นสอง unique model ใน Quest แบบ <code>min_count</code>
+          ทั้งที่ทั้งคู่จับคู่กฎ <code>SEL35F14GM</code> ได้
+        </div>
+      </section>
+
+      <section id="calculation-logic-product">
+        <h2>การนับ Product Model</h2>
+        <p>
+          สำหรับกฎ <code>badgeType: product</code> Mini App ไม่ใช้
+          <code>calculateRuleMatch</code> เพื่อปลดล็อก
+          กรองทุกแถว warranty ที่
+        </p>
+        <ol>
+          <li><code>matchesEligibleSku(sku, rule.skus)</code> เป็นจริง</li>
+          <li>วันที่ลงทะเบียนอยู่ในหน้าต่างของกฎ (ถ้ามี)</li>
+        </ol>
+        <p>แล้วเรียงวันที่จากเก่าไปใหม่</p>
+        <div class="tableWrap">
+          <table>
+            <caption>ฟิลด์ที่ได้</caption>
+            <thead>
+              <tr>
+                <th>ฟิลด์</th>
+                <th>สูตร</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>quantity</code></td>
+                <td>จำนวนแถวที่ผ่านตัวกรอง (นับ serial ซ้ำได้)</td>
+              </tr>
+              <tr>
+                <td><code>registrations</code></td>
+                <td>รายการ serial + วันที่ทั้งหมด</td>
+              </tr>
+              <tr>
+                <td><code>earnedAt</code></td>
+                <td>วันที่ของแถวแรกหลังเรียง (ลงทะเบียนเก่าสุด)</td>
+              </tr>
+              <tr>
+                <td>สถานะ</td>
+                <td>
+                  <code>unlocked</code> เมื่อ <code>quantity ≥ 1</code>
+                  ไม่เช่นนั้น <code>locked</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          เกณฑ์ในฐานข้อมูลของ Product Badge คือ
+          <code>requiredCount: 1</code> แต่ UI ไม่แสดง progress แบบ Quest
+        </p>
+      </section>
+
+      <section id="calculation-logic-unique">
+        <h2>การนับ Unique Model</h2>
+        <p>
+          ฟังก์ชัน <code>uniqueEligibleProducts</code> เดินรายการสินค้าตามลำดับที่ Sony ส่งมา
+          เก็บแถวแรกต่อหนึ่งกุญแจ <code>normalizeSku</code> ที่
+        </p>
+        <ul>
+          <li>จับคู่รายการ SKU ของเงื่อนไขหรือของกฎได้</li>
+          <li>ผ่านหน้าต่างวันที่ลงทะเบียน</li>
+        </ul>
+        <p>
+          ความยาวของ Map นี้คือจำนวน unique ที่เข้าเงื่อนไขนั้น
+        </p>
+        <h3>รวมหลายเงื่อนไข (<code>calculateRuleMatch</code>)</h3>
+        <ol>
+          <li>
+            แต่ละเงื่อนไขสร้างชุด unique ของตัวเองจาก
+            <code>condition.sonySkus</code>
+          </li>
+          <li>เรียงชุดนั้นตาม <code>registeredAt</code></li>
+          <li>
+            เพดานการนับ:
+            <code>all</code> ใช้ความยาวรายการ SKU ·
+            <code>any</code> / <code>min_count</code> ใช้
+            <code>requiredCount</code> ของเงื่อนไข
+          </li>
+          <li>
+            <code>matchedCount += min(จำนวน unique ของเงื่อนไข, เพดาน)</code>
+          </li>
+          <li>
+            เก็บสินค้าที่ถูกนับจริงไว้ใน Map รวม (เช่น <code>any</code> ที่เพดาน 1
+            เก็บแค่รุ่นแรกตามวันที่)
+          </li>
+        </ol>
+        <p>
+          Trinity Master จึงนับได้สูงสุด 3 แม้ลูกค้าจะมีทั้ง GM และ GM II ในทุกครอบครัว
+        </p>
+      </section>
+
+      <section id="calculation-logic-threshold">
+        <h2>Threshold</h2>
+        <p>
+          แต่ละกฎมีหนึ่งแถวขึ้นไปใน <code>badge_rule_thresholds</code>
+          เรียงด้วย <code>requiredCount</code> แล้วตาม <code>sortOrder</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>สูตรเทียบเกณฑ์</caption>
+            <thead>
+              <tr>
+                <th>ค่า</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>เกณฑ์ที่ถึงแล้ว</td>
+                <td>ทุก threshold ที่ <code>matchedCount ≥ requiredCount</code></td>
+              </tr>
+              <tr>
+                <td>ชั้นที่แสดงเป็น earned (engine)</td>
+                <td>threshold ที่ถึงแล้วซึ่ง <code>requiredCount</code> สูงสุด</td>
+              </tr>
+              <tr>
+                <td>เกณฑ์ถัดไป</td>
+                <td>threshold แรกที่ <code>matchedCount &lt; requiredCount</code></td>
+              </tr>
+              <tr>
+                <td><code>remainingCount</code></td>
+                <td>
+                  <code>max(requiredCount ของเกณฑ์ที่ใช้อ้างอิง − matchedCount, 0)</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>progress</code></td>
+                <td>
+                  <code>min(100, round(matchedCount / requiredCount × 100))</code>
+                  ถ้า <code>requiredCount ≤ 0</code> ให้ 100
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          บน Mini App แต่ละชั้น Quest แสดง
+          <code>matchedCount</code> ที่ตัดเพดานที่เกณฑ์ชั้นนั้น
+          (<code>min(matchedCount, requiredCount)</code>)
+          ดังนั้นชั้น Bronze ที่เกณฑ์ 2 เมื่อมี 4 รุ่นจะโชว์ความคืบหน้า 2/2 ไม่ใช่ 4/2
+        </p>
+      </section>
+
+      <section id="calculation-logic-upgrade">
+        <h2>Tier Upgrade</h2>
+        <p>
+          ไม่มีตารางประวัติชั้นแยก
+          ทุกครั้งที่โหลดหน้าจะคำนวณใหม่จากรายการ warranty ปัจจุบัน
+        </p>
+        <ol>
+          <li>คำนวณ <code>matchedCount</code> ของ Quest</li>
+          <li>
+            ชั้นใดที่ <code>matchedCount ≥ requiredCount</code> เป็น
+            <code>achieved</code> พร้อมกันทั้งหมด (Bronze ไม่หายเมื่อได้ Gold)
+          </li>
+          <li>
+            ชั้นถัดจากชั้นสูงสุดที่ได้แล้วเป็น <code>in-progress</code>
+            ถ้ายังมีเกณฑ์ที่สูงกว่า
+          </li>
+          <li>
+            ถ้ายังไม่ได้แม้ Bronze แต่ <code>matchedCount &gt; 0</code>
+            ชั้นแรกเป็น <code>in-progress</code>
+          </li>
+          <li>
+            วันที่ได้แต่ละชั้น: เรียงสินค้าทั้งก้อนตามวันที่ แล้วค่อยใส่ทีละชิ้น
+            จน <code>calculateRuleMatch</code> ของ prefix นั้น ≥ เกณฑ์ชั้น
+            วันที่ของชิ้นที่ทำให้ถึงเกณฑ์คือ <code>earnedAt</code>
+          </li>
+        </ol>
+        <p>
+          ไม่มี “downgrade event”
+          ถ้า Sony เลิกรายการรุ่นในรอบถัดไป <code>matchedCount</code> จะลด
+          และชั้นที่เคยได้ใน UI อาจกลับเป็น locked / in-progress
+          เพราะไม่มี persist ชั้นที่เคยถึง
+        </p>
+        <div class="note">
+          Quest แบบ <code>ruleType: achievement</code> มี threshold เดียว
+          ไม่มีเส้นทางเลื่อน Bronze→Silver→Gold
+        </div>
+      </section>
+
+      <section id="calculation-logic-duplicate">
+        <h2>กรณีสินค้าซ้ำ (Duplicate products)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ผลต่อตัวนับ</caption>
+            <thead>
+              <tr>
+                <th>สถานการณ์</th>
+                <th>Product Badge</th>
+                <th>Quest / Unique / Tier</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  สอง serial รหัสรุ่นเดียวกัน
+                  (ตัวพิมพ์ต่างกันถือว่ารุ่นเดียวกัน)
+                </td>
+                <td><code>quantity = 2</code> ปลดล็อกหนึ่งเหรียญ</td>
+                <td>นับ 1 unique ไม่ช่วยเลื่อนชั้น</td>
+              </tr>
+              <tr>
+                <td>สองเวอร์ชันในครอบครัว Trinity (GM และ GM II)</td>
+                <td>สอง Product Badge คนละรุ่น</td>
+                <td>
+                  เงื่อนไข <code>any</code> เพดาน 1 นับได้ 1 ต่อครอบครัว
+                </td>
+              </tr>
+              <tr>
+                <td>รุ่นเดียวกันปรากฏสองครั้งใน payload ตามลำดับ Sony</td>
+                <td>นับทั้งสองแถวถ้า serial ต่าง</td>
+                <td>
+                  unique เก็บแถวแรกในลำดับ payload
+                  (ไม่จำเป็นต้องเป็นวันที่เก่าสุด)
+                </td>
+              </tr>
+              <tr>
+                <td>รหัสฐานเดียวกันแต่ suffix แคตตาล็อกต่างกัน</td>
+                <td>จับคู่ Product Badge ของรหัสฐานได้ทั้งคู่</td>
+                <td>
+                  Quest <code>min_count</code> นับเป็นสอง unique
+                </td>
+              </tr>
+              <tr>
+                <td>รหัสพี่น้องสั้นกว่า (G vs GM)</td>
+                <td>ไม่ปลดล็อกเหรียญของรหัสสั้น</td>
+                <td>ไม่ถูกนับในรายการของรหัสสั้น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Hash แคชของ <code>/api/customer-products</code>
+          (<code>skuHash</code>) คือ SHA-256 ของชุด unique
+          <code>normalizeSku</code> ทั้งก้อนที่ถือครอง ไม่ใช่เฉพาะรุ่นในกฎ
+          Serial ซ้ำของรุ่นเดียวกันไม่เปลี่ยน hash
+        </p>
+      </section>
+
+      <section id="calculation-logic-examples">
+        <h2>ตัวอย่างคำนวณ (Worked examples)</h2>
+        <h3>E1 · Serial ซ้ำบน Product + Quest</h3>
+        <pre>สินค้า: LENS-A/A-1 (1 Jan), lens-a/A-2 (3 Jan), LENS-B (2 Jan), LENS-C (4 Jan)
+Product LENS-A: unlocked, quantity=2, earnedAt=1 Jan
+Portrait-style min_count เป้า Gold=4 จากพูล A,B,C,D
+unique = {A, B, C} = 3
+Bronze 2 achieved earnedAt=2 Jan (วันที่ทำให้ครบ 2)
+Silver 3 achieved earnedAt=4 Jan
+Gold 4 in-progress remaining=1</pre>
+        <h3>E2 · Trinity Master สองเวอร์ชัน</h3>
+        <pre>สินค้า: SEL1635GM, SEL1635GM2
+เงื่อนไข any/1 ต่อครอบครัว
+ครอบครัว 16-35 นับ 1 (รุ่นที่ลงทะเบียนก่อน)
+24-70 = 0, 70-200 = 0
+matchedCount = 1 จาก 3 → ยังไม่ earned</pre>
+        <h3>E3 · All Rounder 3 จาก 4</h3>
+        <pre>ถือ SEL2070G + SELP1635G + SEL70200G → matchedCount=3 → earned
+ถือแค่สองรุ่น → matchedCount=2, remaining=1</pre>
+        <h3>E4 · เพดาน threshold บน UI</h3>
+        <pre>Wide Architect unique=5 (ถึง Gold)
+ชั้น Bronze required=3 แสดง matchedCount=3 (ถูก cap)
+ชั้น Gold required=5 แสดง matchedCount=5</pre>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="logic-decision-table">
+  <p class="doc-source">แหล่งที่มา: <code>logic-decision-table.html</code> — ตารางตัดสินใจเงื่อนไขปลดล็อกเหรียญ</p>
+  <header class="hero">
+        <h2 class="doc-heading">Logic Decision Table</h2>
+        <p class="lede">
+          ตาราง Input, Condition และผลลัพธ์ที่ระบบต้องออก
+          สำหรับจับคู่ SKU, คำนวณเหรียญ, หน้าต่างวันที่ และข้อผิดพลาดจากการเชื่อมต่อ
+        </p>
+        <p>
+          อ้างอิงพฤติกรรมใน <code>matchesEligibleSku</code>,
+          <code>calculateRuleMatch</code>,
+          <code>buildBadgeExperience</code>,
+          <code>LiveSonyProductsClient</code>
+          และ route <code>/api/customer-products</code>, <code>/api/my-*</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#logic-decision-table-sku">DT-01 SKU</a></li>
+            <li><a href="#logic-decision-table-product">DT-02 Product Badge</a></li>
+            <li><a href="#logic-decision-table-quest">DT-03 Quest match</a></li>
+            <li><a href="#logic-decision-table-tier">DT-04 Threshold / Tier</a></li>
+            <li><a href="#logic-decision-table-dates">DT-05 วันที่</a></li>
+            <li><a href="#logic-decision-table-dup">DT-06 สินค้าซ้ำ</a></li>
+            <li><a href="#logic-decision-table-sony">DT-07 Sony API</a></li>
+            <li><a href="#logic-decision-table-api">DT-08 HTTP API</a></li>
+            <li><a href="#logic-decision-table-session">DT-09 LINE session</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="logic-decision-table-sku">
+        <h2>DT-01 · จับคู่รหัสรุ่น (SKU match)</h2>
+        <p>
+          Input: <code>modelName</code> จาก warranty (ใช้เป็น sku ภายใน) และรายการรหัสในกฎ
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>ผล: แถวนี้เข้าเงื่อนไขเหรียญหรือไม่</caption>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">SKU-01</td>
+                <td><code>sel2450g</code> vs กฎ <code>SEL2450G</code></td>
+                <td>uppercase + trim แล้วเท่ากัน</td>
+                <td>จับคู่ได้ (match)</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-02</td>
+                <td><code>SEL70200GM/QSYX</code> vs <code>SEL70200GM</code></td>
+                <td>ส่วนที่เหลือเป็น suffix ภูมิภาคที่รู้จัก</td>
+                <td>จับคู่ได้</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-03</td>
+                <td><code>SEL70200GM2QSYX</code> vs <code>SEL70200GM2</code></td>
+                <td>suffix <code>QSYX</code> ติดรหัสโดยไม่มี <code>/</code></td>
+                <td>จับคู่ได้</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-04</td>
+                <td><code>SEL70200GM/QSYX</code> vs <code>SEL70200G</code></td>
+                <td>ส่วนที่เหลือขึ้นต้นด้วย <code>M</code> ไม่ใช่ suffix</td>
+                <td>ไม่จับคู่</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-05</td>
+                <td><code>SEL1635GM2</code> vs <code>SEL2450G</code></td>
+                <td>รหัสคนละรุ่น</td>
+                <td>ไม่จับคู่</td>
+              </tr>
+              <tr>
+                <td class="id">SKU-06</td>
+                <td>รุ่นที่ไม่มีในกฎใดเลย</td>
+                <td>ไม่ตรง Product และไม่ตรง Quest SKU</td>
+                <td>
+                  ไม่ปลดล็อกเหรียญ · ไม่เพิ่ม unique ของ Quest
+                  (ยังอยู่ในรายการถือครองดิบ)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="logic-decision-table-product">
+        <h2>DT-02 · Product Badge</h2>
+        <p>
+          Input: รายการ warranty ของลูกค้า + กฎ <code>badgeType: product</code>
+          (เกณฑ์ <code>requiredCount = 1</code>)
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">PB-01</td>
+                <td>0 serial ที่จับคู่รุ่นนี้</td>
+                <td>—</td>
+                <td>
+                  Mini App: <code>locked</code> ·
+                  <code>quantity = 0</code> · <code>earnedAt = null</code>
+                </td>
+              </tr>
+              <tr>
+                <td class="id">PB-02</td>
+                <td>1 serial ที่จับคู่ได้</td>
+                <td>อยู่ในหน้าต่างลงทะเบียน (ถ้ามี)</td>
+                <td>
+                  <code>unlocked</code> · <code>quantity = 1</code> ·
+                  ใช้รูป achieved · <code>earnedAt</code> = วันลงทะเบียนนั้น
+                </td>
+              </tr>
+              <tr>
+                <td class="id">PB-03</td>
+                <td>หลาย serial ของรุ่นเดียวกัน</td>
+                <td>ทุกแถวจับคู่รหัสเดียวกัน</td>
+                <td>
+                  ยังเป็นเหรียญเดียว · <code>quantity = n</code> ·
+                  เก็บทุก serial · <code>earnedAt</code> = วันเก่าสุด
+                </td>
+              </tr>
+              <tr>
+                <td class="id">PB-04</td>
+                <td>ถือครอง <code>SEL1224GM</code> อย่างเดียว</td>
+                <td>ไม่มีกฎ product ของรหัสนี้</td>
+                <td>ไม่มีแถว Product Badge · อาจนับใน Wide Architect</td>
+              </tr>
+              <tr>
+                <td class="id">PB-05</td>
+                <td>กฎ <code>isActive = false</code> หรือเลย <code>activeTo</code></td>
+                <td>กฎไม่ผ่าน <code>isRuleActive</code></td>
+                <td>ไม่แสดงเหรียญนี้ในประสบการณ์ Mini App</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="logic-decision-table-quest">
+        <h2>DT-03 · Quest · นับ unique ตาม matchType</h2>
+        <p>
+          Input: unique รุ่นที่จับคู่รายการ SKU ของเงื่อนไขได้ หลังตัดสินค้าซ้ำตาม
+          <code>normalizeSku</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">Q-01</td>
+                <td><code>any</code>, <code>requiredCount = 1</code>, พูล 2+ รุ่น</td>
+                <td>มีอย่างน้อย 1 unique ในพูล</td>
+                <td>
+                  เงื่อนไขนี้ให้ <code>matchedCount += 1</code>
+                  (เพดาน 1 แม้ถือหลายรุ่นในพูล)
+                </td>
+              </tr>
+              <tr>
+                <td class="id">Q-02</td>
+                <td><code>all</code>, รายการ SKU ความยาว N</td>
+                <td>unique ที่จับคู่ได้ = N</td>
+                <td>เงื่อนไขครบ · บวก N เข้า matched รวม</td>
+              </tr>
+              <tr>
+                <td class="id">Q-03</td>
+                <td><code>all</code>, รายการความยาว N</td>
+                <td>unique &lt; N</td>
+                <td>บวกจำนวนที่มีจริง · ยังไม่ถึงเกณฑ์ชั้น achievement</td>
+              </tr>
+              <tr>
+                <td class="id">Q-04</td>
+                <td><code>min_count</code>, เป้า K จากพูล</td>
+                <td>unique = U</td>
+                <td>
+                  บวก <code>min(U, K ของเงื่อนไข)</code>
+                  ชั้น Bronze/Silver เทียบ U กับเกณฑ์ชั้น ไม่ใช่กับ K เสมอ
+                  (K ใน seed ของ tier = เป้า Gold)
+                </td>
+              </tr>
+              <tr>
+                <td class="id">Q-05</td>
+                <td>Trinity Master · 3 เงื่อนไข any/1</td>
+                <td>ครบ 3 ครอบครัว (GM หรือ GM II อย่างใดอย่างหนึ่งต่อครอบครัว)</td>
+                <td>
+                  <code>matchedCount = 3</code> · achievement earned / ชั้นเดียว achieved
+                </td>
+              </tr>
+              <tr>
+                <td class="id">Q-06</td>
+                <td>Trinity Master</td>
+                <td>มีทั้ง SEL1635GM และ SEL1635GM2 เท่านั้น</td>
+                <td>
+                  <code>matchedCount = 1</code> · ยังไม่ earned
+                </td>
+              </tr>
+              <tr>
+                <td class="id">Q-07</td>
+                <td>All Rounder · min_count 3 จาก 4</td>
+                <td>ถือ 3 รุ่นในพูล</td>
+                <td>earned (achievement)</td>
+              </tr>
+              <tr>
+                <td class="id">Q-08</td>
+                <td>F2 Master / Trinity Junior · <code>all</code></td>
+                <td>ขาดอย่างน้อย 1 รุ่นบังคับ</td>
+                <td>ไม่ earned · Mini App ชั้นเดียว locked หรือ in-progress ตามจำนวน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="logic-decision-table-tier">
+        <h2>DT-04 · Threshold และสถานะชั้น (Tier)</h2>
+        <p>
+          Input: <code>matchedCount</code> ของ Quest และรายการ threshold เรียงตาม
+          <code>requiredCount</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">T-01</td>
+                <td>matchedCount = 0</td>
+                <td>—</td>
+                <td>
+                  Engine: <code>no-badge</code> ·
+                  Mini App ทุกชั้น <code>locked</code> ·
+                  <code>highestEarnedTier = null</code>
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-02</td>
+                <td>0 &lt; matchedCount &lt; เกณฑ์ชั้นแรก</td>
+                <td>เช่น Portrait unique = 1, Bronze = 2</td>
+                <td>
+                  Engine: <code>locked</code> ·
+                  Mini App ชั้นแรก <code>in-progress</code> ที่เหลือ locked
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-03</td>
+                <td>matchedCount ≥ Bronze และ &lt; Silver</td>
+                <td>เช่น Portrait = 2</td>
+                <td>
+                  Bronze <code>achieved</code> · Silver <code>in-progress</code> ·
+                  Gold locked · engine <code>earned</code> ที่ระดับ bronze
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-04</td>
+                <td>matchedCount ≥ Gold</td>
+                <td>เช่น Portrait ≥ 4, Wide ≥ 5, Visionary ≥ 4</td>
+                <td>
+                  Bronze+Silver+Gold ทั้งหมด <code>achieved</code> ·
+                  ไม่มีชั้น in-progress
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-05</td>
+                <td>แสดง progress รายชั้น</td>
+                <td>matchedCount เกินเกณฑ์ชั้นนั้น</td>
+                <td>
+                  UI ใช้ <code>min(matchedCount, requiredCount)</code>
+                  ของชั้นนั้น
+                </td>
+              </tr>
+              <tr>
+                <td class="id">T-06</td>
+                <td>Quest achievement ชั้นเดียว</td>
+                <td>matchedCount ≥ requiredCount ของ threshold เดียว</td>
+                <td>ชั้นนั้น achieved · ไม่มีเส้นทางเลื่อนโลหะ</td>
+              </tr>
+              <tr>
+                <td class="id">T-07</td>
+                <td>รอบถัดไป Sony ส่งรุ่นน้อยลง</td>
+                <td>matchedCount ต่ำกว่าเกณฑ์ที่เคยถึง</td>
+                <td>
+                  คำนวณใหม่ตามข้อมูลปัจจุบัน ไม่ persist ชั้นเก่า
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="logic-decision-table-dates">
+        <h2>DT-05 · หน้าต่างวันที่ (Date windows)</h2>
+        <p>
+          ชุด seed ปัจจุบันเป็น null ทั้งช่วงแสดงผลและช่วงลงทะเบียน
+          แถวด้านล่างคือพฤติกรรมเมื่อมีการตั้งค่าในฐานข้อมูล
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">D-01</td>
+                <td>
+                  <code>activeFrom</code> / <code>activeTo</code> = null,
+                  <code>isActive = true</code>
+                </td>
+                <td>now เท่าใดก็ได้</td>
+                <td>กฎถูกใช้คำนวณ</td>
+              </tr>
+              <tr>
+                <td class="id">D-02</td>
+                <td>now อยู่ก่อน <code>activeFrom</code> หรือหลัง <code>activeTo</code></td>
+                <td>หรือ <code>isActive = false</code></td>
+                <td>ซ่อนกฎทั้งก้อน (รายการเหรียญว่างสำหรับกฎนั้น)</td>
+              </tr>
+              <tr>
+                <td class="id">D-03</td>
+                <td>สินค้าลงทะเบียนใน <code>registrationStart</code>–<code>End</code></td>
+                <td>now เลยช่วงลงทะเบียน แต่ยังอยู่ในช่วงแสดงผล</td>
+                <td>ยังนับสินค้าชิ้นนั้น และยังถือเหรียญที่ได้แล้ว</td>
+              </tr>
+              <tr>
+                <td class="id">D-04</td>
+                <td>สินค้าลงทะเบียนหลัง <code>registrationEnd</code></td>
+                <td>—</td>
+                <td>ไม่นับชิ้นนั้นในกฎนี้</td>
+              </tr>
+              <tr>
+                <td class="id">D-05</td>
+                <td><code>registeredAt</code> ว่างหรือ parse เป็นวันที่ไม่ได้</td>
+                <td><code>isWithinDateWindow</code></td>
+                <td>ไม่นับแถวนี้</td>
+              </tr>
+              <tr>
+                <td class="id">D-06</td>
+                <td><code>warrantyExpiryDate</code> ใดๆ</td>
+                <td>—</td>
+                <td>ไม่มีผลต่อการปลดล็อก</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="logic-decision-table-dup">
+        <h2>DT-06 · สินค้าซ้ำ (Duplicates)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">DUP-01</td>
+                <td>สอง serial รหัสเดียวกัน (ตัวพิมพ์ต่างกันถือว่ารุ่นเดียว)</td>
+                <td>—</td>
+                <td>
+                  Product: quantity 2 · Quest: unique 1 ไม่เลื่อนชั้นจาก serial ที่สอง
+                </td>
+              </tr>
+              <tr>
+                <td class="id">DUP-02</td>
+                <td>GM และ GM II ในครอบครัว Trinity เดียวกัน</td>
+                <td>เงื่อนไข any เพดาน 1</td>
+                <td>สอง Product Badge · Quest ครอบครัวนั้นนับ 1</td>
+              </tr>
+              <tr>
+                <td class="id">DUP-03</td>
+                <td>
+                  <code>SEL35F14GM</code> และ <code>SEL35F14GM/QSYX</code>
+                </td>
+                <td>กุญแจ unique ไม่ยุบ suffix</td>
+                <td>
+                  Product ของรหัสฐาน: quantity รวมทั้งคู่ ·
+                  Quest min_count: นับ 2 unique
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="logic-decision-table-sony">
+        <h2>DT-07 · Sony warranty API (โหมด live)</h2>
+        <p>Input: HTTP status + JSON body ของ <code>QueryWarrantyMySonyByLine</code></p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">S-01</td>
+                <td>HTTP 200, <code>prodDetails</code> เป็นอาร์เรย์</td>
+                <td>ทุกแถวมี <code>modelName</code> และ <code>registrationDate</code> เป็นสตริง</td>
+                <td>
+                  ได้รายการสินค้า · serial ว่างได้ · ละ <code>warrantyExpiryDate</code>
+                </td>
+              </tr>
+              <tr>
+                <td class="id">S-02</td>
+                <td>HTTP 200, <code>prodDetails: []</code></td>
+                <td>พบลูกค้าแต่ไม่มีสินค้า</td>
+                <td>คำนวณเหรียญทั้งหมด locked / no-badge ไม่ใช่ 404</td>
+              </tr>
+              <tr>
+                <td class="id">S-03</td>
+                <td>HTTP 404</td>
+                <td>—</td>
+                <td>โยน <code>CUSTOMER_NOT_FOUND</code></td>
+              </tr>
+              <tr>
+                <td class="id">S-04</td>
+                <td>HTTP อื่นที่ไม่ใช่ 2xx</td>
+                <td>รวม 401/403/5xx</td>
+                <td>โยน <code>SONY_PRODUCT_API_ERROR</code></td>
+              </tr>
+              <tr>
+                <td class="id">S-05</td>
+                <td>HTTP 200 แต่ไม่มีอาร์เรย์ <code>prodDetails</code></td>
+                <td>และไม่ใช่รูปแบบ customer/products สำรอง</td>
+                <td><code>SONY_PRODUCT_API_ERROR</code></td>
+              </tr>
+              <tr>
+                <td class="id">S-06</td>
+                <td>แถวใดแถวหนึ่งขาด modelName หรือ registrationDate</td>
+                <td>—</td>
+                <td>ทิ้งทั้ง payload เป็น <code>SONY_PRODUCT_API_ERROR</code></td>
+              </tr>
+              <tr>
+                <td class="id">S-07</td>
+                <td>ไม่มี subscription key / fetch ล้ม</td>
+                <td>ไม่มีรหัส TIMEOUT ในแอป</td>
+                <td>
+                  <code>SONY_PRODUCT_API_ERROR</code> หรือ
+                  <code>UNKNOWN_ERROR</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="logic-decision-table-api">
+        <h2>DT-08 · ผลลัพธ์ HTTP ตามพื้นผิว API</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">A-01</td>
+                <td><code>GET /api/customer-products</code></td>
+                <td>ไม่มีเซสชันที่ตรวจแล้ว</td>
+                <td>401 <code>UNAUTHORIZED</code></td>
+              </tr>
+              <tr>
+                <td class="id">A-02</td>
+                <td>customer-products</td>
+                <td>Sony 404</td>
+                <td>404 <code>CUSTOMER_NOT_FOUND</code> + เขียน calculation log</td>
+              </tr>
+              <tr>
+                <td class="id">A-03</td>
+                <td>customer-products</td>
+                <td>Sony/DB error อื่น</td>
+                <td>500 รหัสปลอดภัย + เขียน log error</td>
+              </tr>
+              <tr>
+                <td class="id">A-04</td>
+                <td>customer-products สำเร็จ + cache headers ตรง</td>
+                <td>debug ปิด</td>
+                <td>200 <code>cacheStatus: hit</code> ไม่ส่งรายการเหรียญเต็ม</td>
+              </tr>
+              <tr>
+                <td class="id">A-05</td>
+                <td>
+                  <code>GET /api/my-products</code> หรือ
+                  <code>/api/my-missions</code>
+                </td>
+                <td>ไม่มี <code>lineuuid</code></td>
+                <td>200 แคตตาล็อกล็อก (ไม่เรียก Sony)</td>
+              </tr>
+              <tr>
+                <td class="id">A-06</td>
+                <td>my-products / my-missions</td>
+                <td>Sony ล้ม แต่โหลดกฎได้</td>
+                <td>200 แคตตาล็อกล็อก (ดูเหมือนยังไม่มีเหรียญ)</td>
+              </tr>
+              <tr>
+                <td class="id">A-07</td>
+                <td><code>GET /api/my-badges</code></td>
+                <td>Sony หรือคำนวณล้ม</td>
+                <td>500 JSON error · หน้าบ้านวิวว่าง</td>
+              </tr>
+              <tr>
+                <td class="id">A-08</td>
+                <td>
+                  <code>/api/my-products/[id]</code>
+                  หรือ mission detail
+                </td>
+                <td>รหัสไม่อยู่ในกฎ หรือยังไม่ปลดล็อก (product detail)</td>
+                <td>404 <code>NOT_FOUND</code></td>
+              </tr>
+              <tr>
+                <td class="id">A-09</td>
+                <td><code>GET /api/health</code></td>
+                <td>โปรเซสตอบได้</td>
+                <td>200 <code>{ status: "ok" }</code> ไม่ตรวจ Sony/DB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Mini App <code>/api/my-*</code> ไม่ตรวจคุกกี้เซสชัน
+          ใครส่ง <code>lineuuid</code> ได้ถือเป็น input ของการคำนวณ
+        </div>
+      </section>
+
+      <section id="logic-decision-table-session">
+        <h2>DT-09 · LINE session</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Input</th>
+                <th>Condition</th>
+                <th>ผลลัพธ์ที่ระบบต้องออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">L-01</td>
+                <td><code>POST /api/line-session</code> ไม่มี idToken</td>
+                <td>—</td>
+                <td>400 <code>MISSING_ID_TOKEN</code></td>
+              </tr>
+              <tr>
+                <td class="id">L-02</td>
+                <td>LINE verify ไม่ผ่าน หรือ aud/sub ไม่ถูกต้อง</td>
+                <td>—</td>
+                <td>401 <code>UNAUTHORIZED</code> ไม่ตั้งคุกกี้</td>
+              </tr>
+              <tr>
+                <td class="id">L-03</td>
+                <td>verify ผ่าน</td>
+                <td>—</td>
+                <td>
+                  200 <code>{ ok: true }</code> + คุกกี้
+                  <code>sony_line_session</code> HttpOnly 1 ชั่วโมง
+                </td>
+              </tr>
+              <tr>
+                <td class="id">L-04</td>
+                <td>LIFF ไม่ได้เปิดใน LINE client / ไม่มี ID token</td>
+                <td>ฝั่งไคลเอนต์</td>
+                <td>throw ข้อความให้เปิดจาก Mini App · ไม่เรียก Sony</td>
+              </tr>
+              <tr>
+                <td class="id">L-05</td>
+                <td><code>getProfile</code> ล้ม</td>
+                <td>—</td>
+                <td>โปรไฟล์เป็น null · เซสชันยังสร้างได้ถ้า verify ผ่าน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="product-badge-mapping">
+  <p class="doc-source">แหล่งที่มา: <code>product-badge-mapping.html</code> — แมปรุ่นสินค้า ↔ Product Badge / Quest</p>
+  <header class="hero">
+        <h2 class="doc-heading">Product–Badge Mapping</h2>
+        <p class="lede">
+          รายการ Product Model ที่มีสิทธิ์ใน Badge แต่ละประเภท
+          (Product Badge ตามกลุ่ม และ Quest / Tier ตามเงื่อนไข SKU)
+        </p>
+        <p>
+          เวอร์ชันกฎ <code>2026-07-24-product-urls-001</code> ·
+          57 รหัสรุ่นในแผนที่นี้ (56 มี Product Badge + SEL1224GM เฉพาะ Quest)
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#product-badge-mapping-how">หลักการ map</a></li>
+            <li><a href="#product-badge-mapping-index">ดัชนีรุ่น → เหรียญ</a></li>
+            <li><a href="#product-badge-mapping-product">ตามกลุ่ม Product Badge</a></li>
+            <li><a href="#product-badge-mapping-quest">ตาม Quest</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="product-badge-mapping-how">
+        <h2>หลักการ map</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>Product Badge</strong>
+            หนึ่งรหัสรุ่น = หนึ่งเหรียญ
+            รหัสกฎ <code>product-{sku ตัวพิมพ์เล็ก}</code>
+          </div>
+          <div class="box">
+            <strong>Quest Badge</strong>
+            รุ่นเดียวกันอาจอยู่ในหลาย Quest
+            นับ unique เมื่อจับคู่ SKU ในเงื่อนไขได้ (รวม suffix ภูมิภาค)
+          </div>
+          <div class="box">
+            <strong>กล้อง Full Frame</strong>
+            มีเฉพาะ Product Badge ไม่ได้อยู่ใน Quest ชุดปัจจุบัน
+          </div>
+        </div>
+        <div class="note warn">
+          <code>SEL1224GM</code> อยู่ใน Wide Architect เท่านั้น ไม่มีแถว Product Badge
+          ชื่อทางการตลาดของรหัสนี้จึงไม่ถูก seed ใน <code>badge_rules.badge_name</code>
+        </div>
+      </section>
+
+      <section id="product-badge-mapping-index">
+        <h2>ดัชนีรุ่น → เหรียญ (Model index)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ทุกรหัสที่มีสิทธิ์อย่างน้อยหนึ่งเหรียญ</caption>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อ</th>
+                <th>กลุ่ม Product</th>
+                <th>Product Badge</th>
+                <th>Quest ที่มีสิทธิ์</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ILCE-1M2</code></td>
+                <td>Alpha 1 II</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-1m2</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7C</code></td>
+                <td>Alpha 7C</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7c</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7CM2</code></td>
+                <td>Alpha 7C II</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7cm2</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7CR</code></td>
+                <td>Alpha 7CR</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7cr</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M3</code></td>
+                <td>Alpha 7 III</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7m3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M4</code></td>
+                <td>Alpha 7 IV</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7m4</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M5</code></td>
+                <td>Alpha 7 V</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7m5</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7RM5</code></td>
+                <td>Alpha 7R V</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7rm5</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7SM3</code></td>
+                <td>Alpha 7S III</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7sm3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-9M3</code></td>
+                <td>Alpha 9 III</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-9m3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>SEL135F18GM</code></td>
+                <td>FE 135mm F1.8 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel135f18gm</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL14F18GM</code></td>
+                <td>FE 14mm F1.8 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel14f18gm</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL16F18G</code></td>
+                <td>FE 16mm F1.8 G</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel16f18g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL20F18G</code></td>
+                <td>FE 20mm F1.8 G</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel20f18g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL24F14GM</code></td>
+                <td>FE 24mm F1.4 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel24f14gm</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL24F28G</code></td>
+                <td>FE 24mm F2.8 G</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel24f28g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL30M35</code></td>
+                <td>E 30mm F3.5 Macro</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel30m35</code></td>
+                <td><code>the-magnifier</code> The Magnifier</td>
+              </tr>
+              <tr>
+                <td><code>SEL35F14GM</code></td>
+                <td>FE 35mm F1.4 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel35f14gm</code></td>
+                <td><code>portrait-master</code> Portrait Master<br /><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL35F18F</code></td>
+                <td>FE 35mm F1.8</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel35f18f</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL50F12GM</code></td>
+                <td>FE 50mm F1.2 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel50f12gm</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL50F14GM</code></td>
+                <td>FE 50mm F1.4 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel50f14gm</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL50M28</code></td>
+                <td>FE 50mm F2.8 Macro</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel50m28</code></td>
+                <td><code>the-magnifier</code> The Magnifier</td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM</code></td>
+                <td>FE 85mm F1.4 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel85f14gm</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM2</code></td>
+                <td>FE 85mm F1.4 GM II</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel85f14gm2</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL1625G</code></td>
+                <td>FE 16-25mm F2.8 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1625g</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-junior</code> Trinity Junior</td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM</code></td>
+                <td>FE 16-35mm F2.8 GM</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1635gm</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM2</code></td>
+                <td>FE 16-35mm F2.8 GM II</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1635gm2</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL1635Z</code></td>
+                <td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1635z</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>all-rounder</code> All Rounder</td>
+              </tr>
+              <tr>
+                <td><code>SEL1655G</code></td>
+                <td>E 16-55mm F2.8 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1655g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL2070G</code></td>
+                <td>FE 20-70mm F4 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2070g</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>all-rounder</code> All Rounder</td>
+              </tr>
+              <tr>
+                <td><code>SEL24105G</code></td>
+                <td>FE 24-105mm F4 G OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel24105g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL2450G</code></td>
+                <td>FE 24-50mm F2.8 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2450g</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-junior</code> Trinity Junior</td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM</code></td>
+                <td>FE 24-70mm F2.8 GM</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2470gm</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM2</code></td>
+                <td>FE 24-70mm F2.8 GM II</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2470gm2</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL2470Z</code></td>
+                <td>Vario-Tessar T* FE 24-70mm F4 ZA OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2470z</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL2870GM</code></td>
+                <td>FE 28-70mm F2 GM</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2870gm</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>f2-master</code> F2 Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL50150GM</code></td>
+                <td>FE 50-150 mm.F2 GM</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel50150gm</code></td>
+                <td><code>f2-master</code> F2 Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL55210</code></td>
+                <td>E 55-210mm F4.5-6.3 OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel55210</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SELC1635G</code></td>
+                <td>FE C 16-35mm T3.1 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-selc1635g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SELP1635G</code></td>
+                <td>FE PZ 16-35mm F4 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-selp1635g</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>all-rounder</code> All Rounder</td>
+              </tr>
+              <tr>
+                <td><code>SELP18110G</code></td>
+                <td>E PZ 18-110mm F4 G OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-selp18110g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SELP28135G</code></td>
+                <td>FE PZ 28-135mm F4 G OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-selp28135g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL100400GM</code></td>
+                <td>FE 100-400mm F4.5-5.6 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel100400gm</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL100400MC</code></td>
+                <td>FE 100-400 mm.F4.5 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel100400mc</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL200600G</code></td>
+                <td>FE 200-600mm F5.6-6.3 G OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel200600g</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL300F28GM</code></td>
+                <td>FE 300mm F2.8 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel300f28gm</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL400800G</code></td>
+                <td>FE 400-800 mm.F6.3-8 G OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel400800g</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL400F28GM</code></td>
+                <td>FE 400mm F2.8 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel400f28gm</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL600F40GM</code></td>
+                <td>FE 600mm F4 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel600f40gm</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G</code></td>
+                <td>FE 70-200mm F4 G OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70200g</code></td>
+                <td><code>all-rounder</code> All Rounder</td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G2</code></td>
+                <td>FE 70-200mm F4 Macro G OSS II</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70200g2</code></td>
+                <td><code>trinity-junior</code> Trinity Junior</td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM</code></td>
+                <td>FE 70-200mm F2.8 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70200gm</code></td>
+                <td><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM2</code></td>
+                <td>FE 70-200mm F2.8 GM OSS II</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70200gm2</code></td>
+                <td><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL70350G</code></td>
+                <td>E 70-350mm F4.5-6.3 G OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70350g</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL100M28GM</code></td>
+                <td>FE 100 mm.F2.8 Macro GM OSS</td>
+                <td>Macro Lens</td>
+                <td><code>product-sel100m28gm</code></td>
+                <td><code>portrait-master</code> Portrait Master<br /><code>the-magnifier</code> The Magnifier</td>
+              </tr>
+              <tr>
+                <td><code>SEL90M28G</code></td>
+                <td>FE 90mm F2.8 Macro G OSS</td>
+                <td>Macro Lens</td>
+                <td><code>product-sel90m28g</code></td>
+                <td><code>the-magnifier</code> The Magnifier</td>
+              </tr>
+              <tr>
+                <td><code>SEL1224GM</code></td>
+                <td>—</td>
+                <td>—</td>
+                <td><em>ไม่มี (quest-only)</em></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="product-badge-mapping-product">
+        <h2>ตามกลุ่ม Product Badge</h2>
+        <h3 id="product-badge-mapping-g-full-frame-camera">Full Frame Camera (<code>full-frame-camera</code>, 10 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ILCE-1M2</code></td>
+                <td>Alpha 1 II</td>
+                <td><code>product-ilce-1m2</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-9M3</code></td>
+                <td>Alpha 9 III</td>
+                <td><code>product-ilce-9m3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7RM5</code></td>
+                <td>Alpha 7R V</td>
+                <td><code>product-ilce-7rm5</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M5</code></td>
+                <td>Alpha 7 V</td>
+                <td><code>product-ilce-7m5</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M4</code></td>
+                <td>Alpha 7 IV</td>
+                <td><code>product-ilce-7m4</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M3</code></td>
+                <td>Alpha 7 III</td>
+                <td><code>product-ilce-7m3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7CM2</code></td>
+                <td>Alpha 7C II</td>
+                <td><code>product-ilce-7cm2</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7C</code></td>
+                <td>Alpha 7C</td>
+                <td><code>product-ilce-7c</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7CR</code></td>
+                <td>Alpha 7CR</td>
+                <td><code>product-ilce-7cr</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7SM3</code></td>
+                <td>Alpha 7S III</td>
+                <td><code>product-ilce-7sm3</code></td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-g-prime-lens">Prime Lens (<code>prime-lens</code>, 14 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL30M35</code></td>
+                <td>E 30mm F3.5 Macro</td>
+                <td><code>product-sel30m35</code></td>
+                <td><code>the-magnifier</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL135F18GM</code></td>
+                <td>FE 135mm F1.8 GM</td>
+                <td><code>product-sel135f18gm</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL14F18GM</code></td>
+                <td>FE 14mm F1.8 GM</td>
+                <td><code>product-sel14f18gm</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL16F18G</code></td>
+                <td>FE 16mm F1.8 G</td>
+                <td><code>product-sel16f18g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL20F18G</code></td>
+                <td>FE 20mm F1.8 G</td>
+                <td><code>product-sel20f18g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24F14GM</code></td>
+                <td>FE 24mm F1.4 GM</td>
+                <td><code>product-sel24f14gm</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24F28G</code></td>
+                <td>FE 24mm F2.8 G</td>
+                <td><code>product-sel24f28g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL35F14GM</code></td>
+                <td>FE 35mm F1.4 GM</td>
+                <td><code>product-sel35f14gm</code></td>
+                <td><code>portrait-master</code>, <code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL35F18F</code></td>
+                <td>FE 35mm F1.8</td>
+                <td><code>product-sel35f18f</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50F12GM</code></td>
+                <td>FE 50mm F1.2 GM</td>
+                <td><code>product-sel50f12gm</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50F14GM</code></td>
+                <td>FE 50mm F1.4 GM</td>
+                <td><code>product-sel50f14gm</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50M28</code></td>
+                <td>FE 50mm F2.8 Macro</td>
+                <td><code>product-sel50m28</code></td>
+                <td><code>the-magnifier</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM</code></td>
+                <td>FE 85mm F1.4 GM</td>
+                <td><code>product-sel85f14gm</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM2</code></td>
+                <td>FE 85mm F1.4 GM II</td>
+                <td><code>product-sel85f14gm2</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-g-wide-normal-zoom-lens">Wide &amp; Normal Zoom Lens (<code>wide-normal-zoom-lens</code>, 18 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL1655G</code></td>
+                <td>E 16-55mm F2.8 G</td>
+                <td><code>product-sel1655g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL55210</code></td>
+                <td>E 55-210mm F4.5-6.3 OSS</td>
+                <td><code>product-sel55210</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP18110G</code></td>
+                <td>E PZ 18-110mm F4 G OSS</td>
+                <td><code>product-selp18110g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1625G</code></td>
+                <td>FE 16-25mm F2.8 G</td>
+                <td><code>product-sel1625g</code></td>
+                <td><code>wide-architect</code>, <code>trinity-junior</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM</code></td>
+                <td>FE 16-35mm F2.8 GM</td>
+                <td><code>product-sel1635gm</code></td>
+                <td><code>wide-architect</code>, <code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM2</code></td>
+                <td>FE 16-35mm F2.8 GM II</td>
+                <td><code>product-sel1635gm2</code></td>
+                <td><code>wide-architect</code>, <code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2070G</code></td>
+                <td>FE 20-70mm F4 G</td>
+                <td><code>product-sel2070g</code></td>
+                <td><code>wide-architect</code>, <code>all-rounder</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24105G</code></td>
+                <td>FE 24-105mm F4 G OSS</td>
+                <td><code>product-sel24105g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2450G</code></td>
+                <td>FE 24-50mm F2.8 G</td>
+                <td><code>product-sel2450g</code></td>
+                <td><code>wide-architect</code>, <code>trinity-junior</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM</code></td>
+                <td>FE 24-70mm F2.8 GM</td>
+                <td><code>product-sel2470gm</code></td>
+                <td><code>wide-architect</code>, <code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM2</code></td>
+                <td>FE 24-70mm F2.8 GM II</td>
+                <td><code>product-sel2470gm2</code></td>
+                <td><code>wide-architect</code>, <code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2870GM</code></td>
+                <td>FE 28-70mm F2 GM</td>
+                <td><code>product-sel2870gm</code></td>
+                <td><code>wide-architect</code>, <code>f2-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50150GM</code></td>
+                <td>FE 50-150 mm.F2 GM</td>
+                <td><code>product-sel50150gm</code></td>
+                <td><code>f2-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SELC1635G</code></td>
+                <td>FE C 16-35mm T3.1 G</td>
+                <td><code>product-selc1635g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP1635G</code></td>
+                <td>FE PZ 16-35mm F4 G</td>
+                <td><code>product-selp1635g</code></td>
+                <td><code>wide-architect</code>, <code>all-rounder</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP28135G</code></td>
+                <td>FE PZ 28-135mm F4 G OSS</td>
+                <td><code>product-selp28135g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635Z</code></td>
+                <td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td>
+                <td><code>product-sel1635z</code></td>
+                <td><code>wide-architect</code>, <code>all-rounder</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470Z</code></td>
+                <td>Vario-Tessar T* FE 24-70mm F4 ZA OSS</td>
+                <td><code>product-sel2470z</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-g-telephoto-super-telephoto-lens">Telephoto &amp; Super Telephoto Lens (<code>telephoto-super-telephoto-lens</code>, 12 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL70350G</code></td>
+                <td>E 70-350mm F4.5-6.3 G OSS</td>
+                <td><code>product-sel70350g</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL100400MC</code></td>
+                <td>FE 100-400 mm.F4.5 GM OSS</td>
+                <td><code>product-sel100400mc</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL100400GM</code></td>
+                <td>FE 100-400mm F4.5-5.6 GM OSS</td>
+                <td><code>product-sel100400gm</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL200600G</code></td>
+                <td>FE 200-600mm F5.6-6.3 G OSS</td>
+                <td><code>product-sel200600g</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL300F28GM</code></td>
+                <td>FE 300mm F2.8 GM OSS</td>
+                <td><code>product-sel300f28gm</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL400800G</code></td>
+                <td>FE 400-800 mm.F6.3-8 G OSS</td>
+                <td><code>product-sel400800g</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL400F28GM</code></td>
+                <td>FE 400mm F2.8 GM OSS</td>
+                <td><code>product-sel400f28gm</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL600F40GM</code></td>
+                <td>FE 600mm F4 GM OSS</td>
+                <td><code>product-sel600f40gm</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM</code></td>
+                <td>FE 70-200mm F2.8 GM OSS</td>
+                <td><code>product-sel70200gm</code></td>
+                <td><code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM2</code></td>
+                <td>FE 70-200mm F2.8 GM OSS II</td>
+                <td><code>product-sel70200gm2</code></td>
+                <td><code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G</code></td>
+                <td>FE 70-200mm F4 G OSS</td>
+                <td><code>product-sel70200g</code></td>
+                <td><code>all-rounder</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G2</code></td>
+                <td>FE 70-200mm F4 Macro G OSS II</td>
+                <td><code>product-sel70200g2</code></td>
+                <td><code>trinity-junior</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-g-macro-lens">Macro Lens (<code>macro-lens</code>, 2 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL100M28GM</code></td>
+                <td>FE 100 mm.F2.8 Macro GM OSS</td>
+                <td><code>product-sel100m28gm</code></td>
+                <td><code>portrait-master</code>, <code>the-magnifier</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL90M28G</code></td>
+                <td>FE 90mm F2.8 Macro G OSS</td>
+                <td><code>product-sel90m28g</code></td>
+                <td><code>the-magnifier</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="product-badge-mapping-quest">
+        <h2>ตาม Quest</h2>
+        <h3 id="product-badge-mapping-q-portrait-master">Portrait Master (<code>portrait-master</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>tier</code> ·
+          จำนวนรหัสในเงื่อนไข: 7
+          · นับ unique ในพูลนี้เพื่อ Bronze / Silver / Gold
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL35F14GM</code></td>
+                <td>FE 35mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel35f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50F14GM</code></td>
+                <td>FE 50mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel50f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50F12GM</code></td>
+                <td>FE 50mm F1.2 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel50f12gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM</code></td>
+                <td>FE 85mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel85f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM2</code></td>
+                <td>FE 85mm F1.4 GM II</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel85f14gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL100M28GM</code></td>
+                <td>FE 100 mm.F2.8 Macro GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel100m28gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL135F18GM</code></td>
+                <td>FE 135mm F1.8 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel135f18gm</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-q-wide-architect">Wide Architect (<code>wide-architect</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>tier</code> ·
+          จำนวนรหัสในเงื่อนไข: 24
+          · นับ unique ในพูลนี้เพื่อ Bronze / Silver / Gold
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL1224GM</code></td>
+                <td>—</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><em>ไม่มี Product Badge</em></td>
+              </tr>
+              <tr>
+                <td><code>SEL14F18GM</code></td>
+                <td>FE 14mm F1.8 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel14f18gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL16F18G</code></td>
+                <td>FE 16mm F1.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel16f18g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL20F18G</code></td>
+                <td>FE 20mm F1.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel20f18g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1625G</code></td>
+                <td>FE 16-25mm F2.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1625g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM</code></td>
+                <td>FE 16-35mm F2.8 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1635gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM2</code></td>
+                <td>FE 16-35mm F2.8 GM II</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1635gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635Z</code></td>
+                <td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1635z</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM</code></td>
+                <td>FE 24-70mm F2.8 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2470gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM2</code></td>
+                <td>FE 24-70mm F2.8 GM II</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2470gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2450G</code></td>
+                <td>FE 24-50mm F2.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2450g</code></td>
+              </tr>
+              <tr>
+                <td><code>SELC1635G</code></td>
+                <td>FE C 16-35mm T3.1 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-selc1635g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1655G</code></td>
+                <td>E 16-55mm F2.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1655g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2070G</code></td>
+                <td>FE 20-70mm F4 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2070g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24105G</code></td>
+                <td>FE 24-105mm F4 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel24105g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470Z</code></td>
+                <td>Vario-Tessar T* FE 24-70mm F4 ZA OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2470z</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24F14GM</code></td>
+                <td>FE 24mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel24f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24F28G</code></td>
+                <td>FE 24mm F2.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel24f28g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2870GM</code></td>
+                <td>FE 28-70mm F2 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2870gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL35F14GM</code></td>
+                <td>FE 35mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel35f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL35F18F</code></td>
+                <td>FE 35mm F1.8</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel35f18f</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP1635G</code></td>
+                <td>FE PZ 16-35mm F4 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-selp1635g</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP18110G</code></td>
+                <td>E PZ 18-110mm F4 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-selp18110g</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP28135G</code></td>
+                <td>FE PZ 28-135mm F4 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-selp28135g</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-q-the-visionary">The Visionary (<code>the-visionary</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>tier</code> ·
+          จำนวนรหัสในเงื่อนไข: 9
+          · นับ unique ในพูลนี้เพื่อ Bronze / Silver / Gold
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL100400GM</code></td>
+                <td>FE 100-400mm F4.5-5.6 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel100400gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL400800G</code></td>
+                <td>FE 400-800 mm.F6.3-8 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel400800g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL200600G</code></td>
+                <td>FE 200-600mm F5.6-6.3 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel200600g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL300F28GM</code></td>
+                <td>FE 300mm F2.8 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel300f28gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL400F28GM</code></td>
+                <td>FE 400mm F2.8 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel400f28gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL600F40GM</code></td>
+                <td>FE 600mm F4 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel600f40gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70350G</code></td>
+                <td>E 70-350mm F4.5-6.3 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel70350g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL55210</code></td>
+                <td>E 55-210mm F4.5-6.3 OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel55210</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL100400MC</code></td>
+                <td>FE 100-400 mm.F4.5 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel100400mc</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-q-trinity-master">Trinity Master (<code>trinity-master</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 6
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL1635GM</code></td>
+                <td>FE 16-35mm F2.8 GM</td>
+                <td>any</td>
+                <td>Own one 16-35 GM family model</td>
+                <td><code>product-sel1635gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM2</code></td>
+                <td>FE 16-35mm F2.8 GM II</td>
+                <td>any</td>
+                <td>Own one 16-35 GM family model</td>
+                <td><code>product-sel1635gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM</code></td>
+                <td>FE 24-70mm F2.8 GM</td>
+                <td>any</td>
+                <td>Own one 24-70 GM family model</td>
+                <td><code>product-sel2470gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM2</code></td>
+                <td>FE 24-70mm F2.8 GM II</td>
+                <td>any</td>
+                <td>Own one 24-70 GM family model</td>
+                <td><code>product-sel2470gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM</code></td>
+                <td>FE 70-200mm F2.8 GM OSS</td>
+                <td>any</td>
+                <td>Own one 70-200 GM family model</td>
+                <td><code>product-sel70200gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM2</code></td>
+                <td>FE 70-200mm F2.8 GM OSS II</td>
+                <td>any</td>
+                <td>Own one 70-200 GM family model</td>
+                <td><code>product-sel70200gm2</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-q-trinity-junior">Trinity Junior (<code>trinity-junior</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 3
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL2450G</code></td>
+                <td>FE 24-50mm F2.8 G</td>
+                <td>all</td>
+                <td>Own all Trinity Junior models</td>
+                <td><code>product-sel2450g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1625G</code></td>
+                <td>FE 16-25mm F2.8 G</td>
+                <td>all</td>
+                <td>Own all Trinity Junior models</td>
+                <td><code>product-sel1625g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G2</code></td>
+                <td>FE 70-200mm F4 Macro G OSS II</td>
+                <td>all</td>
+                <td>Own all Trinity Junior models</td>
+                <td><code>product-sel70200g2</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-q-all-rounder">All Rounder (<code>all-rounder</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 4
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL2070G</code></td>
+                <td>FE 20-70mm F4 G</td>
+                <td>min_count</td>
+                <td>Own any three All Rounder models</td>
+                <td><code>product-sel2070g</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP1635G</code></td>
+                <td>FE PZ 16-35mm F4 G</td>
+                <td>min_count</td>
+                <td>Own any three All Rounder models</td>
+                <td><code>product-selp1635g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635Z</code></td>
+                <td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td>
+                <td>min_count</td>
+                <td>Own any three All Rounder models</td>
+                <td><code>product-sel1635z</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G</code></td>
+                <td>FE 70-200mm F4 G OSS</td>
+                <td>min_count</td>
+                <td>Own any three All Rounder models</td>
+                <td><code>product-sel70200g</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-q-f2-master">F2 Master (<code>f2-master</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 2
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL2870GM</code></td>
+                <td>FE 28-70mm F2 GM</td>
+                <td>all</td>
+                <td>Own both F2 Master models</td>
+                <td><code>product-sel2870gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50150GM</code></td>
+                <td>FE 50-150 mm.F2 GM</td>
+                <td>all</td>
+                <td>Own both F2 Master models</td>
+                <td><code>product-sel50150gm</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="product-badge-mapping-q-the-magnifier">The Magnifier (<code>the-magnifier</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 4
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL100M28GM</code></td>
+                <td>FE 100 mm.F2.8 Macro GM OSS</td>
+                <td>any</td>
+                <td>Own any one macro model</td>
+                <td><code>product-sel100m28gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL90M28G</code></td>
+                <td>FE 90mm F2.8 Macro G OSS</td>
+                <td>any</td>
+                <td>Own any one macro model</td>
+                <td><code>product-sel90m28g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50M28</code></td>
+                <td>FE 50mm F2.8 Macro</td>
+                <td>any</td>
+                <td>Own any one macro model</td>
+                <td><code>product-sel50m28</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL30M35</code></td>
+                <td>E 30mm F3.5 Macro</td>
+                <td>any</td>
+                <td>Own any one macro model</td>
+                <td><code>product-sel30m35</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+</section>
+
+  </main>
+</body>
+</html>
