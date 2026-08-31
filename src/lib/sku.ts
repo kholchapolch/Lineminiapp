@@ -3,23 +3,33 @@ export function normalizeSku(sku: string): string {
 }
 
 /**
- * Sony warranty `modelName` values often append a regional/catalog suffix
- * (e.g. `/QSYX`, `//Z SYX`, `QSYX`). A product matches an eligible rule SKU
- * when the model name starts with that SKU and the remainder is either empty
- * or a known suffix — not another model-code continuation such as `M` or `2`
- * (`SEL70200GM` must not match `SEL70200G`).
+ * Sony warranty `modelName` values append a catalog/color suffix after `/`
+ * (cameras: `/BQ AP2`, `/SQ AP2`; lenses: `/QSYX`, `//Z SYX`).
  */
-const SONY_MODEL_NAME_SUFFIX = /^(?:\/+|\s+|(?:QSYX|CSYX|SYX)\b).*$/;
+export function canonicalSku(sku: string): string {
+  const normalized = normalizeSku(sku);
+  const slashIndex = normalized.search(/\/+/);
+
+  return slashIndex === -1 ? normalized : normalized.slice(0, slashIndex).trimEnd();
+}
+
+/**
+ * Remaining suffix after the base model code, once slash-catalog suffixes are
+ * stripped. Covers glued or spaced lens catalog codes (`QSYX`, ` SYX`) — not
+ * another model-code continuation such as `M` or `2` (`SEL70200GM` must not
+ * match `SEL70200G`; `ILCE-7CM2` must not match `ILCE-7C`).
+ */
+const SONY_MODEL_NAME_SUFFIX = /^(?:\s+|(?:QSYX|CSYX|SYX)\b).*$/;
 
 /** Returns true when the product SKU equals or is a suffixed form of an eligible rule SKU. */
 export function matchesEligibleSku(
   productSku: string,
   eligibleSkus: Iterable<string>,
 ): boolean {
-  const normalizedProductSku = normalizeSku(productSku);
+  const normalizedProductSku = canonicalSku(productSku);
 
   for (const eligibleSku of eligibleSkus) {
-    const normalizedEligibleSku = normalizeSku(eligibleSku);
+    const normalizedEligibleSku = canonicalSku(eligibleSku);
 
     if (normalizedProductSku === normalizedEligibleSku) {
       return true;

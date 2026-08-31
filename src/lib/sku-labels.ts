@@ -1,4 +1,4 @@
-import { normalizeSku } from "@/lib/sku";
+import { canonicalSku } from "@/lib/sku";
 
 const skuLabels: Record<string, string> = {
   "ILCE-1M2": "Key full-frame body SKU",
@@ -58,7 +58,7 @@ const skuLabels: Record<string, string> = {
 };
 
 export function getReadableSkuLabel(sku: string): string {
-  const normalizedSku = normalizeSku(sku);
+  const normalizedSku = canonicalSku(sku);
   const generatedLabel = generatedTierLabel(normalizedSku);
   const label = skuLabels[normalizedSku] ?? generatedLabel;
 

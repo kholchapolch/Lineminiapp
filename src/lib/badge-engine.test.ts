@@ -114,6 +114,54 @@ describe("calculateBadges", () => {
     });
   });
 
+  it("matches ILCE-7M5/BQ AP2 to the ILCE-7M5 product rule", () => {
+    const [result] = calculateBadges({
+      products: [product("ILCE-7M5/BQ AP2")],
+      now: new Date("2026-06-01"),
+      rules: [
+        {
+          id: 50,
+          code: "product-ilce-7m5",
+          name: "Alpha 7 V",
+          badgeType: "product",
+          ruleType: "achievement",
+          description: null,
+          sortOrder: 404,
+          isActive: true,
+          activeFrom: null,
+          activeTo: null,
+          registrationStart: null,
+          registrationEnd: null,
+          skus: ["ILCE-7M5"],
+          thresholds: [
+            {
+              level: "achievement",
+              requiredCount: 1,
+              achievedImageUrl: "a7v.png",
+              lockedImageUrl: "locked.png",
+              displayName: "Alpha 7 V",
+            },
+          ],
+          conditions: [
+            {
+              id: 50,
+              label: "Own ILCE-7M5",
+              matchType: "any",
+              requiredCount: 1,
+              sonySkus: ["ILCE-7M5"],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      code: "product-ilce-7m5",
+      status: "earned",
+      matchedCount: 1,
+    });
+  });
+
   it("falls back to the achieved image when locked image URL is not configured", () => {
     const [result] = calculateBadges({
       products: [],
