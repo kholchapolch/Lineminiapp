@@ -1,4 +1,4 @@
-import { matchesEligibleSku, normalizeSku } from "@/lib/sku";
+import { canonicalSku, matchesEligibleSku } from "@/lib/sku";
 import type {
   BadgeRuleConfig,
   BadgeThresholdConfig,
@@ -79,7 +79,7 @@ function uniqueEligibleProducts(
   const matchedBySku = new Map<string, SonyOwnedProduct>();
 
   for (const product of products) {
-    const normalizedSku = normalizeSku(product.sku);
+    const normalizedSku = canonicalSku(product.sku);
 
     if (
       matchesEligibleSku(product.sku, skus) &&
@@ -121,7 +121,7 @@ export function calculateRuleMatch(rule: BadgeRuleConfig, products: SonyOwnedPro
     matchedCount += cappedConditionCount;
 
     for (const product of countedProducts) {
-      matchedBySku.set(normalizeSku(product.sku), product);
+      matchedBySku.set(canonicalSku(product.sku), product);
     }
   }
 
