@@ -1,0 +1,1561 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Product–Badge Mapping</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      h3 { margin-top: 20px; font-size: 20px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+      .hero, section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+      }
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+      .box strong { display: block; margin-bottom: 6px; }
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 880px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th { background: #eef3f8; }
+      @media (max-width: 720px) {
+        main { padding: 18px 12px 36px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Product–Badge Mapping</h1>
+        <p class="lede">
+          รายการ Product Model ที่มีสิทธิ์ใน Badge แต่ละประเภท
+          (Product Badge ตามกลุ่ม และ Quest / Tier ตามเงื่อนไข SKU)
+        </p>
+        <p>
+          เวอร์ชันกฎ <code>2026-07-24-product-urls-001</code> ·
+          57 รหัสรุ่นในแผนที่นี้ (56 มี Product Badge + SEL1224GM เฉพาะ Quest)
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#how">หลักการ map</a></li>
+            <li><a href="#index">ดัชนีรุ่น → เหรียญ</a></li>
+            <li><a href="#product">ตามกลุ่ม Product Badge</a></li>
+            <li><a href="#quest">ตาม Quest</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="how">
+        <h2>หลักการ map</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>Product Badge</strong>
+            หนึ่งรหัสรุ่น = หนึ่งเหรียญ
+            รหัสกฎ <code>product-{sku ตัวพิมพ์เล็ก}</code>
+          </div>
+          <div class="box">
+            <strong>Quest Badge</strong>
+            รุ่นเดียวกันอาจอยู่ในหลาย Quest
+            นับ unique เมื่อจับคู่ SKU ในเงื่อนไขได้ (รวม suffix ภูมิภาค)
+          </div>
+          <div class="box">
+            <strong>กล้อง Full Frame</strong>
+            มีเฉพาะ Product Badge ไม่ได้อยู่ใน Quest ชุดปัจจุบัน
+          </div>
+        </div>
+        <div class="note warn">
+          <code>SEL1224GM</code> อยู่ใน Wide Architect เท่านั้น ไม่มีแถว Product Badge
+          ชื่อทางการตลาดของรหัสนี้จึงไม่ถูก seed ใน <code>badge_rules.badge_name</code>
+        </div>
+      </section>
+
+      <section id="index">
+        <h2>ดัชนีรุ่น → เหรียญ (Model index)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ทุกรหัสที่มีสิทธิ์อย่างน้อยหนึ่งเหรียญ</caption>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อ</th>
+                <th>กลุ่ม Product</th>
+                <th>Product Badge</th>
+                <th>Quest ที่มีสิทธิ์</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ILCE-1M2</code></td>
+                <td>Alpha 1 II</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-1m2</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7C</code></td>
+                <td>Alpha 7C</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7c</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7CM2</code></td>
+                <td>Alpha 7C II</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7cm2</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7CR</code></td>
+                <td>Alpha 7CR</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7cr</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M3</code></td>
+                <td>Alpha 7 III</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7m3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M4</code></td>
+                <td>Alpha 7 IV</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7m4</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M5</code></td>
+                <td>Alpha 7 V</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7m5</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7RM5</code></td>
+                <td>Alpha 7R V</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7rm5</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7SM3</code></td>
+                <td>Alpha 7S III</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-7sm3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-9M3</code></td>
+                <td>Alpha 9 III</td>
+                <td>Full Frame Camera</td>
+                <td><code>product-ilce-9m3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>SEL135F18GM</code></td>
+                <td>FE 135mm F1.8 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel135f18gm</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL14F18GM</code></td>
+                <td>FE 14mm F1.8 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel14f18gm</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL16F18G</code></td>
+                <td>FE 16mm F1.8 G</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel16f18g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL20F18G</code></td>
+                <td>FE 20mm F1.8 G</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel20f18g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL24F14GM</code></td>
+                <td>FE 24mm F1.4 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel24f14gm</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL24F28G</code></td>
+                <td>FE 24mm F2.8 G</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel24f28g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL30M35</code></td>
+                <td>E 30mm F3.5 Macro</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel30m35</code></td>
+                <td><code>the-magnifier</code> The Magnifier</td>
+              </tr>
+              <tr>
+                <td><code>SEL35F14GM</code></td>
+                <td>FE 35mm F1.4 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel35f14gm</code></td>
+                <td><code>portrait-master</code> Portrait Master<br /><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL35F18F</code></td>
+                <td>FE 35mm F1.8</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel35f18f</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL50F12GM</code></td>
+                <td>FE 50mm F1.2 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel50f12gm</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL50F14GM</code></td>
+                <td>FE 50mm F1.4 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel50f14gm</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL50M28</code></td>
+                <td>FE 50mm F2.8 Macro</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel50m28</code></td>
+                <td><code>the-magnifier</code> The Magnifier</td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM</code></td>
+                <td>FE 85mm F1.4 GM</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel85f14gm</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM2</code></td>
+                <td>FE 85mm F1.4 GM II</td>
+                <td>Prime Lens</td>
+                <td><code>product-sel85f14gm2</code></td>
+                <td><code>portrait-master</code> Portrait Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL1625G</code></td>
+                <td>FE 16-25mm F2.8 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1625g</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-junior</code> Trinity Junior</td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM</code></td>
+                <td>FE 16-35mm F2.8 GM</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1635gm</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM2</code></td>
+                <td>FE 16-35mm F2.8 GM II</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1635gm2</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL1635Z</code></td>
+                <td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1635z</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>all-rounder</code> All Rounder</td>
+              </tr>
+              <tr>
+                <td><code>SEL1655G</code></td>
+                <td>E 16-55mm F2.8 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel1655g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL2070G</code></td>
+                <td>FE 20-70mm F4 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2070g</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>all-rounder</code> All Rounder</td>
+              </tr>
+              <tr>
+                <td><code>SEL24105G</code></td>
+                <td>FE 24-105mm F4 G OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel24105g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL2450G</code></td>
+                <td>FE 24-50mm F2.8 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2450g</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-junior</code> Trinity Junior</td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM</code></td>
+                <td>FE 24-70mm F2.8 GM</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2470gm</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM2</code></td>
+                <td>FE 24-70mm F2.8 GM II</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2470gm2</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL2470Z</code></td>
+                <td>Vario-Tessar T* FE 24-70mm F4 ZA OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2470z</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL2870GM</code></td>
+                <td>FE 28-70mm F2 GM</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel2870gm</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>f2-master</code> F2 Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL50150GM</code></td>
+                <td>FE 50-150 mm.F2 GM</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel50150gm</code></td>
+                <td><code>f2-master</code> F2 Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL55210</code></td>
+                <td>E 55-210mm F4.5-6.3 OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-sel55210</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SELC1635G</code></td>
+                <td>FE C 16-35mm T3.1 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-selc1635g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SELP1635G</code></td>
+                <td>FE PZ 16-35mm F4 G</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-selp1635g</code></td>
+                <td><code>wide-architect</code> Wide Architect<br /><code>all-rounder</code> All Rounder</td>
+              </tr>
+              <tr>
+                <td><code>SELP18110G</code></td>
+                <td>E PZ 18-110mm F4 G OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-selp18110g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SELP28135G</code></td>
+                <td>FE PZ 28-135mm F4 G OSS</td>
+                <td>Wide &amp; Normal Zoom Lens</td>
+                <td><code>product-selp28135g</code></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+              <tr>
+                <td><code>SEL100400GM</code></td>
+                <td>FE 100-400mm F4.5-5.6 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel100400gm</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL100400MC</code></td>
+                <td>FE 100-400 mm.F4.5 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel100400mc</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL200600G</code></td>
+                <td>FE 200-600mm F5.6-6.3 G OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel200600g</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL300F28GM</code></td>
+                <td>FE 300mm F2.8 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel300f28gm</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL400800G</code></td>
+                <td>FE 400-800 mm.F6.3-8 G OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel400800g</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL400F28GM</code></td>
+                <td>FE 400mm F2.8 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel400f28gm</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL600F40GM</code></td>
+                <td>FE 600mm F4 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel600f40gm</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G</code></td>
+                <td>FE 70-200mm F4 G OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70200g</code></td>
+                <td><code>all-rounder</code> All Rounder</td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G2</code></td>
+                <td>FE 70-200mm F4 Macro G OSS II</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70200g2</code></td>
+                <td><code>trinity-junior</code> Trinity Junior</td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM</code></td>
+                <td>FE 70-200mm F2.8 GM OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70200gm</code></td>
+                <td><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM2</code></td>
+                <td>FE 70-200mm F2.8 GM OSS II</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70200gm2</code></td>
+                <td><code>trinity-master</code> Trinity Master</td>
+              </tr>
+              <tr>
+                <td><code>SEL70350G</code></td>
+                <td>E 70-350mm F4.5-6.3 G OSS</td>
+                <td>Telephoto &amp; Super Telephoto Lens</td>
+                <td><code>product-sel70350g</code></td>
+                <td><code>the-visionary</code> The Visionary</td>
+              </tr>
+              <tr>
+                <td><code>SEL100M28GM</code></td>
+                <td>FE 100 mm.F2.8 Macro GM OSS</td>
+                <td>Macro Lens</td>
+                <td><code>product-sel100m28gm</code></td>
+                <td><code>portrait-master</code> Portrait Master<br /><code>the-magnifier</code> The Magnifier</td>
+              </tr>
+              <tr>
+                <td><code>SEL90M28G</code></td>
+                <td>FE 90mm F2.8 Macro G OSS</td>
+                <td>Macro Lens</td>
+                <td><code>product-sel90m28g</code></td>
+                <td><code>the-magnifier</code> The Magnifier</td>
+              </tr>
+              <tr>
+                <td><code>SEL1224GM</code></td>
+                <td>—</td>
+                <td>—</td>
+                <td><em>ไม่มี (quest-only)</em></td>
+                <td><code>wide-architect</code> Wide Architect</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="product">
+        <h2>ตามกลุ่ม Product Badge</h2>
+        <h3 id="g-full-frame-camera">Full Frame Camera (<code>full-frame-camera</code>, 10 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ILCE-1M2</code></td>
+                <td>Alpha 1 II</td>
+                <td><code>product-ilce-1m2</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-9M3</code></td>
+                <td>Alpha 9 III</td>
+                <td><code>product-ilce-9m3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7RM5</code></td>
+                <td>Alpha 7R V</td>
+                <td><code>product-ilce-7rm5</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M5</code></td>
+                <td>Alpha 7 V</td>
+                <td><code>product-ilce-7m5</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M4</code></td>
+                <td>Alpha 7 IV</td>
+                <td><code>product-ilce-7m4</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7M3</code></td>
+                <td>Alpha 7 III</td>
+                <td><code>product-ilce-7m3</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7CM2</code></td>
+                <td>Alpha 7C II</td>
+                <td><code>product-ilce-7cm2</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7C</code></td>
+                <td>Alpha 7C</td>
+                <td><code>product-ilce-7c</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7CR</code></td>
+                <td>Alpha 7CR</td>
+                <td><code>product-ilce-7cr</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>ILCE-7SM3</code></td>
+                <td>Alpha 7S III</td>
+                <td><code>product-ilce-7sm3</code></td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="g-prime-lens">Prime Lens (<code>prime-lens</code>, 14 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL30M35</code></td>
+                <td>E 30mm F3.5 Macro</td>
+                <td><code>product-sel30m35</code></td>
+                <td><code>the-magnifier</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL135F18GM</code></td>
+                <td>FE 135mm F1.8 GM</td>
+                <td><code>product-sel135f18gm</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL14F18GM</code></td>
+                <td>FE 14mm F1.8 GM</td>
+                <td><code>product-sel14f18gm</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL16F18G</code></td>
+                <td>FE 16mm F1.8 G</td>
+                <td><code>product-sel16f18g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL20F18G</code></td>
+                <td>FE 20mm F1.8 G</td>
+                <td><code>product-sel20f18g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24F14GM</code></td>
+                <td>FE 24mm F1.4 GM</td>
+                <td><code>product-sel24f14gm</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24F28G</code></td>
+                <td>FE 24mm F2.8 G</td>
+                <td><code>product-sel24f28g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL35F14GM</code></td>
+                <td>FE 35mm F1.4 GM</td>
+                <td><code>product-sel35f14gm</code></td>
+                <td><code>portrait-master</code>, <code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL35F18F</code></td>
+                <td>FE 35mm F1.8</td>
+                <td><code>product-sel35f18f</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50F12GM</code></td>
+                <td>FE 50mm F1.2 GM</td>
+                <td><code>product-sel50f12gm</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50F14GM</code></td>
+                <td>FE 50mm F1.4 GM</td>
+                <td><code>product-sel50f14gm</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50M28</code></td>
+                <td>FE 50mm F2.8 Macro</td>
+                <td><code>product-sel50m28</code></td>
+                <td><code>the-magnifier</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM</code></td>
+                <td>FE 85mm F1.4 GM</td>
+                <td><code>product-sel85f14gm</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM2</code></td>
+                <td>FE 85mm F1.4 GM II</td>
+                <td><code>product-sel85f14gm2</code></td>
+                <td><code>portrait-master</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="g-wide-normal-zoom-lens">Wide &amp; Normal Zoom Lens (<code>wide-normal-zoom-lens</code>, 18 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL1655G</code></td>
+                <td>E 16-55mm F2.8 G</td>
+                <td><code>product-sel1655g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL55210</code></td>
+                <td>E 55-210mm F4.5-6.3 OSS</td>
+                <td><code>product-sel55210</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP18110G</code></td>
+                <td>E PZ 18-110mm F4 G OSS</td>
+                <td><code>product-selp18110g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1625G</code></td>
+                <td>FE 16-25mm F2.8 G</td>
+                <td><code>product-sel1625g</code></td>
+                <td><code>wide-architect</code>, <code>trinity-junior</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM</code></td>
+                <td>FE 16-35mm F2.8 GM</td>
+                <td><code>product-sel1635gm</code></td>
+                <td><code>wide-architect</code>, <code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM2</code></td>
+                <td>FE 16-35mm F2.8 GM II</td>
+                <td><code>product-sel1635gm2</code></td>
+                <td><code>wide-architect</code>, <code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2070G</code></td>
+                <td>FE 20-70mm F4 G</td>
+                <td><code>product-sel2070g</code></td>
+                <td><code>wide-architect</code>, <code>all-rounder</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24105G</code></td>
+                <td>FE 24-105mm F4 G OSS</td>
+                <td><code>product-sel24105g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2450G</code></td>
+                <td>FE 24-50mm F2.8 G</td>
+                <td><code>product-sel2450g</code></td>
+                <td><code>wide-architect</code>, <code>trinity-junior</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM</code></td>
+                <td>FE 24-70mm F2.8 GM</td>
+                <td><code>product-sel2470gm</code></td>
+                <td><code>wide-architect</code>, <code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM2</code></td>
+                <td>FE 24-70mm F2.8 GM II</td>
+                <td><code>product-sel2470gm2</code></td>
+                <td><code>wide-architect</code>, <code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2870GM</code></td>
+                <td>FE 28-70mm F2 GM</td>
+                <td><code>product-sel2870gm</code></td>
+                <td><code>wide-architect</code>, <code>f2-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50150GM</code></td>
+                <td>FE 50-150 mm.F2 GM</td>
+                <td><code>product-sel50150gm</code></td>
+                <td><code>f2-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SELC1635G</code></td>
+                <td>FE C 16-35mm T3.1 G</td>
+                <td><code>product-selc1635g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP1635G</code></td>
+                <td>FE PZ 16-35mm F4 G</td>
+                <td><code>product-selp1635g</code></td>
+                <td><code>wide-architect</code>, <code>all-rounder</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP28135G</code></td>
+                <td>FE PZ 28-135mm F4 G OSS</td>
+                <td><code>product-selp28135g</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635Z</code></td>
+                <td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td>
+                <td><code>product-sel1635z</code></td>
+                <td><code>wide-architect</code>, <code>all-rounder</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470Z</code></td>
+                <td>Vario-Tessar T* FE 24-70mm F4 ZA OSS</td>
+                <td><code>product-sel2470z</code></td>
+                <td><code>wide-architect</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="g-telephoto-super-telephoto-lens">Telephoto &amp; Super Telephoto Lens (<code>telephoto-super-telephoto-lens</code>, 12 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL70350G</code></td>
+                <td>E 70-350mm F4.5-6.3 G OSS</td>
+                <td><code>product-sel70350g</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL100400MC</code></td>
+                <td>FE 100-400 mm.F4.5 GM OSS</td>
+                <td><code>product-sel100400mc</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL100400GM</code></td>
+                <td>FE 100-400mm F4.5-5.6 GM OSS</td>
+                <td><code>product-sel100400gm</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL200600G</code></td>
+                <td>FE 200-600mm F5.6-6.3 G OSS</td>
+                <td><code>product-sel200600g</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL300F28GM</code></td>
+                <td>FE 300mm F2.8 GM OSS</td>
+                <td><code>product-sel300f28gm</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL400800G</code></td>
+                <td>FE 400-800 mm.F6.3-8 G OSS</td>
+                <td><code>product-sel400800g</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL400F28GM</code></td>
+                <td>FE 400mm F2.8 GM OSS</td>
+                <td><code>product-sel400f28gm</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL600F40GM</code></td>
+                <td>FE 600mm F4 GM OSS</td>
+                <td><code>product-sel600f40gm</code></td>
+                <td><code>the-visionary</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM</code></td>
+                <td>FE 70-200mm F2.8 GM OSS</td>
+                <td><code>product-sel70200gm</code></td>
+                <td><code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM2</code></td>
+                <td>FE 70-200mm F2.8 GM OSS II</td>
+                <td><code>product-sel70200gm2</code></td>
+                <td><code>trinity-master</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G</code></td>
+                <td>FE 70-200mm F4 G OSS</td>
+                <td><code>product-sel70200g</code></td>
+                <td><code>all-rounder</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G2</code></td>
+                <td>FE 70-200mm F4 Macro G OSS II</td>
+                <td><code>product-sel70200g2</code></td>
+                <td><code>trinity-junior</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="g-macro-lens">Macro Lens (<code>macro-lens</code>, 2 รุ่น)</h3>
+        <p>แต่ละรุ่นมี Product Badge ของตัวเอง ปลดล็อกเมื่อลงทะเบียนอย่างน้อยหนึ่ง serial</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อเหรียญ / ชื่อรุ่น</th>
+                <th>รหัส Product Badge</th>
+                <th>Quest ที่นับรุ่นนี้ได้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL100M28GM</code></td>
+                <td>FE 100 mm.F2.8 Macro GM OSS</td>
+                <td><code>product-sel100m28gm</code></td>
+                <td><code>portrait-master</code>, <code>the-magnifier</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL90M28G</code></td>
+                <td>FE 90mm F2.8 Macro G OSS</td>
+                <td><code>product-sel90m28g</code></td>
+                <td><code>the-magnifier</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="quest">
+        <h2>ตาม Quest</h2>
+        <h3 id="q-portrait-master">Portrait Master (<code>portrait-master</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>tier</code> ·
+          จำนวนรหัสในเงื่อนไข: 7
+          · นับ unique ในพูลนี้เพื่อ Bronze / Silver / Gold
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL35F14GM</code></td>
+                <td>FE 35mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel35f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50F14GM</code></td>
+                <td>FE 50mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel50f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50F12GM</code></td>
+                <td>FE 50mm F1.2 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel50f12gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM</code></td>
+                <td>FE 85mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel85f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL85F14GM2</code></td>
+                <td>FE 85mm F1.4 GM II</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel85f14gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL100M28GM</code></td>
+                <td>FE 100 mm.F2.8 Macro GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel100m28gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL135F18GM</code></td>
+                <td>FE 135mm F1.8 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Portrait Master models</td>
+                <td><code>product-sel135f18gm</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="q-wide-architect">Wide Architect (<code>wide-architect</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>tier</code> ·
+          จำนวนรหัสในเงื่อนไข: 24
+          · นับ unique ในพูลนี้เพื่อ Bronze / Silver / Gold
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL1224GM</code></td>
+                <td>—</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><em>ไม่มี Product Badge</em></td>
+              </tr>
+              <tr>
+                <td><code>SEL14F18GM</code></td>
+                <td>FE 14mm F1.8 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel14f18gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL16F18G</code></td>
+                <td>FE 16mm F1.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel16f18g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL20F18G</code></td>
+                <td>FE 20mm F1.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel20f18g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1625G</code></td>
+                <td>FE 16-25mm F2.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1625g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM</code></td>
+                <td>FE 16-35mm F2.8 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1635gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM2</code></td>
+                <td>FE 16-35mm F2.8 GM II</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1635gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635Z</code></td>
+                <td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1635z</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM</code></td>
+                <td>FE 24-70mm F2.8 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2470gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM2</code></td>
+                <td>FE 24-70mm F2.8 GM II</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2470gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2450G</code></td>
+                <td>FE 24-50mm F2.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2450g</code></td>
+              </tr>
+              <tr>
+                <td><code>SELC1635G</code></td>
+                <td>FE C 16-35mm T3.1 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-selc1635g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1655G</code></td>
+                <td>E 16-55mm F2.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel1655g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2070G</code></td>
+                <td>FE 20-70mm F4 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2070g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24105G</code></td>
+                <td>FE 24-105mm F4 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel24105g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470Z</code></td>
+                <td>Vario-Tessar T* FE 24-70mm F4 ZA OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2470z</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24F14GM</code></td>
+                <td>FE 24mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel24f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL24F28G</code></td>
+                <td>FE 24mm F2.8 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel24f28g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2870GM</code></td>
+                <td>FE 28-70mm F2 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel2870gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL35F14GM</code></td>
+                <td>FE 35mm F1.4 GM</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel35f14gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL35F18F</code></td>
+                <td>FE 35mm F1.8</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-sel35f18f</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP1635G</code></td>
+                <td>FE PZ 16-35mm F4 G</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-selp1635g</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP18110G</code></td>
+                <td>E PZ 18-110mm F4 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-selp18110g</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP28135G</code></td>
+                <td>FE PZ 28-135mm F4 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible Wide Architect models</td>
+                <td><code>product-selp28135g</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="q-the-visionary">The Visionary (<code>the-visionary</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>tier</code> ·
+          จำนวนรหัสในเงื่อนไข: 9
+          · นับ unique ในพูลนี้เพื่อ Bronze / Silver / Gold
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL100400GM</code></td>
+                <td>FE 100-400mm F4.5-5.6 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel100400gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL400800G</code></td>
+                <td>FE 400-800 mm.F6.3-8 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel400800g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL200600G</code></td>
+                <td>FE 200-600mm F5.6-6.3 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel200600g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL300F28GM</code></td>
+                <td>FE 300mm F2.8 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel300f28gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL400F28GM</code></td>
+                <td>FE 400mm F2.8 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel400f28gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL600F40GM</code></td>
+                <td>FE 600mm F4 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel600f40gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70350G</code></td>
+                <td>E 70-350mm F4.5-6.3 G OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel70350g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL55210</code></td>
+                <td>E 55-210mm F4.5-6.3 OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel55210</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL100400MC</code></td>
+                <td>FE 100-400 mm.F4.5 GM OSS</td>
+                <td>min_count</td>
+                <td>Collect eligible The Visionary models</td>
+                <td><code>product-sel100400mc</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="q-trinity-master">Trinity Master (<code>trinity-master</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 6
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL1635GM</code></td>
+                <td>FE 16-35mm F2.8 GM</td>
+                <td>any</td>
+                <td>Own one 16-35 GM family model</td>
+                <td><code>product-sel1635gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635GM2</code></td>
+                <td>FE 16-35mm F2.8 GM II</td>
+                <td>any</td>
+                <td>Own one 16-35 GM family model</td>
+                <td><code>product-sel1635gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM</code></td>
+                <td>FE 24-70mm F2.8 GM</td>
+                <td>any</td>
+                <td>Own one 24-70 GM family model</td>
+                <td><code>product-sel2470gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL2470GM2</code></td>
+                <td>FE 24-70mm F2.8 GM II</td>
+                <td>any</td>
+                <td>Own one 24-70 GM family model</td>
+                <td><code>product-sel2470gm2</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM</code></td>
+                <td>FE 70-200mm F2.8 GM OSS</td>
+                <td>any</td>
+                <td>Own one 70-200 GM family model</td>
+                <td><code>product-sel70200gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200GM2</code></td>
+                <td>FE 70-200mm F2.8 GM OSS II</td>
+                <td>any</td>
+                <td>Own one 70-200 GM family model</td>
+                <td><code>product-sel70200gm2</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="q-trinity-junior">Trinity Junior (<code>trinity-junior</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 3
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL2450G</code></td>
+                <td>FE 24-50mm F2.8 G</td>
+                <td>all</td>
+                <td>Own all Trinity Junior models</td>
+                <td><code>product-sel2450g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1625G</code></td>
+                <td>FE 16-25mm F2.8 G</td>
+                <td>all</td>
+                <td>Own all Trinity Junior models</td>
+                <td><code>product-sel1625g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G2</code></td>
+                <td>FE 70-200mm F4 Macro G OSS II</td>
+                <td>all</td>
+                <td>Own all Trinity Junior models</td>
+                <td><code>product-sel70200g2</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="q-all-rounder">All Rounder (<code>all-rounder</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 4
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL2070G</code></td>
+                <td>FE 20-70mm F4 G</td>
+                <td>min_count</td>
+                <td>Own any three All Rounder models</td>
+                <td><code>product-sel2070g</code></td>
+              </tr>
+              <tr>
+                <td><code>SELP1635G</code></td>
+                <td>FE PZ 16-35mm F4 G</td>
+                <td>min_count</td>
+                <td>Own any three All Rounder models</td>
+                <td><code>product-selp1635g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL1635Z</code></td>
+                <td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td>
+                <td>min_count</td>
+                <td>Own any three All Rounder models</td>
+                <td><code>product-sel1635z</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL70200G</code></td>
+                <td>FE 70-200mm F4 G OSS</td>
+                <td>min_count</td>
+                <td>Own any three All Rounder models</td>
+                <td><code>product-sel70200g</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="q-f2-master">F2 Master (<code>f2-master</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 2
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL2870GM</code></td>
+                <td>FE 28-70mm F2 GM</td>
+                <td>all</td>
+                <td>Own both F2 Master models</td>
+                <td><code>product-sel2870gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50150GM</code></td>
+                <td>FE 50-150 mm.F2 GM</td>
+                <td>all</td>
+                <td>Own both F2 Master models</td>
+                <td><code>product-sel50150gm</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="q-the-magnifier">The Magnifier (<code>the-magnifier</code>)</h3>
+        <p>
+          ประเภทกฎ: <code>achievement</code> ·
+          จำนวนรหัสในเงื่อนไข: 4
+          
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสรุ่น</th>
+                <th>ชื่อในกฎ</th>
+                <th>matchType</th>
+                <th>เงื่อนไข</th>
+                <th>Product Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SEL100M28GM</code></td>
+                <td>FE 100 mm.F2.8 Macro GM OSS</td>
+                <td>any</td>
+                <td>Own any one macro model</td>
+                <td><code>product-sel100m28gm</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL90M28G</code></td>
+                <td>FE 90mm F2.8 Macro G OSS</td>
+                <td>any</td>
+                <td>Own any one macro model</td>
+                <td><code>product-sel90m28g</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL50M28</code></td>
+                <td>FE 50mm F2.8 Macro</td>
+                <td>any</td>
+                <td>Own any one macro model</td>
+                <td><code>product-sel50m28</code></td>
+              </tr>
+              <tr>
+                <td><code>SEL30M35</code></td>
+                <td>E 30mm F3.5 Macro</td>
+                <td>any</td>
+                <td>Own any one macro model</td>
+                <td><code>product-sel30m35</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

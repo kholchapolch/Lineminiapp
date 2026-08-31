@@ -72,7 +72,7 @@ describe("createSonyProductsClient", () => {
       },
       products: [
         {
-          sku: "ZV-E10M2/BQ AP2",
+          sku: "ZV-E10M2",
           modelName: "ZV-E10M2/BQ AP2",
           serialNumber: "1000003",
           registeredAt: "2026-03-25",

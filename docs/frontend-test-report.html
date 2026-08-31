@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Frontend Test Report</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .pass {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .gap {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Frontend Test Report</h1>
+        <p class="lede">
+          ผลทดสอบ UI/UX, Responsive, Navigation, Loading และ Error State
+        </p>
+        <p>
+          รัน 19 Aug 2026 · Vitest v2.1.9 · 9 ไฟล์ที่เกี่ยวข้องกับหน้าบ้าน
+          <strong>35/35 ผ่าน</strong>
+          ไม่มี Playwright / Cypress / การทดสอบคอมโพเนนต์ React ในรีโป
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#summary">สรุป</a></li>
+            <li><a href="#ui">UI/UX</a></li>
+            <li><a href="#responsive">Responsive</a></li>
+            <li><a href="#nav">Navigation</a></li>
+            <li><a href="#loading">Loading</a></li>
+            <li><a href="#error">Error State</a></li>
+            <li><a href="#gaps">ช่องว่าง</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="summary">
+        <h2>สรุป (Summary)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong class="pass">มีเทสอัตโนมัติ</strong>
+            Navigation paths, LIFF session, landing mode, entry guard, นับสถิติบ้าน, ตั๋วภารกิจ, URL แชร์
+          </div>
+          <div class="box">
+            <strong class="gap">ยังไม่มีเทสอัตโนมัติ</strong>
+            Responsive จริงบนอุปกรณ์, คลิกปุ่ม, skeleton, PageError, กรองสินค้า, แถบล่าง
+          </div>
+          <div class="box">
+            <strong>วิธีอ่านผล</strong>
+            Pass = Vitest ของเลเยอร์ข้อมูล/เส้นทาง
+            Specified = พฤติกรรมในโค้ดหน้าจอที่ยังไม่รันในเบราว์เซอร์
+          </div>
+        </div>
+        <div class="note warn">
+          รายงานนี้ไม่ใช่ UAT ลงนามบน iPhone/Android ใน LINE
+          ชุด CI รัน Vitest ทั้งโปรเจกต์ ไม่มีขั้นตอน e2e หน้า Mini App
+        </div>
+      </section>
+
+      <section id="ui">
+        <h2>UI/UX</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>หลักฐาน</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>UX-01</td>
+                <td>
+                  สถิติเหรียญภารกิจบนบ้านนับทุกชั้น (bronze/silver/gold)
+                  ไม่นับเป็นหนึ่งต่อ Quest
+                </td>
+                <td><code>countMissionBadgesFromQuestTiers</code> → 3/5</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>UX-02</td>
+                <td>
+                  หน้ารายละเอียดภารกิจแสดงตั๋วทุก SKU ในเงื่อนไข
+                  completed / pending + ชื่อจากกฎ + URL รายละเอียด
+                </td>
+                <td><code>mapExperienceToMyMission</code> 7 ตั๋ว Portrait Gold</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>UX-03</td>
+                <td>
+                  ชื่อการ์ดภารกิจ: Quest ชั้นเดียวใช้ชื่อส่วน, หลายชั้นใช้ป้ายระดับ
+                </td>
+                <td><code>resolveMissionCardTitle</code></td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>UX-04</td>
+                <td>วันที่ปลดล็อกสินค้าเป็นรูปแบบ dd mmm yyyy</td>
+                <td><code>formatUnlockedDate</code></td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>UX-05</td>
+                <td>URL รูปแชร์ไม่มีช่องว่างดิบ เข้ารหัส path สำหรับ Facebook</td>
+                <td><code>toShareableAssetUrl</code> / <code>toFacebookSharerUrl</code></td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>UX-06</td>
+                <td>
+                  พรีวิวบ้านสูงสุด 3 การ์ด, กรองแคตตาล็อก, การ์ดล็อกกดไม่ได้
+                </td>
+                <td>อยู่ในคอมโพเนนต์ ไม่มี RTL/screenshot test</td>
+                <td class="gap">Specified, not automated</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="responsive">
+        <h2>Responsive</h2>
+        <p>
+          ไม่มีเทสความกว้างจอ, ไม่มี visual regression
+          เลย์เอาต์เป้าหมายระบุในโค้ด CSS เท่านั้น
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>สถานะในโค้ด</th>
+                <th>ผลทดสอบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>R-01</td>
+                <td>โทรศัพท์แนวตั้ง กริด 3 คอลัมน์ + safe-area + 100dvh</td>
+                <td>มีใน CSS หน้า my-*</td>
+                <td class="gap">Not automated</td>
+              </tr>
+              <tr>
+                <td>R-02</td>
+                <td>แท็บเล็ต/แนวนอน</td>
+                <td>ไม่มี breakpoint แยกสำหรับ my-*</td>
+                <td class="gap">Not automated / ไม่ได้ออกแบบแยก</td>
+              </tr>
+              <tr>
+                <td>R-03</td>
+                <td>หน้าวินิจฉัย BadgeClient ที่ ≤680px</td>
+                <td><code>globals.css</code> media query</td>
+                <td class="gap">Not automated</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="nav">
+        <h2>Navigation</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>หลักฐาน</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>N-01</td>
+                <td>สร้าง path บ้าน / สินค้า / ภารกิจ / query debug</td>
+                <td><code>i18n/paths.test.ts</code></td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>N-02</td>
+                <td>local+mock ไปดีไซน์ใหม่โดยไม่บังคับ LIFF</td>
+                <td><code>resolveBadgeLandingMode</code> = local-preview</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>N-03</td>
+                <td>production ไป bootstrap LINE; debug=1 เป็น diagnostic</td>
+                <td>badge-landing.test.ts</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>N-04</td>
+                <td>หน้า entry อนุญาต origin/referrer ที่อนุญาต</td>
+                <td>redirect-guard allow</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>N-05</td>
+                <td>entry บล็อกแหล่งแปลกและกรณีไม่มี header</td>
+                <td>blocked-source / missing-source</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>N-06</td>
+                <td>
+                  คลิกดูทั้งหมด, แถบ Home/Register/Inquiry,
+                  middleware <code>/</code> → <code>/th/my-badges</code>
+                </td>
+                <td>ไม่มีเทสคลิกหรือเทส middleware</td>
+                <td class="gap">Specified, not automated</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="loading">
+        <h2>Loading</h2>
+        <p>
+          <code>PageLoading</code> มี 5 variant ให้โครงกระดูกตรงหน้า
+          (my-badges, my-products, my-missions, รายละเอียดสินค้า, รายละเอียดภารกิจ)
+          ไม่มีเทสว่าแสดงเมื่อไหร่
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เงื่อนไขในโค้ด</th>
+                <th>สิ่งที่ผู้ใช้ควรเห็น</th>
+                <th>ผลทดสอบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>L-01</td>
+                <td>Line session status idle หรือ loading</td>
+                <td>skeleton ของหน้านั้น</td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>L-02</td>
+                <td>
+                  <code>useLineSessionData</code>:
+                  isLoading = ยังไม่มี error และยังไม่มี data
+                </td>
+                <td>skeleton จนกว่า fetch กลับ</td>
+                <td class="gap">Specified (hook ไม่มีเทส)</td>
+              </tr>
+              <tr>
+                <td>L-03</td>
+                <td>ยกเลิก fetch เมื่อออกจากหน้า (AbortController)</td>
+                <td>ไม่ตั้ง error จาก request ที่ถูกยกเลิก</td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>L-04</td>
+                <td>BadgeSessionBootstrap ระหว่าง verify LIFF</td>
+                <td>ข้อความ loading ในแผง ไม่ใช่ skeleton my-badges</td>
+                <td class="gap">Specified</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="error">
+        <h2>Error State</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>เคส</th>
+                <th>หลักฐาน / พฤติกรรมหน้าจอ</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>E-01</td>
+                <td>เปิดนอก LINE client</td>
+                <td>liff-session throw ข้อความ Mini App</td>
+                <td class="pass">Pass (หน่วย)</td>
+              </tr>
+              <tr>
+                <td>E-02</td>
+                <td>ไม่มี ID token</td>
+                <td>throw Missing LINE ID token</td>
+                <td class="pass">Pass (หน่วย)</td>
+              </tr>
+              <tr>
+                <td>E-03</td>
+                <td>verify ที่เซิร์ฟเวอร์ 401</td>
+                <td>throw could not be verified</td>
+                <td class="pass">Pass (หน่วย)</td>
+              </tr>
+              <tr>
+                <td>E-04</td>
+                <td>โปรไฟล์นอก client</td>
+                <td>getLineProfileFromLiff คืน null ไม่บล็อก</td>
+                <td class="pass">Pass (หน่วย)</td>
+              </tr>
+              <tr>
+                <td>E-05</td>
+                <td>รายละเอียดสินค้า API ไม่ 2xx</td>
+                <td>
+                  หน้าใช้ <code>error</code> ของ hook →
+                  <code>PageError</code> role=alert
+                </td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>E-06</td>
+                <td>My Badges fetch ล้ม</td>
+                <td>เรนเดอร์ MyBadgesView ข้อมูลว่าง ยังกดดูทั้งหมดได้</td>
+                <td class="gap">Specified</td>
+              </tr>
+              <tr>
+                <td>E-07</td>
+                <td>
+                  My Products / My Missions / Mission detail
+                  เมื่อ hook ตั้ง error
+                </td>
+                <td>
+                  หน้าเช็กแค่ <code>isLoading || !data</code>
+                  → ค้าง skeleton (ไม่มี PageError)
+                </td>
+                <td class="gap">Specified — UX ช่องว่าง</td>
+              </tr>
+              <tr>
+                <td>E-08</td>
+                <td>ปุ่มแชร์เมื่อสร้าง URL ไม่ได้</td>
+                <td>FacebookShareAction disabled</td>
+                <td class="gap">Specified</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="gaps">
+        <h2>ช่องว่างและงานทดสอบที่ยังไม่มี</h2>
+        <ul>
+          <li>ทดสอบคอมโพเนนต์ (React Testing Library) สำหรับ BottomBar, FilterDropdown, การ์ดล็อก</li>
+          <li>E2E ใน LIFF หรืออย่างน้อย Playwright บน viewport 390×844: บ้าน → สินค้า → รายละเอียด → กลับ</li>
+          <li>ตรวจว่า error ของ my-products/my-missions ไม่ค้าง loading</li>
+          <li>สแนปช็อต/คู่มือ UAT บน iOS และ Android WebView</li>
+          <li>เทส <code>useLineSessionData</code> (abort, 401, ไม่มี lineuuid)</li>
+        </ul>
+        <p>
+          คำสั่งรอบนี้:
+          <code>npx vitest run</code> บน
+          paths, liff-session, badge-landing, redirect-guard, my-badges, my-mission, line-session-storage, absolute-url, format-unlocked-date
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

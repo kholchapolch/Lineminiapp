@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Screen Flow / User Flow</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      pre {
+        margin: 0 0 14px;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        font-size: 13px;
+        line-height: 1.5;
+        white-space: pre;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 880px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Screen Flow / User Flow</h1>
+        <p class="lede">
+          เส้นทางตั้งแต่เข้าใช้งาน เชื่อมสมาชิก ดูเหรียญ ดู Tier และแชร์เหรียญ
+          ใน LINE Mini App
+        </p>
+        <p>
+          บ้านของแคมเปญคือ <code>/{locale}/my-badges</code>
+          สมาชิกในแอปคือ LINE user ที่ผูกกับสินค้าผ่าน Sony warranty API
+          ไม่มีหน้าสมัครสมาชิกใน Mini App
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#happy">เส้นทางหลัก (Happy path)</a></li>
+            <li><a href="#enter">เข้าใช้งาน</a></li>
+            <li><a href="#member">เชื่อมสมาชิก</a></li>
+            <li><a href="#badges">ดูเหรียญ</a></li>
+            <li><a href="#tier">ดู Tier</a></li>
+            <li><a href="#share">แชร์เหรียญ</a></li>
+            <li><a href="#alt">เส้นทางแยก (Exceptions)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="happy">
+        <h2>เส้นทางหลัก (Happy path)</h2>
+        <pre>เปิด Mini App ใน LINE
+  → LIFF init + ID token
+  → POST /api/line-session  (คุกกี้เซสชัน 1 ชม.)
+  → เก็บ LINE user id ฝั่งไคลเอนต์
+  → /{locale}/my-badges
+  → GET /api/my-badges?lineuuid=
+       ├─ LINE verify แล้ว (ครั้งเข้า)
+       └─ Sony QueryWarrantyMySonyByLine + กฎ MySQL
+  → เห็นโปรไฟล์ + นับเหรียญ + พรีวิว
+
+แตกได้สี่ทางจากบ้าน:
+  A. ดูเหรียญสินค้าทั้งหมด / รายละเอียด / แชร์
+  B. ดูภารกิจ + ชั้น (Tier) / รายละเอียดชั้น / แชร์เมื่อครบ
+  C. แถบ Register → เว็บลงทะเบียนสินค้า Sony (ออกจาก Mini App)
+  D. แถบ FAQ → microsite</pre>
+      </section>
+
+      <section id="enter">
+        <h2>เข้าใช้งาน (Entry)</h2>
+        <ol>
+          <li>
+            ผู้ใช้เปิดจาก LINE (LIFF ID)
+            middleware ดึง <code>/</code> และ <code>/badge</code> ไป
+            <code>/th/my-badges</code>
+          </li>
+          <li>
+            Production ที่เข้า <code>/{locale}/badges</code> จะเห็นหน้าโหลด
+            <code>BadgeSessionBootstrap</code> จนกว่า verify ID token สำเร็จ
+            แล้ว <code>router.replace</code> ไป My Badges
+          </li>
+          <li>
+            ทุกหน้าภายใต้ <code>/{locale}</code> มี
+            <code>LineSessionProvider</code> ทำ LIFF อีกครั้งถ้ายังไม่มีเซสชันในหน่วยความจำ
+          </li>
+          <li>
+            My Badges แสดง skeleton จนกว่า status ไม่ใช่ idle/loading
+            และมี <code>lineUuid</code> แล้วจึงยิง API
+          </li>
+        </ol>
+        <div class="tableWrap">
+          <table>
+            <caption>จุดเข้าที่เป็นไปได้</caption>
+            <thead>
+              <tr>
+                <th>จุดเข้า</th>
+                <th>จอถัดไป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ไอคอน Mini App / deep link บ้าน</td>
+                <td>My Badges (หลัง LIFF)</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td>
+                  ถ้า origin/referrer ผ่านและมีคุกกี้ → badges แล้วต่อไปบ้าน
+                  ถ้าไม่ผ่าน → badges พร้อมข้อความเข้าถึงไม่ได้
+                </td>
+              </tr>
+              <tr>
+                <td>Deep link ชั้นภารกิจ</td>
+                <td>
+                  <code>/{locale}/my-missions/{tierId}</code>
+                  ยังต้องมี LINE id เพื่อคำนวณความคืบหน้า
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="member">
+        <h2>เชื่อมสมาชิก (Membership)</h2>
+        <p>
+          ระบบไม่เก็บบัญชีลูกค้าเอง
+          “สมาชิก” คือ LINE ID ที่ Sony ใช้ค้น warranty
+        </p>
+        <pre>เชื่อม LINE (ในแอป)
+  LIFF getIDToken → LINE Login verify → คุกกี้ sony_line_session
+  + โปรไฟล์ displayName / pictureUrl บนการ์ดบ้าน
+
+ผูกสินค้า (นอกแอป)
+  ลูกค้าต้องลงทะเบียนสินค้าบนระบบ Sony อยู่แล้ว
+  แอปเรียก APIM ด้วย { countryCode, lineId } ทุกครั้งที่โหลด my-*
+  ไม่มีหน้า “เชื่อมบัญชี Sony” ใน Mini App
+
+เพิ่มสินค้าใหม่
+  แถบล่าง Register → NEXT_PUBLIC_ACCOUNT_URL
+  หรือปุ่มลงทะเบียนบนหน้ารายละเอียดภารกิจที่ยังไม่ครบ
+    → NEXT_PUBLIC_REGISTER_PRODUCT_URL
+  เมื่อกลับมา Mini App โหลดหน้าใหม่จึงดึง warranty รอบใหม่</pre>
+        <div class="note warn">
+          ไม่มี login ด้วยอีเมล/รหัสผ่านในแอป
+          ถ้า LINE ยังไม่ผูกกับรายการ warranty Sony จะเห็นแคตตาล็อกล็อกหรือวิวว่าง
+          ไม่มีหน้า wizard เชื่อมสมาชิกแยก
+        </div>
+      </section>
+
+      <section id="badges">
+        <h2>ดูเหรียญ (View badges)</h2>
+        <pre>My Badges
+  ├─ สถิติ Product ได้/ทั้งหมด, Quest ชั้นที่ achieved/ทั้งหมด
+  ├─ พรีวิวสินค้าล่าสุดสูงสุด 3 (เรียงวันใหม่ก่อน, วันเดียวกันเรียงชื่อ)
+  │     ดูทั้งหมด → My Products (กรองกลุ่ม)
+  │     การ์ด → Product detail (เฉพาะที่ปลดล็อกในพรีวิว)
+  └─ พรีวิวภารกิจล่าสุดสูงสุด 3 (ชั้นสูงสุดที่ได้แล้ว)
+        ดูทั้งหมด → My Missions</pre>
+        <p>
+          แคตตาล็อกสินค้า: เหรียญล็อกกดไม่ได้
+          เหรียญปลดล็อกเข้าหน้ารายละเอียด เห็นวันปลดล็อกและจำนวน serial
+        </p>
+      </section>
+
+      <section id="tier">
+        <h2>ดู Tier</h2>
+        <pre>My Missions
+  แต่ละ Quest เป็นแถวชั้น
+    Portrait / Wide / Visionary → Bronze, Silver, Gold
+    Quest ชุด → ชั้นเดียว (achievement)
+  ตัวเลข progress/target บนแต่ละโหนด
+  กดชั้นใดก็ได้ (รวมที่ยังไม่ครบ)
+
+รายละเอียดชั้น  /my-missions/{quest}-{level}
+  ยังไม่ครบ → การ์ดสรุป + รายการรุ่น (ตั๋ว) + ลงทะเบียนสินค้า + กลับรายการภารกิจ
+  ครบแล้ว   → เลย์เอาต์ได้รับเหรียญ + แชร์ + กลับบ้าน
+
+จากบ้าน: การ์ดภารกิจพรีวิวไปชั้นสูงสุดที่ได้ ไม่ได้ไปหน้าแทร็กทั้งหมด</pre>
+        <p>
+          สถานะภาพโหนด: ครบเกณฑ์ชั้นนั้นเป็นสีเต็ม (<code>unlocked</code>)
+          ยังไม่ครบเป็น <code>partial</code>
+          การคำนวณชั้นเป็น unique รุ่นตามกฎ Quest ไม่ใช่จำนวน serial
+        </p>
+      </section>
+
+      <section id="share">
+        <h2>แชร์เหรียญ (Share)</h2>
+        <pre>ได้เหรียญสินค้า  → Product detail → ปุ่มแชร์ Facebook
+ได้ชั้นภารกิจ    → Mission detail (โหมดครบ) → ปุ่มแชร์ Facebook
+
+ลำดับในปุ่ม:
+  1. ระบบ share sheet ของเครื่อง (navigator.share) ถ้ามี — ผู้ใช้เลือก Facebook เอง
+  2. ไม่ได้ → LIFF openWindow ไป Facebook sharer
+  3. ไม่ได้ → window.open / เปลี่ยนหน้า
+
+สิ่งที่แชร์: URL รูปเหรียญแบบ absolute (shareImageUrl)
+ไม่ใช่ลิงก์ Mini App และไม่บังคับเปิดหน้า /share/...</pre>
+        <p>
+          หน้า <code>/{locale}/share/product/{id}</code> และ
+          <code>/{locale}/share/mission/{id}</code>
+          เป็นหน้า OG สำหรับ crawler ถ้ามีการแชร์ URL นั้น
+          ไม่ได้อยู่ในปุ่มแชร์ของโฟลว์หลัก
+        </p>
+        <p>
+          ปุ่มแชร์ disabled เมื่อสร้าง URL รูปไม่ได้
+          ภารกิจที่ยังไม่ครบไม่มีปุ่มแชร์
+          สินค้าที่ล็อกในแคตตาล็อกเข้าหน้าแชร์ไม่ได้
+        </p>
+      </section>
+
+      <section id="alt">
+        <h2>เส้นทางแยก (Exceptions)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>เหตุ</th>
+                <th>เส้นทางที่ผู้ใช้เจอ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>เปิดนอก LINE / ไม่มี ID token</td>
+                <td>หน้า badges ค้างข้อความเข้าถึงไม่ได้ หรือ My Badges โหลดแล้ววิวว่าง</td>
+              </tr>
+              <tr>
+                <td>Sony ไม่พบลูกค้า / API ล้ม บน my-products, my-missions</td>
+                <td>แคตตาล็อกล็อกทั้งชุด (ดูเหมือนยังไม่ได้เหรียญ)</td>
+              </tr>
+              <tr>
+                <td>Sony ล้ม บน my-badges</td>
+                <td>HTTP error → วิวว่าง ไม่มีปุ่มลองใหม่</td>
+              </tr>
+              <tr>
+                <td>เปิดรายละเอียดสินค้าที่ยังไม่ปลดล็อก</td>
+                <td>API 404 → PageError</td>
+              </tr>
+              <tr>
+                <td>ไม่มี URL ลงทะเบียนใน env</td>
+                <td>ไม่แสดงปุ่มลงทะเบียนบนภารกิจ; แถบล่าง Register อาจไม่มี href</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

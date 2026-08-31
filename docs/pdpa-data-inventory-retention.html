@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PDPA Data Inventory / Retention</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 860px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 920px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>PDPA Data Inventory / Retention</h1>
+        <p class="lede">
+          ประเภทข้อมูล วัตถุประสงค์ ระยะเวลาจัดเก็บ และแนวทางลบข้อมูล
+          ตามที่ Sony Badge Pilot ทำจริงในโค้ด
+        </p>
+        <div class="note warn">
+          เอกสารนี้เป็นคลังข้อมูลเทคนิค ไม่กำหนดนโยบายกฎหมายให้ Sony
+          ระยะเวลาที่ระบุคืออายุที่ระบบตั้งไว้ หรือช่องว่างเมื่อโค้ดไม่ลบอัตโนมัติ
+          ยังรอ Security / PDPA ยืนยันระยะเก็บที่ถูกต้องตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล
+        </div>
+        <nav>
+          <ul class="toc">
+            <li><a href="#scope">ขอบเขต</a></li>
+            <li><a href="#inventory">คลังข้อมูล</a></li>
+            <li><a href="#retention">ระยะเวลาจัดเก็บ</a></li>
+            <li><a href="#deletion">แนวทางลบ</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="scope">
+        <h2>ขอบเขต (Scope)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>ผู้ควบคุมแหล่งสินค้า</strong>
+            รายการสินค้าที่ลงทะเบียน (รุ่น, ซีเรียล, วันลงทะเบียน) อยู่ที่ Sony warranty API
+            Mini App ดึงมาคำนวณตอน request แล้วทิ้ง ไม่เก็บสำเนาใน MySQL ของแอป
+          </div>
+          <div class="box">
+            <strong>สิ่งที่แอปถือครอง</strong>
+            ตัวตนชั่วคราว (cookie / sessionStorage),
+            ผลคำนวณที่ส่งกลับเบราว์เซอร์,
+            และ log ที่ hash LINE ID บนเส้นทาง legacy shelf
+          </div>
+          <div class="box">
+            <strong>ไม่ใช่ข้อมูลส่วนบุคคลของลูกค้า</strong>
+            กฎเหรียญ, รายการ SKU ในเงื่อนไข, รูปเหรียญ, URL สินค้า, ข้อความ support
+          </div>
+        </div>
+        <p>
+          ไม่มี API สำหรับสิทธิเข้าถึง / ลบข้อมูลตามคำขอเจ้าของข้อมูล (DSAR) ในแอปนี้
+          การลบข้อมูลลูกค้าในระบบสินค้าต้องทำที่ Sony ไม่ใช่ที่ตารางกฎเหรียญ
+        </p>
+      </section>
+
+      <section id="inventory">
+        <h2>คลังข้อมูล (Data inventory)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ข้อมูลส่วนบุคคลและข้อมูลที่เกี่ยวข้องกับบุคคล</caption>
+            <thead>
+              <tr>
+                <th>ประเภทข้อมูล</th>
+                <th>ตัวอย่างฟิลด์</th>
+                <th>แหล่งที่มา</th>
+                <th>วัตถุประสงค์</th>
+                <th>ผู้ที่เห็นในแอป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ตัวระบุ LINE</td>
+                <td>LINE user ID (<code>sub</code> / <code>lineuuid</code>)</td>
+                <td>LIFF ID token และ <code>liff.getProfile()</code></td>
+                <td>ระบุผู้ใช้เพื่อเรียก warranty และแสดงเหรียญของผู้นั้น</td>
+                <td>เซิร์ฟเวอร์; ไคลเอนต์เก็บใน sessionStorage และ query</td>
+              </tr>
+              <tr>
+                <td>โทเคนยืนยันตัวตน</td>
+                <td>LINE ID token</td>
+                <td>LIFF <code>getIDToken()</code></td>
+                <td>ยืนยันกับ LINE ครั้งเดียวตอนสร้าง session</td>
+                <td>ส่งไป LINE แล้วไม่ persist</td>
+              </tr>
+              <tr>
+                <td>โปรไฟล์ LINE</td>
+                <td>display name, picture URL</td>
+                <td>LIFF profile บนอุปกรณ์ผู้ใช้</td>
+                <td>แสดงชื่อและรูปบนหน้า my-badges</td>
+                <td>เบราว์เซอร์ของผู้ใช้; ไม่เขียนลง MySQL</td>
+              </tr>
+              <tr>
+                <td>ความเป็นเจ้าของสินค้า</td>
+                <td>modelName/SKU, serialNumber, registrationDate</td>
+                <td>Sony APIM <code>prodDetails</code></td>
+                <td>คำนวณ Eligible Product / Threshold / Tier และแสดงซีเรียลบนหน้ารายละเอียดที่ปลดล็อก</td>
+                <td>เซิร์ฟเวอร์ตอน request; ไคลเอนต์เฉพาะสินค้าที่ปลดล็อก</td>
+              </tr>
+              <tr>
+                <td>ผลเหรียญที่คำนวณ</td>
+                <td>สถานะ earned/locked, จำนวนที่ match, รูปเหรียญ</td>
+                <td>คำนวณในแอปจากสินค้า + กฎ</td>
+                <td>แสดงชั้นเหรียญและความคืบหน้า</td>
+                <td>ผู้ใช้บน Mini App; หน้าแชร์มีแค่ชื่อ/รูปกฎ</td>
+              </tr>
+              <tr>
+                <td>บันทึกการคำนวณ (legacy)</td>
+                <td>
+                  <code>customer_line_uuid_hash</code>,
+                  จำนวน SKU,
+                  <code>earned_badges_json</code> (รหัสเหรียญ ไม่มีซีเรียล)
+                </td>
+                <td>เส้นทาง <code>/api/customer-products</code></td>
+                <td>ตรวจสอบการทำงาน ไม่ใช่คลังลูกค้า</td>
+                <td>ผู้มีสิทธิ์เข้า MySQL</td>
+              </tr>
+              <tr>
+                <td>ข้อมูลที่รับแล้วไม่ใช้</td>
+                <td><code>warrantyExpiryDate</code></td>
+                <td>Sony APIM</td>
+                <td>—</td>
+                <td>ตัวแปลงปัจจุบันทิ้งค่านี้ ไม่แสดง ไม่เก็บ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="retention">
+        <h2>ระยะเวลาจัดเก็บ (Retention)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>อายุที่ระบบกำหนด vs สิ่งที่ยังไม่มีนโยบายในโค้ด</caption>
+            <thead>
+              <tr>
+                <th>ที่เก็บ</th>
+                <th>ข้อมูล</th>
+                <th>ระยะเวลาในโค้ด</th>
+                <th>หมดอายุอัตโนมัติหรือไม่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>หน่วยความจำ request (เซิร์ฟเวอร์)</td>
+                <td>warranty JSON, LINE ID ตอนคำนวณ</td>
+                <td>จบ request</td>
+                <td>ใช่ — ไม่เขียนตารางสินค้า</td>
+              </tr>
+              <tr>
+                <td>Cookie <code>sony_line_session</code></td>
+                <td>LINE ID + <code>expiresAt</code> (base64 + HMAC)</td>
+                <td>1 ชั่วโมง (<code>Max-Age=3600</code>)</td>
+                <td>ใช่ — เบราว์เซอร์ทิ้งคุกกี้; เซิร์ฟเวอร์ปฏิเสธเมื่อหมดอายุ</td>
+              </tr>
+              <tr>
+                <td><code>sessionStorage</code> คีย์ <code>sony_line_uuid</code></td>
+                <td>LINE user ID ดิบ</td>
+                <td>จนปิดแท็บ</td>
+                <td>ใช่ ตามพฤติกรรมเบราว์เซอร์ ไม่มีปุ่มลบในแอป</td>
+              </tr>
+              <tr>
+                <td><code>localStorage</code> <code>sonyBadgeCache:v1</code></td>
+                <td>ผลเหรียญเส้นทาง legacy + cache key ที่เป็น hash</td>
+                <td>จนกว่าจะไม่ตรง <code>badge_rules_version</code> หรือโค้ดลบคีย์</td>
+                <td>บางส่วน — invalidate เมื่อกฎเปลี่ยน; ไม่มี TTL ปฏิทิน</td>
+              </tr>
+              <tr>
+                <td>MySQL <code>badge_calculation_logs</code></td>
+                <td>HMAC ของ LINE ID และสรุปเหรียญ</td>
+                <td>ไม่กำหนด</td>
+                <td>ไม่ — ไม่มี job ลบหรือ archive</td>
+              </tr>
+              <tr>
+                <td>Cache กฎในโปรเซส</td>
+                <td>กฎเหรียญ ไม่ใช่ข้อมูลลูกค้า</td>
+                <td>60 วินาที</td>
+                <td>ใช่</td>
+              </tr>
+              <tr>
+                <td>Sony warranty (นอกแอป)</td>
+                <td>สินค้าที่ลูกค้าลงทะเบียน</td>
+                <td>อยู่ที่นโยบาย Sony</td>
+                <td>แอปนี้ไม่ควบคุม</td>
+              </tr>
+              <tr>
+                <td>App Service / stdout logs</td>
+                <td>อาจมี LINE ID ดิบจาก <code>console.log</code> บางจุด</td>
+                <td>ตามการตั้งค่า Azure / แพลตฟอร์ม</td>
+                <td>แอปไม่ลบ log โครงสร้างพื้นฐาน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          หน้า Mini App ปัจจุบัน (<code>/api/my-*</code>) ใช้ <code>cache: "no-store"</code>
+          จึงไม่เก็บผลเหรียญลง <code>localStorage</code>
+        </div>
+      </section>
+
+      <section id="deletion">
+        <h2>แนวทางลบข้อมูล (Deletion)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>สิ่งที่ทำได้อัตโนมัติ vs ที่ต้องทำด้วยปฏิบัติการ</caption>
+            <thead>
+              <tr>
+                <th>ข้อมูล</th>
+                <th>แนวทางลบที่มีในระบบ</th>
+                <th>แนวทางปฏิบัติการที่ยังต้องกำหนด</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE ID token</td>
+                <td>ไม่เก็บหลัง verify — ไม่มีสำเนาให้ลบ</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>Cookie session</td>
+                <td>หมดอายุใน 1 ชั่วโมง; ผู้ใช้ล้างคุกกี้ของโดเมนได้</td>
+                <td>ไม่มี endpoint เพิกถอน session ทั้งเครื่อง</td>
+              </tr>
+              <tr>
+                <td>sessionStorage LINE ID</td>
+                <td>หายเมื่อปิดแท็บ; มีฟังก์ชัน <code>clearStoredLineUuid</code> ในโค้ดแต่ไม่ได้ผูกปุ่มลบบัญชี</td>
+                <td>ถ้าต้องการลบตอน logout ให้เรียกเคลียร์ storage และไม่ใส่ lineuuid ใน URL</td>
+              </tr>
+              <tr>
+                <td>ผลเหรียญในเบราว์เซอร์ (legacy cache)</td>
+                <td>โค้ดลบคีย์เมื่อ cache ไม่ตรงหรือโหลดไม่สำเร็จ</td>
+                <td>ผู้ใช้ล้างข้อมูลเว็บไซต์ได้เอง</td>
+              </tr>
+              <tr>
+                <td>สินค้า / ซีเรียลใน MySQL ของแอป</td>
+                <td>ไม่มีแถวให้ลบ — แอปไม่ persist</td>
+                <td>แก้หรือลบที่ระบบลงทะเบียนสินค้าของ Sony</td>
+              </tr>
+              <tr>
+                <td><code>badge_calculation_logs</code></td>
+                <td>ไม่มีงานลบอัตโนมัติ</td>
+                <td>
+                  ผู้ดูแล DB ลบตามช่วงเวลา เช่น
+                  <code>DELETE FROM badge_calculation_logs WHERE created_at &lt; ...</code>
+                  หรือลบแถวที่ hash ตรงกับเจ้าของข้อมูล
+                  (ต้องมี <code>LOG_HASH_SECRET</code> ชุดเดียวกับตอนเขียน)
+                </td>
+              </tr>
+              <tr>
+                <td>กฎเหรียญ</td>
+                <td>ไม่ลบตามคำขอลูกค้า — ไม่ใช่ข้อมูลบุคคล</td>
+                <td>ปิดด้วย <code>is_active = false</code> ผ่าน seed ที่รีวิว</td>
+              </tr>
+              <tr>
+                <td>สำเนาใน log โครงสร้างพื้นฐาน</td>
+                <td>แอปไม่จัดการ</td>
+                <td>นโยบาย retention ของ Azure App Service / SIEM ของ Sony</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>เมื่อมีคำขอลบจากเจ้าของข้อมูล</h3>
+        <ol>
+          <li>ยืนยันตัวตนกับกระบวนการ PDPA ของ Sony ไม่ใช้ Mini App เป็นช่องรับคำขอ</li>
+          <li>ลบหรือแก้ความเป็นเจ้าของสินค้าที่ warranty / ระบบลงทะเบียนของ Sony (แหล่งข้อมูลหลัก)</li>
+          <li>ถ้ายังเก็บ log การคำนวณ: คำนวณ HMAC ของ LINE ID ด้วย secret ปัจจุบัน แล้วลบแถวใน <code>badge_calculation_logs</code></li>
+          <li>แจ้งว่า cookie และ sessionStorage อยู่บนเครื่องผู้ใช้ — แนะนำให้ล้างข้อมูลเว็บของโดเมน Mini App</li>
+          <li>ตรวจ log แพลตฟอร์มหากช่วงนั้นมี <code>console.log</code> ของ LINE ID ดิบ</li>
+        </ol>
+        <div class="note warn">
+          Pilot ยังไม่มี retention job, ไม่มีหน้าลบบัญชี และไม่ลบ hash log อัตโนมัติ
+          ต้องกำหนดระยะเก็บ (เช่น 90 วัน) นอกโค้ดแล้วให้ผู้ดูแล DB ทำให้สอดคล้องก่อนขึ้น production กว้าง
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

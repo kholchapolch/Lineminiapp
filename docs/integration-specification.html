@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Integration Specification</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      code {
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      pre {
+        margin: 0 0 14px;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        line-height: 1.5;
+        font-size: 13px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 860px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Integration Specification</h1>
+        <p class="lede">
+          ขอบเขตการเชื่อมต่อ ระบบต้นทาง–ปลายทาง วิธีรับส่งข้อมูล และความถี่ในการเชื่อมต่อ
+          ของ Sony Badge Pilot ตามที่โค้ดเรียกจริง
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#scope">ขอบเขต</a></li>
+            <li><a href="#matrix">ต้นทาง–ปลายทาง</a></li>
+            <li><a href="#contracts">สัญญาข้อมูล</a></li>
+            <li><a href="#frequency">ความถี่</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="scope">
+        <h2>ขอบเขตการเชื่อมต่อ (Scope)</h2>
+        <p>
+          ระบบนี้เป็น synchronous request/response ไม่มี message queue, webhook เข้า, หรือ batch job
+          การเชื่อมต่อรันไทม์มีสี่เส้นทางหลัก
+        </p>
+        <div class="grid">
+          <div class="box">
+            <strong>อยู่ในขอบเขต</strong>
+            LINE LIFF (ไคลเอนต์), LINE ID token verify (เซิร์ฟเวอร์),
+            Sony warranty APIM, MySQL กฎเหรียญ
+          </div>
+          <div class="box">
+            <strong>นอกขอบเขต API</strong>
+            ผู้ใช้กดไปเว็บ Sony (บัญชี / ลงทะเบียน / microsite) เป็นการนำทางเบราว์เซอร์
+            แอปไม่ส่ง LINE ID ติด query
+          </div>
+          <div class="box">
+            <strong>ไม่เชื่อมต่อ</strong>
+            ไม่มี CMS, ไม่เรียก Facebook Graph จากเซิร์ฟเวอร์,
+            ไม่มี webhook จาก Sony เมื่อลูกค้าลงทะเบียนสินค้าใหม่
+          </div>
+        </div>
+        <div class="note">
+          โหมด <code>SONY_PRODUCT_API_MODE=mock</code> ไม่เรียก APIM
+          ใช้ข้อมูลจำลองในโปรเซส ใช้ได้ตามที่ตั้งค่า (local / หรือ UAT ที่ยังเป็น mock)
+        </div>
+      </section>
+
+      <section id="matrix">
+        <h2>ระบบต้นทาง–ปลายทาง</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Integration catalog</caption>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>ต้นทาง (Source)</th>
+                <th>ปลายทาง (Destination)</th>
+                <th>โปรโตคอล</th>
+                <th>ทิศทาง</th>
+                <th>จุดประสงค์</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>INT-01</td>
+                <td>LIFF / Mini App</td>
+                <td>LINE Platform</td>
+                <td>LIFF SDK ใน webview</td>
+                <td>ไคลเอนต์ ↔ LINE</td>
+                <td>init LIFF, ขอ ID token และโปรไฟล์</td>
+              </tr>
+              <tr>
+                <td>INT-02</td>
+                <td>Mini App</td>
+                <td>Omelet Next.js</td>
+                <td>HTTPS JSON</td>
+                <td>ไคลเอนต์ → แอป</td>
+                <td>
+                  <code>POST /api/line-session</code>,
+                  <code>GET /api/my-*</code>
+                </td>
+              </tr>
+              <tr>
+                <td>INT-03</td>
+                <td>Omelet Next.js</td>
+                <td>LINE Login</td>
+                <td>HTTPS <code>application/x-www-form-urlencoded</code></td>
+                <td>แอป → LINE</td>
+                <td>verify ID token แลก LINE user ID (<code>sub</code>)</td>
+              </tr>
+              <tr>
+                <td>INT-04</td>
+                <td>Omelet Next.js</td>
+                <td>Sony Azure APIM</td>
+                <td>HTTPS JSON + subscription key</td>
+                <td>แอป → Sony → แอป</td>
+                <td>ดึงสินค้าที่ลูกค้าลงทะเบียนด้วย LINE ID</td>
+              </tr>
+              <tr>
+                <td>INT-05</td>
+                <td>Omelet Next.js</td>
+                <td>Azure MySQL</td>
+                <td>MySQL / TLS</td>
+                <td>แอป ↔ DB</td>
+                <td>อ่านกฎเหรียญ; เขียน log hash บนเส้นทาง legacy</td>
+              </tr>
+              <tr>
+                <td>INT-06</td>
+                <td>Mini App (ผู้ใช้)</td>
+                <td>Sony websites</td>
+                <td>HTTPS navigation</td>
+                <td>เบราว์เซอร์ → Sony</td>
+                <td>บัญชี, ลงทะเบียนสินค้า, หน้า digital-badge</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="contracts">
+        <h2>วิธีรับส่งข้อมูล (Contracts)</h2>
+
+        <h3>INT-01 LINE LIFF</h3>
+        <p>
+          ไลบรารี <code>@line/liff</code> ใช้ <code>NEXT_PUBLIC_LIFF_ID</code>
+          เรียก <code>liff.init</code>, <code>liff.getIDToken()</code>, <code>liff.getProfile()</code>
+          ต้องอยู่ภายใน LINE client
+        </p>
+
+        <h3>INT-03 LINE verify</h3>
+        <p>
+          ค่าเริ่มต้น URL:
+          <code>https://api.line.me/oauth2/v2.1/verify</code>
+          (ปรับได้ด้วย <code>LINE_VERIFY_ID_TOKEN_URL</code>)
+        </p>
+        <pre>POST
+Content-Type: application/x-www-form-urlencoded
+
+id_token=&lt;LIFF ID token&gt;
+client_id=&lt;LINE_CHANNEL_ID&gt;</pre>
+        <p>
+          แอปใช้ <code>sub</code> เป็น LINE user ID และตรวจ <code>aud</code> ให้ตรงช่อง
+          ไม่ persist ID token
+        </p>
+
+        <h3>INT-02 Mini App ↔ Omelet</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>API</th>
+                <th>Method</th>
+                <th>ข้อมูลเข้า</th>
+                <th>ข้อมูลออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/api/line-session</code></td>
+                <td>POST JSON</td>
+                <td><code>{ "idToken": "..." }</code></td>
+                <td><code>{ "ok": true }</code> + cookie <code>sony_line_session</code></td>
+              </tr>
+              <tr>
+                <td><code>/api/my-badges</code> เป็นต้น</td>
+                <td>GET</td>
+                <td>query <code>lineuuid</code>, บางเส้นมี <code>locale</code></td>
+                <td>JSON เหรียญ/สินค้า/ภารกิจ; ไม่มีตัวตนถ้าไม่ส่ง lineuuid (ชั้นล็อก)</td>
+              </tr>
+              <tr>
+                <td><code>/api/customer-products</code></td>
+                <td>GET</td>
+                <td>cookie session (เส้นทาง diagnostic)</td>
+                <td>shelf แบบตัด PII; อาจมี cache hint</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>INT-04 Sony warranty APIM</h3>
+        <p>
+          URL มาจาก <code>SONY_PRODUCT_API_BASE_URL</code>
+          ตัวอย่างสภาพแวดล้อมพัฒนา:
+          <code>https://apim-rcap-dev.azure-api.net/mysony-api/QueryWarrantyMySonyByLine</code>
+        </p>
+        <pre>POST
+Accept: application/json
+Content-Type: application/json
+Ocp-Apim-Subscription-Key: &lt;server-only secret&gt;
+
+{
+  "countryCode": "th",
+  "lineId": "&lt;LINE user ID&gt;"
+}</pre>
+        <p>รูปแบบตอบที่แอปแปลงใช้:</p>
+        <pre>{
+  "prodDetails": [
+    {
+      "lineId": "U...",
+      "serialNumber": "1000003",
+      "modelName": "ZV-E10M2/BQ AP2",
+      "registrationDate": "2026-03-25",
+      "warrantyExpiryDate": "2027-06-23"
+    }
+  ]
+}</pre>
+        <p>
+          แอป map <code>modelName</code> เป็น SKU ภายใน
+          HTTP 404 ตีความเป็นลูกค้าไม่พบ
+          <code>cache: "no-store"</code> ทุกครั้ง
+        </p>
+
+        <h3>INT-05 MySQL</h3>
+        <p>
+          เชื่อมด้วย <code>DATABASE_URL</code> (โปรโตคอล <code>mysql:</code>)
+          UAT ต้องเปิด TLS
+          อ่าน <code>badge_rules</code> และตารางลูก
+          ไม่ได้เก็บ ownership ของลูกค้า
+        </p>
+
+        <h3>INT-06 เว็บ Sony</h3>
+        <p>
+          <code>NEXT_PUBLIC_ACCOUNT_URL</code>,
+          <code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code>,
+          และลิงก์ inquiry ไป
+          <code>https://www.sony.co.th/microsite/digital-badge/</code>
+          ไม่มี request body จากเซิร์ฟเวอร์แอป
+        </p>
+      </section>
+
+      <section id="frequency">
+        <h2>ความถี่ในการเชื่อมต่อ (Frequency)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ไม่มี scheduler — เกิดตามการกระทำของผู้ใช้</caption>
+            <thead>
+              <tr>
+                <th>Integration</th>
+                <th>ทริกเกอร์</th>
+                <th>ความถี่โดยประมาณ</th>
+                <th>Cache / จำกัดซ้ำ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>INT-01 LIFF</td>
+                <td>โหลด Mini App / <code>LineSessionProvider</code></td>
+                <td>ครั้งต่อแท็บจนกว่า session ในหน้าพร้อม</td>
+                <td>init LIFF ใช้ promise รวมในโมดูล; โปรไฟล์เก็บใน sessionStorage ของแท็บ</td>
+              </tr>
+              <tr>
+                <td>INT-03 LINE verify</td>
+                <td><code>POST /api/line-session</code></td>
+                <td>ครั้งเมื่อสร้างหรือต่ออายุ session จาก LIFF</td>
+                <td>cookie อายุ 1 ชั่วโมง ไม่ได้ refresh อัตโนมัติเป็นพื้นหลัง</td>
+              </tr>
+              <tr>
+                <td>INT-04 Sony APIM</td>
+                <td>ทุกครั้งที่ <code>/api/my-*</code> มี <code>lineuuid</code> (และเส้นทาง customer-products แบบ cache miss)</td>
+                <td>ต่อหน้า / ต่อการ fetch ของไคลเอนต์ ไม่มี polling</td>
+                <td>ไคลเอนต์ my-* ใช้ <code>cache: "no-store"</code> จึงเรียก Sony ใหม่ทุกโหลด</td>
+              </tr>
+              <tr>
+                <td>INT-05 MySQL อ่านกฎ</td>
+                <td>คู่กับคำนวณเหรียญ</td>
+                <td>ต่อ request ที่ต้องใช้กฎ</td>
+                <td>cache ในโปรเซส 60 วินาที ตาม <code>badge_rules_version</code></td>
+              </tr>
+              <tr>
+                <td>INT-05 เขียน log</td>
+                <td>เส้นทาง <code>getBadgeResultForLineUuid</code> (legacy shelf)</td>
+                <td>ต่อครั้งที่คำนวณเส้นนั้น</td>
+                <td>หน้า Mini App หลักไม่เขียนตารางนี้</td>
+              </tr>
+              <tr>
+                <td>INT-06 เว็บ Sony</td>
+                <td>ผู้ใช้กดปุ่ม</td>
+                <td>ตามการใช้งาน ไม่ใช่ตามรอบเวลา</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          ไม่มี inbound webhook เมื่อลูกค้าเพิ่งลงทะเบียนสินค้าที่ Sony
+          เหรียญจะอัปเดตเมื่อผู้ใช้เปิด Mini App แล้วแอปเรียก warranty API รอบใหม่
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

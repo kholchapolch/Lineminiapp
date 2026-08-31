@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirect Flow Diagram</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --warn: #b55b00;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background: #eef3f8; border-radius: 4px; padding: 1px 5px;
+      }
+      pre {
+        margin: 0 0 14px; overflow-x: auto; border: 1px solid var(--line);
+        border-radius: 8px; background: #101923; color: #f7fbff;
+        padding: 16px; font-size: 13px; line-height: 1.5; white-space: pre;
+      }
+      .hero, section {
+        border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+        padding: 22px; margin-bottom: 18px;
+      }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note {
+        border-left: 4px solid var(--accent); background: var(--accent-soft);
+        padding: 12px 14px; margin: 14px 0;
+      }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Redirect Flow Diagram</h1>
+        <p class="lede">
+          เส้นทางจาก URL, LINE OA, Landing Page, Login, LIFF และ Error Page
+        </p>
+        <p>
+          แอปนี้ไม่มี webhook LINE OA
+          OA / rich menu ถ้าใช้ จะชี้ URL Mini App ภายนอกโค้ดนี้
+        </p>
+      </header>
+
+      <section>
+        <h2>ภาพรวมช่องทางเข้า</h2>
+        <pre>LINE Official Account / rich menu / แชท
+        │  (ลิงก์ที่ตั้งใน LINE Developers — ไม่ได้อยู่ในรีโป)
+        ▼
+LIFF / Mini App URL  (HTTPS + LIFF ID)
+        │
+        ▼
+Next.js middleware  ปรับ path เก่าและใส่ locale เริ่มต้น th
+        │
+        ├── / หรือ /badge หรือ /my-badges  →  /th/my-badges
+        ├── /entry                         →  /th/entry
+        └── /{locale}/...                  →  ไปหน้าตาม path
+
+/{locale}/entry  (ถ้าใช้)
+        ├── origin/referrer ไม่ผ่าน     →  /{locale}/badges?entryError=missing-source|blocked-source
+        ├── ไม่มีคุกกี้เซสชัน           →  /{locale}/badges?entryError=missingLineSession
+        └── มีเซสชัน                    →  /{locale}/badges
+
+/{locale}/badges  (landing ทางเทคนิค)
+        ├── local + mock + ?mock=1&sku=  →  /api/mock-session → /{locale}/my-badges + คุกกี้
+        ├── APP_ENV=local และ Sony mock  →  redirect ตรง /{locale}/my-badges
+        ├── production (line-session)    →  LIFF Login (ID token) → replace /{locale}/my-badges
+        └── ?debug=1                     →  หน้าวินิจฉัย BadgeClient
+
+Login = LINE LIFF getIDToken → POST /api/line-session → คุกกี้ sony_line_session
+ไม่ได้ login อีเมล/รหัส Sony</pre>
+      </section>
+
+      <section>
+        <h2>หลังเข้าบ้าน (ไม่ redirect เซิร์ฟเวอร์)</h2>
+        <pre>/{locale}/my-badges
+  ดูทั้งหมดสินค้า     →  /{locale}/my-products          (Link)
+  การ์ดสินค้า         →  /{locale}/my-product/{id}
+  ดูทั้งหมดภารกิจ     →  /{locale}/my-missions
+  การ์ด/โหนดชั้น     →  /{locale}/my-missions/{tierId}
+  Register แถบล่าง    →  NEXT_PUBLIC_ACCOUNT_URL         (ออกโดเมน)
+  FAQ                 →  sony.co.th microsite            (ออกโดเมน)
+  แชร์เหรียญ          →  Facebook / share sheet          (ไม่ redirect ในแอป)
+
+Deep link กลับภารกิจ (สร้างแล้วไม่ได้ต่อ query ลงทะเบียน)
+  https://miniapp.line.me/{liffId}/th/my-missions/{id}</pre>
+      </section>
+
+      <section>
+        <h2>Error Page</h2>
+        <pre>LIFF / entryError บน /badges
+  → แผง "ไม่สามารถเข้าถึงได้" (BadgeSessionBootstrap)  ไม่เด้งไปบ้าน
+
+รายละเอียดสินค้า API 404/500
+  → PageError แผงเดียวกัน  ค้างที่ URL รายละเอียด
+
+รหัส share ไม่ตรงกฎ หรือ locale หน้าไม่ใช่ th|en
+  → Next.js notFound()
+
+Sony ไม่พร้อม บน my-products / my-missions
+  → ไม่ใช่หน้า error แยก: HTTP 200 แคตตาล็อกล็อก หรือค้าง skeleton
+
+/api/health ล้ม / โฮสต์ล่ม
+  → หน้าเว็บไม่ขึ้น (แพลตฟอร์ม) ไม่มี custom error HTML ในแอป</pre>
+        <div class="note warn">
+          <code>src/app/page.tsx</code> redirect ไป <code>/th/badges</code>
+          แต่ middleware จับ <code>/</code> ไป <code>/th/my-badges</code> ก่อน
+          ผู้ใช้ที่เปิดโดเมนรากจึงไม่ผ่านหน้า badges
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API Specification / Interface Control Document</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      code {
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      pre {
+        margin: 0 0 14px;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        line-height: 1.5;
+        font-size: 13px;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 860px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>API Specification / Interface Control Document</h1>
+        <p class="lede">
+          Endpoint, method, header, parameter, request, response, authentication
+          และ error code ของ HTTP API ที่แอปนี้เปิดไว้ (Next.js App Router ภายใต้ <code>/api</code>)
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#conventions">ข้อตกลงร่วม</a></li>
+            <li><a href="#auth">Authentication</a></li>
+            <li><a href="#errors">Error code</a></li>
+            <li><a href="#health">GET /api/health</a></li>
+            <li><a href="#line-session">POST /api/line-session</a></li>
+            <li><a href="#mock-session">GET /api/mock-session</a></li>
+            <li><a href="#my-badges">GET /api/my-badges</a></li>
+            <li><a href="#my-products">GET /api/my-products</a></li>
+            <li><a href="#my-product">GET /api/my-products/{productId}</a></li>
+            <li><a href="#my-missions">GET /api/my-missions</a></li>
+            <li><a href="#my-mission">GET /api/my-missions/{missionId}</a></li>
+            <li><a href="#customer-products">GET /api/customer-products</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="conventions">
+        <h2>ข้อตกลงร่วม</h2>
+        <ul>
+          <li>Base path คือ origin ของแอป เช่น <code>https://stglineminiapp.sony.co.th</code></li>
+          <li>JSON ใช้ <code>Content-Type: application/json</code></li>
+          <li>ไม่มี version prefix เช่น <code>/v1</code></li>
+          <li>ไม่มี CORS header พิเศษ — คาดว่าเรียก same-origin จาก Mini App</li>
+          <li>ไคลเอนต์ Mini App ส่ง <code>cache: "no-store"</code> เมื่อเรียก <code>/api/my-*</code></li>
+        </ul>
+        <div class="tableWrap">
+          <table>
+            <caption>รายการ endpoint</caption>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Auth</th>
+                <th>ใช้โดย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/health</code></td>
+                <td>ไม่มี</td>
+                <td>ตรวจสุขภาพ deploy</td>
+              </tr>
+              <tr>
+                <td>POST</td>
+                <td><code>/api/line-session</code></td>
+                <td>LINE ID token ใน body</td>
+                <td>สร้าง cookie session</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/mock-session</code></td>
+                <td>local + mock เท่านั้น</td>
+                <td>จำลองสินค้าด้วย SKU</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-badges</code></td>
+                <td>query <code>lineuuid</code></td>
+                <td>หน้าแรก Mini App</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-products</code></td>
+                <td>query <code>lineuuid</code> (ว่าง = ชั้นล็อก)</td>
+                <td>รายการเหรียญผลิตภัณฑ์</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-products/{productId}</code></td>
+                <td>query <code>lineuuid</code></td>
+                <td>รายละเอียดเหรียญที่ปลดล็อก</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-missions</code></td>
+                <td>query <code>lineuuid</code> (ว่าง = ชั้นล็อก)</td>
+                <td>รายการภารกิจ</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-missions/{missionId}</code></td>
+                <td>query <code>lineuuid</code> (ว่าง = ชั้นล็อก)</td>
+                <td>รายละเอียดภารกิจ</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/customer-products</code></td>
+                <td>cookie session</td>
+                <td>เส้นทาง diagnostic / legacy shelf</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="auth">
+        <h2>Authentication</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>แบบ</th>
+                <th>ตำแหน่ง</th>
+                <th>รายละเอียด</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE ID token</td>
+                <td>JSON body <code>idToken</code></td>
+                <td>เซิร์ฟเวอร์ verify กับ LINE แล้วตั้ง cookie ไม่คืน LINE ID ใน JSON</td>
+              </tr>
+              <tr>
+                <td>Cookie <code>sony_line_session</code></td>
+                <td>Header <code>Cookie</code></td>
+                <td>HttpOnly, SameSite=Lax, อายุ 1 ชม. ใช้กับ <code>/entry</code> และ <code>/api/customer-products</code></td>
+              </tr>
+              <tr>
+                <td>Query <code>lineuuid</code></td>
+                <td>URL query</td>
+                <td>ใช้กับ <code>/api/my-*</code> ในปัจจุบัน <strong>ไม่ตรวจ cookie</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Mini App ส่ง LINE user ID ใน query ของ XHR
+          นี่คือสัญญาที่ใช้จริง ไม่ใช่โมเดลที่แนะนำด้านความปลอดภัย
+        </div>
+      </section>
+
+      <section id="errors">
+        <h2>Error code</h2>
+        <p>เมื่อล้มเหลว บอดี้เป็น JSON:</p>
+        <pre>{
+  "code": "UNAUTHORIZED",
+  "message": "LINE session is required."
+}</pre>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>HTTP</th>
+                <th>code</th>
+                <th>message (ที่ส่งให้ไคลเอนต์)</th>
+                <th>เมื่อไหร่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>400</td>
+                <td><code>MISSING_ID_TOKEN</code></td>
+                <td>LINE ID token is required.</td>
+                <td>body ไม่มี <code>idToken</code> ที่เป็นสตริงไม่ว่าง</td>
+              </tr>
+              <tr>
+                <td>400</td>
+                <td><code>MISSING_SKU</code></td>
+                <td>At least one SKU is required.</td>
+                <td>mock-session ไม่มี query <code>sku</code></td>
+              </tr>
+              <tr>
+                <td>401</td>
+                <td><code>UNAUTHORIZED</code></td>
+                <td>LINE session is required. (หรือข้อความ verify ไม่ผ่าน)</td>
+                <td>ไม่มี/คุกกี้ไม่ถูกต้อง, token หมดอายุ, aud ไม่ตรง</td>
+              </tr>
+              <tr>
+                <td>404</td>
+                <td><code>NOT_FOUND</code></td>
+                <td>Not found. / Product badge not found. / Mission badge not found.</td>
+                <td>mock-session นอก local; สินค้า/ภารกิจไม่มีหรือยังไม่ปลดล็อก</td>
+              </tr>
+              <tr>
+                <td>404</td>
+                <td><code>CUSTOMER_NOT_FOUND</code></td>
+                <td>Customer profile was not found.</td>
+                <td>Sony APIM คืน 404 — ใช้บน <code>/api/customer-products</code></td>
+              </tr>
+              <tr>
+                <td>500</td>
+                <td><code>SONY_PRODUCT_API_ERROR</code></td>
+                <td>Badge data is temporarily unavailable.</td>
+                <td>warranty API ไม่สำเร็จหรือรูปแบบไม่ถูก</td>
+              </tr>
+              <tr>
+                <td>500</td>
+                <td><code>UNKNOWN_ERROR</code></td>
+                <td>Something went wrong. Please try again later.</td>
+                <td>ข้อผิดพลาดที่ไม่มี <code>safeMessage</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <code>/api/my-products</code> และ <code>/api/my-missions</code> เมื่อ error มักคืนชั้นล็อก 200 แทน error JSON
+          <code>/api/my-badges</code> คืน error JSON ตามตาราง
+        </p>
+      </section>
+
+      <section id="health">
+        <h2>GET /api/health</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>ค่า</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Authentication</td>
+                <td>ไม่มี</td>
+              </tr>
+              <tr>
+                <td>Header</td>
+                <td>ไม่มีที่บังคับ</td>
+              </tr>
+              <tr>
+                <td>Parameter</td>
+                <td>ไม่มี</td>
+              </tr>
+              <tr>
+                <td>Request body</td>
+                <td>ไม่มี</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre>200
+{ "status": "ok", "runtime": "nodejs" }</pre>
+      </section>
+
+      <section id="line-session">
+        <h2>POST /api/line-session</h2>
+        <div class="tableWrap">
+          <table>
+            <tbody>
+              <tr>
+                <td>Authentication</td>
+                <td>LINE ID token ใน body (ยังไม่มี cookie ตอนเรียกครั้งแรก)</td>
+              </tr>
+              <tr>
+                <td>Header</td>
+                <td><code>Content-Type: application/json</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre>Request
+{ "idToken": "&lt;liff.getIDToken()&gt;" }
+
+Response 200
+Set-Cookie: sony_line_session=&lt;payload&gt;.&lt;hmac&gt;; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600; Secure
+{ "ok": true }</pre>
+        <p><code>Secure</code> ไม่ถูกใส่เมื่อ <code>APP_ENV=local</code></p>
+      </section>
+
+      <section id="mock-session">
+        <h2>GET /api/mock-session</h2>
+        <p>ใช้ได้เฉพาะ <code>APP_ENV=local</code> และ <code>SONY_PRODUCT_API_MODE=mock</code> นอกนั้น 404</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>ที่อยู่</th>
+                <th>Required</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sku</code></td>
+                <td>query (ซ้ำได้)</td>
+                <td>อย่างน้อย 1</td>
+                <td>รหัสรุ่นจำลอง</td>
+              </tr>
+              <tr>
+                <td><code>locale</code></td>
+                <td>query</td>
+                <td>ไม่</td>
+                <td><code>th</code> หรือ <code>en</code> ค่าเริ่มต้น <code>th</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>สำเร็จ: 302 ไป <code>/{locale}/my-badges</code> พร้อมตั้ง cookie session ของ mock LINE UUID</p>
+      </section>
+
+      <section id="my-badges">
+        <h2>GET /api/my-badges</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>ที่อยู่</th>
+                <th>Required</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>lineuuid</code></td>
+                <td>query</td>
+                <td>ควรมี (ว่างแล้วยังเรียก Sony ด้วยสตริงว่าง)</td>
+                <td>LINE user ID — ไม่ตรวจ cookie</td>
+              </tr>
+              <tr>
+                <td><code>locale</code></td>
+                <td>query</td>
+                <td>ไม่</td>
+                <td><code>th</code> / <code>en</code> ไม่ใช่ค่าที่รองรับจะใช้ <code>th</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre>200
+{
+  "profile": {
+    "channelName": "sony-thailand",
+    "lineDisplayName": "Sony Customer",
+    "linePictureUrl": null,
+    "handle": "",
+    "isVerified": true,
+    "isOnline": true,
+    "productBadgeCount": 1,
+    "productBadgeTotal": 10,
+    "missionBadgeCount": 2,
+    "missionBadgeTotal": 12
+  },
+  "productBadges": [{ "id": "product-sel2470gm2", "title": "...", "imageUrl": "/product-badge/SEL2470GM2.png" }],
+  "missionBadges": [{ "id": "portrait-master-gold", "title": "...", "imageUrl": "/quest-badge/portrait-gold.png" }],
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+      </section>
+
+      <section id="my-products">
+        <h2>GET /api/my-products</h2>
+        <p>query <code>lineuuid</code> ไม่บังคับ — ถ้าว่างคืนชั้นล็อกทุกชิ้น โดยไม่เรียก Sony</p>
+        <pre>200
+{
+  "categories": [
+    {
+      "id": "prime-lens",
+      "items": [
+        {
+          "id": "product-sel35f14gm",
+          "title": "FE 35mm F1.4 GM",
+          "imageUrl": "/product-badge/SEL35F14GM.png",
+          "categoryId": "prime-lens",
+          "status": "unlocked"
+        }
+      ]
+    }
+  ],
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+        <p>
+          <code>categoryId</code>:
+          <code>full-frame-camera</code>,
+          <code>prime-lens</code>,
+          <code>wide-normal-zoom-lens</code>,
+          <code>telephoto-super-telephoto-lens</code>,
+          <code>macro-lens</code>
+        </p>
+        <p><code>status</code>: <code>locked</code> | <code>unlocked</code></p>
+      </section>
+
+      <section id="my-product">
+        <h2>GET /api/my-products/{productId}</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>ที่อยู่</th>
+                <th>Required</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>productId</code></td>
+                <td>path</td>
+                <td>ใช่ — เช่น <code>product-sel2470gm2</code> (<code>badge_code</code>)</td>
+              </tr>
+              <tr>
+                <td><code>lineuuid</code></td>
+                <td>query</td>
+                <td>ควรมี เพื่อให้ปลดล็อกได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>คืน 404 ถ้าไม่มีกฎ หรือยังไม่ปลดล็อก</p>
+        <pre>200
+{
+  "product": {
+    "id": "product-sel2470gm2",
+    "title": "FE 24-70mm F2.8 GM II",
+    "badgeImageUrl": "/product-badge/SEL2470GM2.png",
+    "shareImageUrl": "/product-badge/SEL2470GM2.png",
+    "unlockedAt": "2026-05-20",
+    "quantity": 1,
+    "registrations": [
+      { "serialNumber": "SN-001", "registeredAt": "2026-05-20" }
+    ]
+  },
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+      </section>
+
+      <section id="my-missions">
+        <h2>GET /api/my-missions</h2>
+        <p>query <code>lineuuid</code> ไม่บังคับ — ว่างหรือ error ฝั่ง Sony มักได้ 200 ชั้นล็อก</p>
+        <pre>200
+{
+  "sections": [
+    {
+      "id": "portrait-master",
+      "tiers": [
+        {
+          "id": "portrait-master-bronze",
+          "imageUrl": "/quest-badge/portrait-bronze.png",
+          "progress": 2,
+          "target": 2,
+          "status": "achieved"
+        }
+      ]
+    }
+  ],
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+        <p><code>status</code> ของ tier: <code>achieved</code> | <code>in-progress</code> | <code>locked</code></p>
+      </section>
+
+      <section id="my-mission">
+        <h2>GET /api/my-missions/{missionId}</h2>
+        <p>path <code>missionId</code> คือ <code>{badge_code}-{level}</code> เช่น <code>the-visionary-gold</code> หรือ <code>trinity-master-achievement</code></p>
+        <pre>200
+{
+  "mission": {
+    "id": "portrait-master-gold",
+    "sectionId": "portrait-master",
+    "level": "gold",
+    "tierTitle": "Portrait Master Gold",
+    "tierCount": 3,
+    "badgeImageUrl": "/quest-badge/portrait-gold.png",
+    "shareImageUrl": "/quest-badge/portrait-gold.png",
+    "progress": 4,
+    "target": 4,
+    "unlockedAt": "2026-06-01",
+    "tickets": [
+      {
+        "id": "portrait-master-gold-ticket-1",
+        "productCode": "SEL35F14GM",
+        "title": "FE 35mm F1.4 GM",
+        "imageUrl": "/product-badge/SEL35F14GM.png",
+        "status": "completed",
+        "productUrl": "https://www.sony.co.th/..."
+      }
+    ]
+  },
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+        <p>ticket <code>status</code>: <code>completed</code> | <code>pending</code> — ไม่มีซีเรียลใน response นี้</p>
+      </section>
+
+      <section id="customer-products">
+        <h2>GET /api/customer-products</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>ค่า</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Authentication</td>
+                <td>Cookie <code>sony_line_session</code> บังคับ (ยกเว้น local debug+mock ที่อนุญาต query <code>lineuuid</code>)</td>
+              </tr>
+              <tr>
+                <td>Header (ไม่บังคับ)</td>
+                <td>
+                  <code>x-badge-cache-customer-key</code>,
+                  <code>x-badge-cache-sku-hash</code>,
+                  <code>x-badge-cache-rules-version</code>
+                  — ถ้าตรงกับ metadata ปัจจุบันได้ <code>cacheStatus: "hit"</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Query</td>
+                <td><code>debug=1</code> เปิด trace นอก production; <code>lineuuid</code> ใช้ได้เฉพาะ local mock+debug</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Response ตัด PII: ไม่มี <code>lineuuid</code>, ไม่มีรายการสินค้าดิบ, ไม่มีซีเรียล</p>
+        <pre>200 cache miss
+{
+  "cacheStatus": "miss",
+  "customer": {
+    "displayName": "Sony Customer",
+    "lineDisplayName": null,
+    "linePictureUrl": null
+  },
+  "productCount": 3,
+  "supportMessage": "Please contact Sony Thailand support if badge data looks incorrect.",
+  "badges": [
+    {
+      "code": "product-sel2470gm2",
+      "name": "...",
+      "type": "product",
+      "description": "...",
+      "status": "earned",
+      "progress": 100,
+      "remainingCount": 0,
+      "matchedCount": 1,
+      "requiredCount": 1,
+      "imageUrl": "...",
+      "level": "achievement"
+    }
+  ],
+  "badgeShelf": [],
+  "cache": {
+    "customerCacheKey": "&lt;hmac hex&gt;",
+    "skuHash": "&lt;sha256 hex&gt;",
+    "rulesVersion": "2026-07-24-product-urls-001",
+    "calculatedAt": "2026-08-19T00:00:00.000Z"
+  }
+}</pre>
+        <p>
+          <code>badges[].status</code>: <code>earned</code> | <code>locked</code> | <code>no-badge</code>
+          shelf <code>status</code>: <code>achieved</code> | <code>available</code>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

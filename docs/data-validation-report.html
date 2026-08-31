@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data Validation Report</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --ok: #198754; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+      .pass { color: var(--ok); font-weight: 700; }
+      .gap { color: var(--warn); font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Data Validation Report</h1>
+        <p class="lede">
+          ผลตรวจสอบจำนวนรายการ Mapping, Duplicate, Missing และความถูกต้องของ Badge Rule
+        </p>
+        <p>
+          ตรวจจากโมดูล seed ในรีโป (19 ส.ค. 2026)
+          <code>npm run db:verify</code> ตรวจแค่ COUNT กับไฟล์ที่โหลด และว่ามีคีย์เวอร์ชัน
+          <strong>ไม่</strong>เทียบว่าสตริงเวอร์ชันตรงค่าในไฟล์
+        </p>
+      </header>
+
+      <section>
+        <h2>จำนวนรายการ (Counts / Mapping)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ชุด default — คาดหวังของ <code>db:verify</code></caption>
+            <thead>
+              <tr>
+                <th>ตาราง</th>
+                <th>จำนวน</th>
+                <th>องค์ประกอบ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>badge_display_groups</td>
+                <td>6</td>
+                <td>5 กลุ่มสินค้า + quest</td>
+              </tr>
+              <tr>
+                <td>badge_rules</td>
+                <td>64</td>
+                <td>56 product + 8 quest</td>
+              </tr>
+              <tr>
+                <td>badge_rule_thresholds</td>
+                <td>70</td>
+                <td>56 ชั้นสินค้า + 14 ชั้นภารกิจ (3+3+3 ขั้น + 5 achievement)</td>
+              </tr>
+              <tr>
+                <td>badge_rule_conditions</td>
+                <td>66</td>
+                <td>56 สินค้า + 10 เงื่อนไขภารกิจ (Trinity Master มี 3 แถว)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>ชุด prod</caption>
+            <thead>
+              <tr>
+                <th>ตาราง</th>
+                <th>จำนวน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>badge_display_groups</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>badge_rules</td>
+                <td>65</td>
+              </tr>
+              <tr>
+                <td>badge_rule_thresholds</td>
+                <td>71</td>
+              </tr>
+              <tr>
+                <td>badge_rule_conditions</td>
+                <td>67</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          SQL ที่ commit: บรรทัดหัว
+          <code>Rows: 6 groups, 64 rules, 70 thresholds, 66 conditions</code>
+          CI <code>db:seed:sql:check</code> บังคับให้ตรง seed เริ่มต้น
+        </p>
+      </section>
+
+      <section>
+        <h2>Duplicate</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ตรวจ</th>
+                <th>ชุด default</th>
+                <th>ชุด prod</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>badge_code ซ้ำใน seed</td>
+                <td>ไม่มี</td>
+                <td>ไม่มี</td>
+                <td class="pass">Pass (วิเคราะห์ไฟล์)</td>
+              </tr>
+              <tr>
+                <td>product_model_code ซ้ำ</td>
+                <td>ไม่มี</td>
+                <td>ไม่มี</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>SKU ซ้ำในเงื่อนไขเดียวกัน</td>
+                <td>ไม่มี</td>
+                <td>ไม่มี</td>
+                <td class="pass">Pass</td>
+              </tr>
+              <tr>
+                <td>UNIQUE ใน schema</td>
+                <td colspan="2">
+                  <code>badge_code</code> ·
+                  <code>(badge_rule_id, level)</code> ·
+                  <code>(badge_rule_id, condition_label)</code>
+                </td>
+                <td class="pass">Specified ใน migrate</td>
+              </tr>
+              <tr>
+                <td>SKU ซ้ำข้ามภารกิจต่างกัน</td>
+                <td colspan="2">
+                  ตั้งใจ เช่น SEL35F14GM อยู่ในทั้ง Portrait และ Wide
+                  ไม่ถือเป็นข้อผิดพลาดของ seed
+                </td>
+                <td class="pass">Expected</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Dump UAT เดิมมี share URL ต่อกันสองค่า — generator prod ตัดเหลือ URL แรก
+          เงื่อนไข SEL1224GM ที่ dump ไปอยู่ผิดกฎถูกย้ายไป
+          <code>product-sel1224gm</code> ในคอมเมนต์ของ <code>prod/seed-data.mjs</code>
+        </p>
+      </section>
+
+      <section>
+        <h2>Missing</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ตรวจ</th>
+                <th>ผล</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>กฎไม่มี threshold / ไม่มี condition</td>
+                <td class="pass">ไม่มีในทั้งสองชุด</td>
+              </tr>
+              <tr>
+                <td>สินค้าไม่มี product_url หรือ imageUrl ใน seed</td>
+                <td class="pass">ไม่มีในทั้งสองชุด</td>
+              </tr>
+              <tr>
+                <td>รหัสสินค้าในแคตตาล็อกที่ไม่ปรากฏในเงื่อนไขใดเลย</td>
+                <td class="pass">ไม่มี (ทุกเหรียญสินค้ามีเงื่อนไขอย่างน้อยหนึ่ง)</td>
+              </tr>
+              <tr>
+                <td>SKU ในเงื่อนไขที่ไม่มีเหรียญสินค้า</td>
+                <td>
+                  <span class="pass">Default:</span> เฉพาะ <code>SEL1224GM</code> (Wide Architect เท่านั้น) —
+                  ตามสเปกชุดนี้
+                  <br />
+                  <span class="pass">Prod:</span> ไม่มีช่องว่างนี้
+                </td>
+              </tr>
+              <tr>
+                <td>หน้าต่างวันที่ active / registration ใน seed</td>
+                <td>ทุกกฎเป็น <code>null</code> — ไม่ได้ใส่ช่วงวัน</td>
+              </tr>
+              <tr>
+                <td>verify เทียบเวอร์ชันในฐานกับไฟล์</td>
+                <td class="gap">ไม่ทำ — ตรวจแค่ว่ามีคีย์</td>
+              </tr>
+              <tr>
+                <td>Vitest ตรวจ seed counts / mapping</td>
+                <td class="gap">ไม่มีเทสที่ import seed-data.mjs</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>ความถูกต้องของ Badge Rule (spot-check จาก seed)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>กฎ</th>
+                <th>ชนิด</th>
+                <th>เกณฑ์ใน seed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>product-*</td>
+                <td>achievement / any รุ่นเดียว</td>
+                <td>required_count 1 ต่อกฎ</td>
+              </tr>
+              <tr>
+                <td>portrait-master</td>
+                <td>tier min_count</td>
+                <td>ขั้น 2 / 3 / 4 · เงื่อนไขรายการ 7 รุ่น · required_count เงื่อนไข = 4</td>
+              </tr>
+              <tr>
+                <td>wide-architect</td>
+                <td>tier min_count</td>
+                <td>ขั้น 3 / 4 / 5 · รวม SEL1224GM ในรายการ eligible</td>
+              </tr>
+              <tr>
+                <td>the-visionary</td>
+                <td>tier min_count</td>
+                <td>ขั้น 2 / 3 / 4</td>
+              </tr>
+              <tr>
+                <td>trinity-master</td>
+                <td>achievement · any × 3 ครอบครัว</td>
+                <td>16-35 GM / 24-70 GM / 70-200 GM อย่างละหนึ่ง (รวมรุ่น 2)</td>
+              </tr>
+              <tr>
+                <td>trinity-junior</td>
+                <td>all</td>
+                <td>3 รุ่นครบ</td>
+              </tr>
+              <tr>
+                <td>all-rounder / f2-master / the-magnifier</td>
+                <td>min_count / all / any</td>
+                <td>ตามอาร์เรย์ใน seed</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          ความถูกต้องของ logic การคำนวณ (suffix SKU, นับ unique) อยู่ที่ Vitest ของเครื่องคำนวณ
+          ไม่ได้อยู่ใน <code>verify.mjs</code>
+          FK <code>display_group_code</code> เป็นตรรกะ ไม่มี constraint ไปตารางกลุ่ม
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

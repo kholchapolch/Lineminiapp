@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Release Note</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #fff;
+      --ink: #1d2733;
+      --muted: #66758a;
+      --line: #d8e0ea;
+      --accent: #2557a7;
+      --accent-soft: #e8f0ff;
+      --warn: #b55b00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 18px 56px;
+    }
+
+    h1,
+    h2 {
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+    }
+
+    h2 {
+      margin-top: 8px;
+      font-size: 26px;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul {
+      margin: 0 0 14px;
+      padding-left: 22px;
+    }
+
+    code {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      background: #eef3f8;
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    .hero,
+    section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .lede {
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 12px 14px;
+      margin: 14px 0;
+    }
+
+    .warn {
+      border-left-color: var(--warn);
+      background: #fff4e8;
+    }
+
+    .tableWrap {
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef3f8;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header class="hero">
+      <h1>Release Note</h1>
+      <p class="lede">
+        ฟีเจอร์ที่ส่งมอบ รายการแก้ไข ข้อจำกัด และ Known Issues
+      </p>
+      <p>
+        ขอบเขต: Sony Thailand LINE Mini App (pilot แสดงเหรียญ)
+        แพ็กเกจ <code>0.1.0</code>
+        HEAD ที่จัดทำเอกสาร: <code>87a9430</code> (19 ส.ค. 2026)
+        กฎ seed: <code>2026-07-24-product-urls-001</code>
+        ไม่ใช่ใบรับรองว่า SHA นี้ถูก deploy บน UAT แล้ว
+      </p>
+    </header>
+
+    <section>
+      <h2>ฟีเจอร์ที่ส่งมอบ</h2>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>พื้นที่</th>
+              <th>สิ่งที่มีในโค้ด</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>LINE Mini App</td>
+              <td>
+                LIFF init, ตรวจ ID token ที่เซิร์ฟเวอร์, คุกกี้เซสชัน HttpOnly,
+                หน้าโฮมของ user ที่ <code>/{locale}/my-badges</code>
+              </td>
+            </tr>
+            <tr>
+              <td>เหรียญสินค้า</td>
+              <td>
+                แคตตาล็อกตามกฎใน MySQL, ปลดล็อกจากสินค้าที่ลงทะเบียนผ่าน Sony API,
+                หน้ารายละเอียดและแชร์เมื่อปลดล็อกแล้ว
+              </td>
+            </tr>
+            <tr>
+              <td>เหรียญภารกิจ</td>
+              <td>
+                ขั้น Portrait / Wide / Visionary และ achievement
+                (Trinity, All Rounder, F2, Magnifier) พร้อมความคืบหน้าและตั๋วรุ่น
+              </td>
+            </tr>
+
+            <tr>
+              <td>แชร์ Facebook</td>
+              <td>
+                ปุ่มแชร์รูปเหรียญ, Web Share sheet ก่อน sharer,
+                หน้า OG ที่ <code>/share/product|mission/…</code>
+              </td>
+            </tr>
+
+            <tr>
+              <td>ข้อมูล Badge Rule</td>
+              <td>
+                migrate / seed / verify, SQL ที่ generate จาก seed,
+                ชุด default และชุด prod
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>รายการแก้ไข (ที่รวมในประวัติล่าสุด)</h2>
+      <p>สรุปจาก commit บนสาขา ไม่ใช่รายการ ticket ภายนอก</p>
+      <ul>
+        <li>แชร์ Facebook: เข้ารหัส URL ที่มีช่องว่าง, ใช้ native share sheet ก่อนเปิด sharer (iOS + แอป Facebook)</li>
+        <li>ลิงก์ FAQ ที่แถบล่างชี้ microsite digital-badge</li>
+        <li>ชื่อหัวข้อภารกิจใช้ชื่อเหรียญเมื่อมี, ปรับคำแปลไทย/อังกฤษและเลย์เอาต์มือถือ</li>
+        <li>เรียงเหรียญสินค้าล่าสุดตามตัวอักษรในประสบการณ์บ้าน</li>
+        <li>เพิ่มรูปเหรียญสินค้า SEL1224GM ในสินทรัพย์ (ชุด seed default ยังไม่มีกฎเหรียญสินค้ารุ่นนี้)</li>
+        <li>สคริปต์ seed/verify ชุด prod และตรวจ SQL ใน CI</li>
+        <li>ปรับการแสดงสถานะภาพความคืบหน้าเหรียญ</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>ข้อจำกัด</h2>
+      <ul>
+        <li>ไม่มี CMS / หน้าแอดมิน — เปลี่ยนกฎผ่าน seed ที่รีวิวแล้ว</li>
+        <li>ไม่มี workflow Production ในรีโป มีแค่ UAT App Service</li>
+        <li>หน้าต่างวันที่ของกฎใน seed เป็น <code>null</code></li>
+        <li>ไม่มี retry / timeout บน <code>fetch</code> ไป Sony</li>
+        <li>ปุ่มแชร์ส่ง URL รูป ไม่ใช่ URL หน้า Mini App หรือหน้า OG</li>
+        <li>ชุด default (56 สินค้า) กับชุด prod (57 รวม SEL1224GM) คนละแคตตาล็อก แต่ใช้สตริงเวอร์ชันเดียวกัน</li>
+        <li>ไม่มี UI สลับภาษา — มีแค่พาธ <code>/th/</code> และ <code>/en/</code></li>
+        <li>Deploy อัตโนมัติไม่รัน migrate/seed</li>
+        <li>ไม่มี e2e (Playwright/Cypress) ใน CI — มี Vitest</li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+
+</html>

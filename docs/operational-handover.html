@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Operational Handover Document</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul, ol { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      pre { margin: 0 0 14px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: #101923; color: #f7fbff; padding: 16px; font-size: 13px; line-height: 1.5; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Operational Handover Document</h1>
+        <p class="lede">
+          วิธีตรวจสอบระบบ Log, Monitoring และ Support Flow
+        </p>
+        <p>
+          แอปนี้ไม่มี Application Insights / SIEM / PagerDuty ในโค้ด
+          การเฝ้าดูใช้แพลตฟอร์ม Azure + GitHub + ตารางปูมใน MySQL
+        </p>
+      </header>
+
+      <section>
+        <h2>ตรวจว่าระบบยังขึ้น</h2>
+        <ol>
+          <li>
+            จากเครือข่ายที่ Azure อนุญาต:
+            <code>GET https://stglineminiapp.sony.co.th/api/health</code>
+            ต้องได้ <code>{"status":"ok","runtime":"nodejs"}</code>
+          </li>
+          <li><code>/deployment-check.html</code> มีข้อความ smoke test</li>
+          <li>เปิด Mini App ใน LINE แล้วเข้าหน้าโฮมของ user (<code>/th/my-badges</code>)</li>
+        </ol>
+        <p>
+          ถ้าได้ 403 และหัว <code>x-ms-forbidden-ip</code> คือ Access Restriction ไม่ใช่ Next.js ล่ม
+        </p>
+      </section>
+
+      <section>
+        <h2>Log</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>แหล่ง</th>
+                <th>มีอะไร</th>
+                <th>วิธีดู</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Azure App Service / iisnode</td>
+                <td>
+                  stdout/stderr ของ <code>server.js</code>
+                  รวม <code>console.log</code> / <code>console.error</code>
+                </td>
+                <td>Log stream หรือไฟล์ล็อกของแผน App Service (สิทธิ์ Azure)</td>
+              </tr>
+              <tr>
+                <td>เส้นทาง API my-*</td>
+                <td>
+                  บางไฟล์ <code>console.log({ lineuuid })</code> ค่าดิบ —
+                  อย่าส่งสำเนาล็อกสาธารณะ
+                </td>
+                <td>กรองช่วงเวลาที่เกิดเหตุ</td>
+              </tr>
+              <tr>
+                <td><code>badge_calculation_logs</code></td>
+                <td>
+                  เขียนเมื่อเรียก <code>/api/customer-products</code>
+                  เก็บ <code>customer_line_uuid_hash</code> (HMAC/SHA-256)
+                  ไม่ใช่ LINE ID ดิบ
+                  เส้น <code>/api/my-*</code> ไม่เขียนตารางนี้
+                </td>
+                <td>
+                  <pre>SELECT id, customer_line_uuid_hash, source_sku_count,
+       matched_sku_count, error_code, created_at
+FROM badge_calculation_logs
+ORDER BY created_at DESC
+LIMIT 50;</pre>
+                </td>
+              </tr>
+              <tr>
+                <td>GitHub Actions</td>
+                <td>ล็อก build/deploy/verify ของ UAT</td>
+                <td>แท็บ Actions ของรีโป</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          อย่าค้นล็อกด้วย LINE user ID ดิบในช่องทางที่ไม่เข้ารหัส
+          เทียบกับ hash จาก <code>LOG_HASH_SECRET</code> (หรือ session secret ถ้าไม่ตั้งตัวแรก) ตาม <code>hashLineUuid</code>
+        </div>
+      </section>
+
+      <section>
+        <h2>Monitoring</h2>
+        <ul>
+          <li>แพลตฟอร์ม: Health check path ที่คู่มือ UAT แนะนำคือ <code>/api/health</code> บน App Service</li>
+          <li>Always On ตามแผน Azure (ถ้ารองรับ)</li>
+          <li>ไม่มีเมตริกธุรกิจ (จำนวนเหรียญ, อัตรา error Sony) ในแอป</li>
+          <li>ไม่มี alert rule ในรีโป — ตั้งที่ Azure/องค์กรถ้าต้องการ</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Support Flow</h2>
+        <ol>
+          <li>
+            ผู้ใช้: แถบล่าง FAQ →
+            <code>https://www.sony.co.th/microsite/digital-badge/</code>
+            หรือลงทะเบียนสินค้าตาม <code>NEXT_PUBLIC_ACCOUNT_URL</code>
+          </li>
+          <li>
+            ถ้าเหรียญไม่ตรง: อ่าน <code>support_message</code> บนหน้า (debug/ลูกค้าตามที่ UI แสดง)
+            ไม่เปิด <code>?debug=1</code> ให้ผู้ใช้บน production (<code>APP_ENV=production</code> ปิดอยู่แล้ว)
+          </li>
+          <li>
+            ฝ่ายปฏิบัติการ: ตรวจ health → Log stream → ตาราง
+            <code>badge_calculation_logs</code> (เฉพาะเส้น customer-products) →
+            โหมด Sony mock/live โดยไม่พิมพ์คีย์ในแชท
+          </li>
+          <li>
+            เซสชัน: คุกกี้ <code>sony_line_session</code> อายุ 1 ชั่วโมง
+            ให้เปิด Mini App ใน LINE ใหม่ถ้าหมดอายุ
+          </li>
+          <li>
+            ถ้ายืนยันว่ากฎผิด: อย่าแก้แถวบนฐานลวก ๆ — แก้ seed, bump
+            <code>badge_rules_version</code>, สำรอง, แล้ว seed ตาม runbook
+          </li>
+          <li>
+            ถ้ายืนยันว่าแอปพังหลัง deploy: rollback ตาม Deployment Guide ไม่ใช้ <code>db:reset</code>
+          </li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

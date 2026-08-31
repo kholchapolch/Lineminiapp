@@ -5,6 +5,7 @@ import {
   getMockSonyCustomerProducts,
   SonyCustomerNotFoundError,
 } from "@/lib/sony-products";
+import { canonicalSku } from "@/lib/sku";
 import type { SonyCustomerProducts, SonyOwnedProduct } from "@/types/badge";
 
 export type SonyProductsClient = {
@@ -148,7 +149,7 @@ function assertSonyWarrantyProduct(product: unknown): SonyOwnedProduct {
   }
 
   return {
-    sku: candidate.modelName,
+    sku: canonicalSku(candidate.modelName),
     modelName: candidate.modelName,
     serialNumber: nullableString(candidate.serialNumber),
     registeredAt: candidate.registrationDate,

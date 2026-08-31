@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Social Sharing Specification</title>
+    <style>
+      :root { color-scheme: light; --bg: #f6f8fb; --panel: #fff; --ink: #1d2733; --muted: #66758a; --line: #d8e0ea; --accent: #2557a7; --accent-soft: #e8f0ff; --warn: #b55b00; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; line-height: 1.65; }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code { font-family: ui-monospace, Menlo, Consolas, monospace; background: #eef3f8; border-radius: 4px; padding: 1px 5px; }
+      pre { margin: 0 0 14px; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: #101923; color: #f7fbff; padding: 16px; font-size: 13px; line-height: 1.5; white-space: pre; }
+      .hero, section { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 22px; margin-bottom: 18px; }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+      .warn { border-left-color: var(--warn); background: #fff4e8; }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 900px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Social Sharing Specification</h1>
+        <p class="lede">
+          ช่องทางที่รองรับ (Facebook) พร้อมข้อความ รูปภาพ และ URL ที่แชร์
+        </p>
+      </header>
+
+      <section>
+        <h2>ช่องทางที่รองรับ</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ช่องทาง</th>
+                <th>สถานะ</th>
+                <th>วิธีเรียกจากแอป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Facebook</td>
+                <td>รองรับ — ปุ่มเดียวใน UI</td>
+                <td>
+                  ป้าย <code>แชร์ (Share)</code> + ไอคอน Facebook ·
+                  ลำดับ: Web Share sheet (ผู้ใช้เลือก Facebook) →
+                  <code>liff.openWindow</code> ไป facebook.com/sharer →
+                  <code>window.open</code>
+                </td>
+              </tr>
+              <tr>
+                <td>LINE แชท / X / Instagram</td>
+                <td>ไม่มีปุ่มเฉพาะ</td>
+                <td>
+                  ถ้าอุปกรณ์มี <code>navigator.share</code> ผู้ใช้อาจเลือกแอปอื่นในระบบ
+                  แอปส่งแค่ URL ไม่บังคับแอปปลายทาง
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          จุดกด: รายละเอียดสินค้าที่ปลดล็อก และหน้ารายละเอียดภารกิจเมื่อชั้นนั้นครบแล้วเท่านั้น
+        </p>
+      </section>
+
+      <section>
+        <h2>สิ่งที่ถูกส่งตอนกดแชร์ใน Mini App</h2>
+        <div class="note warn">
+          ปุ่มแชร์ส่ง <strong>URL ของไฟล์รูปเหรียญ</strong> ไม่ใช่ URL หน้า Mini App
+          และไม่ใช่หน้า <code>/share/...</code>
+          <code>navigator.share({ url })</code> ไม่ส่ง title, text, ไฟล์ หรือ hashtag
+          คอมโพเนนต์มี props <code>hashtag</code> แต่หน้าเรียกไม่ส่งค่า
+        </div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>องค์ประกอบ</th>
+                <th>ค่าที่ใช้จริง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ข้อความ / caption จากแอป</td>
+                <td>ไม่มี — Facebook หรือ share sheet กำหนดเอง ยกเว้นหน้า OG ถ้า crawler เปิดหน้า share</td>
+              </tr>
+              <tr>
+                <td>รูป</td>
+                <td>
+                  Product: <code>shareImageUrl</code> ของ threshold (seed = รูป achieved)
+                  Quest: <code>shareImageUrl || badgeImageUrl</code> ของชั้นนั้น
+                </td>
+              </tr>
+              <tr>
+                <td>URL</td>
+                <td>
+                  รูปที่แปลงเป็น absolute ด้วย
+                  <code>NEXT_PUBLIC_APP_BASE_URL</code> / <code>APP_BASE_URL</code>
+                  path ถูก percent-encode (ห้ามเว้นวรรคดิบ)
+                </td>
+              </tr>
+              <tr>
+                <td>Facebook sharer URL</td>
+                <td>
+                  <code>https://www.facebook.com/sharer/sharer.php?u=</code>
+                  + encode พิเศษของ <code>%20</code> เป็นลำดับ <code>%252520</code> ใน query
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre>กดแชร์
+  → toShareableAssetUrl(รูป)
+  → ถ้ามี Web Share: navigator.share({ url: รูป }) เท่านั้น
+  → ไม่มี / ล้มที่ไม่ใช่ยกเลิก: เปิด Facebook sharer ของ URL รูป
+  → ผู้ใช้ยกเลิก share sheet (AbortError) = ถือว่าจัดการแล้ว ไม่เปิด Facebook ซ้ำ</pre>
+      </section>
+
+      <section>
+        <h2>หน้า OG (ไม่ได้อยู่ในปุ่มหลัก)</h2>
+        <p>
+          ถ้ามีคนเปิดหรือแชร์
+          <code>https://&lt;host&gt;/{locale}/share/product/{productId}</code>
+          หรือ <code>.../share/mission/{missionId}</code>
+          crawler จะได้ og:title / og:description คงที่จาก <code>shareOg</code>
+          และ og:image เป็นรูปเหรียญ
+        </p>
+        <ul>
+          <li>title: เหรียญของฉันจาก Sony (My badges from Sony)</li>
+          <li>description: มาดูเหรียญที่ฉันปลดล็อกได้ในแคมเปญนี้!</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

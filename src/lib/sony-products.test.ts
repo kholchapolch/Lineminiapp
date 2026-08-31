@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { getMockSonyCustomerProducts } from "@/lib/sony-products";
-import { matchesEligibleSku, normalizeSku } from "@/lib/sku";
+import { canonicalSku, matchesEligibleSku, normalizeSku } from "@/lib/sku";
 
 describe("normalizeSku", () => {
   it("normalizes whitespace and case for indexed matching", () => {
     expect(normalizeSku(" ilce-7m4 ")).toBe("ILCE-7M4");
+  });
+});
+
+describe("canonicalSku", () => {
+  it("keeps the model code before / and drops camera color suffixes", () => {
+    expect(canonicalSku("ILCE-7M5/BQ AP2")).toBe("ILCE-7M5");
+    expect(canonicalSku("ilce-7m5/sq ap2")).toBe("ILCE-7M5");
+    expect(canonicalSku("ZV-E10M2/BQ AP2")).toBe("ZV-E10M2");
   });
 });
 
@@ -21,11 +29,18 @@ describe("matchesEligibleSku", () => {
     expect(matchesEligibleSku("SEL1635GM   SYX", ["SEL1635GM"])).toBe(true);
   });
 
+  it("matches camera warranty model names by the code before /", () => {
+    expect(matchesEligibleSku("ILCE-7M5/BQ AP2", ["ILCE-7M5"])).toBe(true);
+    expect(matchesEligibleSku("ILCE-7C/BQ AP2", ["ILCE-7C"])).toBe(true);
+  });
+
   it("does not match shorter sibling model codes", () => {
     expect(matchesEligibleSku("SEL70200GM/QSYX", ["SEL70200G"])).toBe(false);
     expect(matchesEligibleSku("SEL70200GM2QSYX", ["SEL70200GM"])).toBe(false);
     expect(matchesEligibleSku("SEL70200GM2QSYX", ["SEL70200G"])).toBe(false);
     expect(matchesEligibleSku("SEL70200G2/CSYX", ["SEL70200G"])).toBe(false);
+    expect(matchesEligibleSku("ILCE-7CM2/BQ AP2", ["ILCE-7C"])).toBe(false);
+    expect(matchesEligibleSku("ILCE-7M4/BQ AP2", ["ILCE-7M5"])).toBe(false);
   });
 
   it("does not match unrelated SKUs", () => {

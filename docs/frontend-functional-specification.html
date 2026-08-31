@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Frontend Functional Specification</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      pre {
+        margin: 0 0 14px;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        font-size: 13px;
+        line-height: 1.5;
+        white-space: pre;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 900px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Frontend Functional Specification</h1>
+        <p class="lede">
+          รายการหน้าจอ ฟังก์ชัน ปุ่ม เงื่อนไขการแสดงผล และ Navigation
+          ของ LINE Mini App
+        </p>
+        <p>
+          หน้าหลักของผู้ใช้คือ <code>/{locale}/my-badges</code>
+          ไม่ใช่เส้นทางเก่า <code>/badge</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#nav">แผนนำทาง (Navigation)</a></li>
+            <li><a href="#global">พฤติกรรมร่วม</a></li>
+            <li><a href="#screens">รายการหน้าจอ</a></li>
+            <li><a href="#states">เงื่อนไขแสดงผล</a></li>
+            <li><a href="#buttons">ปุ่มและการกระทำ</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="nav">
+        <h2>แผนนำทาง (Navigation map)</h2>
+        <pre> /  และ /badge  →  /th/my-badges   (middleware)
+ /{locale}/badges
+    ├─ local + mock     → /{locale}/my-badges
+    ├─ production LIFF  → bootstrap เซสชัน แล้ว replace my-badges
+    └─ ?debug=1         → BadgeClient (วินิจฉัย)
+ /{locale}/entry        → ตรวจ referrer/เซสชัน แล้วไป badges หรือ badges?entryError=
+ /{locale}/my-badges    ← บ้าน (Home)
+    ├─ ดูทั้งหมดสินค้า  → /{locale}/my-products
+    ├─ การ์ดสินค้าล่าสุด → /{locale}/my-product/{productId}
+    ├─ ดูทั้งหมดภารกิจ  → /{locale}/my-missions
+    └─ การ์ดภารกิจล่าสุด → /{locale}/my-missions/{tierId}
+ /{locale}/my-products  → กรองกลุ่ม → เฉพาะ unlocked ไปรายละเอียดสินค้า
+ /{locale}/my-missions  → ทุกชั้น (bronze/silver/gold/achievement) ไปรายละเอียดภารกิจ
+ /{locale}/share/...    → หน้า OG สำหรับ Facebook (ไม่ใช่โฟลว์ใน LIFF หลัก)</pre>
+        <div class="tableWrap">
+          <table>
+            <caption>Redirect ที่ระบบทำให้อัตโนมัติ</caption>
+            <thead>
+              <tr>
+                <th>จาก</th>
+                <th>ไป</th>
+                <th>เมื่อ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/</code>, <code>/badge</code>, <code>/my-badges</code></td>
+                <td><code>/th/my-badges</code></td>
+                <td>middleware (locale เริ่มต้น <code>th</code>)</td>
+              </tr>
+              <tr>
+                <td><code>/entry</code></td>
+                <td><code>/th/entry</code></td>
+                <td>middleware</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges?mock=1</code></td>
+                <td><code>/api/mock-session</code></td>
+                <td>เฉพาะ local + Sony mock</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="global">
+        <h2>พฤติกรรมร่วม (Cross-cutting)</h2>
+        <ul>
+          <li>
+            <code>LineSessionProvider</code> ครอบทุกหน้าใน
+            <code>/{locale}/*</code> — init LIFF, ตั้งคุกกี้ผ่าน
+            <code>POST /api/line-session</code>, เก็บ LINE user id ใน sessionStorage
+          </li>
+          <li>
+            หน้า my-* ดึงข้อมูลด้วย <code>lineuuid</code> ใน query (ไม่ผูกคุกกี้ที่ route)
+            ระหว่าง idle/loading แสดง <code>PageLoading</code>
+          </li>
+          <li>
+            ลิงก์ภายนอกใน LIFF ใช้ <code>liff.openWindow({ external: true })</code>
+            ผ่าน <code>ExternalLink</code>
+          </li>
+        </ul>
+      </section>
+
+      <section id="screens">
+        <h2>รายการหน้าจอ (Screens)</h2>
+
+        <h3>SC-01 · My Badges — <code>/{locale}/my-badges</code></h3>
+        <p>
+          หน้าที่บ้านของแคมเปญ ฟังก์ชัน: แสดงโปรไฟล์ LINE, นับเหรียญที่ได้/ทั้งหมด,
+          พรีวิวสินค้าและภารกิจอย่างละไม่เกิน 3 รายการล่าสุด, แถบนำทางล่าง
+        </p>
+        <ul>
+          <li>การ์ดโปรไฟล์: รูปจาก LIFF ถ้ามี ไม่เช่นนั้นตัวอักษรแรกของชื่อ</li>
+          <li>สถิติ: Product ได้/ทั้งหมด และ Mission (นับชั้นที่ achieved)</li>
+          <li>ดูทั้งหมด → รายการเต็มสินค้า / ภารกิจ</li>
+          <li>แถบล่าง Home (หน้านี้) / Register / Inquiry</li>
+        </ul>
+
+        <h3>SC-02 · My Products — <code>/{locale}/my-products</code></h3>
+        <p>
+          แคตตาล็อก Product Badge ทั้งกลุ่ม มีตัวกรอง
+          all, full-frame-camera, prime-lens, wide-normal-zoom-lens,
+          telephoto-super-telephoto-lens, macro-lens
+        </p>
+        <p>
+          การ์ดที่ <code>unlocked</code> และมีรูปกดได้
+          การ์ดล็อกแสดงโดยไม่มีรูปและกดไม่ได้
+        </p>
+
+        <h3>SC-03 · Product detail — <code>/{locale}/my-product/{productId}</code></h3>
+        <p>
+          แสดงเมื่อ API คืนข้อมูลสินค้าที่ปลดล็อกแล้ว
+          ชื่อเหรียญ, วันปลดล็อก, จำนวน serial, ปุ่มแชร์ Facebook, กลับบ้าน
+        </p>
+
+        <h3>SC-04 · My Missions — <code>/{locale}/my-missions</code></h3>
+        <p>
+          แปดส่วนตาม Quest (Portrait, Wide, Visionary, Trinity Master/Junior,
+          All Rounder, F2, Magnifier) แต่ละส่วนมีแทร็กชั้น
+          กดชั้นใดก็ได้รวมที่ยังไม่ครบ เพื่อเข้าหน้ารายละเอียดชั้นนั้น
+        </p>
+
+        <h3>SC-05 · Mission detail — <code>/{locale}/my-missions/{missionId}</code></h3>
+        <p>สองเลย์เอาต์ตามความคืบหน้าของชั้นนั้น:</p>
+        <ul>
+          <li>
+            ยังไม่ครบ (<code>progress &lt; target</code>): การ์ดสรุป, ปุ่มลงทะเบียนสินค้า (ถ้ามี URL),
+            รายการตั๋วรุ่น, ปุ่มกลับไป My Missions
+          </li>
+          <li>
+            ครบแล้ว: เลย์เอาต์คล้ายรายละเอียดสินค้า — แชร์ Facebook, กลับบ้าน (My Badges)
+          </li>
+        </ul>
+
+        <h3>SC-06 · LIFF bootstrap — <code>/{locale}/badges</code></h3>
+        <p>
+          Production: หน้าโหลด/บล็อกระหว่างสร้างเซสชัน แล้วไป My Badges
+          Local mock: redirect ตรงไป My Badges
+          <code>?debug=1</code>: UI วินิจฉัย <code>BadgeClient</code>
+        </p>
+
+        <h3>SC-07 · Entry guard — <code>/{locale}/entry</code></h3>
+        <p>
+          ไม่มี UI คงที่ ตรวจ referrer/origin แล้ว redirect
+          ถ้าไม่ผ่านไป <code>badges?entryError=</code>
+        </p>
+
+        <h3>SC-08 · Share OG — <code>/{locale}/share/product|mission/{id}</code></h3>
+        <p>
+          หน้าสาธารณะสำหรับ crawler Facebook แสดงชื่อ/คำอธิบายแคมเปญและรูปเหรียญ
+          ถ้าไม่มี meta → <code>notFound</code>
+        </p>
+
+        <h3>SC-09 · Loading / Error</h3>
+        <p>
+          <code>PageLoading</code> ตาม variant ของหน้า
+          รายละเอียดสินค้าที่ API ไม่สำเร็จใช้ <code>PageError</code>
+          My Badges เมื่อโหลดไม่สำเร็จยังเรนเดอร์วิวว่าง (interactive) ไม่ใช้ PageError
+          My Products / My Missions เมื่อ isLoading หรือยังไม่มี data วนที่ loading
+          (รวมกรณี error ของ hook ที่ไม่มี data)
+        </p>
+      </section>
+
+      <section id="states">
+        <h2>เงื่อนไขการแสดงผล (Display rules)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>พื้นที่</th>
+                <th>เงื่อนไข</th>
+                <th>สิ่งที่ผู้ใช้เห็น</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>My Badges พรีวิว</td>
+                <td>ไม่มีเหรียญล่าสุด</td>
+                <td>ข้อความว่างของหมวด</td>
+              </tr>
+              <tr>
+                <td>My Badges การ์ด</td>
+                <td>มีรายการ และ interactive</td>
+                <td>ลิงก์ไปรายละเอียด (สินค้าใช้รหัสกฎ, ภารกิจใช้รหัสชั้น)</td>
+              </tr>
+              <tr>
+                <td>Product catalog</td>
+                <td>status unlocked + มี imageUrl</td>
+                <td>รูปสี + ลิงก์รายละเอียด</td>
+              </tr>
+              <tr>
+                <td>Product catalog</td>
+                <td>locked หรือไม่มีรูป</td>
+                <td>การ์ดไม่มีรูป, aria-disabled, ไม่มีลิงก์</td>
+              </tr>
+              <tr>
+                <td>ตัวกรองสินค้า</td>
+                <td>เลือกกลุ่มหนึ่ง</td>
+                <td>เหลือหมวดนั้นหมวดเดียว</td>
+              </tr>
+              <tr>
+                <td>Mission node</td>
+                <td>progress ≥ target และ target &gt; 0</td>
+                <td>คลาส visual <code>unlocked</code></td>
+              </tr>
+              <tr>
+                <td>Mission node</td>
+                <td>ยังไม่ครบ</td>
+                <td>คลาส <code>partial</code> (โค้ดไม่ใช้สถานะ empty)</td>
+              </tr>
+              <tr>
+                <td>ตั๋วภารกิจ</td>
+                <td>status completed</td>
+                <td>ป้าย completed ไม่มีลิงก์รายละเอียด</td>
+              </tr>
+              <tr>
+                <td>ตั๋วภารกิจ</td>
+                <td>pending + มี productUrl</td>
+                <td>ลิงก์ Details ออกเว็บ Sony</td>
+              </tr>
+              <tr>
+                <td>ตั๋วภารกิจ</td>
+                <td>pending ไม่มี productUrl</td>
+                <td>ข้อความ Details แบบ disabled</td>
+              </tr>
+              <tr>
+                <td>ปุ่มลงทะเบียนบนภารกิจ</td>
+                <td>ไม่มี LIFF ID หรือไม่มี REGISTER URL</td>
+                <td>ไม่เรนเดอร์ปุ่ม</td>
+              </tr>
+              <tr>
+                <td>วันปลดล็อกภารกิจที่ครบ</td>
+                <td>ไม่มี unlockedAt</td>
+                <td>ไม่แสดงบรรทัดวันที่</td>
+              </tr>
+              <tr>
+                <td>แชร์ Facebook</td>
+                <td>สร้าง URL รูปไม่ได้</td>
+                <td>ปุ่ม disabled</td>
+              </tr>
+              <tr>
+                <td>โปรไฟล์</td>
+                <td>มีรูป LINE</td>
+                <td>avatar รูป</td>
+              </tr>
+              <tr>
+                <td>handle</td>
+                <td>ว่างเสมอใน API ปัจจุบัน</td>
+                <td>ไม่แสดงบรรทัด handle</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="buttons">
+        <h2>ปุ่มและการกระทำ (Actions)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>รายการควบคุมหลัก</caption>
+            <thead>
+              <tr>
+                <th>ปุ่ม / ลิงก์</th>
+                <th>หน้า</th>
+                <th>ปลายทาง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ดูทั้งหมด (สินค้า)</td>
+                <td>My Badges</td>
+                <td><code>/{locale}/my-products</code></td>
+              </tr>
+              <tr>
+                <td>ดูทั้งหมด (ภารกิจ)</td>
+                <td>My Badges</td>
+                <td><code>/{locale}/my-missions</code></td>
+              </tr>
+              <tr>
+                <td>Home</td>
+                <td>แถบล่าง My Badges</td>
+                <td><code>/{locale}/my-badges</code></td>
+              </tr>
+              <tr>
+                <td>Register</td>
+                <td>แถบล่าง</td>
+                <td>
+                  <code>NEXT_PUBLIC_ACCOUNT_URL</code>
+                  (ภายนอก; ถ้าไม่ตั้งค่า href ว่างเป็นปุ่มไม่มีลิงก์)
+                </td>
+              </tr>
+              <tr>
+                <td>Inquiry</td>
+                <td>แถบล่าง</td>
+                <td>
+                  <code>https://www.sony.co.th/microsite/digital-badge/</code>
+                  (hardcode)
+                </td>
+              </tr>
+              <tr>
+                <td>กลับไปเหรียญของฉัน</td>
+                <td>My Products / รายละเอียดสินค้า / ภารกิจที่ครบ</td>
+                <td>My Badges</td>
+              </tr>
+              <tr>
+                <td>กลับ (ลูกศร)</td>
+                <td>ภารกิจยังไม่ครบ</td>
+                <td>My Missions</td>
+              </tr>
+              <tr>
+                <td>ลงทะเบียนสินค้า</td>
+                <td>ภารกิจยังไม่ครบ</td>
+                <td>
+                  <code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code>
+                  (พารามิเตอร์ callback ในโค้ดถูกคอมเมนต์ไว้ จึงไม่ส่ง URL กลับ Mini App)
+                </td>
+              </tr>
+              <tr>
+                <td>Details</td>
+                <td>ตั๋ว pending</td>
+                <td><code>productUrl</code> จากกฎ (ไซต์ Sony)</td>
+              </tr>
+              <tr>
+                <td>แชร์ Facebook</td>
+                <td>สินค้าที่ปลดล็อก / ภารกิจที่ครบ</td>
+                <td>
+                  ลำดับ: Web Share API ถ้ามี → LIFF openWindow ไป Facebook sharer
+                  → <code>window.open</code>
+                  แชร์ URL รูปเหรียญที่แปลงเป็น absolute ไม่ใช่หน้า Mini App
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Deep link กลับภารกิจถูกสร้างเป็น
+          <code>https://miniapp.line.me/{liffId}/th/my-missions/{id}</code>
+          เสมอ (locale ฝัง <code>th</code>) แต่ยังไม่ได้ต่อเข้า query ของหน้าลงทะเบียน
+        </div>
+        <p>
+          รหัส <code>productId</code> = รหัสกฎ เช่น
+          <code>product-sel35f14gm</code>
+          รหัส <code>missionId</code> = รหัสชั้น เช่น
+          <code>portrait-master-bronze</code> หรือ
+          <code>trinity-master-achievement</code>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>URL &amp; Redirect Mapping</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --warn: #b55b00;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+      main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+      h1, h2 { line-height: 1.2; margin: 0 0 12px; }
+      h1 { font-size: clamp(28px, 5vw, 48px); }
+      h2 { margin-top: 8px; font-size: 26px; }
+      p { margin: 0 0 14px; }
+      ul { margin: 0 0 14px; padding-left: 22px; }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        background: #eef3f8; border-radius: 4px; padding: 1px 5px;
+      }
+      .hero, section {
+        border: 1px solid var(--line); border-radius: 8px; background: var(--panel);
+        padding: 22px; margin-bottom: 18px;
+      }
+      .lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+      .note {
+        border-left: 4px solid var(--accent); background: var(--accent-soft);
+        padding: 12px 14px; margin: 14px 0;
+      }
+      .tableWrap { overflow-x: auto; margin: 14px 0; }
+      table { width: 100%; border-collapse: collapse; min-width: 960px; }
+      caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+      th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+      th { background: #eef3f8; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>URL &amp; Redirect Mapping</h1>
+        <p class="lede">
+          Source URL, Destination URL, Parameter และเงื่อนไข Redirect
+          (HTTP 307/Next redirect หรือ client replace)
+        </p>
+      </header>
+
+      <section>
+        <h2>Middleware (ทุก request ที่ไม่ใช่ api/_next)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>พารามิเตอร์</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/</code></td>
+                <td><code>/th/my-badges</code></td>
+                <td>คง query เดิมของ nextUrl</td>
+                <td>เสมอ</td>
+              </tr>
+              <tr>
+                <td><code>/badge</code>, <code>/badge/</code></td>
+                <td><code>/th/my-badges</code></td>
+                <td>คง query</td>
+                <td>เสมอ</td>
+              </tr>
+              <tr>
+                <td><code>/my-badges</code> และ subpath</td>
+                <td><code>/th/my-badges…</code></td>
+                <td>คง query</td>
+                <td>ไม่มี prefix locale</td>
+              </tr>
+              <tr>
+                <td><code>/entry</code> และ subpath</td>
+                <td><code>/th/entry…</code></td>
+                <td>คง query</td>
+                <td>ไม่มี prefix locale</td>
+              </tr>
+              <tr>
+                <td>path ที่ segment แรกไม่ใช่ <code>th</code>/<code>en</code></td>
+                <td>ไม่ redirect</td>
+                <td>—</td>
+                <td>ตั้ง header <code>x-locale=th</code> แล้ว next()</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>หน้าแอป</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>พารามิเตอร์ที่อ่าน/ส่ง</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td><code>/{locale}/badges?entryError=missing-source</code></td>
+                <td><code>entryError</code></td>
+                <td>ไม่มีทั้ง Origin และ Referer</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td><code>/{locale}/badges?entryError=blocked-source</code></td>
+                <td><code>entryError</code></td>
+                <td>Origin หรือ Referer ไม่อยู่ใน allow list</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td><code>/{locale}/badges?entryError=missingLineSession</code></td>
+                <td><code>entryError</code></td>
+                <td>guard ผ่าน แต่ไม่มีคุกกี้เซสชัน</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td><code>/{locale}/badges</code></td>
+                <td>—</td>
+                <td>guard ผ่าน และมีเซสชัน</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges?mock=1</code></td>
+                <td><code>/api/mock-session?locale=&amp;sku=</code></td>
+                <td><code>mock</code>, <code>sku</code> (ซ้ำได้), <code>locale</code></td>
+                <td>APP_ENV=local และ Sony mock</td>
+              </tr>
+              <tr>
+                <td><code>/api/mock-session</code></td>
+                <td><code>/{locale}/my-badges</code></td>
+                <td>locale (ไม่ใช่ th/en → ใช้ th), sku อย่างน้อยหนึ่ง</td>
+                <td>local+mock · ตั้งคุกกี้เซสชันจาก SKU</td>
+              </tr>
+              <tr>
+                <td><code>/api/mock-session</code></td>
+                <td>JSON 400 <code>MISSING_SKU</code></td>
+                <td>—</td>
+                <td>ไม่มี sku</td>
+              </tr>
+              <tr>
+                <td><code>/api/mock-session</code></td>
+                <td>JSON 404 <code>NOT_FOUND</code></td>
+                <td>—</td>
+                <td>ไม่ใช่ local+mock</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges</code></td>
+                <td><code>/{locale}/my-badges</code></td>
+                <td>—</td>
+                <td>local + Sony mock (ไม่ใช่ debug=1)</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges</code></td>
+                <td>client <code>router.replace(my-badges)</code></td>
+                <td>อาจมี <code>entryError</code></td>
+                <td>
+                  production line-session และ LIFF สำเร็จ
+                  ถ้ามี entryError จะไม่ replace
+                </td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges?debug=1</code></td>
+                <td>ไม่ redirect</td>
+                <td><code>debug</code>, <code>lineuuid</code> (วินิจฉัย)</td>
+                <td>โหมด diagnostic</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          Query ที่หน้าบ้านใช้เอง: <code>lineuuid</code> ถูกเติมจากไคลเอนต์ตอนเรียก
+          <code>/api/my-*</code> ไม่ใช่ redirect ของเซิร์ฟเวอร์
+        </div>
+      </section>
+
+      <section>
+        <h2>ออกนอกแอป (ไม่ใช่ redirect ภายใน)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Source ในแอป</th>
+                <th>Destination</th>
+                <th>พารามิเตอร์</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>แถบ Register</td>
+                <td><code>NEXT_PUBLIC_ACCOUNT_URL</code></td>
+                <td>ไม่มีที่แอปต่อให้</td>
+                <td>ตัวแปรไม่ว่าง</td>
+              </tr>
+              <tr>
+                <td>แถบ FAQ</td>
+                <td><code>https://www.sony.co.th/microsite/digital-badge/</code></td>
+                <td>—</td>
+                <td>เสมอ</td>
+              </tr>
+              <tr>
+                <td>ปุ่มลงทะเบียนบนภารกิจ</td>
+                <td><code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code></td>
+                <td>callback ถูกคอมเมนต์ไว้ ไม่ถูกส่ง</td>
+                <td>มี LIFF ID และ URL ลงทะเบียน</td>
+              </tr>
+              <tr>
+                <td>Details บนตั๋ว</td>
+                <td><code>productUrl</code> ของรุ่น</td>
+                <td>ตาม seed ของกฎ</td>
+                <td>ตั๋ว pending และมี URL</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

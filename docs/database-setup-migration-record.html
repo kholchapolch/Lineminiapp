@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Database Setup / Migration Record</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8fb;
+        --panel: #ffffff;
+        --ink: #1d2733;
+        --muted: #66758a;
+        --line: #d8e0ea;
+        --accent: #2557a7;
+        --accent-soft: #e8f0ff;
+        --ok: #198754;
+        --warn: #b55b00;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 18px 56px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(28px, 5vw, 48px);
+      }
+
+      h2 {
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      h3 {
+        margin-top: 20px;
+        font-size: 20px;
+      }
+
+      p {
+        margin: 0 0 14px;
+      }
+
+      ul,
+      ol {
+        margin: 0 0 14px;
+        padding-left: 22px;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        background: #eef3f8;
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+
+      pre {
+        margin: 0 0 14px;
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101923;
+        color: #f7fbff;
+        padding: 16px;
+        line-height: 1.5;
+        font-size: 13px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 22px;
+        margin-bottom: 18px;
+      }
+
+      .lede {
+        max-width: 860px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .toc {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px 18px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+      }
+
+      .box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fbfdff;
+      }
+
+      .box strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .note {
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        padding: 12px 14px;
+        margin: 14px 0;
+      }
+
+      .warn {
+        border-left-color: var(--warn);
+        background: #fff4e8;
+      }
+
+      .tableWrap {
+        overflow-x: auto;
+        margin: 14px 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 880px;
+      }
+
+      caption {
+        text-align: left;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #eef3f8;
+      }
+
+      .status-ok {
+        color: var(--ok);
+        font-weight: 700;
+      }
+
+      .status-manual {
+        color: var(--warn);
+        font-weight: 700;
+      }
+
+      .status-skip {
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        main {
+          padding: 18px 12px 36px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero">
+        <h1>Database Setup / Migration Record</h1>
+        <p class="lede">
+          รายการ script และ configuration ที่ใช้สร้างและปรับปรุงฐานข้อมูล
+          พร้อมสถานะการดำเนินการใน local, CI และ UAT
+        </p>
+        <p>
+          ระบบนี้ไม่มีตาราง <code>schema_migrations</code>
+          ประวัติ schema คือลำดับ statement ใน <code>scripts/db/migrate.mjs</code>
+          ซึ่งรันซ้ำได้ (idempotent)
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#config">Configuration</a></li>
+            <li><a href="#scripts">Scripts</a></li>
+            <li><a href="#changes">Schema change log</a></li>
+            <li><a href="#status">สถานะตามสภาพแวดล้อม</a></li>
+            <li><a href="#howto">ลำดับการรัน</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="config">
+        <h2>Configuration ที่ต้องมีก่อนรัน</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ตัวแปรสภาพแวดล้อม (Environment)</caption>
+            <thead>
+              <tr>
+                <th>ชื่อ</th>
+                <th>ตัวอย่าง local</th>
+                <th>จำเป็นเมื่อ</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>DATABASE_URL</code></td>
+                <td><code>mysql://sony:sony@127.0.0.1:3307/sony_badges</code></td>
+                <td>ทุกคำสั่ง <code>db:*</code></td>
+                <td>ห้ามใส่ prefix <code>http://</code> ที่ hostname</td>
+              </tr>
+              <tr>
+                <td><code>DATABASE_SSL</code></td>
+                <td><code>false</code> local / <code>true</code> Azure MySQL</td>
+                <td>UAT/production ที่บังคับ TLS</td>
+                <td>หรือใส่ <code>?ssl=true</code> ใน URL ไม่ปิดการตรวจใบรับรอง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="grid">
+          <div class="box">
+            <strong>Local MySQL</strong>
+            <code>docker-compose.yml</code> ใช้ image <code>mysql:8.4</code>
+            database <code>sony_badges</code> พอร์ตโฮสต์ <code>3307</code>
+            user/password สำหรับ local เท่านั้น: <code>sony</code> / <code>sony</code>
+          </div>
+          <div class="box">
+            <strong>UAT MySQL</strong>
+            Azure MySQL เข้าถึงจากเครื่องที่อนุญาตเท่านั้น
+            ค่าเชื่อมต่ออยู่ใน GitHub environment secret <code>UAT_ENV_FILE</code>
+            ไม่ commit <code>.env*</code>
+          </div>
+        </div>
+      </section>
+
+      <section id="scripts">
+        <h2>รายการ Script</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>คำสั่ง npm และไฟล์ที่เรียก</caption>
+            <thead>
+              <tr>
+                <th>คำสั่ง (Command)</th>
+                <th>ไฟล์ (Script)</th>
+                <th>หน้าที่</th>
+                <th>ทำลายข้อมูลหรือไม่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>npm run db:migrate</code></td>
+                <td><code>scripts/db/migrate.mjs</code></td>
+                <td>สร้างตาราง/คอลัมน์/index ตาม schema ปัจจุบัน</td>
+                <td>ไม่ลบข้อมูล</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed</code></td>
+                <td><code>scripts/db/seed.mjs</code> + <code>seed-data.mjs</code></td>
+                <td>upsert กฎจาก seed เริ่มต้น (path รูปใน <code>/public</code>)</td>
+                <td>แทนที่ groups / thresholds / conditions ของกฎที่ seed</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:prod</code></td>
+                <td><code>seed.mjs --seed ./prod/seed-data.mjs</code></td>
+                <td>seed ชุด production/UAT (URL รูปจาก dump)</td>
+                <td>เหมือน <code>db:seed</code> แต่คนละไฟล์ข้อมูล</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:all</code></td>
+                <td><code>scripts/db/seed-all-rules.mjs</code></td>
+                <td>migrate → seed → verify ติดกัน</td>
+                <td>ตาม seed ที่เลือก</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:all:prod</code></td>
+                <td><code>seed-all-rules.mjs --seed ./prod/seed-data.mjs</code></td>
+                <td>migrate + prod seed + verify</td>
+                <td>ใช้กับโฮสต์ที่เข้า Azure MySQL ได้</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:verify</code> / <code>db:verify:prod</code></td>
+                <td><code>scripts/db/verify.mjs</code></td>
+                <td>ตรวจจำนวนแถวและมี <code>badge_rules_version</code></td>
+                <td>อ่านอย่างเดียว</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql</code></td>
+                <td><code>scripts/db/generate-seed-sql.mjs</code></td>
+                <td>สร้าง <code>seed-all-rules.sql</code> จาก <code>seed-data.mjs</code></td>
+                <td>ไม่แตะฐานข้อมูล</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql:check</code></td>
+                <td><code>generate-seed-sql.mjs --check</code></td>
+                <td>CI ตรวจว่า SQL ที่ commit ไม่ล้าสมัย</td>
+                <td>ไม่แตะฐานข้อมูล</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:reset</code></td>
+                <td><code>scripts/db/reset.mjs</code></td>
+                <td>DROP ตารางทั้งหมด แล้ว migrate + seed + verify</td>
+                <td class="status-manual">ลบข้อมูลทั้งหมด ใช้แค่ local</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>ไฟล์ข้อมูลและไฟล์ประกอบ</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ไฟล์</th>
+                <th>บทบาท</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>scripts/db/migrate.mjs</code></td>
+                <td>แหล่งความจริงของ schema</td>
+                <td class="status-ok">Active</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/seed-data.mjs</code></td>
+                <td>แหล่งความจริงของกฎชุด local/default</td>
+                <td class="status-ok">Active — version <code>2026-07-24-product-urls-001</code></td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/prod/seed-data.mjs</code></td>
+                <td>กฎชุด prod/UAT (รูปและ URL จาก dump)</td>
+                <td class="status-ok">Active — version เดียวกัน</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/seed-all-rules.sql</code></td>
+                <td>SQL สำหรับ import ด้วยมือ ต้อง generate จาก seed</td>
+                <td class="status-ok">Generated — ห้ามแก้ด้วยมือ</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/mysql-connection.mjs</code></td>
+                <td>สร้าง connection pool และ TLS</td>
+                <td class="status-ok">Active</td>
+              </tr>
+              <tr>
+                <td><code>docker-compose.yml</code></td>
+                <td>MySQL 8.4 สำหรับพัฒนา</td>
+                <td class="status-ok">Active สำหรับ local</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/uat_sony_table.sql</code></td>
+                <td>Dump จาก TablePlus (UAT snapshot)</td>
+                <td class="status-skip">อ้างอิงเท่านั้น ไม่ใช่สคริปต์ migrate</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/prod/generate-seed-data.mjs</code></td>
+                <td>สร้าง prod seed จาก dump</td>
+                <td class="status-skip">เครื่องมือ regenerate ไม่รันใน CI</td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/seed-all-rules_backup.sql</code></td>
+                <td>สำเนา SQL เก่า</td>
+                <td class="status-skip">Backup — อย่าใช้เป็นแหล่งความจริง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="changes">
+        <h2>Schema change log</h2>
+        <p>
+          ไม่มี migration runner แบบมีเลขเวอร์ชันในฐานข้อมูล
+          <code>migrate.mjs</code> รัน statement ตามลำดับ
+          <code>CREATE TABLE IF NOT EXISTS</code> และถ้า ALTER/INDEX ซ้ำจะข้ามเมื่อเจอ
+          <code>ER_DUP_FIELDNAME</code> หรือ <code>ER_DUP_KEYNAME</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>ลำดับ statement ใน <code>migrate.mjs</code></caption>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>การเปลี่ยนแปลง</th>
+                <th>ชนิด</th>
+                <th>สถานะในรีโป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>M01</td>
+                <td>สร้าง <code>app_config</code></td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M02</td>
+                <td>สร้าง <code>badge_display_groups</code></td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M03</td>
+                <td>สร้าง <code>badge_rules</code></td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M04</td>
+                <td>สร้าง <code>badge_rule_thresholds</code> + FK CASCADE</td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M05</td>
+                <td>สร้าง <code>badge_rule_conditions</code> + FK CASCADE</td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M06</td>
+                <td>สร้าง <code>badge_calculation_logs</code></td>
+                <td>CREATE TABLE</td>
+                <td class="status-ok">Committed, idempotent</td>
+              </tr>
+              <tr>
+                <td>M07</td>
+                <td>เพิ่ม <code>badge_rules.display_group_code</code></td>
+                <td>ALTER TABLE</td>
+                <td class="status-ok">Committed, skip ถ้ามีคอลัมน์แล้ว</td>
+              </tr>
+              <tr>
+                <td>M08</td>
+                <td>เพิ่ม <code>badge_rules.product_model_code</code></td>
+                <td>ALTER TABLE</td>
+                <td class="status-ok">Committed, skip ถ้ามีคอลัมน์แล้ว</td>
+              </tr>
+              <tr>
+                <td>M09</td>
+                <td>เพิ่ม <code>badge_rules.product_url</code></td>
+                <td>ALTER TABLE</td>
+                <td class="status-ok">Committed, skip ถ้ามีคอลัมน์แล้ว</td>
+              </tr>
+              <tr>
+                <td>M10</td>
+                <td>เพิ่ม <code>badge_rule_thresholds.share_image_url</code></td>
+                <td>ALTER TABLE</td>
+                <td class="status-ok">Committed, skip ถ้ามีคอลัมน์แล้ว</td>
+              </tr>
+              <tr>
+                <td>M11</td>
+                <td><code>idx_badge_rules_active_sort</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+              <tr>
+                <td>M12</td>
+                <td><code>idx_badge_rules_group_sort</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+              <tr>
+                <td>M13</td>
+                <td><code>idx_badge_rule_thresholds_rule_sort</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+              <tr>
+                <td>M14</td>
+                <td><code>idx_badge_rule_conditions_rule</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+              <tr>
+                <td>M15</td>
+                <td><code>idx_badge_calculation_logs_created</code></td>
+                <td>CREATE INDEX</td>
+                <td class="status-ok">Committed, skip ถ้ามี index แล้ว</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          ข้อมูลกฎปัจจุบันระบุด้วย <code>app_config.badge_rules_version = 2026-07-24-product-urls-001</code>
+          ในทั้ง <code>seed-data.mjs</code> และ <code>prod/seed-data.mjs</code>
+          bump ค่านี้ทุกครั้งที่เปลี่ยนกฎ ระดับ หรือเงื่อนไข
+        </div>
+      </section>
+
+      <section id="status">
+        <h2>สถานะการดำเนินการตามสภาพแวดล้อม</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ใครรันอะไรบ้าง</caption>
+            <thead>
+              <tr>
+                <th>สภาพแวดล้อม</th>
+                <th>สร้าง schema</th>
+                <th>ใส่ข้อมูลกฎ</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Local (Docker MySQL :3307)</td>
+                <td><code>npm run db:migrate</code> หรือ <code>db:reset</code></td>
+                <td><code>npm run db:seed</code> / <code>db:seed:all</code></td>
+                <td class="status-manual">ผู้พัฒนาเป็นคนรัน</td>
+              </tr>
+              <tr>
+                <td>GitHub Actions (UAT workflow)</td>
+                <td>ไม่รัน</td>
+                <td>ไม่รัน — ตรวจแค่ <code>db:seed:sql:check</code></td>
+                <td class="status-skip">ตรวจ SQL ให้ตรง seed เท่านั้น</td>
+              </tr>
+              <tr>
+                <td>UAT Azure MySQL</td>
+                <td>รัน <code>db:migrate</code> จากโฮสต์ที่เข้า DB ได้</td>
+                <td><code>db:seed:prod</code> หรือ import <code>seed-all-rules.sql</code> หลัง migrate</td>
+                <td class="status-manual">ไม่อยู่ในขั้นตอน deploy แอป</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Workflow <code>.github/workflows/main_mysonybadgestg.yml</code> ไม่ migrate และไม่ seed
+          เพราะ runner ของ GitHub ไม่ถูกสมมติว่าเข้าถึง Azure MySQL ได้
+          ไฟล์ workflow ปัจจุบัน trigger เมื่อ push ไปสาขา <code>dev</code> หรือ <code>workflow_dispatch</code>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>บันทึกการนำไปใช้ที่ทราบจากรีโป</caption>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>หลักฐาน</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Schema M01–M15 ในโค้ด</td>
+                <td><code>scripts/db/migrate.mjs</code></td>
+                <td class="status-ok">อยู่ในรีโป พร้อมรันซ้ำ</td>
+              </tr>
+              <tr>
+                <td>Generated SQL ตรงกับ seed เริ่มต้น</td>
+                <td>CI step <code>npm run db:seed:sql:check</code></td>
+                <td class="status-ok">บังคับทุกครั้งที่ workflow รัน</td>
+              </tr>
+              <tr>
+                <td>Snapshot โครงสร้าง UAT</td>
+                <td><code>uat_sony_table.sql</code> (TablePlus, 2026-08-17)</td>
+                <td class="status-skip">สำเนา ณ วัน dump ไม่ใช่ใบรับรองว่า apply ล่าสุดแล้ว</td>
+              </tr>
+              <tr>
+                <td>Apply บน Azure MySQL ครั้งล่าสุด</td>
+                <td>ต้องบันทึก Git SHA + <code>badge_rules_version</code> หลังรันด้วยมือ</td>
+                <td class="status-manual">อยู่นอก Git — ผู้ปฏิบัติการเป็นคนจด</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="howto">
+        <h2>ลำดับการรันที่แนะนำ</h2>
+        <h3>Local</h3>
+        <pre>docker compose up -d
+export DATABASE_URL=mysql://sony:sony@127.0.0.1:3307/sony_badges
+npm run db:reset</pre>
+        <p>
+          <code>db:reset</code> เหมาะกับเครื่องพัฒนาเพราะ DROP ตารางก่อน
+          อย่าใช้คำสั่งนี้กับ UAT
+        </p>
+
+        <h3>UAT / Azure MySQL (จากโฮสต์ที่เข้าถึงได้)</h3>
+        <ol>
+          <li>ตั้ง <code>DATABASE_URL</code> และ <code>DATABASE_SSL=true</code></li>
+          <li>รัน <code>npm run db:migrate</code></li>
+          <li>รัน <code>npm run db:seed:all:prod</code> หรือ migrate แล้ว import SQL ที่ generate จาก prod seed</li>
+          <li>ตรวจด้วย <code>npm run db:verify:prod</code></li>
+          <li>บันทึก Git SHA ที่ใช้และค่า <code>app_config.badge_rules_version</code></li>
+        </ol>
+        <div class="note warn">
+          ห้ามแก้ <code>seed-all-rules.sql</code> ด้วยมือ
+          แก้ที่ <code>seed-data.mjs</code> หรือ <code>prod/seed-data.mjs</code> แล้ว generate ใหม่
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
