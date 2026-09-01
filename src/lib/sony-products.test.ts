@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { getMockSonyCustomerProducts } from "@/lib/sony-products";
-import { canonicalSku, matchesEligibleSku, normalizeSku } from "@/lib/sku";
+import {
+  canonicalSku,
+  collectCatalogSkus,
+  matchesEligibleSku,
+  normalizeSku,
+  resolveCatalogSku,
+} from "@/lib/sku";
 
 describe("normalizeSku", () => {
   it("normalizes whitespace and case for indexed matching", () => {
@@ -13,6 +19,27 @@ describe("canonicalSku", () => {
     expect(canonicalSku("ILCE-7M5/BQ AP2")).toBe("ILCE-7M5");
     expect(canonicalSku("ilce-7m5/sq ap2")).toBe("ILCE-7M5");
     expect(canonicalSku("ZV-E10M2/BQ AP2")).toBe("ZV-E10M2");
+  });
+});
+
+const cameraCatalog = ["ILCE-7C", "ILCE-7CM2", "ILCE-7CR", "ILCE-7M5"];
+
+describe("resolveCatalogSku", () => {
+  it("picks the longest product_model_code prefix from the catalog", () => {
+    expect(resolveCatalogSku("ILCE-7CM2LSQAP2", cameraCatalog)).toBe("ILCE-7CM2");
+    expect(resolveCatalogSku("ILCE-7CM2/LS QAP2", cameraCatalog)).toBe("ILCE-7CM2");
+    expect(resolveCatalogSku("ILCE-7C/BQ AP2", cameraCatalog)).toBe("ILCE-7C");
+  });
+});
+
+describe("collectCatalogSkus", () => {
+  it("collects product_model_code values from badge rules", () => {
+    expect(
+      collectCatalogSkus([
+        { productModelCode: "ILCE-7C" },
+        { productModelCode: "ILCE-7CM2", skus: ["ILCE-7CM2"] },
+      ]).sort(),
+    ).toEqual(["ILCE-7C", "ILCE-7CM2"]);
   });
 });
 
@@ -45,6 +72,12 @@ describe("matchesEligibleSku", () => {
 
   it("does not match unrelated SKUs", () => {
     expect(matchesEligibleSku("SEL1635GM2", ["SEL2450G"])).toBe(false);
+  });
+
+  it("matches glued camera suffixes using the longest catalog prefix", () => {
+    expect(matchesEligibleSku("ILCE-7CM2LSQAP2", ["ILCE-7CM2"], cameraCatalog)).toBe(true);
+    expect(matchesEligibleSku("ILCE-7CM2/LS QAP2", ["ILCE-7CM2"], cameraCatalog)).toBe(true);
+    expect(matchesEligibleSku("ILCE-7CM2LSQAP2", ["ILCE-7C"], cameraCatalog)).toBe(false);
   });
 });
 

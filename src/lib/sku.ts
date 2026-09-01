@@ -14,6 +14,71 @@ export function canonicalSku(sku: string): string {
 }
 
 /**
+ * Picks the longest catalog SKU that appears in full at the start of the Sony
+ * model name. `ILCE-7CM2LSQAP2` resolves to `ILCE-7CM2`, not `ILCE-7C`.
+ */
+export function resolveCatalogSku(
+  productSku: string,
+  catalogSkus: Iterable<string>,
+): string | null {
+  const haystack = normalizeSku(productSku);
+  let best: string | null = null;
+
+  for (const catalogSku of catalogSkus) {
+    const needle = normalizeSku(catalogSku);
+
+    if (!needle || !haystack.startsWith(needle)) {
+      continue;
+    }
+
+    if (best === null || needle.length > best.length) {
+      best = needle;
+    }
+  }
+
+  return best;
+}
+
+export function collectCatalogSkus(
+  sources: Iterable<{
+    productModelCode?: string | null;
+    skus?: Iterable<string>;
+    conditions?: Array<{ sonySkus: Iterable<string> }> | null;
+  }>,
+): string[] {
+  const skus = new Set<string>();
+
+  for (const source of sources) {
+    if (source.productModelCode) {
+      skus.add(normalizeSku(source.productModelCode));
+    }
+
+    for (const sku of source.skus ?? []) {
+      skus.add(normalizeSku(sku));
+    }
+
+    for (const condition of source.conditions ?? []) {
+      for (const sku of condition.sonySkus) {
+        skus.add(normalizeSku(sku));
+      }
+    }
+  }
+
+  return [...skus].filter(Boolean);
+}
+
+export function resolvedSku(
+  productSku: string,
+  catalogSkus?: Iterable<string>,
+): string {
+  if (catalogSkus) {
+    return resolveCatalogSku(productSku, catalogSkus) ?? canonicalSku(productSku);
+  }
+
+  return canonicalSku(productSku);
+}
+
+/**
  * Remaining suffix after the base model code, once slash-catalog suffixes are
  * stripped. Covers glued or spaced lens catalog codes (`QSYX`, ` SYX`) — not
  * another model-code continuation such as `M` or `2` (`SEL70200GM` must not
@@ -25,7 +90,15 @@ const SONY_MODEL_NAME_SUFFIX = /^(?:\s+|(?:QSYX|CSYX|SYX)\b).*$/;
 export function matchesEligibleSku(
   productSku: string,
   eligibleSkus: Iterable<string>,
+  catalogSkus?: Iterable<string>,
 ): boolean {
+  if (catalogSkus) {
+    const resolved = resolvedSku(productSku, catalogSkus);
+    const eligible = new Set([...eligibleSkus].map((sku) => normalizeSku(sku)));
+
+    return eligible.has(resolved);
+  }
+
   const normalizedProductSku = canonicalSku(productSku);
 
   for (const eligibleSku of eligibleSkus) {
