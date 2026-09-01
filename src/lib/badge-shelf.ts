@@ -1,4 +1,5 @@
 import { calculateRuleMatch, isRuleActive } from "@/lib/badge-engine";
+import { collectCatalogSkus } from "@/lib/sku";
 import type { BadgeRuleConfig, BadgeShelfItem, SonyOwnedProduct } from "@/types/badge";
 
 type BuildBadgeShelfInput = {
@@ -56,11 +57,13 @@ export function buildBadgeShelf({
   rules,
   now = new Date(),
 }: BuildBadgeShelfInput): BadgeShelfItem[] {
+  const catalogSkus = collectCatalogSkus(rules);
+
   return rules
     .filter((rule) => isRuleActive(rule, now))
     .sort((left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name))
     .flatMap((rule) => {
-      const { matchedCount } = calculateRuleMatch(rule, products);
+      const { matchedCount } = calculateRuleMatch(rule, products, catalogSkus);
 
       return [...rule.thresholds]
         .sort(
