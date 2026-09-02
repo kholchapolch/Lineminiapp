@@ -1,4 +1,4 @@
-import { canonicalSku, matchesEligibleSku } from "@/lib/sku";
+import { collectCatalogSkus, matchesEligibleSku, resolvedSku } from "@/lib/sku";
 import type {
   BadgeRuleConfig,
   BadgeThresholdConfig,
@@ -75,14 +75,15 @@ function uniqueEligibleProducts(
   products: SonyOwnedProduct[],
   skus: string[],
   rule: BadgeRuleConfig,
+  catalogSkus?: Iterable<string>,
 ): SonyOwnedProduct[] {
   const matchedBySku = new Map<string, SonyOwnedProduct>();
 
   for (const product of products) {
-    const normalizedSku = canonicalSku(product.sku);
+    const normalizedSku = resolvedSku(product.sku, catalogSkus);
 
     if (
-      matchesEligibleSku(product.sku, skus) &&
+      matchesEligibleSku(product.sku, skus, catalogSkus) &&
       isWithinDateWindow(product.registeredAt, rule.registrationStart, rule.registrationEnd) &&
       !matchedBySku.has(normalizedSku)
     ) {
@@ -93,14 +94,18 @@ function uniqueEligibleProducts(
   return Array.from(matchedBySku.values());
 }
 
-export function calculateRuleMatch(rule: BadgeRuleConfig, products: SonyOwnedProduct[]): {
+export function calculateRuleMatch(
+  rule: BadgeRuleConfig,
+  products: SonyOwnedProduct[],
+  catalogSkus?: Iterable<string>,
+): {
   matchedCount: number;
   matchedProducts: SonyOwnedProduct[];
 } {
   const conditions = rule.conditions ?? [];
 
   if (conditions.length === 0) {
-    const matchedProducts = uniqueEligibleProducts(products, rule.skus, rule);
+    const matchedProducts = uniqueEligibleProducts(products, rule.skus, rule, catalogSkus);
 
     return { matchedCount: matchedProducts.length, matchedProducts };
   }
@@ -109,9 +114,12 @@ export function calculateRuleMatch(rule: BadgeRuleConfig, products: SonyOwnedPro
   let matchedCount = 0;
 
   for (const condition of conditions) {
-    const conditionProducts = uniqueEligibleProducts(products, condition.sonySkus, rule).sort(
-      (left, right) => left.registeredAt.localeCompare(right.registeredAt),
-    );
+    const conditionProducts = uniqueEligibleProducts(
+      products,
+      condition.sonySkus,
+      rule,
+      catalogSkus,
+    ).sort((left, right) => left.registeredAt.localeCompare(right.registeredAt));
     const conditionRequiredCount =
       condition.matchType === "all" ? condition.sonySkus.length : condition.requiredCount;
     const cappedConditionCount = Math.min(conditionProducts.length, conditionRequiredCount);
@@ -121,7 +129,7 @@ export function calculateRuleMatch(rule: BadgeRuleConfig, products: SonyOwnedPro
     matchedCount += cappedConditionCount;
 
     for (const product of countedProducts) {
-      matchedBySku.set(canonicalSku(product.sku), product);
+      matchedBySku.set(resolvedSku(product.sku, catalogSkus), product);
     }
   }
 
@@ -133,11 +141,13 @@ export function calculateBadges({
   rules,
   now = new Date(),
 }: CalculateBadgesInput): CalculatedBadge[] {
+  const catalogSkus = collectCatalogSkus(rules);
+
   return rules
     .filter((rule) => isRuleActive(rule, now))
     .sort((left, right) => left.sortOrder - right.sortOrder || left.name.localeCompare(right.name))
     .map((rule) => {
-      const { matchedCount, matchedProducts } = calculateRuleMatch(rule, products);
+      const { matchedCount, matchedProducts } = calculateRuleMatch(rule, products, catalogSkus);
       const thresholds = sortedThresholds(rule);
       const earnedThresholds = thresholds.filter(
         (threshold) => matchedCount >= threshold.requiredCount,
