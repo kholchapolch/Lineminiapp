@@ -147,4 +147,54 @@ describe("buildBadgeExperience", () => {
       "Zebra Lens",
     ]);
   });
+
+  it("unlocks ILCE-7CM2 from a glued Sony model name without unlocking ILCE-7C", () => {
+    function cameraRule(id: number, sku: string, name: string): BadgeRuleConfig {
+      return {
+        ...rules[0],
+        id,
+        code: `product-${sku.toLowerCase()}`,
+        name,
+        displayGroup: "full-frame-camera",
+        displayGroupCode: "full-frame-camera",
+        productModelCode: sku,
+        skus: [sku],
+        sortOrder: id,
+        conditions: [
+          {
+            id,
+            label: `Own ${sku}`,
+            matchType: "any",
+            requiredCount: 1,
+            sonySkus: [sku],
+          },
+        ],
+      };
+    }
+
+    const result = buildBadgeExperience({
+      customerProducts: {
+        ...customerProducts,
+        products: [
+          {
+            sku: "ILCE-7CM2LSQAP2",
+            modelName: "ILCE-7CM2LSQAP2",
+            serialNumber: "SN-7CM2",
+            registeredAt: "2026-08-01",
+          },
+        ],
+      },
+      rules: [
+        cameraRule(70, "ILCE-7C", "Alpha 7C"),
+        cameraRule(71, "ILCE-7CM2", "Alpha 7C II"),
+      ],
+    });
+
+    expect(result.productBadges.find((badge) => badge.modelCode === "ILCE-7CM2")).toMatchObject({
+      status: "unlocked",
+    });
+    expect(result.productBadges.find((badge) => badge.modelCode === "ILCE-7C")).toMatchObject({
+      status: "locked",
+    });
+  });
 });

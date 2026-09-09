@@ -73,11 +73,16 @@ function buildMissionTickets({
   eligibleSkus: string[];
   productBadges: ProductBadgeExperience[];
 }): MissionTicket[] {
+  const catalogSkus = [
+    ...eligibleSkus,
+    ...productBadges.map((badge) => badge.modelCode),
+  ];
+
   return eligibleSkus.map((sku, index) => {
     const owned = matchedProducts.some((product) =>
-      matchesEligibleSku(product.sku, [sku]),
+      matchesEligibleSku(product.sku, [sku], catalogSkus),
     );
-    const badge = findProductBadge(productBadges, sku);
+    const badge = findProductBadge(productBadges, sku, catalogSkus);
 
     return {
       id: `${missionId}-ticket-${index + 1}`,
@@ -93,10 +98,11 @@ function buildMissionTickets({
 function findProductBadge(
   productBadges: ProductBadgeExperience[],
   sku: string,
+  catalogSkus: Iterable<string>,
 ): ProductBadgeExperience | undefined {
   return productBadges.find(
     (badge) =>
       badge.modelCode.toUpperCase() === sku.toUpperCase() ||
-      matchesEligibleSku(sku, [badge.modelCode]),
+      matchesEligibleSku(sku, [badge.modelCode], catalogSkus),
   );
 }

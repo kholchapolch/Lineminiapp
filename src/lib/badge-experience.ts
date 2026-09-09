@@ -1,5 +1,5 @@
 import { calculateRuleMatch, isRuleActive, isWithinDateWindow } from "@/lib/badge-engine";
-import { matchesEligibleSku } from "@/lib/sku";
+import { collectCatalogSkus, matchesEligibleSku } from "@/lib/sku";
 import type {
   BadgeRuleConfig,
   SonyCustomerProducts,
@@ -70,12 +70,13 @@ export function buildBadgeExperience({
   now?: Date;
 }): BadgeExperience {
   const activeRules = rules.filter((rule) => isRuleActive(rule, now));
+  const catalogSkus = collectCatalogSkus(activeRules);
   const productBadges = activeRules
     .filter((rule) => rule.badgeType === "product")
-    .map((rule) => buildProductBadge(rule, customerProducts.products));
+    .map((rule) => buildProductBadge(rule, customerProducts.products, catalogSkus));
   const questBadges = activeRules
     .filter((rule) => rule.badgeType === "quest")
-    .map((rule) => buildQuestBadge(rule, customerProducts.products));
+    .map((rule) => buildQuestBadge(rule, customerProducts.products, catalogSkus));
 
   return {
     customer: customerProducts.customer,
@@ -106,11 +107,12 @@ export function buildBadgeExperience({
 function buildProductBadge(
   rule: BadgeRuleConfig,
   products: SonyOwnedProduct[],
+  catalogSkus: Iterable<string>,
 ): ProductBadgeExperience {
   const registrations = products
     .filter(
       (product) =>
-        matchesEligibleSku(product.sku, rule.skus) &&
+        matchesEligibleSku(product.sku, rule.skus, catalogSkus) &&
         isWithinDateWindow(product.registeredAt, rule.registrationStart, rule.registrationEnd),
     )
     .sort((left, right) => left.registeredAt.localeCompare(right.registeredAt))
@@ -142,8 +144,9 @@ function buildProductBadge(
 function buildQuestBadge(
   rule: BadgeRuleConfig,
   products: SonyOwnedProduct[],
+  catalogSkus: Iterable<string>,
 ): QuestBadgeExperience {
-  const { matchedCount, matchedProducts } = calculateRuleMatch(rule, products);
+  const { matchedCount, matchedProducts } = calculateRuleMatch(rule, products, catalogSkus);
   const thresholds = [...rule.thresholds].sort(
     (left, right) =>
       left.requiredCount - right.requiredCount ||
@@ -174,7 +177,7 @@ function buildQuestBadge(
       requiredCount: threshold.requiredCount,
       remainingCount: Math.max(threshold.requiredCount - matchedCount, 0),
       earnedAt: achieved
-        ? findThresholdEarnedAt(rule, products, threshold.requiredCount)
+        ? findThresholdEarnedAt(rule, products, threshold.requiredCount, catalogSkus)
         : null,
       sortOrder: threshold.sortOrder ?? index,
     } satisfies QuestTierExperience;
@@ -215,6 +218,7 @@ function findThresholdEarnedAt(
   rule: BadgeRuleConfig,
   products: SonyOwnedProduct[],
   requiredCount: number,
+  catalogSkus: Iterable<string>,
 ): string | null {
   const productsByDate = [...products].sort((left, right) =>
     left.registeredAt.localeCompare(right.registeredAt),
@@ -222,7 +226,7 @@ function findThresholdEarnedAt(
 
   for (let index = 0; index < productsByDate.length; index += 1) {
     const productsAtDate = productsByDate.slice(0, index + 1);
-    const { matchedCount } = calculateRuleMatch(rule, productsAtDate);
+    const { matchedCount } = calculateRuleMatch(rule, productsAtDate, catalogSkus);
 
     if (matchedCount >= requiredCount) {
       return productsByDate[index]?.registeredAt ?? null;

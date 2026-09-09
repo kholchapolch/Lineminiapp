@@ -114,6 +114,111 @@ describe("calculateBadges", () => {
     });
   });
 
+  it("matches ILCE-7M5/BQ AP2 to the ILCE-7M5 product rule", () => {
+    const [result] = calculateBadges({
+      products: [product("ILCE-7M5/BQ AP2")],
+      now: new Date("2026-06-01"),
+      rules: [
+        {
+          id: 50,
+          code: "product-ilce-7m5",
+          name: "Alpha 7 V",
+          badgeType: "product",
+          ruleType: "achievement",
+          description: null,
+          sortOrder: 404,
+          isActive: true,
+          activeFrom: null,
+          activeTo: null,
+          registrationStart: null,
+          registrationEnd: null,
+          skus: ["ILCE-7M5"],
+          thresholds: [
+            {
+              level: "achievement",
+              requiredCount: 1,
+              achievedImageUrl: "a7v.png",
+              lockedImageUrl: "locked.png",
+              displayName: "Alpha 7 V",
+            },
+          ],
+          conditions: [
+            {
+              id: 50,
+              label: "Own ILCE-7M5",
+              matchType: "any",
+              requiredCount: 1,
+              sonySkus: ["ILCE-7M5"],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      code: "product-ilce-7m5",
+      status: "earned",
+      matchedCount: 1,
+    });
+  });
+
+  it("matches ILCE-7CM2LSQAP2 to ILCE-7CM2 and not ILCE-7C", () => {
+    function cameraRule(id: number, code: string, sku: string): BadgeRuleConfig {
+      return {
+        id,
+        code,
+        name: sku,
+        badgeType: "product",
+        ruleType: "achievement",
+        description: null,
+        sortOrder: id,
+        isActive: true,
+        activeFrom: null,
+        activeTo: null,
+        registrationStart: null,
+        registrationEnd: null,
+        productModelCode: sku,
+        skus: [sku],
+        thresholds: [
+          {
+            level: "achievement",
+            requiredCount: 1,
+            achievedImageUrl: `${sku}.png`,
+            lockedImageUrl: "locked.png",
+            displayName: sku,
+          },
+        ],
+        conditions: [
+          {
+            id,
+            label: `Own ${sku}`,
+            matchType: "any",
+            requiredCount: 1,
+            sonySkus: [sku],
+          },
+        ],
+      };
+    }
+
+    const result = calculateBadges({
+      products: [product("ILCE-7CM2LSQAP2")],
+      now: new Date("2026-06-01"),
+      rules: [
+        cameraRule(70, "product-ilce-7c", "ILCE-7C"),
+        cameraRule(71, "product-ilce-7cm2", "ILCE-7CM2"),
+      ],
+    });
+
+    expect(result.find((badge) => badge.code === "product-ilce-7cm2")).toMatchObject({
+      status: "earned",
+      matchedCount: 1,
+    });
+    expect(result.find((badge) => badge.code === "product-ilce-7c")).toMatchObject({
+      status: "no-badge",
+      matchedCount: 0,
+    });
+  });
+
   it("falls back to the achieved image when locked image URL is not configured", () => {
     const [result] = calculateBadges({
       products: [],
