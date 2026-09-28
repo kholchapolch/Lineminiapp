@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tealium Installation — Sony LINE Mini App</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+      --ink: #1d2733;
+      --muted: #66758a;
+      --line: #d8e0ea;
+      --accent: #2557a7;
+      --accent-soft: #e8f0ff;
+      --ok: #198754;
+      --warn: #b55b00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 18px 56px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+    }
+
+    h2 {
+      margin-top: 8px;
+      font-size: 26px;
+    }
+
+    h3 {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 14px;
+      padding-left: 22px;
+    }
+
+    code,
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    code {
+      background: #eef3f8;
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    pre {
+      margin: 0 0 14px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #101923;
+      color: #f7fbff;
+      padding: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .hero,
+    section {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .lede {
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .meta {
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .toc {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 8px 18px;
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 12px 14px;
+      margin: 14px 0;
+    }
+
+    .warn {
+      border-left-color: var(--warn);
+      background: #fff4e8;
+    }
+
+    .tableWrap {
+      overflow-x: auto;
+      margin: 14px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+
+    caption {
+      text-align: left;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef3f8;
+    }
+
+    a {
+      color: var(--accent);
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <header class="hero">
+      <h1>Tealium Installation</h1>
+      <p class="lede">
+        เอกสารนี้อธิบายการติดตั้ง Tealium และ Sony data layer บน LINE Mini App
+        Digital Badge ครอบคลุมลำดับสคริปต์ การเลือก environment ขอบเขตหน้า Home
+        และค่าที่ส่งใน data layer
+      </p>
+      <p class="meta">Sony Thailand LINE Mini App · 28 กันยายน 2026 · Profile <code>sony-marketing/sea</code></p>
+    </header>
+
+    <section>
+      <h2>สารบัญ</h2>
+      <ol class="toc">
+        <li><a href="#scope">ขอบเขต</a></li>
+        <li><a href="#order">ลำดับสคริปต์</a></li>
+        <li><a href="#environment">Environment</a></li>
+        <li><a href="#datalayer">Data layer</a></li>
+        <li><a href="#userid">User ID</a></li>
+        <li><a href="#files">ไฟล์ที่เกี่ยวข้อง</a></li>
+        <li><a href="#verify">วิธีตรวจ</a></li>
+        <li><a href="#notes">ข้อจำกัด</a></li>
+      </ol>
+    </section>
+
+    <section id="scope">
+      <h2>ขอบเขต</h2>
+      <p>
+        สคริปต์ Tealium ถูกใส่เฉพาะหน้า Home ของ Digital Badge ซึ่งคือ
+        <code>/{locale}/my-badges</code> ทั้งภาษาไทยและอังกฤษ
+      </p>
+      <div class="tableWrap">
+        <table>
+          <caption>หน้าที่ติดตั้ง</caption>
+          <thead>
+            <tr>
+              <th>URL</th>
+              <th>ติดตั้ง Tealium</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/th/my-badges</code></td>
+              <td>ใช่</td>
+            </tr>
+            <tr>
+              <td><code>/en/my-badges</code></td>
+              <td>ใช่</td>
+            </tr>
+            <tr>
+              <td>หน้าอื่น เช่น My Missions, My Products, badge detail, share, portal</td>
+              <td>ไม่ติดตั้ง</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        แอปไม่ได้เพิ่ม page-view tracking หรือ click tracking ของปุ่มเอง
+        สคริปต์ที่มีคือชุดติดตั้ง Tealium ตามที่ Sony กำหนดเท่านั้น
+      </p>
+      <p>
+        Middleware ใส่ request header <code>x-pathname</code>
+        แล้ว root layout ใช้ <code>isDigitalBadgeHomePath()</code>
+        ตัดสินใจว่าจะเรนเดอร์สคริปต์หรือไม่ การเปิดหน้าอื่นแบบเต็มหน้าจึงไม่มีแท็กเหล่านี้ใน HTML
+      </p>
+    </section>
+
+    <section id="order">
+      <h2>ลำดับสคริปต์</h2>
+      <p>บนหน้า Home ลำดับในเอกสาร HTML เป็นดังนี้</p>
+      <div class="tableWrap">
+        <table>
+          <caption>Step A–D</caption>
+          <thead>
+            <tr>
+              <th>ขั้น</th>
+              <th>ตำแหน่ง</th>
+              <th>id</th>
+              <th>หน้าที่</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>A</td>
+              <td><code>&lt;head&gt;</code> ก่อนสคริปต์ Tealium ทุกตัว</td>
+              <td><code>utag-data</code></td>
+              <td>ประกาศ <code>utag_data</code></td>
+            </tr>
+            <tr>
+              <td>B</td>
+              <td><code>&lt;head&gt;</code> ต่อจาก Step A</td>
+              <td><code>utag-sync</code></td>
+              <td>โหลด <code>utag.sync.js</code></td>
+            </tr>
+            <tr>
+              <td>C</td>
+              <td><code>&lt;head&gt;</code> ต่อจาก Step B และก่อน Step D</td>
+              <td><code>sony-data-layer</code></td>
+              <td>ประกาศ <code>window.buildSonyDataLayer</code></td>
+            </tr>
+            <tr>
+              <td>D</td>
+              <td>ทันทีหลังเปิดแท็ก <code>&lt;body&gt;</code></td>
+              <td><code>utag-loader</code></td>
+              <td>แทรก <code>utag.js</code> แบบ async</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Step A</h3>
+      <pre>var utag_data = { website_platform : "regional:marketing" };</pre>
+      <h3>Step B และ Step D</h3>
+      <pre>https://tags.tiqcdn.com/utag/sony-marketing/sea/{environment}/utag.sync.js
+https://tags.tiqcdn.com/utag/sony-marketing/sea/{environment}/utag.js</pre>
+      <p>
+        <code>{environment}</code> ในเอกสารนี้เป็นคำอธิบายเท่านั้น
+        ใน HTML ที่เรนเดอร์จริงจะเป็น <code>qa</code> หรือ <code>prod</code>
+        ไม่มีข้อความ <code>[environment]</code> และไม่มีลิงก์ <code>urldefense</code>
+      </p>
+    </section>
+
+    <section id="environment">
+      <h2>Environment</h2>
+      <p>
+        โปรไฟล์ Tealium เลือกจากโฮสต์ของคำขอ ไม่ได้เลือกจาก <code>APP_ENV</code>
+        ลำดับการอ่านโฮสต์คือ <code>x-forwarded-host</code> แล้วจึง <code>host</code>
+      </p>
+      <div class="tableWrap">
+        <table>
+          <caption>โฮสต์กับโปรไฟล์</caption>
+          <thead>
+            <tr>
+              <th>โฮสต์</th>
+              <th>โปรไฟล์</th>
+              <th>ตัวอย่าง URL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>lineminiapp.sony.co.th</code></td>
+              <td><code>prod</code></td>
+              <td><a href="https://lineminiapp.sony.co.th">https://lineminiapp.sony.co.th</a></td>
+            </tr>
+            <tr>
+              <td><code>stglineminiapp.sony.co.th</code></td>
+              <td><code>qa</code></td>
+              <td><a href="https://stglineminiapp.sony.co.th">https://stglineminiapp.sony.co.th</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>บน production Step B และ Step D จึงชี้ไปที่</p>
+      <pre>https://tags.tiqcdn.com/utag/sony-marketing/sea/prod/utag.sync.js
+https://tags.tiqcdn.com/utag/sony-marketing/sea/prod/utag.js</pre>
+    </section>
+
+    <section id="datalayer">
+      <h2>Data layer</h2>
+      <p>
+        Tealium เรียก <code>window.buildSonyDataLayer()</code>
+        ฟังก์ชันอ่าน URL ปัจจุบันตอนถูกเรียก แล้วคืนอ็อบเจกต์ <code>sony.digitalData</code>
+      </p>
+      <div class="tableWrap">
+        <table>
+          <caption>sony.digitalData.page</caption>
+          <thead>
+            <tr>
+              <th>ฟิลด์</th>
+              <th>ค่าบนหน้า Home</th>
+              <th>ที่มา</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>name</code></td>
+              <td><code>home</code></td>
+              <td>path <code>my-badges</code></td>
+            </tr>
+            <tr>
+              <td><code>country</code></td>
+              <td><code>TH</code></td>
+              <td>ค่าคงที่ของ Mini App นี้</td>
+            </tr>
+            <tr>
+              <td><code>language</code></td>
+              <td><code>th</code> หรือ <code>en</code></td>
+              <td>segment แรกของ path</td>
+            </tr>
+            <tr>
+              <td><code>pageTemplate</code></td>
+              <td><code>digital-badge</code></td>
+              <td>ค่าคงที่</td>
+            </tr>
+            <tr>
+              <td><code>section</code></td>
+              <td><code>line</code></td>
+              <td>ค่าคงที่</td>
+            </tr>
+            <tr>
+              <td><code>currency</code></td>
+              <td><code>THB</code></td>
+              <td>ค่าคงที่</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>ตัวอย่างผลลัพธ์บน <code>/th/my-badges</code> เมื่อยังไม่ได้ล็อกอิน</p>
+      <pre>{
+  "digitalData": {
+    "page": {
+      "name": "home",
+      "country": "TH",
+      "language": "th",
+      "pageTemplate": "digital-badge",
+      "section": "line",
+      "currency": "THB"
+    },
+    "user": { "id": "" }
+  }
+}</pre>
+      <p>
+        <code>utag_data.website_platform</code> เป็น <code>"regional:marketing"</code>
+        คนละอ็อบเจกต์กับ <code>sony.digitalData</code>
+      </p>
+    </section>
+
+    <section id="userid">
+      <h2>User ID</h2>
+      <p>
+        <code>sony.digitalData.user.id</code> คือ My Sony Member ID ของ Mini App นี้
+        และใช้ LINE UUID ของผู้ใช้ที่ล็อกอินผ่าน LINE
+      </p>
+      <div class="tableWrap">
+        <table>
+          <caption>ค่า user.id</caption>
+          <thead>
+            <tr>
+              <th>สถานะ</th>
+              <th>ค่า</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ล็อกอินผ่าน LINE แล้ว</td>
+              <td>LINE UUID เช่น <code>Uxxxxxxxx</code></td>
+            </tr>
+            <tr>
+              <td>ยังไม่ได้ล็อกอิน</td>
+              <td><code>""</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>ลำดับการอ่านค่า</p>
+      <ol>
+        <li>
+          ถ้าหน้า Home ตั้ง <code>window.__sonyMemberId</code> แล้ว ใช้ค่านั้น
+          ค่าว่างหมายถึงยังไม่ได้ล็อกอิน และจะไม่ไปอ่านค่าเก่าต่อ
+        </li>
+        <li>
+          ถ้ายังไม่ได้ตั้งค่า ฟังก์ชันอ่าน
+          <code>sessionStorage</code> คีย์ <code>sony_line_uuid</code>
+          ซึ่งเป็น LINE UUID ที่เซสชัน LINE เก็บไว้
+        </li>
+      </ol>
+      <p>
+        หน้า Home ตั้ง <code>window.__sonyMemberId</code> จาก <code>lineUuid</code>
+        ของ LINE session หลังสถานะล็อกอินนิ่งแล้ว
+      </p>
+    </section>
+
+    <section id="files">
+      <h2>ไฟล์ที่เกี่ยวข้อง</h2>
+      <div class="tableWrap">
+        <table>
+          <caption>จุดที่แก้ในโค้ด</caption>
+          <thead>
+            <tr>
+              <th>ไฟล์</th>
+              <th>หน้าที่</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>src/lib/tealium.ts</code></td>
+              <td>เลือกโปรไฟล์ สร้าง URL สคริปต์ และตัวฟังก์ชัน data layer</td>
+            </tr>
+            <tr>
+              <td><code>src/components/TealiumScripts.tsx</code></td>
+              <td>เรนเดอร์ Step A–C ใน head และ Step D ที่ต้น body</td>
+            </tr>
+            <tr>
+              <td><code>src/app/layout.tsx</code></td>
+              <td>ใส่สคริปต์เฉพาะเมื่อ path เป็นหน้า Home</td>
+            </tr>
+            <tr>
+              <td><code>src/middleware.ts</code></td>
+              <td>ส่ง <code>x-pathname</code> ให้ layout อ่าน</td>
+            </tr>
+            <tr>
+              <td><code>src/app/[locale]/my-badges/page.tsx</code></td>
+              <td>ตั้ง <code>window.__sonyMemberId</code> จาก LINE UUID</td>
+            </tr>
+            <tr>
+              <td><code>src/lib/line-session-storage.ts</code></td>
+              <td>เก็บ LINE UUID ใน <code>sessionStorage</code> คีย์ <code>sony_line_uuid</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="verify">
+      <h2>วิธีตรวจ</h2>
+      <ol>
+        <li>เปิด <code>/th/my-badges</code> แล้วดู View Source</li>
+        <li>ใน <code>&lt;head&gt;</code> ต้องเจอ <code>utag-data</code> แล้ว <code>utag-sync</code> แล้ว
+          <code>sony-data-layer</code></li>
+        <li>สคริปต์แรกใน <code>&lt;body&gt;</code> ต้องเป็น <code>utag-loader</code></li>
+        <li>บน production URL ของ sync และ async ต้องมี <code>/prod/</code> บน staging และ localhost ต้องมี
+          <code>/qa/</code></li>
+        <li>ในคอนโซลเรียก <code>buildSonyDataLayer()</code> แล้วตรวจ <code>digitalData.page</code> และ
+          <code>digitalData.user.id</code></li>
+        <li>เปิด <code>/th/my-missions</code> แบบเต็มหน้า ต้องไม่พบ <code>utag.sync.js</code> หรือ
+          <code>buildSonyDataLayer</code></li>
+        <li>ใน Network tab ไฟล์ <code>utag.sync.js</code> และ <code>utag.js</code> ต้องตอบสำเร็จ</li>
+      </ol>
+    </section>
+
+    <section id="notes">
+      <h2>ข้อจำกัด</h2>
+      <div class="note warn">
+        <p>
+          ข้อผิดพลาด <code>window.SonyAnalytics is not a constructor</code>
+          ไม่ได้มาจากโค้ด Mini App แท็กในคอนเทนเนอร์ Tealium พยายามสร้าง
+          <code>SonyAnalytics</code> ซึ่งปกติถูกประกาศโดย
+          <code>/campaign/GLOBAL/gwx/hook.js</code> ของเว็บ Sony
+          path นี้ไม่มีบน Mini App จึงตอบ 404
+        </p>
+      </div>
+      <p>
+        คอนเทนเนอร์ Tealium อาจยิงแท็กของตัวเองหลัง <code>utag.js</code> โหลด
+        แอปไม่ได้เพิ่ม event ของการคลิกปุ่มหรือการเปลี่ยนหน้า
+        การปิดแท็ก page หรือ CTA ต้องทำใน Tealium ของ Sony
+      </p>
+      <p>
+        ถ้าผู้ใช้เปิดหน้า Home แล้วเปลี่ยนไปหน้าอื่นแบบ client-side
+        สคริปต์ที่โหลดไปแล้วจะยังอยู่ในเอกสารนั้น
+        การเปิดหน้าอื่นโดยตรงจะไม่มีสคริปต์ Tealium
+      </p>
+    </section>
+  </main>
+</body>
+
+</html>

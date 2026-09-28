@@ -88,6 +88,14 @@ export default function MyBadgesPage({
     };
   }, [lineUuid, locale, status]);
 
+  useEffect(() => {
+    if (status === "idle" || status === "loading") {
+      return;
+    }
+
+    window.__sonyMemberId = lineUuid ?? "";
+  }, [lineUuid, status]);
+
   if (status === "idle" || status === "loading") {
     return <PageLoading variant="my-badges" />;
   }
