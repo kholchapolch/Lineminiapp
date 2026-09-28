@@ -22,6 +22,8 @@ export function TealiumHeadScripts(): JSX.Element {
         type="text/javascript"
         dangerouslySetInnerHTML={{ __html: UTAG_DATA_SCRIPT }}
       />
+      {/* utag.sync.js must stay blocking, after utag_data and before the Sony data layer. */}
+      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
       <script
         id="utag-sync"
         type="text/javascript"
