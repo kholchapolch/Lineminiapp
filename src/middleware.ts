@@ -4,12 +4,30 @@ import { defaultLocale, isLocale } from "@/lib/i18n/locales";
 const LOCALE_HEADER = "x-locale";
 const MY_BADGES_PATH = "/my-badges";
 
+const PATHNAME_HEADER = "x-pathname";
+
 function withLocaleHeader(
   response: NextResponse,
   locale: string,
 ): NextResponse {
   response.headers.set(LOCALE_HEADER, locale);
   return response;
+}
+
+function continueWithRequestContext(
+  request: NextRequest,
+  locale: string,
+): NextResponse {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(LOCALE_HEADER, locale);
+  requestHeaders.set(PATHNAME_HEADER, request.nextUrl.pathname);
+
+  return withLocaleHeader(
+    NextResponse.next({
+      request: { headers: requestHeaders },
+    }),
+    locale,
+  );
 }
 
 function redirectTo(request: NextRequest, pathname: string): NextResponse {
@@ -48,10 +66,10 @@ export function middleware(request: NextRequest): NextResponse {
   const [, localeSegment] = pathname.split("/");
 
   if (!localeSegment || !isLocale(localeSegment)) {
-    return withLocaleHeader(NextResponse.next(), defaultLocale);
+    return continueWithRequestContext(request, defaultLocale);
   }
 
-  return withLocaleHeader(NextResponse.next(), localeSegment);
+  return continueWithRequestContext(request, localeSegment);
 }
 
 export const config = {
