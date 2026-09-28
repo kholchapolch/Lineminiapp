@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import { TealiumBodyScript, TealiumHeadScripts } from "@/components/TealiumScripts";
 import { sukhumvitSet } from "@/lib/fonts";
 import { defaultLocale } from "@/lib/i18n/locales";
+import { isDigitalBadgeHomePath } from "@/lib/tealium";
 
 export const metadata: Metadata = {
   title: "Sony Thailand",
@@ -21,11 +23,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>): JSX.Element {
-  const locale = headers().get("x-locale") ?? defaultLocale;
+  const requestHeaders = headers();
+  const locale = requestHeaders.get("x-locale") ?? defaultLocale;
+  const trackHome = isDigitalBadgeHomePath(requestHeaders.get("x-pathname") ?? "");
 
   return (
     <html lang={locale} className={sukhumvitSet.variable}>
-      <body className={sukhumvitSet.className}>{children}</body>
+      <head>{trackHome ? <TealiumHeadScripts /> : null}</head>
+      <body className={sukhumvitSet.className}>
+        {trackHome ? <TealiumBodyScript /> : null}
+        {children}
+      </body>
     </html>
   );
 }
