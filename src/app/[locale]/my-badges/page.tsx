@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLineSession } from "@/components/LineSessionProvider";
+import { SonyDataLayerDebug } from "@/components/SonyDataLayerDebug";
 import { MyBadgesView } from "@/components/my-badges/MyBadgesView";
 import { PageLoading } from "@/components/page-loading/PageLoading";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
@@ -96,12 +97,11 @@ export default function MyBadgesPage({
     window.__sonyMemberId = lineUuid ?? "";
   }, [lineUuid, status]);
 
+  let content: JSX.Element;
   if (status === "idle" || status === "loading") {
-    return <PageLoading variant="my-badges" />;
-  }
-
-  if (error) {
-    return (
+    content = <PageLoading variant="my-badges" />;
+  } else if (error) {
+    content = (
       <MyBadgesView
         locale={locale}
         messages={messages}
@@ -109,11 +109,16 @@ export default function MyBadgesPage({
         interactive
       />
     );
+  } else if (!lineUuid || !data) {
+    content = <PageLoading variant="my-badges" />;
+  } else {
+    content = <MyBadgesView locale={locale} messages={messages} data={data} />;
   }
 
-  if (!lineUuid || !data) {
-    return <PageLoading variant="my-badges" />;
-  }
-
-  return <MyBadgesView locale={locale} messages={messages} data={data} />;
+  return (
+    <>
+      {content}
+      <SonyDataLayerDebug />
+    </>
+  );
 }
