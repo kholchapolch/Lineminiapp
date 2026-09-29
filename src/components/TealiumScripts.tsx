@@ -12,8 +12,14 @@ function requestLink(): string | null {
   return headerStore.get("x-forwarded-host") ?? headerStore.get("host");
 }
 
+function requestEnvironment(): ReturnType<typeof tealiumEnvironment> {
+  return tealiumEnvironment(requestLink(), {
+    debug: headers().get("x-debug") === "1",
+  });
+}
+
 export function TealiumHeadScripts(): JSX.Element {
-  const environment = tealiumEnvironment(requestLink());
+  const environment = requestEnvironment();
 
   return (
     <>
@@ -44,7 +50,7 @@ export function TealiumBodyScript(): JSX.Element {
       id="utag-loader"
       type="text/javascript"
       dangerouslySetInnerHTML={{
-        __html: tealiumAsyncLoader(tealiumEnvironment(requestLink())),
+        __html: tealiumAsyncLoader(requestEnvironment()),
       }}
     />
   );

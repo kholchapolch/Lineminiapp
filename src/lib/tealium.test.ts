@@ -19,6 +19,14 @@ describe("tealiumEnvironment", () => {
     expect(tealiumEnvironment("localhost:3000")).toBe("qa");
     expect(tealiumEnvironment(undefined)).toBe("qa");
   });
+
+  it("uses prod when debug=1 even on a non-production host", () => {
+    expect(tealiumEnvironment("https://stglineminiapp.sony.co.th", { debug: true })).toBe(
+      "prod",
+    );
+    expect(tealiumEnvironment("localhost", { debug: true })).toBe("prod");
+    expect(tealiumEnvironment("localhost", { debug: false })).toBe("qa");
+  });
 });
 
 describe("tealium script urls", () => {
@@ -78,7 +86,9 @@ function buildDataLayer(pathname: string, memberId?: string): SonyDataLayer {
   };
 
   runInNewContext(sonyDataLayerScript(), context);
-  return (context.window as unknown as { buildSonyDataLayer: () => SonyDataLayer }).buildSonyDataLayer();
+  return (
+    context.window as unknown as { buildSonyDataLayer: () => SonyDataLayer }
+  ).buildSonyDataLayer();
 }
 
 describe("isDigitalBadgeHomePath", () => {
@@ -94,16 +104,30 @@ describe("isDigitalBadgeHomePath", () => {
 describe("sony data layer", () => {
   it("names pages from the mini app route", () => {
     expect(buildDataLayer("/th/my-badges").digitalData.page.name).toBe("home");
-    expect(buildDataLayer("/en/my-missions").digitalData.page.name).toBe("quest-list");
-    expect(buildDataLayer("/th/my-missions/portrait").digitalData.page.name).toBe("badge-detail");
-    expect(buildDataLayer("/th/my-product/lens-1").digitalData.page.name).toBe("badge-detail");
-    expect(buildDataLayer("/th/my-products").digitalData.page.name).toBe("product-list");
-    expect(buildDataLayer("/en/my-badges").digitalData.page.language).toBe("en");
-    expect(buildDataLayer("/th/my-badges").digitalData.page.language).toBe("th");
+    expect(buildDataLayer("/en/my-missions").digitalData.page.name).toBe(
+      "quest-list",
+    );
+    expect(
+      buildDataLayer("/th/my-missions/portrait").digitalData.page.name,
+    ).toBe("badge-detail");
+    expect(buildDataLayer("/th/my-product/lens-1").digitalData.page.name).toBe(
+      "badge-detail",
+    );
+    expect(buildDataLayer("/th/my-products").digitalData.page.name).toBe(
+      "product-list",
+    );
+    expect(buildDataLayer("/en/my-badges").digitalData.page.language).toBe(
+      "en",
+    );
+    expect(buildDataLayer("/th/my-badges").digitalData.page.language).toBe(
+      "th",
+    );
   });
 
   it("builds the Sony object from the current page and LINE user id", () => {
-    expect(buildDataLayer("/en/my-missions", "U-line-user").digitalData).toEqual({
+    expect(
+      buildDataLayer("/en/my-missions", "U-line-user").digitalData,
+    ).toEqual({
       page: {
         name: "quest-list",
         country: "TH",
@@ -121,7 +145,8 @@ describe("sony data layer", () => {
       window: {
         location: { pathname: "/th/my-badges" },
         sessionStorage: {
-          getItem: (key: string) => (key === "sony_line_uuid" ? "U-stored" : null),
+          getItem: (key: string) =>
+            key === "sony_line_uuid" ? "U-stored" : null,
         },
       },
     };
@@ -129,8 +154,9 @@ describe("sony data layer", () => {
     runInNewContext(sonyDataLayerScript(), context);
 
     expect(
-      (context.window as unknown as { buildSonyDataLayer: () => SonyDataLayer }).buildSonyDataLayer()
-        .digitalData.user.id,
+      (
+        context.window as unknown as { buildSonyDataLayer: () => SonyDataLayer }
+      ).buildSonyDataLayer().digitalData.user.id,
     ).toBe("U-stored");
   });
 
