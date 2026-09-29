@@ -5,6 +5,7 @@ const LOCALE_HEADER = "x-locale";
 const MY_BADGES_PATH = "/my-badges";
 
 const PATHNAME_HEADER = "x-pathname";
+const DEBUG_HEADER = "x-debug";
 
 function withLocaleHeader(
   response: NextResponse,
@@ -21,6 +22,9 @@ function continueWithRequestContext(
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(LOCALE_HEADER, locale);
   requestHeaders.set(PATHNAME_HEADER, request.nextUrl.pathname);
+  if (request.nextUrl.searchParams.get("debug") === "1") {
+    requestHeaders.set(DEBUG_HEADER, "1");
+  }
 
   return withLocaleHeader(
     NextResponse.next({

@@ -13,7 +13,12 @@ const PROD_HOST = "lineminiapp.sony.co.th";
 
 export function tealiumEnvironment(
   link: string | null | undefined,
+  options?: { debug?: boolean },
 ): TealiumEnvironment {
+  if (options?.debug) {
+    return "prod";
+  }
+
   return hostnameFromLink(link) === PROD_HOST ? "prod" : "qa";
 }
 
@@ -24,7 +29,9 @@ function hostnameFromLink(link: string | null | undefined): string {
   }
 
   try {
-    const url = value.includes("://") ? new URL(value) : new URL(`http://${value}`);
+    const url = value.includes("://")
+      ? new URL(value)
+      : new URL(`http://${value}`);
     return url.hostname.toLowerCase();
   } catch {
     return "";
