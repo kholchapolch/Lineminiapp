@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Landing Page Summary — Sony Badge Pilot</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 12px; color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+svg, img { max-width: 100%; height: auto; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#landing-page-specification">Landing Page Specification</a>
+<a href="#redirect-flow-diagram">Redirect Flow Diagram</a>
+<a href="#url-redirect-mapping">URL</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>Landing Page Summary</h1>
+      <p class="lede">
+        รวมและสรุปเอกสารในโฟลเดอร์ <code>docs/landing_page/</code>
+        เป็นไฟล์เดียวสำหรับอ่าน/แชร์
+      </p>
+      <p>
+        ครอบคลุมสเปกหน้า landing, แผนภาพ redirect และตารางแมป URL
+      </p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li><a href="#landing-page-specification">Landing Page Specification</a><span>สเปกหน้า landing และจุดเข้าแคมเปญ</span></li>
+<li><a href="#redirect-flow-diagram">Redirect Flow Diagram</a><span>แผนภาพ flow การ redirect เข้า LIFF / แอป</span></li>
+<li><a href="#url-redirect-mapping">URL &amp; Redirect Mapping</a><span>ตารางแมป URL และเส้นทาง redirect</span></li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        ผู้ใช้เข้าจากลิงก์แคมเปญ / landing แล้วถูก redirect เข้า LIFF Mini App
+        ตาม mapping URL ที่กำหนดไว้ในเอกสาร
+      </div>
+    </header>
+    
+<section class="doc" id="landing-page-specification">
+  <p class="doc-source">แหล่งที่มา: <code>landing-page-specification.html</code> — สเปกหน้า landing และจุดเข้าแคมเปญ</p>
+  <header class="hero">
+        <h2 class="doc-heading">Landing Page Specification</h2>
+        <p class="lede">
+          เนื้อหา ปุ่ม Call to Action และเงื่อนไขของแต่ละหน้าใน Mini App
+          บ้านของผู้ใช้คือ <code>/{locale}/my-badges</code> ไม่มีหน้า marketing แยกในรีโปนี้
+        </p>
+        <p>ข้อความอ้างอิงจากพจนานุกรม <code>src/lib/i18n/messages/th.ts</code></p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#landing-page-specification-home">บ้าน My Badges</a></li>
+            <li><a href="#landing-page-specification-catalog">แคตตาล็อกและรายละเอียด</a></li>
+            <li><a href="#landing-page-specification-gate">หน้าเข้า / โหลด / บล็อก</a></li>
+            <li><a href="#landing-page-specification-share">หน้าแชร์ OG</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="landing-page-specification-home">
+        <h2>LP-01 · My Badges (บ้านแคมเปญ)</h2>
+        <p>เส้นทาง: <code>/{locale}/my-badges</code></p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>บล็อกเนื้อหา</th>
+                <th>สิ่งที่แสดง</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>โปรไฟล์</td>
+                <td>ชื่อและรูปจาก LIFF ถ้ามี ไม่เช่นนั้นตัวอักษรแรกของชื่อ</td>
+                <td>มี line session หรือข้อมูล API</td>
+              </tr>
+              <tr>
+                <td>สถิติ</td>
+                <td>
+                  <code>ได้/ทั้งหมด</code> ของเหรียญผลิตภัณฑ์ และเหรียญภารกิจ
+                  (นับชั้นที่ achieved)
+                </td>
+                <td>หลังโหลดข้อมูลสำเร็จ</td>
+              </tr>
+              <tr>
+                <td>เหรียญผลิตภัณฑ์ของฉัน</td>
+                <td>พรีวิวสูงสุด 3 การ์ดล่าสุด หรือข้อความว่างให้ลงทะเบียนสินค้า</td>
+                <td>ว่างเมื่อไม่มีสินค้าที่ปลดล็อกในพรีวิว</td>
+              </tr>
+              <tr>
+                <td>เหรียญภารกิจของฉัน</td>
+                <td>พรีวิวสูงสุด 3 ชั้นที่ได้แล้ว หรือข้อความว่างชุดเดียวกัน</td>
+                <td>ว่างเมื่อยังไม่ได้ชั้นใด</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>Call to Action</caption>
+            <thead>
+              <tr>
+                <th>ปุ่ม</th>
+                <th>ข้อความ</th>
+                <th>เงื่อนไขแสดง / กดได้</th>
+                <th>ปลายทาง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ดูทั้งหมด (สินค้า)</td>
+                <td>ดูทั้งหมด (See all)</td>
+                <td>แสดงเสมอเมื่อ interactive (รวมวิวว่างหลัง error)</td>
+                <td><code>/{locale}/my-products</code></td>
+              </tr>
+              <tr>
+                <td>ดูทั้งหมด (ภารกิจ)</td>
+                <td>ดูทั้งหมด (See all)</td>
+                <td>เช่นเดียวกับด้านบน</td>
+                <td><code>/{locale}/my-missions</code></td>
+              </tr>
+              <tr>
+                <td>การ์ดสินค้าในพรีวิว</td>
+                <td>รูป + ชื่อรุ่น</td>
+                <td>มีรายการในพรีวิว</td>
+                <td>รายละเอียดสินค้า</td>
+              </tr>
+              <tr>
+                <td>การ์ดภารกิจในพรีวิว</td>
+                <td>รูปชั้นที่ได้</td>
+                <td>มีชั้นที่ achieved</td>
+                <td>รายละเอียดชั้นนั้น</td>
+              </tr>
+              <tr>
+                <td>หน้าแรก</td>
+                <td>หน้าแรก (Home)</td>
+                <td>แถบล่าง ไฮไลต์หน้านี้</td>
+                <td>บ้านเดียวกัน</td>
+              </tr>
+              <tr>
+                <td>ลงทะเบียนสินค้า</td>
+                <td>ลงทะเบียนสินค้า (Register Products)</td>
+                <td>มี href เมื่อตั้ง <code>NEXT_PUBLIC_ACCOUNT_URL</code></td>
+                <td>เว็บ Sony ภายนอก</td>
+              </tr>
+              <tr>
+                <td>คำถามที่พบบ่อย</td>
+                <td>คำถามที่พบบ่อย (FAQ)</td>
+                <td>แสดงเสมอ</td>
+                <td>microsite digital-badge (hardcode)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="landing-page-specification-catalog">
+        <h2>LP-02–05 · แคตตาล็อกและรายละเอียด</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>หน้า</th>
+                <th>เนื้อหาหลัก</th>
+                <th>CTA</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>My Products</td>
+                <td>
+                  หัวข้อเหรียญผลิตภัณฑ์ของฉัน + คำอธิบายให้ซื้อ/ลงทะเบียนเลนส์ที่ร่วมรายการ
+                  + ตัวกรองกลุ่ม
+                </td>
+                <td>ตัวกรอง · การ์ดที่ปลดล็อก · กลับหน้าหลัก</td>
+                <td>การ์ดล็อกไม่มีลิงก์ ไม่มีรูป</td>
+              </tr>
+              <tr>
+                <td>Product detail</td>
+                <td>
+                  แชร์เหรียญผลิตภัณฑ์ · ชื่อเหรียญ · ปลดล็อคเมื่อ · จำนวนที่มี
+                </td>
+                <td>แชร์ (Share) · กลับหน้าหลัก</td>
+                <td>
+                  เข้าได้เมื่อ API คืนสินค้าที่ปลดล็อก
+                  ไม่มีซีเรียลบนจอแม้มีในข้อมูล
+                </td>
+              </tr>
+              <tr>
+                <td>My Missions</td>
+                <td>
+                  หัวข้อเหรียญภารกิจ + คำอธิบายเดียวกันแบบสินค้า
+                  + แปดส่วน Quest พร้อมคำอธิบายสะสมรุ่น
+                </td>
+                <td>โหนดชั้น (กดได้ทุกชั้น) · กลับหน้าหลัก</td>
+                <td>โหนดแสดง progress/target</td>
+              </tr>
+              <tr>
+                <td>Mission ยังไม่ครบ</td>
+                <td>
+                  ชื่อ Quest · คำอธิบาย · ความคืบหน้า · รายการตั๋วรุ่น
+                </td>
+                <td>
+                  ลงทะเบียนสินค้า (ถ้ามี URL) ·
+                  รายละเอียด (See More) บนตั๋ว pending ที่มี productUrl ·
+                  ย้อนกลับไป My Missions
+                </td>
+                <td>
+                  progress &lt; target ·
+                  ตั๋ว completed แสดงป้ายสำเร็จ ไม่มีลิงก์
+                </td>
+              </tr>
+              <tr>
+                <td>Mission ครบชั้น</td>
+                <td>แชร์เหรียญภารกิจ · เหรียญภารกิจที่ได้รับ · วันที่ถ้ามี</td>
+                <td>แชร์ · กลับหน้าหลัก</td>
+                <td>progress ≥ target · ไม่มีรายการตั๋วในเลย์เอาต์นี้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="landing-page-specification-gate">
+        <h2>LP-06 · หน้าเข้า โหลด และบล็อก</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>หน้า</th>
+                <th>เนื้อหา</th>
+                <th>CTA</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/{locale}/badges</code> production</td>
+                <td>
+                  กำลังโหลดข้อมูลเหรียญตรา /
+                  ไม่สามารถเข้าถึงได้ + ข้อความแหล่งแคมเปญที่อนุมัติ
+                </td>
+                <td>ไม่มีปุ่ม — สำเร็จแล้ว replace ไปบ้าน</td>
+                <td>
+                  มี <code>entryError</code> หรือ LIFF ล้ม → ค้างข้อความบล็อก
+                </td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td>ไม่มี UI (redirect อย่างเดียว)</td>
+                <td>—</td>
+                <td>ดูเอกสาร redirect</td>
+              </tr>
+              <tr>
+                <td>PageLoading</td>
+                <td>โครงกระดูกตามหน้า ไม่มีข้อความ CTA</td>
+                <td>—</td>
+                <td>session กำลังโหลด หรือยังไม่มี data</td>
+              </tr>
+              <tr>
+                <td>PageError</td>
+                <td>ไม่สามารถเข้าถึงได้ + ข้อความ error</td>
+                <td>ไม่มีปุ่มลองใหม่</td>
+                <td>เฉพาะรายละเอียดสินค้าเมื่อ API ไม่ 2xx</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          ไม่มีหน้า “สมัครสมาชิก Sony” ใน Mini App
+          CTA สมาชิกคือลงทะเบียนสินค้าภายนอก
+        </div>
+      </section>
+
+      <section id="landing-page-specification-share">
+        <h2>LP-07 · หน้าแชร์สำหรับ Facebook</h2>
+        <p>
+          <code>/{locale}/share/product/{id}</code> และ
+          <code>/{locale}/share/mission/{id}</code>
+        </p>
+        <ul>
+          <li>หัวข้อ: เหรียญของฉันจาก Sony (My badges from Sony)</li>
+          <li>คำโปรย: มาดูเหรียญที่ฉันปลดล็อกได้ในแคมเปญนี้!</li>
+          <li>รูปเหรียญถ้ามีในกฎ</li>
+          <li>ไม่มีปุ่ม CTA ในหน้า — ใช้เป็น OG สำหรับ crawler</li>
+          <li>เงื่อนไข: รหัสต้องตรงกฎ ไม่เช่นนั้น <code>notFound</code></li>
+        </ul>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="redirect-flow-diagram">
+  <p class="doc-source">แหล่งที่มา: <code>redirect-flow-diagram.html</code> — แผนภาพ flow การ redirect เข้า LIFF / แอป</p>
+  <header class="hero">
+        <h2 class="doc-heading">Redirect Flow Diagram</h2>
+        <p class="lede">
+          เส้นทางจาก URL, LINE OA, Landing Page, Login, LIFF และ Error Page
+        </p>
+        <p>
+          แอปนี้ไม่มี webhook LINE OA
+          OA / rich menu ถ้าใช้ จะชี้ URL Mini App ภายนอกโค้ดนี้
+        </p>
+      </header>
+
+      <section>
+        <h2>ภาพรวมช่องทางเข้า</h2>
+        <pre>LINE Official Account / rich menu / แชท
+        │  (ลิงก์ที่ตั้งใน LINE Developers — ไม่ได้อยู่ในรีโป)
+        ▼
+LIFF / Mini App URL  (HTTPS + LIFF ID)
+        │
+        ▼
+Next.js middleware  ปรับ path เก่าและใส่ locale เริ่มต้น th
+        │
+        ├── / หรือ /badge หรือ /my-badges  →  /th/my-badges
+        ├── /entry                         →  /th/entry
+        └── /{locale}/...                  →  ไปหน้าตาม path
+
+/{locale}/entry  (ถ้าใช้)
+        ├── origin/referrer ไม่ผ่าน     →  /{locale}/badges?entryError=missing-source|blocked-source
+        ├── ไม่มีคุกกี้เซสชัน           →  /{locale}/badges?entryError=missingLineSession
+        └── มีเซสชัน                    →  /{locale}/badges
+
+/{locale}/badges  (landing ทางเทคนิค)
+        ├── local + mock + ?mock=1&sku=  →  /api/mock-session → /{locale}/my-badges + คุกกี้
+        ├── APP_ENV=local และ Sony mock  →  redirect ตรง /{locale}/my-badges
+        ├── production (line-session)    →  LIFF Login (ID token) → replace /{locale}/my-badges
+        └── ?debug=1                     →  หน้าวินิจฉัย BadgeClient
+
+Login = LINE LIFF getIDToken → POST /api/line-session → คุกกี้ sony_line_session
+ไม่ได้ login อีเมล/รหัส Sony</pre>
+      </section>
+
+      <section>
+        <h2>หลังเข้าบ้าน (ไม่ redirect เซิร์ฟเวอร์)</h2>
+        <pre>/{locale}/my-badges
+  ดูทั้งหมดสินค้า     →  /{locale}/my-products          (Link)
+  การ์ดสินค้า         →  /{locale}/my-product/{id}
+  ดูทั้งหมดภารกิจ     →  /{locale}/my-missions
+  การ์ด/โหนดชั้น     →  /{locale}/my-missions/{tierId}
+  Register แถบล่าง    →  NEXT_PUBLIC_ACCOUNT_URL         (ออกโดเมน)
+  FAQ                 →  sony.co.th microsite            (ออกโดเมน)
+  แชร์เหรียญ          →  Facebook / share sheet          (ไม่ redirect ในแอป)
+
+Deep link กลับภารกิจ (สร้างแล้วไม่ได้ต่อ query ลงทะเบียน)
+  https://miniapp.line.me/{liffId}/th/my-missions/{id}</pre>
+      </section>
+
+      <section>
+        <h2>Error Page</h2>
+        <pre>LIFF / entryError บน /badges
+  → แผง "ไม่สามารถเข้าถึงได้" (BadgeSessionBootstrap)  ไม่เด้งไปบ้าน
+
+รายละเอียดสินค้า API 404/500
+  → PageError แผงเดียวกัน  ค้างที่ URL รายละเอียด
+
+รหัส share ไม่ตรงกฎ หรือ locale หน้าไม่ใช่ th|en
+  → Next.js notFound()
+
+Sony ไม่พร้อม บน my-products / my-missions
+  → ไม่ใช่หน้า error แยก: HTTP 200 แคตตาล็อกล็อก หรือค้าง skeleton
+
+/api/health ล้ม / โฮสต์ล่ม
+  → หน้าเว็บไม่ขึ้น (แพลตฟอร์ม) ไม่มี custom error HTML ในแอป</pre>
+        <div class="note warn">
+          <code>src/app/page.tsx</code> redirect ไป <code>/th/badges</code>
+          แต่ middleware จับ <code>/</code> ไป <code>/th/my-badges</code> ก่อน
+          ผู้ใช้ที่เปิดโดเมนรากจึงไม่ผ่านหน้า badges
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="url-redirect-mapping">
+  <p class="doc-source">แหล่งที่มา: <code>url-redirect-mapping.html</code> — ตารางแมป URL และเส้นทาง redirect</p>
+  <header class="hero">
+        <h2 class="doc-heading">URL &amp; Redirect Mapping</h2>
+        <p class="lede">
+          Source URL, Destination URL, Parameter และเงื่อนไข Redirect
+          (HTTP 307/Next redirect หรือ client replace)
+        </p>
+      </header>
+
+      <section>
+        <h2>Middleware (ทุก request ที่ไม่ใช่ api/_next)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>พารามิเตอร์</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/</code></td>
+                <td><code>/th/my-badges</code></td>
+                <td>คง query เดิมของ nextUrl</td>
+                <td>เสมอ</td>
+              </tr>
+              <tr>
+                <td><code>/badge</code>, <code>/badge/</code></td>
+                <td><code>/th/my-badges</code></td>
+                <td>คง query</td>
+                <td>เสมอ</td>
+              </tr>
+              <tr>
+                <td><code>/my-badges</code> และ subpath</td>
+                <td><code>/th/my-badges…</code></td>
+                <td>คง query</td>
+                <td>ไม่มี prefix locale</td>
+              </tr>
+              <tr>
+                <td><code>/entry</code> และ subpath</td>
+                <td><code>/th/entry…</code></td>
+                <td>คง query</td>
+                <td>ไม่มี prefix locale</td>
+              </tr>
+              <tr>
+                <td>path ที่ segment แรกไม่ใช่ <code>th</code>/<code>en</code></td>
+                <td>ไม่ redirect</td>
+                <td>—</td>
+                <td>ตั้ง header <code>x-locale=th</code> แล้ว next()</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>หน้าแอป</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>พารามิเตอร์ที่อ่าน/ส่ง</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td><code>/{locale}/badges?entryError=missing-source</code></td>
+                <td><code>entryError</code></td>
+                <td>ไม่มีทั้ง Origin และ Referer</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td><code>/{locale}/badges?entryError=blocked-source</code></td>
+                <td><code>entryError</code></td>
+                <td>Origin หรือ Referer ไม่อยู่ใน allow list</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td><code>/{locale}/badges?entryError=missingLineSession</code></td>
+                <td><code>entryError</code></td>
+                <td>guard ผ่าน แต่ไม่มีคุกกี้เซสชัน</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/entry</code></td>
+                <td><code>/{locale}/badges</code></td>
+                <td>—</td>
+                <td>guard ผ่าน และมีเซสชัน</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges?mock=1</code></td>
+                <td><code>/api/mock-session?locale=&amp;sku=</code></td>
+                <td><code>mock</code>, <code>sku</code> (ซ้ำได้), <code>locale</code></td>
+                <td>APP_ENV=local และ Sony mock</td>
+              </tr>
+              <tr>
+                <td><code>/api/mock-session</code></td>
+                <td><code>/{locale}/my-badges</code></td>
+                <td>locale (ไม่ใช่ th/en → ใช้ th), sku อย่างน้อยหนึ่ง</td>
+                <td>local+mock · ตั้งคุกกี้เซสชันจาก SKU</td>
+              </tr>
+              <tr>
+                <td><code>/api/mock-session</code></td>
+                <td>JSON 400 <code>MISSING_SKU</code></td>
+                <td>—</td>
+                <td>ไม่มี sku</td>
+              </tr>
+              <tr>
+                <td><code>/api/mock-session</code></td>
+                <td>JSON 404 <code>NOT_FOUND</code></td>
+                <td>—</td>
+                <td>ไม่ใช่ local+mock</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges</code></td>
+                <td><code>/{locale}/my-badges</code></td>
+                <td>—</td>
+                <td>local + Sony mock (ไม่ใช่ debug=1)</td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges</code></td>
+                <td>client <code>router.replace(my-badges)</code></td>
+                <td>อาจมี <code>entryError</code></td>
+                <td>
+                  production line-session และ LIFF สำเร็จ
+                  ถ้ามี entryError จะไม่ replace
+                </td>
+              </tr>
+              <tr>
+                <td><code>/{locale}/badges?debug=1</code></td>
+                <td>ไม่ redirect</td>
+                <td><code>debug</code>, <code>lineuuid</code> (วินิจฉัย)</td>
+                <td>โหมด diagnostic</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          Query ที่หน้าบ้านใช้เอง: <code>lineuuid</code> ถูกเติมจากไคลเอนต์ตอนเรียก
+          <code>/api/my-*</code> ไม่ใช่ redirect ของเซิร์ฟเวอร์
+        </div>
+      </section>
+
+      <section>
+        <h2>ออกนอกแอป (ไม่ใช่ redirect ภายใน)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Source ในแอป</th>
+                <th>Destination</th>
+                <th>พารามิเตอร์</th>
+                <th>เงื่อนไข</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>แถบ Register</td>
+                <td><code>NEXT_PUBLIC_ACCOUNT_URL</code></td>
+                <td>ไม่มีที่แอปต่อให้</td>
+                <td>ตัวแปรไม่ว่าง</td>
+              </tr>
+              <tr>
+                <td>แถบ FAQ</td>
+                <td><code>https://www.sony.co.th/microsite/digital-badge/</code></td>
+                <td>—</td>
+                <td>เสมอ</td>
+              </tr>
+              <tr>
+                <td>ปุ่มลงทะเบียนบนภารกิจ</td>
+                <td><code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code></td>
+                <td>callback ถูกคอมเมนต์ไว้ ไม่ถูกส่ง</td>
+                <td>มี LIFF ID และ URL ลงทะเบียน</td>
+              </tr>
+              <tr>
+                <td>Details บนตั๋ว</td>
+                <td><code>productUrl</code> ของรุ่น</td>
+                <td>ตาม seed ของกฎ</td>
+                <td>ตั๋ว pending และมี URL</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+</section>
+
+  </main>
+</body>
+</html>
