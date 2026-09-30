@@ -2,6 +2,7 @@ import { runInNewContext } from "node:vm";
 import { describe, expect, it } from "vitest";
 import {
   isDigitalBadgeHomePath,
+  shouldDispatchDataLayerReady,
   sonyDataLayerScript,
   tealiumAsyncLoader,
   tealiumAsyncSrc,
@@ -90,6 +91,52 @@ function buildDataLayer(pathname: string, memberId?: string): SonyDataLayer {
     context.window as unknown as { buildSonyDataLayer: () => SonyDataLayer }
   ).buildSonyDataLayer();
 }
+
+describe("shouldDispatchDataLayerReady", () => {
+  it("waits until the LINE session has settled", () => {
+    expect(
+      shouldDispatchDataLayerReady({
+        status: "loading",
+        lineUuid: null,
+        alreadyDispatched: false,
+      }),
+    ).toBe(false);
+    expect(
+      shouldDispatchDataLayerReady({
+        status: "ready",
+        lineUuid: null,
+        alreadyDispatched: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("fires once when a logged-in LINE UID is in the data layer", () => {
+    expect(
+      shouldDispatchDataLayerReady({
+        status: "ready",
+        lineUuid: "U-line-user",
+        alreadyDispatched: false,
+      }),
+    ).toBe(true);
+    expect(
+      shouldDispatchDataLayerReady({
+        status: "ready",
+        lineUuid: "U-line-user",
+        alreadyDispatched: true,
+      }),
+    ).toBe(false);
+  });
+
+  it("fires when the visitor is not logged in", () => {
+    expect(
+      shouldDispatchDataLayerReady({
+        status: "unavailable",
+        lineUuid: null,
+        alreadyDispatched: false,
+      }),
+    ).toBe(true);
+  });
+});
 
 describe("isDigitalBadgeHomePath", () => {
   it("matches only the Digital Badge home page", () => {
