@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLineSession } from "@/components/LineSessionProvider";
 import { SonyDataLayerDebug } from "@/components/SonyDataLayerDebug";
 import { MyBadgesView } from "@/components/my-badges/MyBadgesView";
@@ -8,6 +8,10 @@ import { PageLoading } from "@/components/page-loading/PageLoading";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
 import type { MyBadgesData } from "@/lib/my-badges/types";
+import {
+  markSonyDataLayerReady,
+  shouldDispatchDataLayerReady,
+} from "@/lib/tealium";
 import "./my-badges.css";
 
 type MyBadgesPageProps = {
@@ -40,6 +44,7 @@ export default function MyBadgesPage({
   const { lineUuid, status } = useLineSession();
   const [data, setData] = useState<MyBadgesData | null>(null);
   const [error, setError] = useState(false);
+  const dataLayerReadyDispatched = useRef(false);
 
   useEffect(() => {
     if (status === "idle" || status === "loading") {
@@ -90,11 +95,18 @@ export default function MyBadgesPage({
   }, [lineUuid, locale, status]);
 
   useEffect(() => {
-    if (status === "idle" || status === "loading") {
+    if (
+      !shouldDispatchDataLayerReady({
+        status,
+        lineUuid,
+        alreadyDispatched: dataLayerReadyDispatched.current,
+      })
+    ) {
       return;
     }
 
-    window.__sonyMemberId = lineUuid ?? "";
+    dataLayerReadyDispatched.current = true;
+    markSonyDataLayerReady(lineUuid ?? "");
   }, [lineUuid, status]);
 
   let content: JSX.Element;
