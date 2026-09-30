@@ -49,6 +49,35 @@ export function tealiumAsyncSrc(environment: TealiumEnvironment): string {
 export const UTAG_DATA_SCRIPT =
   'var utag_data = { website_platform : "regional:marketing" };';
 
+export const DATA_LAYER_READY_EVENT = "dataLayerReady";
+
+type LineSessionReadiness = "idle" | "loading" | "ready" | "unavailable";
+
+export function shouldDispatchDataLayerReady(input: {
+  status: LineSessionReadiness;
+  lineUuid: string | null;
+  alreadyDispatched: boolean;
+}): boolean {
+  if (input.alreadyDispatched) {
+    return false;
+  }
+
+  if (input.status === "idle" || input.status === "loading") {
+    return false;
+  }
+
+  if (input.status === "ready" && !input.lineUuid) {
+    return false;
+  }
+
+  return true;
+}
+
+export function markSonyDataLayerReady(memberId: string): void {
+  window.__sonyMemberId = memberId;
+  window.dispatchEvent(new CustomEvent(DATA_LAYER_READY_EVENT));
+}
+
 export function isDigitalBadgeHomePath(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
   return (
