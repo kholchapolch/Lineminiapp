@@ -1,15 +1,9 @@
 import type { SonyCustomerProducts } from "@/types/badge";
 import { getMockProductsFromLineUuid } from "@/lib/sku-mock";
 
-export class SonyCustomerNotFoundError extends Error {
-  code = "CUSTOMER_NOT_FOUND";
-  safeMessage = "Customer profile was not found.";
-
-  constructor() {
-    super("Sony customer profile was not found.");
-    this.name = "SonyCustomerNotFoundError";
-  }
-}
+import { SonyCustomerNotFoundError } from '@/lib/sony-account';
+// Preserve the existing import path for Badge callers.
+export { SonyCustomerNotFoundError } from '@/lib/sony-account';
 
 const mockCustomers: Record<string, SonyCustomerProducts> = {
   "demo-line-earned": {

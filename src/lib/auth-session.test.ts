@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   createLineSessionCookie,
+  requireLineSession,
   resolveAuthorizedLineUuid,
   UnauthorizedError,
 } from "@/lib/auth-session";
@@ -42,6 +43,20 @@ describe("LINE session authorization", () => {
         providedLineUuid: "demo-line-locked",
       }),
     ).toBe("demo-line-earned");
+  });
+
+  it("exposes only a verified signed session to Portal server callers", () => {
+    const config = productionConfig();
+    const cookie = createLineSessionCookie({ config, lineuuid: "line-user-001" });
+
+    expect(requireLineSession({
+      config,
+      headers: new Headers({ cookie }),
+    })).toMatchObject({ lineuuid: "line-user-001" });
+
+    expect(() =>
+      requireLineSession({ config, headers: new Headers() }),
+    ).toThrow(UnauthorizedError);
   });
 
   it("keeps local query lineuuid support only when demo mock mode is explicitly allowed", () => {

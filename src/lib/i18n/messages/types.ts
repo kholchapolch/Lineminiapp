@@ -170,4 +170,52 @@ export type Messages = {
     details: string;
     back: string;
   };
+  portal: {
+    sessionRequired: string;
+    loadProductsFailed: string;
+    productsAriaLabel: string;
+    loadingProductsAriaLabel: string;
+    profileFallbackName: string;
+    warrantyLabel: string;
+    registered: string;
+    registeredUnknown: string;
+    warrantyExpiry: string;
+    warrantyExpiryUnknown: string;
+    warrantyStatus: {
+      active: string;
+      expired: string;
+      unknown: string;
+    };
+    recommendedTitle: string;
+    productActionsAriaLabel: string;
+    previous: string;
+    next: string;
+    close: string;
+    articleCategoriesAriaLabel: string;
+    articlesEmpty: string;
+    serialBarcodeAriaLabel: string;
+    notLinkedTitle: string;
+    emptyTitle: string;
+    registerPage: {
+      registerCta: string;
+      homeCta: string;
+    };
+    footer: {
+      ariaLabel: string;
+      serviceCenter: { title: string; subtitle: string };
+      repairStatus: { title: string; subtitle: string };
+      register: { title: string; subtitle: string };
+      faq: { title: string; subtitle: string };
+    };
+    ctas: {
+      firmware: { title: string; subtitle: string };
+      "user-manual": { title: string; subtitle: string };
+      "recommended-apps": { title: string; subtitle: string };
+      "pro-tips": { title: string; subtitle: string };
+      "compatible-gear": { title: string; subtitle: string };
+      "view-my-badge": { title: string; subtitle: string };
+      workshop: { title: string; subtitle: string };
+      contest: { title: string; subtitle: string };
+    };
+  }
 };

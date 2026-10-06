@@ -44,13 +44,30 @@ export function resolveAuthorizedLineUuid({
     return providedLineUuid.trim();
   }
 
-  const session = readLineSession(headers, getSessionSecret(config));
+  return requireLineSession({ config, headers }).lineuuid;
+}
 
-  if (session) {
-    return session.lineuuid;
+/**
+ * Returns the authenticated LINE session for server-side Portal APIs.
+ *
+ * Unlike `resolveAuthorizedLineUuid`, this contract has no query-string or
+ * local-demo escape hatch. Callers receive only a verified signed-cookie
+ * session, or an UnauthorizedError.
+ */
+export function requireLineSession({
+  config,
+  headers,
+}: {
+  config: AppConfig;
+  headers: Headers;
+}): LineSession {
+  const session = readLineSessionFromHeaders(headers, config);
+
+  if (!session) {
+    throw new UnauthorizedError();
   }
 
-  throw new UnauthorizedError();
+  return session;
 }
 
 export async function verifyLineIdToken({
@@ -60,13 +77,38 @@ export async function verifyLineIdToken({
   config: AppConfig;
   idToken: string;
 }): Promise<string> {
-  if (!config.lineChannelId) {
+  const channelIds = config.lineChannelIds.length
+    ? config.lineChannelIds
+    : config.lineChannelId
+      ? [config.lineChannelId]
+      : [];
+
+  if (!channelIds.length) {
     throw new UnauthorizedError("LINE channel configuration is missing.");
   }
 
+  for (const channelId of channelIds) {
+    const lineuuid = await verifyLineIdTokenForChannel({ config, idToken, channelId });
+    if (lineuuid) {
+      return lineuuid;
+    }
+  }
+
+  throw new UnauthorizedError("LINE ID token verification failed.");
+}
+
+async function verifyLineIdTokenForChannel({
+  config,
+  idToken,
+  channelId,
+}: {
+  config: AppConfig;
+  idToken: string;
+  channelId: string;
+}): Promise<string | null> {
   const body = new URLSearchParams({
     id_token: idToken,
-    client_id: config.lineChannelId,
+    client_id: channelId,
   });
 
   const response = await fetch(config.lineVerifyIdTokenUrl, {
@@ -80,13 +122,13 @@ export async function verifyLineIdToken({
   });
 
   if (!response.ok) {
-    throw new UnauthorizedError("LINE ID token verification failed.");
+    return null;
   }
 
   const payload = await response.json() as LineVerifyResponse;
 
-  if (payload.aud !== config.lineChannelId || typeof payload.sub !== "string") {
-    throw new UnauthorizedError("LINE ID token payload is invalid.");
+  if (payload.aud !== channelId || typeof payload.sub !== "string") {
+    return null;
   }
 
   if (typeof payload.exp === "number" && payload.exp * 1000 < Date.now()) {
