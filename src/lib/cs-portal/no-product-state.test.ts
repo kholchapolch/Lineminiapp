@@ -7,10 +7,17 @@ import { resolvePortalContent } from './cta-content';
 import { createLineSessionCookie } from '@/lib/auth-session';
 import { loadAppConfig } from '@/lib/app-config';
 import { validateDataset } from '../../../scripts/db/cs-portal/dataset.mjs';
-import workbook from '../../../scripts/db/cs-portal/fixtures/workbook-uat.json';
 vi.mock('server-only',()=>({}));
 vi.mock('./content-repository',()=>({loadActiveDataset:vi.fn()}));
-const sample=()=>validateDataset(structuredClone(workbook));
+
+const FOOTER_LINKS = [
+  {external_key:'service-center',locale:'en',content_type:'footer_link',target_type:'global',target_key:'global',action_key:null,sort_order:0,published_at:null,payload:{label:'Service Center Locator',url:'https://www.sony.co.th/microsite/find-sony-authorize-service/'}},
+  {external_key:'service-center',locale:'th',content_type:'footer_link',target_type:'global',target_key:'global',action_key:null,sort_order:0,published_at:null,payload:{label:'เช็คศูนย์ซ่อม',url:'https://www.sony.co.th/microsite/find-sony-authorize-service/'}},
+  {external_key:'repair-status',locale:'en',content_type:'footer_link',target_type:'global',target_key:'global',action_key:null,sort_order:1,published_at:null,payload:{label:'Repair Status',url:'https://web.sony-asia.com/th/track-repair/'}},
+  {external_key:'repair-status',locale:'th',content_type:'footer_link',target_type:'global',target_key:'global',action_key:null,sort_order:1,published_at:null,payload:{label:'เช็คสถานะการซ่อม',url:'https://web.sony-asia.com/th/track-repair/'}},
+] as const;
+
+const sample=()=>validateDataset({products:[],contents:structuredClone(FOOTER_LINKS)});
 beforeEach(()=>{
  vi.stubEnv('APP_ENV','local');vi.stubEnv('APP_SESSION_SECRET','MOCK-empty-test');vi.stubEnv('SONY_PRODUCT_API_MODE','mock');
  vi.mocked(loadActiveDataset).mockResolvedValue(sample());
@@ -36,7 +43,7 @@ describe('linked no-product state and global footer',()=>{
  it('does not add the empty state when there are products',async()=>{
   const p=await (await productsGET(request('/api/cs-portal/products','demo-line-earned'))).json();expect(p.productState).toBe('has_products');expect(p.emptyState).toBeUndefined();
  });
- it('serves each language from the workbook and returns no cross-language fallback',()=>{
+ it('serves each language independently and returns no cross-language fallback',()=>{
   const d=sample().dataset;expect(resolveFooter(d,'en').map(i=>i.label)).toEqual(['Service Center Locator','Repair Status']);
   d.contents=d.contents.filter(r=>r.locale==='th');expect(resolveFooter(d,'en')).toEqual([]);
  });

@@ -7,8 +7,15 @@ import { loadAppConfig } from '@/lib/app-config';
 import { createLineSessionCookie } from '@/lib/auth-session';
 import { validateDataset } from '../../../scripts/db/cs-portal/dataset.mjs';
 import fixture from '../../../scripts/db/cs-portal/fixtures/carousel-e2e-mock.json';
-import workbook from '../../../scripts/db/cs-portal/fixtures/workbook-uat.json';
 import type { PortalContentResponse } from './types';
+
+const FOOTER_LINKS = [
+  {external_key:'service-center',locale:'en',content_type:'footer_link',target_type:'global',target_key:'global',action_key:null,sort_order:0,published_at:null,payload:{label:'Service Center Locator',url:'https://www.sony.co.th/microsite/find-sony-authorize-service/'}},
+  {external_key:'service-center',locale:'th',content_type:'footer_link',target_type:'global',target_key:'global',action_key:null,sort_order:0,published_at:null,payload:{label:'เช็คศูนย์ซ่อม',url:'https://www.sony.co.th/microsite/find-sony-authorize-service/'}},
+  {external_key:'repair-status',locale:'en',content_type:'footer_link',target_type:'global',target_key:'global',action_key:null,sort_order:1,published_at:null,payload:{label:'Repair Status',url:'https://web.sony-asia.com/th/track-repair/'}},
+  {external_key:'repair-status',locale:'th',content_type:'footer_link',target_type:'global',target_key:'global',action_key:null,sort_order:1,published_at:null,payload:{label:'เช็คสถานะการซ่อม',url:'https://web.sony-asia.com/th/track-repair/'}},
+] as const;
+
 vi.mock('server-only',()=>({}));
 vi.mock('./content-repository',()=>({loadActiveDataset:vi.fn()}));
 beforeEach(()=>{
@@ -16,7 +23,7 @@ beforeEach(()=>{
  vi.stubEnv('SONY_PRODUCT_API_BASE_URL','https://sony.example.test/api');vi.stubEnv('SONY_PRODUCT_API_SUBSCRIPTION_KEY','MOCK');
  const data=structuredClone(fixture);
  const checked=validateDataset(data);
- checked.dataset.contents.push(...validateDataset(workbook).dataset.contents.filter(r=>r.content_type==='footer_link'));
+ checked.dataset.contents.push(...structuredClone(FOOTER_LINKS));
  checked.dataset.contents.push({external_key:'mock:home-cta',content_type:'cta',locale:'th',target_type:'category',target_key:'DI',action_key:'support',sort_order:0,published_at:null,payload:{label:'[MOCK] Support',action:{type:'articles'}}});
  vi.mocked(loadActiveDataset).mockResolvedValue(checked);
  vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response(JSON.stringify({prodDetails:[{modelName:'ILME-FX2/QSYX',serialNumber:'MOCK-A',registrationDate:'2026-01-01'},{modelName:'UNKNOWN',serialNumber:'MOCK-B',registrationDate:'2026-02-01'}]})));
