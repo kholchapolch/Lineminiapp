@@ -1,0 +1,1060 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sony CS Portal Prototype — Design Explanation</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef1f4;
+      --paper: #ffffff;
+      --ink: #171b20;
+      --muted: #5f6872;
+      --line: #ccd2d9;
+      --blue: #246fae;
+      --blue-soft: #eaf3fa;
+      --green: #167a49;
+      --green-soft: #e8f6ee;
+      --amber: #9a5100;
+      --amber-soft: #fff3df;
+      --red: #a72d2d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: var(--blue);
+    }
+
+    code {
+      border-radius: 4px;
+      background: #edf1f5;
+      padding: 2px 6px;
+      color: #25394a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+    }
+
+    .topbar {
+      position: sticky;
+      z-index: 20;
+      top: 0;
+      border-bottom: 1px solid var(--line);
+      background: rgb(255 255 255 / 94%);
+      padding: 10px 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      max-width: 1180px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 auto;
+    }
+
+    .topbar strong {
+      white-space: nowrap;
+    }
+
+    .topbar nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px 14px;
+    }
+
+    .topbar a {
+      color: #35404a;
+      font-size: 13px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 18px 60px;
+    }
+
+    section,
+    header.hero {
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--paper);
+      padding: 24px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 860px;
+      margin-bottom: 12px;
+      font-size: clamp(32px, 6vw, 54px);
+      line-height: 1.06;
+    }
+
+    h2 {
+      margin-bottom: 14px;
+      font-size: clamp(23px, 3vw, 31px);
+      line-height: 1.2;
+    }
+
+    h3 {
+      margin-bottom: 7px;
+      font-size: 18px;
+    }
+
+    .eyebrow {
+      margin-bottom: 8px;
+      color: var(--amber);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .lede {
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .status {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 11px;
+      background: #f7f9fb;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status.ok {
+      border-color: #b6dac6;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .plain-list {
+      margin: 0;
+      padding-left: 21px;
+    }
+
+    .plain-list li + li {
+      margin-top: 8px;
+    }
+
+    .note {
+      margin: 14px 0 0;
+      border-left: 4px solid var(--blue);
+      background: var(--blue-soft);
+      padding: 12px 14px;
+    }
+
+    .note.warn {
+      border-color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    .preview-layout {
+      display: grid;
+      grid-template-columns: minmax(230px, 290px) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .preview-control {
+      display: grid;
+      align-content: start;
+      gap: 11px;
+    }
+
+    .preview-control label {
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .preview-control select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #9fa8b1;
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px 10px;
+      color: var(--ink);
+      font: inherit;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--blue);
+      border-radius: 5px;
+      background: var(--blue);
+      padding: 8px 14px;
+      color: #fff;
+      font-weight: 750;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: #fff;
+      color: var(--blue);
+    }
+
+    .preview-frame-wrap {
+      overflow: hidden;
+      border: 1px solid #aeb6bf;
+      border-radius: 12px;
+      background: #f4f6f8;
+    }
+
+    .preview-frame-wrap header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      min-height: 760px;
+      border: 0;
+      background: #fff;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(7, auto);
+      align-items: stretch;
+      justify-content: center;
+      gap: 9px;
+      margin: 20px 0;
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .flow-node {
+      display: grid;
+      min-width: 135px;
+      align-content: center;
+      border: 1px solid #9fa8b1;
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .flow-node strong,
+    .flow-node small {
+      display: block;
+    }
+
+    .flow-node small {
+      margin-top: 4px;
+      color: var(--muted);
+    }
+
+    .flow-node.engine {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .flow-arrow {
+      display: grid;
+      align-content: center;
+      color: #64707b;
+      font-size: 22px;
+    }
+
+    .branch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .branch {
+      border-top: 4px solid var(--blue);
+      background: #f8fafb;
+      padding: 13px;
+    }
+
+    .branch h3,
+    .branch p {
+      margin-bottom: 5px;
+    }
+
+    .branch p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .screen-anatomy {
+      display: grid;
+      grid-template-columns: minmax(250px, 390px) minmax(0, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .phone-map {
+      overflow: hidden;
+      border: 1px solid #aeb6bf;
+      border-radius: 24px;
+      background: #fff;
+    }
+
+    .phone-map div {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+    }
+
+    .phone-map div:last-child {
+      border-bottom: 0;
+    }
+
+    .phone-map strong,
+    .phone-map span {
+      display: block;
+    }
+
+    .phone-map span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mapping-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+    }
+
+    .mapping-list div {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .mapping-list dt {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 850;
+    }
+
+    .mapping-list dd {
+      margin: 0;
+    }
+
+    .mapping-list dd strong,
+    .mapping-list dd span {
+      display: block;
+    }
+
+    .mapping-list dd span {
+      color: var(--muted);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 800px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef2f5;
+      font-size: 13px;
+    }
+
+    td {
+      font-size: 14px;
+    }
+
+    .case-button {
+      border: 0;
+      background: transparent;
+      padding: 0;
+      color: var(--blue);
+      font: inherit;
+      font-weight: 750;
+      text-align: left;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .decision-table {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .decision-table > div {
+      padding: 14px;
+    }
+
+    .decision-table > div:nth-child(odd) {
+      border-right: 1px solid var(--line);
+    }
+
+    .decision-table h3 {
+      margin-bottom: 8px;
+    }
+
+    .decision-table ul {
+      margin-bottom: 0;
+    }
+
+    .code-map {
+      overflow-x: auto;
+      border-radius: 8px;
+      background: #15202a;
+      padding: 16px;
+      color: #eef5fa;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre;
+    }
+
+    .block-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .block-row div {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fafbfc;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .block-row code {
+      display: block;
+      margin-top: 7px;
+    }
+
+    .validation-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .validation-item {
+      border: 1px solid #b7dac6;
+      border-radius: 8px;
+      background: var(--green-soft);
+      padding: 13px;
+    }
+
+    .validation-item strong {
+      display: block;
+      color: var(--green);
+    }
+
+    .validation-item span {
+      color: #395649;
+      font-size: 13px;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .preview-layout,
+      .screen-anatomy {
+        grid-template-columns: 1fr;
+      }
+
+      .branch-grid,
+      .validation-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .block-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar-inner,
+      .two-col {
+        display: block;
+      }
+
+      .topbar nav {
+        justify-content: flex-start;
+        margin-top: 7px;
+      }
+
+      main {
+        padding: 16px 10px 40px;
+      }
+
+      section,
+      header.hero {
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .branch-grid,
+      .validation-grid,
+      .decision-table,
+      .block-row {
+        grid-template-columns: 1fr;
+      }
+
+      .decision-table > div:nth-child(odd) {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      iframe {
+        min-height: 700px;
+      }
+    }
+
+    @media print {
+      .topbar,
+      .preview-frame-wrap,
+      .case-button {
+        display: none;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      section,
+      header.hero {
+        break-inside: avoid;
+        border-color: #aaa;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <strong>Sony CS Portal · Prototype Notes</strong>
+      <nav aria-label="สารบัญ">
+        <a href="#summary">สรุป</a>
+        <a href="#preview">Live demo</a>
+        <a href="#flow">Flow</a>
+        <a href="#design">Design</a>
+        <a href="#cases">Use cases</a>
+        <a href="#technical">Technical</a>
+        <a href="#validation">Validation</a>
+      </nav>
+    </div>
+  </div>
+
+  <main>
+    <header class="hero" id="summary">
+      <p class="eyebrow">UX/UI draft · local prototype</p>
+      <h1>Sony CS Portal — Product Center สำหรับผู้ใช้ My Sony</h1>
+      <p class="lede">
+        Prototype นี้แปลง wireframe ใน presentation ให้เป็นหน้าเว็บที่กดใช้งานได้
+        เพื่อ review flow, ปริมาณ content และ edge cases ก่อนออกแบบ production UX/UI
+      </p>
+      <div class="status-row" aria-label="Prototype status">
+        <span class="status ok">Same repository</span>
+        <span class="status ok">Badge UX/UI unchanged</span>
+        <span class="status ok">11 mock UUID cases</span>
+        <span class="status ok">Local only</span>
+        <span class="status">No real API</span>
+        <span class="status">No database</span>
+      </div>
+      <div class="note">
+        <strong>คำถามที่ prototype ตอบ:</strong>
+        โครงสร้าง Product Center ตาม slide รองรับข้อมูลปกติ, dynamic content
+        และ edge cases สำคัญได้หรือไม่ ก่อนล็อก design และ production implementation
+      </div>
+    </header>
+
+    <section>
+      <h2>สิ่งที่ยึดจาก slide และสิ่งที่ปรับ</h2>
+      <div class="two-col">
+        <div>
+          <h3>ยึดจาก presentation</h3>
+          <ul class="plain-list">
+            <li>Mobile-first Product Center</li>
+            <li>ชื่อผู้ใช้และช่องค้นหารุ่นด้านบน</li>
+            <li>Product Card แสดง model, serial, warranty</li>
+            <li>CTA แบบกลุ่มต่อสินค้า</li>
+            <li>Content carousel ใต้ CTA</li>
+            <li>Register More Product page</li>
+            <li>Article Selection เป็น overlay</li>
+          </ul>
+        </div>
+        <div>
+          <h3>ปรับเพื่อใช้ review ได้จริง</h3>
+          <ul class="plain-list">
+            <li>เพิ่ม Demo Control แยกจากหน้าลูกค้า</li>
+            <li>สลับข้อมูลด้วย <code>?uuid=...</code></li>
+            <li>เพิ่ม state ที่ slide แสดงไม่ครบ เช่น API error และ no mapping</li>
+            <li>ทำ register page ด้วย typed dynamic blocks</li>
+            <li>ตัด Notification Page ออกจาก prototype เพราะไม่อยู่ใน current brief</li>
+            <li>ไม่แตะ component, CSS หรือ business logic ของ Badge</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="preview">
+      <p class="eyebrow">Interactive</p>
+      <h2>Live demo</h2>
+      <p>
+        หน้าอธิบายและ demo ใช้ server/origin เดียวกัน.
+        เปลี่ยน scenario ด้านล่างเพื่อโหลด iframe และ URL จริงชุดเดียวกัน
+      </p>
+      <div class="preview-layout">
+        <div class="preview-control">
+          <label for="scenario-select">Mock LINE UUID</label>
+          <select id="scenario-select">
+            <option value="test-default">test-default · 2 products</option>
+            <option value="test-dynamic-content">test-dynamic-content · all block types</option>
+            <option value="test-10-cta">test-10-cta · CTA stress</option>
+            <option value="test-many-products">test-many-products · long page</option>
+            <option value="test-no-product">test-no-product · empty product state</option>
+            <option value="test-no-line-uuid">test-no-line-uuid · unlinked state</option>
+            <option value="test-api-error">test-api-error · upstream failure</option>
+            <option value="test-no-content">test-no-content · mapping absent</option>
+            <option value="test-empty-article">test-empty-article · empty overlay</option>
+            <option value="test-long-content">test-long-content · wrapping stress</option>
+            <option value="test-expired-warranty">test-expired-warranty · expired state</option>
+          </select>
+          <code id="current-url">?uuid=test-default</code>
+          <button class="button" id="load-preview" type="button">โหลด scenario</button>
+          <a
+            class="button secondary"
+            id="open-demo"
+            href="/th/prototype/cs-portal?uuid=test-default"
+            target="_blank"
+            rel="noreferrer"
+          >เปิดเต็มหน้า</a>
+          <div class="note warn">
+            กล่องควบคุมนี้เป็นเครื่องมือ demo ไม่ใช่ส่วนหนึ่งของ production UI
+          </div>
+        </div>
+        <div class="preview-frame-wrap">
+          <header>
+            <strong>Runtime preview</strong>
+            <span id="preview-label">test-default</span>
+          </header>
+          <iframe
+            id="demo-frame"
+            title="Sony CS Portal prototype"
+            src="/th/prototype/cs-portal?uuid=test-default"
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <p class="eyebrow">Data and state flow</p>
+      <h2>ระบบคิดอย่างไร</h2>
+      <div class="flow" aria-label="Prototype data flow">
+        <div class="flow-node">
+          <strong>Reviewer</strong>
+          <small>เลือก mock case</small>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-node">
+          <strong>Query param</strong>
+          <small>?uuid=test-...</small>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-node engine">
+          <strong>Mock engine</strong>
+          <small>resolve scenario</small>
+        </div>
+        <div class="flow-arrow" aria-hidden="true">→</div>
+        <div class="flow-node">
+          <strong>Portal UI</strong>
+          <small>render state</small>
+        </div>
+      </div>
+      <div class="branch-grid">
+        <div class="branch">
+          <h3>linked_with_products</h3>
+          <p>Product cards, CTA, carousel และ search</p>
+        </div>
+        <div class="branch">
+          <h3>linked_without_products</h3>
+          <p>Empty state และ Register Product action</p>
+        </div>
+        <div class="branch">
+          <h3>unlinked</h3>
+          <p>คำแนะนำเชื่อม LINE กับ My Sony</p>
+        </div>
+        <div class="branch">
+          <h3>upstream_error</h3>
+          <p>แยก technical failure จาก no product</p>
+        </div>
+      </div>
+      <div class="note">
+        Production จะเปลี่ยน Mock engine เป็น session + My Sony API adapter
+        แต่ UI state contract ยังใช้โครงเดียวกัน
+      </div>
+    </section>
+
+    <section id="design">
+      <p class="eyebrow">Screen anatomy</p>
+      <h2>เหตุผลของแต่ละส่วนในหน้า</h2>
+      <div class="screen-anatomy">
+        <div class="phone-map" aria-label="Product Center anatomy">
+          <div>
+            <strong>1 · Header/Profile</strong>
+            <span>ยืนยัน context ว่าเป็น Product Center ของสมาชิกคนใด</span>
+          </div>
+          <div>
+            <strong>2 · Search</strong>
+            <span>ช่วยเมื่อผู้ใช้มีผลิตภัณฑ์หลายรายการ</span>
+          </div>
+          <div>
+            <strong>3 · Product summary</strong>
+            <span>model, serial, warranty และสถานะ</span>
+          </div>
+          <div>
+            <strong>4 · CTA mapping</strong>
+            <span>action ที่ต่างกันตาม product/category</span>
+          </div>
+          <div>
+            <strong>5 · Content carousel</strong>
+            <span>firmware, tips และ highlight ที่เกี่ยวข้อง</span>
+          </div>
+          <div>
+            <strong>6 · Bottom navigation</strong>
+            <span>Home, Register Product และ Demo cases</span>
+          </div>
+        </div>
+        <dl class="mapping-list">
+          <div>
+            <dt>1</dt>
+            <dd>
+              <strong>แยกข้อมูลประจำสินค้าออกจาก content</strong>
+              <span>ข้อมูล model/warranty มาจาก API; CTA/article/carousel มาจาก mapping</span>
+            </dd>
+          </div>
+          <div>
+            <dt>2</dt>
+            <dd>
+              <strong>CTA เปิด Article overlay</strong>
+              <span>ใช้ action key เดียวกันเพื่อดึงชุดบทความ ไม่ link-out จาก CTA โดยตรง</span>
+            </dd>
+          </div>
+          <div>
+            <dt>3</dt>
+            <dd>
+              <strong>Carousel แยกต่อ product</strong>
+              <span>ทดสอบลำดับและ content fallback โดยไม่ปนกันระหว่างสินค้า</span>
+            </dd>
+          </div>
+          <div>
+            <dt>4</dt>
+            <dd>
+              <strong>Demo control อยู่นอกกรอบมือถือ</strong>
+              <span>Reviewer เห็น input/state ชัด โดยไม่ทำให้เข้าใจผิดว่าเป็น client UI</span>
+            </dd>
+          </div>
+          <div>
+            <dt>5</dt>
+            <dd>
+              <strong>Layout เรียบตาม wireframe</strong>
+              <span>เน้น hierarchy, overflow และ behavior; ยังไม่ล็อกสี/spacing/visual identity</span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <section id="cases">
+      <p class="eyebrow">Coverage matrix</p>
+      <h2>Mock UUID และสิ่งที่ใช้ตรวจ</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>UUID</th>
+              <th>State/Use case</th>
+              <th>สิ่งที่ต้องดู</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><button class="case-button" data-uuid="test-default">test-default</button></td>
+              <td>2 products</td>
+              <td>หน้า Product Center ปกติ, search, CTA และ carousel</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-dynamic-content">test-dynamic-content</button></td>
+              <td>Register Product page</td>
+              <td>typed blocks ครบ 5 ชนิดและลำดับ content</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-10-cta">test-10-cta</button></td>
+              <td>CTA stress</td>
+              <td>10 ปุ่ม, wrapping, ความสูง card และ overlay</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-many-products">test-many-products</button></td>
+              <td>Long list</td>
+              <td>5 products, page scroll และ sticky navigation</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-no-product">test-no-product</button></td>
+              <td>Linked, no product</td>
+              <td>Empty state ต้องพาไป Register Product</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-no-line-uuid">test-no-line-uuid</button></td>
+              <td>Unlinked</td>
+              <td>ไม่แสดงว่าเป็น no product; ให้ guidance เชื่อมบัญชี</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-api-error">test-api-error</button></td>
+              <td>Upstream failure</td>
+              <td>Error และ retry แยกจาก business empty state</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-no-content">test-no-content</button></td>
+              <td>No mapping</td>
+              <td>สินค้ายังแสดงได้แม้ไม่มี CTA/carousel</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-empty-article">test-empty-article</button></td>
+              <td>Empty article selection</td>
+              <td>CTA มีอยู่แต่ overlay ไม่มี published article</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-long-content">test-long-content</button></td>
+              <td>Long copy</td>
+              <td>model, CTA และ highlight ต้อง wrap โดย layout ไม่แตก</td>
+            </tr>
+            <tr>
+              <td><button class="case-button" data-uuid="test-expired-warranty">test-expired-warranty</button></td>
+              <td>Expired warranty</td>
+              <td>สถานะ expired แยกจาก active/unknown</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Dynamic content</p>
+      <h2>ทำไมไม่จบที่ bullet</h2>
+      <p>
+        Register Product content ใช้ typed block renderer.
+        Excel ปัจจุบัน map bullet เป็น <code>check_list</code>
+        แต่ schema/UI รองรับ content ชนิดอื่นโดยไม่เปลี่ยน table
+      </p>
+      <div class="block-row">
+        <div>หัวข้อ<code>heading</code></div>
+        <div>ข้อความ<code>paragraph</code></div>
+        <div>รายการ<code>check_list</code></div>
+        <div>รูปภาพ<code>image</code></div>
+        <div>ปุ่มลิงก์<code>link_button</code></div>
+      </div>
+      <div class="note warn">
+        Prototype ไม่รองรับ raw HTML หรือ arbitrary component.
+        Production importer ต้อง validate block type และ URL ก่อนบันทึก
+      </div>
+    </section>
+
+    <section id="technical">
+      <p class="eyebrow">Implementation boundary</p>
+      <h2>Reuse อะไร และแยกอะไร</h2>
+      <div class="decision-table">
+        <div>
+          <h3>Reuse core จาก repo เดิม</h3>
+          <ul class="plain-list">
+            <li>Next.js App Router</li>
+            <li><code>/{locale}</code> layout</li>
+            <li>font/runtime configuration</li>
+            <li>TypeScript, lint, test และ build pipeline</li>
+            <li>แนวทาง server session ใน production</li>
+          </ul>
+        </div>
+        <div>
+          <h3>แยกจาก Sony Badge</h3>
+          <ul class="plain-list">
+            <li>route: <code>/prototype/cs-portal</code></li>
+            <li>component และ CSS namespace ใหม่</li>
+            <li>mock engine ใหม่</li>
+            <li>prototype SVG assets ใหม่</li>
+            <li>ไม่แก้ Badge page/component/CSS/business logic</li>
+          </ul>
+        </div>
+      </div>
+      <h3 style="margin-top: 20px;">โครงสร้างไฟล์</h3>
+      <div class="code-map">src/app/[locale]/prototype/cs-portal/
+├── page.tsx
+├── CsPortalPrototype.tsx
+├── cs-portal-prototype.module.css
+└── README.md
+
+src/lib/cs-portal-prototype/
+├── mock-engine.ts
+└── mock-engine.test.ts
+
+public/cs-portal-prototype/
+├── headphones.svg
+├── tv.svg
+└── register-products.svg</div>
+      <div class="note">
+        Route ถูกบล็อกด้วย <code>NODE_ENV === "production"</code> และตอบ 404.
+        ใช้เพื่อ local review เท่านั้น ไม่ใช่ production implementation
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">What remains</p>
+      <h2>สิ่งที่ prototype ยังไม่ทำ</h2>
+      <div class="two-col">
+        <ul class="plain-list">
+          <li>ยังไม่เรียก My Sony API จริง</li>
+          <li>ยังไม่ใช้ LINE UUID จริงหรือ signed session</li>
+          <li>ยังไม่อ่าน Excel/import database</li>
+          <li>ยังไม่ใช้ 2-table production schema</li>
+        </ul>
+        <ul class="plain-list">
+          <li>ยังไม่ใช่ final UX/UI หรือ Sony visual guideline</li>
+          <li>ยังไม่ล็อก copy, image และ external URLs</li>
+          <li>ยังไม่ทำ notification feature</li>
+          <li>ยังไม่พร้อม deploy production</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="validation">
+      <p class="eyebrow">Evidence</p>
+      <h2>ผลตรวจล่าสุด</h2>
+      <div class="validation-grid">
+        <div class="validation-item">
+          <strong>11 / 11</strong>
+          <span>Mock UUID routes ตอบ HTTP 200</span>
+        </div>
+        <div class="validation-item">
+          <strong>127 / 127</strong>
+          <span>Vitest tests ผ่านทั้ง repo</span>
+        </div>
+        <div class="validation-item">
+          <strong>Pass</strong>
+          <span>TypeScript, ESLint และ Next build</span>
+        </div>
+        <div class="validation-item">
+          <strong>404</strong>
+          <span>Prototype route ใน production mode</span>
+        </div>
+      </div>
+      <div class="note">
+        Visual ตรวจหน้า default และ dynamic-content จาก local runtime แล้ว.
+        Commit ปัจจุบัน: <code>785331e</code> บน branch
+        <code>prototype/sony-cs-portal-demo</code>. ยังไม่ push
+      </div>
+    </section>
+
+    <p class="footer">
+      Sony CS Portal prototype explanation · generated for local design review
+    </p>
+  </main>
+
+  <script>
+    (function () {
+      var baseUrl = window.location.origin + "/th/prototype/cs-portal";
+      var select = document.getElementById("scenario-select");
+      var loadButton = document.getElementById("load-preview");
+      var frame = document.getElementById("demo-frame");
+      var openDemo = document.getElementById("open-demo");
+      var currentUrl = document.getElementById("current-url");
+      var previewLabel = document.getElementById("preview-label");
+
+      function loadScenario(uuid) {
+        var url = baseUrl + "?uuid=" + encodeURIComponent(uuid);
+        select.value = uuid;
+        frame.src = url;
+        openDemo.href = url;
+        currentUrl.textContent = "?uuid=" + uuid;
+        previewLabel.textContent = uuid;
+        document.getElementById("preview").scrollIntoView({ behavior: "smooth" });
+      }
+
+      loadButton.addEventListener("click", function () {
+        loadScenario(select.value);
+      });
+
+      document.querySelectorAll("[data-uuid]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          loadScenario(button.getAttribute("data-uuid"));
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -202,4 +202,88 @@ export const en: Messages = {
     details: "Details",
     back: "Back",
   },
+  portal: {
+    sessionRequired: "LINE session is required.",
+    loadProductsFailed: "Unable to load products.",
+    productsAriaLabel: "Registered products",
+    loadingProductsAriaLabel: "Loading products",
+    profileFallbackName: "Mr.Sony",
+    warrantyLabel: "Warranty",
+    registered: "Registered {date}",
+    registeredUnknown: "Registered —",
+    warrantyExpiry: "Expired: {date}",
+    warrantyExpiryUnknown: "—",
+    warrantyStatus: {
+      active: "Active",
+      expired: "Expired",
+      unknown: "Unknown",
+    },
+    recommendedTitle: "Recommended",
+    productActionsAriaLabel: "Product actions",
+    previous: "Previous",
+    next: "Next",
+    close: "Close",
+    articleCategoriesAriaLabel: "Article categories",
+    articlesEmpty: "No articles in this category yet",
+    serialBarcodeAriaLabel: "Serial barcode {value}",
+    notLinkedTitle: "Your LINE account is not linked\nwith My Sony Rewards yet",
+    emptyTitle: "No registered products yet",
+    registerPage: {
+      registerCta: "Register now",
+      homeCta: "Back to home",
+    },
+    footer: {
+      ariaLabel: "Main menu",
+      serviceCenter: {
+        title: "View Service Center",
+        subtitle: "",
+      },
+      repairStatus: {
+        title: "Check Repair Status",
+        subtitle: "",
+      },
+      register: {
+        title: "Register Products",
+        subtitle: "",
+      },
+      faq: {
+        title: "FAQ",
+        subtitle: "",
+      },
+    },
+    ctas: {
+      firmware: {
+        title: "Update Firmware",
+        subtitle: "",
+      },
+      "user-manual": {
+        title: "User Manual",
+        subtitle: "",
+      },
+      "recommended-apps": {
+        title: "Recommended Apps",
+        subtitle: "",
+      },
+      "pro-tips": {
+        title: "Pro Tips",
+        subtitle: "",
+      },
+      "compatible-gear": {
+        title: "Compatible Gear",
+        subtitle: "",
+      },
+      "view-my-badge": {
+        title: "View My Badge",
+        subtitle: "",
+      },
+      workshop: {
+        title: "Workshop",
+        subtitle: "",
+      },
+      contest: {
+        title: "Contest",
+        subtitle: "",
+      },
+    },
+  },
 };

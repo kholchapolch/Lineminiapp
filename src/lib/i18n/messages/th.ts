@@ -218,4 +218,88 @@ export const th: Messages = {
     details: "รายละเอียด (See More)",
     back: "ย้อนกลับ (Back)",
   },
+  portal: {
+    sessionRequired: "ต้องมี LINE session",
+    loadProductsFailed: "ไม่สามารถโหลดสินค้าได้",
+    productsAriaLabel: "สินค้าที่ลงทะเบียน",
+    loadingProductsAriaLabel: "กำลังโหลดสินค้า",
+    profileFallbackName: "Mr.Sony",
+    warrantyLabel: "การรับประกัน (Warranty)",
+    registered: "Registered {date}",
+    registeredUnknown: "Registered —",
+    warrantyExpiry: "Expired: {date}",
+    warrantyExpiryUnknown: "—",
+    warrantyStatus: {
+      active: "Active",
+      expired: "Expired",
+      unknown: "Unknown",
+    },
+    recommendedTitle: "บทความแนะนำ (Recommended)",
+    productActionsAriaLabel: "การดำเนินการสินค้า",
+    previous: "ก่อนหน้า",
+    next: "ถัดไป",
+    close: "ปิด",
+    articleCategoriesAriaLabel: "หมวดบทความ",
+    articlesEmpty: "ยังไม่มีบทความในหมวดนี้",
+    serialBarcodeAriaLabel: "บาร์โค้ดซีเรียล {value}",
+    notLinkedTitle: "คุณยังไม่ได้เชื่อมต่อบัญชี\nLINE กับ My Sony Rewards",
+    emptyTitle: "ยังไม่มีสินค้าที่ลงทะเบียน",
+    registerPage: {
+      registerCta: "ลงทะเบียนเลย (Register Now)",
+      homeCta: "กลับหน้าหลัก (Back to Home)",
+    },
+    footer: {
+      ariaLabel: "เมนูหลัก",
+      serviceCenter: {
+        title: "ดูศูนย์บริการ",
+        subtitle: "(View Service Center)",
+      },
+      repairStatus: {
+        title: "เช็คสถานะซ่อม",
+        subtitle: "(Check Repair Status)",
+      },
+      register: {
+        title: "ลงทะเบียนสินค้า",
+        subtitle: "(Register Products)",
+      },
+      faq: {
+        title: "คำถามที่พบบ่อย",
+        subtitle: "(FAQ)",
+      },
+    },
+    ctas: {
+      firmware: {
+        title: "อัพเดตเฟิร์มแวร์",
+        subtitle: "(Update Firmware)",
+      },
+      "user-manual": {
+        title: "คู่มือเริ่มใช้งาน",
+        subtitle: "(User Manual)",
+      },
+      "recommended-apps": {
+        title: "โหลดแอปแนะนำ",
+        subtitle: "(Recommended Apps)",
+      },
+      "pro-tips": {
+        title: "สอนใช้แบบโปร",
+        subtitle: "(Pro Tips)",
+      },
+      "compatible-gear": {
+        title: "อุปกรณ์เสริม",
+        subtitle: "(Compatible Gear)",
+      },
+      "view-my-badge": {
+        title: "ดูเหรียญสะสม",
+        subtitle: "(View My Badge)",
+      },
+      workshop: {
+        title: "เวิร์คช้อปวันนี้",
+        subtitle: "(Workshop)",
+      },
+      contest: {
+        title: "การแข่งขัน",
+        subtitle: "(Contest)",
+      },
+    },
+  },
 };

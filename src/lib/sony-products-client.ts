@@ -36,12 +36,14 @@ class SonyProductApiError extends Error {
 
 export function createSonyProductsClient(
   config: AppConfig,
+  options: { allowMissingRegistrationDate?: boolean; timeoutMs?: number } = {},
 ): SonyProductsClient {
   if (config.sonyProductApiMode === "live") {
     return new LiveSonyProductsClient({
       endpointUrl: config.sonyProductApiBaseUrl,
       subscriptionKey: config.sonyProductApiSubscriptionKey,
       countryCode: config.sonyProductApiCountryCode,
+      ...options,
     });
   }
 
@@ -56,6 +58,8 @@ class LiveSonyProductsClient implements SonyProductsClient {
       endpointUrl: string;
       subscriptionKey?: string;
       countryCode: string;
+      allowMissingRegistrationDate?: boolean;
+      timeoutMs?: number;
     },
   ) {}
 
@@ -65,8 +69,6 @@ class LiveSonyProductsClient implements SonyProductsClient {
         "Sony product API subscription key is not configured.",
       );
     }
-
-    console.log("getCustomerProducts", lineuuid);
 
     const response = await fetch(this.options.endpointUrl, {
       method: "POST",
@@ -80,6 +82,7 @@ class LiveSonyProductsClient implements SonyProductsClient {
         lineId: lineuuid,
       }),
       cache: "no-store",
+      ...(this.options.timeoutMs ? { signal: AbortSignal.timeout(this.options.timeoutMs) } : {}),
     });
 
     if (response.status === 404) {
@@ -96,27 +99,37 @@ class LiveSonyProductsClient implements SonyProductsClient {
       | LiveSonyApiResponse
       | SonyWarrantyApiResponse;
 
-    return normalizeLiveSonyApiResponse(payload, lineuuid);
+    return normalizeLiveSonyApiResponse(payload, lineuuid, this.options.allowMissingRegistrationDate ?? false);
   }
 }
 
 function normalizeLiveSonyApiResponse(
   payload: LiveSonyApiResponse | SonyWarrantyApiResponse,
   lineuuid: string,
+  allowMissingRegistrationDate: boolean,
 ): SonyCustomerProducts {
+  // Observed UAT contract: HTTP 200 with code 100 for an unknown LINE ID.
+  // Require the known message as well; do not classify unrelated business errors.
+  const businessError = payload as { errorCode?: unknown; errorMessage?: unknown } | null;
+  if (businessError?.errorCode === "100" && typeof businessError.errorMessage === "string" &&
+      /^Line Id .+ is not found in our database$/.test(businessError.errorMessage)) {
+    throw new SonyCustomerNotFoundError();
+  }
   if (Array.isArray((payload as SonyWarrantyApiResponse).prodDetails)) {
     return normalizeSonyWarrantyResponse(
       payload as SonyWarrantyApiResponse,
       lineuuid,
+      allowMissingRegistrationDate,
     );
   }
 
-  return assertSonyCustomerProducts(payload as LiveSonyApiResponse);
+  return assertSonyCustomerProducts(payload as LiveSonyApiResponse, allowMissingRegistrationDate);
 }
 
 function normalizeSonyWarrantyResponse(
   payload: SonyWarrantyApiResponse,
   lineuuid: string,
+  allowMissingRegistrationDate: boolean,
 ): SonyCustomerProducts {
   if (!Array.isArray(payload.prodDetails)) {
     throw new SonyProductApiError(
@@ -132,16 +145,19 @@ function normalizeSonyWarrantyResponse(
       lineDisplayName: null,
       linePictureUrl: null,
     },
-    products: payload.prodDetails.map(assertSonyWarrantyProduct),
+    products: payload.prodDetails.map(product => {
+      if (product?.lineId && product.lineId !== lineuuid) throw new SonyProductApiError("Mismatched product owner.");
+      return assertSonyWarrantyProduct(product, allowMissingRegistrationDate);
+    }),
   };
 }
 
-function assertSonyWarrantyProduct(product: unknown): SonyOwnedProduct {
+function assertSonyWarrantyProduct(product: unknown, allowMissingRegistrationDate: boolean): SonyOwnedProduct {
   const candidate = product as SonyWarrantyProduct;
 
   if (
-    typeof candidate.modelName !== "string" ||
-    typeof candidate.registrationDate !== "string"
+    !candidate || typeof candidate.modelName !== "string" || !candidate.modelName.trim() ||
+    !(typeof candidate.registrationDate === "string" || (allowMissingRegistrationDate && candidate.registrationDate == null))
   ) {
     throw new SonyProductApiError(
       "Sony warranty API response has invalid product fields.",
@@ -152,12 +168,14 @@ function assertSonyWarrantyProduct(product: unknown): SonyOwnedProduct {
     sku: canonicalSku(candidate.modelName),
     modelName: candidate.modelName,
     serialNumber: nullableString(candidate.serialNumber),
-    registeredAt: candidate.registrationDate,
+    registeredAt: typeof candidate.registrationDate === "string" ? candidate.registrationDate : "",
+    warrantyExpiryDate: nullableString(candidate.warrantyExpiryDate),
   };
 }
 
 function assertSonyCustomerProducts(
   payload: LiveSonyApiResponse,
+  allowMissingRegistrationDate: boolean,
 ): SonyCustomerProducts {
   if (!payload.customer || !Array.isArray(payload.products)) {
     throw new SonyProductApiError(
@@ -185,16 +203,16 @@ function assertSonyCustomerProducts(
       lineDisplayName: nullableString(customer.lineDisplayName),
       linePictureUrl: nullableString(customer.linePictureUrl),
     },
-    products: payload.products.map(assertSonyOwnedProduct),
+    products: payload.products.map(product => assertSonyOwnedProduct(product, allowMissingRegistrationDate)),
   };
 }
 
-function assertSonyOwnedProduct(product: unknown): SonyOwnedProduct {
+function assertSonyOwnedProduct(product: unknown, allowMissingRegistrationDate: boolean): SonyOwnedProduct {
   const candidate = product as Partial<SonyOwnedProduct>;
 
   if (
-    typeof candidate.sku !== "string" ||
-    typeof candidate.registeredAt !== "string"
+    !candidate || typeof candidate.sku !== "string" || !candidate.sku.trim() ||
+    !(typeof candidate.registeredAt === "string" || (allowMissingRegistrationDate && candidate.registeredAt == null))
   ) {
     throw new SonyProductApiError(
       "Sony product API response has invalid product fields.",
@@ -205,7 +223,8 @@ function assertSonyOwnedProduct(product: unknown): SonyOwnedProduct {
     sku: candidate.sku,
     modelName: nullableString(candidate.modelName),
     serialNumber: nullableString(candidate.serialNumber),
-    registeredAt: candidate.registeredAt,
+    registeredAt: candidate.registeredAt ?? "",
+    warrantyExpiryDate: nullableString(candidate.warrantyExpiryDate),
   };
 }
 

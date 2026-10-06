@@ -86,6 +86,39 @@ export function resolvedSku(
  */
 const SONY_MODEL_NAME_SUFFIX = /^(?:\s+|(?:QSYX|CSYX|SYX)\b).*$/;
 
+function matchesSkuOrSonySuffix(
+  normalizedModelName: string,
+  normalizedCanonicalKey: string,
+): boolean {
+  if (normalizedModelName === normalizedCanonicalKey) {
+    return true;
+  }
+
+  if (!normalizedModelName.startsWith(normalizedCanonicalKey)) {
+    return false;
+  }
+
+  const remainder = normalizedModelName.slice(normalizedCanonicalKey.length);
+  return remainder === "" || SONY_MODEL_NAME_SUFFIX.test(remainder);
+}
+
+/**
+ * Resolves a Sony model name to one canonical model key from the portal catalog.
+ *
+ * Uses the same longest-prefix rule as My Badges (`resolveCatalogSku`):
+ * `ILCE-7CM2LSQAP2` maps to `ILCE-7CM2`, not `ILCE-7C`.
+ */
+export function resolveCanonicalModelKey(
+  modelName: string,
+  canonicalModelKeys: Iterable<string>,
+): string | null {
+  if (!normalizeSku(modelName)) {
+    return null;
+  }
+
+  return resolveCatalogSku(modelName, canonicalModelKeys);
+}
+
 /** Returns true when the product SKU equals or is a suffixed form of an eligible rule SKU. */
 export function matchesEligibleSku(
   productSku: string,
@@ -104,16 +137,7 @@ export function matchesEligibleSku(
   for (const eligibleSku of eligibleSkus) {
     const normalizedEligibleSku = canonicalSku(eligibleSku);
 
-    if (normalizedProductSku === normalizedEligibleSku) {
-      return true;
-    }
-
-    if (!normalizedProductSku.startsWith(normalizedEligibleSku)) {
-      continue;
-    }
-
-    const remainder = normalizedProductSku.slice(normalizedEligibleSku.length);
-    if (remainder === "" || SONY_MODEL_NAME_SUFFIX.test(remainder)) {
+    if (matchesSkuOrSonySuffix(normalizedProductSku, normalizedEligibleSku)) {
       return true;
     }
   }

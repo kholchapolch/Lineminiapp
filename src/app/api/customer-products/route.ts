@@ -1,3 +1,4 @@
+import { createSonyAccountPlaceholder } from "@/lib/sony-account";
 import { NextResponse } from "next/server";
 import { loadAppConfig } from "@/lib/app-config";
 import { resolveAuthorizedLineUuid, UnauthorizedError } from "@/lib/auth-session";
@@ -38,7 +39,9 @@ export async function GET(request: Request): Promise<NextResponse> {
   } catch (error) {
     const safeError = toSafeError(error);
     return NextResponse.json(
-      safeError,
+      isSonyCustomerNotFound(error)
+        ? { ...safeError, accountStatus: "not_linked", placeholder: createSonyAccountPlaceholder() }
+        : safeError,
       { status: error instanceof UnauthorizedError ? 401 : isSonyCustomerNotFound(error) ? 404 : 500 },
     );
   }

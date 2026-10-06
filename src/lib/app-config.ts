@@ -9,6 +9,7 @@ export type AppConfig = {
   allowedReferrers: string[];
   liffId?: string;
   lineChannelId?: string;
+  lineChannelIds: string[];
   lineVerifyIdTokenUrl: string;
   appSessionSecret?: string;
   logHashSecret?: string;
@@ -48,6 +49,10 @@ export function loadAppConfig(env: EnvInput = process.env): AppConfig {
     blankToUndefined(env.SONY_PRODUCT_API_COUNTRY_CODE) ?? "th";
   const liffId = blankToUndefined(env.NEXT_PUBLIC_LIFF_ID);
   const lineChannelId = blankToUndefined(env.LINE_CHANNEL_ID);
+  const lineChannelIds = uniqueChannels([
+    lineChannelId,
+    channelIdFromLiffId(env.NEXT_PUBLIC_CSR_PORTAL_LIFF_ID),
+  ]);
   const appSessionSecret = blankToUndefined(env.APP_SESSION_SECRET);
   const logHashSecret = blankToUndefined(env.LOG_HASH_SECRET);
   const lineVerifyIdTokenUrl =
@@ -96,6 +101,7 @@ export function loadAppConfig(env: EnvInput = process.env): AppConfig {
     allowedReferrers: parseUrlList(env.ALLOWED_REFERRERS, [appBaseUrl]),
     liffId,
     lineChannelId,
+    lineChannelIds,
     lineVerifyIdTokenUrl,
     appSessionSecret,
     logHashSecret,
@@ -180,4 +186,13 @@ function normalizeOptionalUrl(
 function blankToUndefined(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed ? trimmed : undefined;
+}
+
+function channelIdFromLiffId(liffId: string | undefined): string | undefined {
+  const channelId = blankToUndefined(liffId)?.split("-")[0];
+  return channelId && /^\d+$/.test(channelId) ? channelId : undefined;
+}
+
+function uniqueChannels(channelIds: Array<string | undefined>): string[] {
+  return [...new Set(channelIds.filter((channelId): channelId is string => Boolean(channelId)))];
 }
