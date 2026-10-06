@@ -22,7 +22,7 @@ describe('Portal products through real Sony client with MOCK upstream transport'
  it('maps ownership and warranty verbatim, takes identity only from signed session',async()=>{
   upstream({prodDetails:[{lineId:'MOCK-OWNER',modelName:'ILME-FX2/QSYX',serialNumber:'MOCK-SERIAL',registrationDate:'2026-03-25',warrantyExpiryDate:'2027-06-23'}]});
   const r=await GET(request());expect(r.status).toBe(200);expect(r.headers.get('cache-control')).toBe('private, no-store');
-  expect(await r.json()).toMatchObject({accountStatus:'linked',productState:'has_products',isMock:false,products:[{sku:'ILME-FX2/QSYX',modelName:'ILME-FX2/QSYX',serialNumber:'MOCK-SERIAL',registeredAt:'2026-03-25',warrantyExpiryDate:'2027-06-23'}]});
+  expect(await r.json()).toMatchObject({accountStatus:'linked',productState:'has_products',isMock:false,products:[{sku:'ILME-FX2',modelName:'ILME-FX2/QSYX',serialNumber:'MOCK-SERIAL',registeredAt:'2026-03-25',warrantyExpiryDate:'2027-06-23'}]});
   expect(fetch).toHaveBeenCalledWith('https://sony.example.test/warranty',expect.objectContaining({method:'POST',body:JSON.stringify({countryCode:'th',lineId:'MOCK-OWNER'}),cache:'no-store',signal:expect.any(AbortSignal)}));
  });
  it('loads one active catalog and groups two suffix registrations into one card',async()=>{

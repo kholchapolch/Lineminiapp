@@ -28,12 +28,8 @@ export async function GET(request: Request): Promise<NextResponse> {
         400,
       );
     const lineuuid = session.lineuuid;
-    const result = await getPortalProducts(
-      config,
-      "U8247e4e78717d244a505de4896aa98b0",
-    );
+    const result = await getPortalProducts(config, lineuuid);
 
-    console.log({ result });
     if (!result.products.length) return json({ ...result, productGroups: [] });
     const { dataset } = await loadActiveDataset();
     return json({
