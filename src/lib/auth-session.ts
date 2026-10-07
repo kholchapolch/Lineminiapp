@@ -40,7 +40,11 @@ export function resolveAuthorizedLineUuid({
   providedLineUuid?: string | null;
   allowDemoLineUuid?: boolean;
 }): string {
-  if (allowDemoLineUuid && config.appEnv === "local" && providedLineUuid?.trim()) {
+  if (
+    allowDemoLineUuid &&
+    config.appEnv === "local" &&
+    providedLineUuid?.trim()
+  ) {
     return providedLineUuid.trim();
   }
 
@@ -88,7 +92,11 @@ export async function verifyLineIdToken({
   }
 
   for (const channelId of channelIds) {
-    const lineuuid = await verifyLineIdTokenForChannel({ config, idToken, channelId });
+    const lineuuid = await verifyLineIdTokenForChannel({
+      config,
+      idToken,
+      channelId,
+    });
     if (lineuuid) {
       return lineuuid;
     }
@@ -125,7 +133,7 @@ async function verifyLineIdTokenForChannel({
     return null;
   }
 
-  const payload = await response.json() as LineVerifyResponse;
+  const payload = (await response.json()) as LineVerifyResponse;
 
   if (payload.aud !== channelId || typeof payload.sub !== "string") {
     return null;
@@ -148,7 +156,10 @@ export function createLineSessionCookie({
   now?: number;
 }): string {
   const expiresAt = now + SESSION_TTL_SECONDS * 1000;
-  const payload = Buffer.from(JSON.stringify({ lineuuid, expiresAt }), "utf8").toString("base64url");
+  const payload = Buffer.from(
+    JSON.stringify({ lineuuid, expiresAt }),
+    "utf8",
+  ).toString("base64url");
   const signature = sign(payload, getSessionSecret(config));
 
   return [
@@ -158,7 +169,9 @@ export function createLineSessionCookie({
     "SameSite=Lax",
     `Max-Age=${SESSION_TTL_SECONDS}`,
     config.appEnv === "local" ? "" : "Secure",
-  ].filter(Boolean).join("; ");
+  ]
+    .filter(Boolean)
+    .join("; ");
 }
 
 export function readLineSessionFromHeaders(
@@ -182,7 +195,9 @@ function readLineSession(headers: Headers, secret: string): LineSession | null {
   }
 
   try {
-    const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as LineSession;
+    const session = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8"),
+    ) as LineSession;
 
     if (!session.lineuuid || session.expiresAt < Date.now()) {
       return null;
@@ -205,7 +220,11 @@ function sign(payload: string, secret: string): string {
   return createHmac("sha256", secret).update(payload).digest("base64url");
 }
 
-function verifySignature(payload: string, signature: string, secret: string): boolean {
+function verifySignature(
+  payload: string,
+  signature: string,
+  secret: string,
+): boolean {
   const expected = sign(payload, secret);
   const left = Buffer.from(signature);
   const right = Buffer.from(expected);
