@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
-import { loadAppConfig } from "@/lib/app-config";
-import {
-  resolveAuthorizedLineUuid,
-  UnauthorizedError,
-} from "@/lib/auth-session";
+import { UnauthorizedError } from "@/lib/auth-session";
 import { defaultLocale, isLocale } from "@/lib/i18n/locales";
 import { loadMyBadgesPageData } from "@/lib/my-badges/get-my-badges-data";
 import { toSafeError } from "@/lib/safe-logging";
@@ -13,12 +9,15 @@ export async function GET(request: Request): Promise<NextResponse> {
     const searchParams = new URL(request.url).searchParams;
     const requestedLocale = searchParams.get("locale") ?? "";
     const locale = isLocale(requestedLocale) ? requestedLocale : defaultLocale;
-    const config = loadAppConfig();
-    const lineuuid = resolveAuthorizedLineUuid({
-      config,
-      headers: request.headers,
-      providedLineUuid: searchParams.get("lineuuid"),
-    });
+    const lineuuid = searchParams.get("lineuuid")?.trim() ?? "";
+
+    if (!lineuuid) {
+      return NextResponse.json(
+        { code: "UNAUTHORIZED", message: "LINE UUID is required." },
+        { status: 401 },
+      );
+    }
+
     const result = await loadMyBadgesPageData(locale, lineuuid);
 
     if (result.kind === "not_linked") {
