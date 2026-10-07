@@ -243,7 +243,7 @@ export const th: Messages = {
     articlesEmpty: "ยังไม่มีบทความในหมวดนี้",
     serialBarcodeAriaLabel: "บาร์โค้ดซีเรียล {value}",
     notLinkedTitle: "คุณยังไม่ได้เชื่อมต่อบัญชี\nLINE กับ My Sony Rewards",
-    emptyTitle: "ยังไม่มีสินค้าที่ลงทะเบียน",
+    emptyTitle: "ยังไม่มีสินค้า",
     registerPage: {
       registerCta: "ลงทะเบียนเลย (Register Now)",
       homeCta: "กลับหน้าหลัก (Back to Home)",

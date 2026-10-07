@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import PortalPageContainer from "@/components/portal/PageContainer";
 import { PortalFooter } from "@/components/portal/PortalFooter";
+import { PortalEmptyProductsView } from "@/components/portal/PortalEmptyProductsView";
 import { PortalNotLinkedView } from "@/components/portal/PortalNotLinkedView";
 import { PortalProductList } from "@/components/portal/PortalProductList";
 import { PortalSessionHeader } from "@/components/portal/PortalSessionHeader";
@@ -36,7 +37,12 @@ type PortalProductsView =
       actionLabel: string;
       actionHref: string;
     }
-  | { kind: "empty"; title: string; message?: string }
+  | {
+      kind: "empty";
+      title: string;
+      actionLabel: string;
+      actionHref: string;
+    }
   | { kind: "products"; products: ReturnType<typeof toProductCards> };
 
 function readPortalSession(): { lineuuid: string } | null {
@@ -86,7 +92,9 @@ async function loadPortalProducts(
       return {
         kind: "empty",
         title: result.emptyState?.title[locale] ?? copy.emptyTitle,
-        message: result.emptyState?.message[locale],
+        actionLabel:
+          result.emptyState?.action.label[locale] ?? copy.registerPage.registerCta,
+        actionHref: `/${locale}/portal/register`,
       };
     }
     const catalog = await loadActiveProductCatalog();
@@ -124,23 +132,6 @@ async function loadPortalProducts(
   }
 }
 
-function PortalStatus({
-  view,
-}: {
-  view: Exclude<PortalProductsView, { kind: "products" | "not_linked" }>;
-}): JSX.Element {
-  if (view.kind === "error") {
-    return <p>{view.message}</p>;
-  }
-
-  return (
-    <>
-      <p>{view.title}</p>
-      {view.message ? <p>{view.message}</p> : null}
-    </>
-  );
-}
-
 function PortalProducts({
   view,
   locale,
@@ -167,9 +158,19 @@ function PortalProducts({
     );
   }
 
+  if (view.kind === "empty") {
+    return (
+      <PortalEmptyProductsView
+        title={view.title}
+        actionLabel={view.actionLabel}
+        actionHref={view.actionHref}
+      />
+    );
+  }
+
   return (
     <div className="portalProductList" aria-label={copy.productsAriaLabel}>
-      <PortalStatus view={view} />
+      <p>{view.message}</p>
     </div>
   );
 }

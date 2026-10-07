@@ -1,0 +1,44 @@
+.portalEmptyProducts {
+  --portal-empty-ink: #6b7280;
+  --portal-empty-blue: var(--portal-primary-color, #005ece);
+
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  max-width: 360px;
+  margin: 64px auto 24px;
+  padding: 8px 12px 24px;
+  text-align: center;
+  color: var(--portal-empty-ink);
+}
+
+.portalEmptyProducts__icon {
+  width: 76px;
+  height: 76px;
+}
+
+.portalEmptyProducts__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--portal-empty-ink);
+}
+
+.portalEmptyProducts__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  margin-top: 8px;
+  padding: 0 28px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--portal-empty-blue);
+  box-shadow: 0 10px 24px rgba(0, 94, 206, 0.28);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}

@@ -1,3 +1,35 @@
 .portalLayout {
+  --portal-primary-color: #005ece;
+
   min-height: 100dvh;
+  background: #eef2f7;
+  color: #111827;
+}
+
+.portalPage {
+  --portal-primary-color: #005ece;
+
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: #eef2f7;
+}
+
+.portalPage--register {
+  height: auto;
+  max-height: none;
+  min-height: 100dvh;
+  overflow: visible;
+}
+
+.portalPage--register .portalPage__container {
+  flex: none;
+  overflow: visible;
+}
+
+.portalPage__content {
+  flex: 1;
+  padding: 16px 20px 24px;
 }

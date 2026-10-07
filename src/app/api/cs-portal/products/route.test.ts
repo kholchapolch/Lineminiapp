@@ -58,6 +58,17 @@ describe('Portal products through real Sony client with MOCK upstream transport'
   const r=await GET(request());expect(r.status).toBe(200);expect(await r.json()).toMatchObject({accountStatus:'not_linked',productState:'not_applicable',products:[]});
   upstream({errorCode:'100',errorMessage:'Different business error'});expect((await GET(request())).status).toBe(502);
  });
+ it('maps HTTP 200 business errorCode other than 100 to linked empty products',async()=>{
+  upstream({errorCode:'200',errorMessage:'Business failure without product list'});
+  const r=await GET(request());expect(r.status).toBe(200);
+  expect(await r.json()).toMatchObject({
+    accountStatus:'linked',
+    productState:'no_products',
+    products:[],
+    productGroups:[],
+    emptyState:{code:'REGISTER_PRODUCT',showFooter:true},
+  });
+ });
  it.each(['missing','expired'])('rejects %s session without contacting Sony',async auth=>{const r=await GET(request('',auth));expect(r.status).toBe(401);expect(fetch).not.toHaveBeenCalled();});
  it.each(['?lineuuid=other','?modelKey=A','?debug=true'])('rejects query %s before contacting Sony',async query=>{expect((await GET(request(query))).status).toBe(400);expect(fetch).not.toHaveBeenCalled();});
  it.each([401,403,429,500,503])('maps upstream %s to safe 502, not unlinked',async status=>{upstream({secret:'PRIVATE'},status);const r=await GET(request());expect(r.status).toBe(502);expect(r.headers.get('cache-control')).toBe('private, no-store');expect(await r.text()).not.toContain('PRIVATE');});
