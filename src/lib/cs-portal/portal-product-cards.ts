@@ -60,14 +60,8 @@ function fillTemplate(template: string, values: Record<string, string>): string 
   );
 }
 
-function actionForKey(actionKey: string, fallback?: CtaAction): CtaAction {
-  if (fallback) {
-    return fallback;
-  }
-  if (actionKey === "view-my-badge") {
-    return { type: "internal", route: "/my-badges" };
-  }
-  return { type: "articles" };
+function actionForKey(fallback?: CtaAction): CtaAction {
+  return fallback ?? { type: "articles" };
 }
 
 function articlesForAction(
@@ -100,7 +94,7 @@ function ctasFromResolved(
 
   return CTA_ACTION_ORDER.map((actionKey) => {
     const mapped = byActionKey.get(actionKey);
-    const action = actionForKey(actionKey, mapped?.action);
+    const action = actionForKey(mapped?.action);
     const label = labels[actionKey];
     return {
       id: actionKey,

@@ -5,6 +5,7 @@ import {
   getMockSonyCustomerProducts,
   SonyCustomerNotFoundError,
 } from "@/lib/sony-products";
+import { SonyProductsBusinessEmptyError } from "@/lib/sony-account";
 import { canonicalSku } from "@/lib/sku";
 import type { SonyCustomerProducts, SonyOwnedProduct } from "@/types/badge";
 
@@ -111,9 +112,20 @@ function normalizeLiveSonyApiResponse(
   // Observed UAT contract: HTTP 200 with code 100 for an unknown LINE ID.
   // Require the known message as well; do not classify unrelated business errors.
   const businessError = payload as { errorCode?: unknown; errorMessage?: unknown } | null;
-  if (businessError?.errorCode === "100" && typeof businessError.errorMessage === "string" &&
-      /^Line Id .+ is not found in our database$/.test(businessError.errorMessage)) {
+  const errorCode =
+    businessError?.errorCode === undefined || businessError?.errorCode === null
+      ? ""
+      : String(businessError.errorCode).trim();
+  if (
+    errorCode === "100" &&
+    typeof businessError?.errorMessage === "string" &&
+    /^Line Id .+ is not found in our database$/.test(businessError.errorMessage)
+  ) {
     throw new SonyCustomerNotFoundError();
+  }
+  // Other business error codes on HTTP 200 map to the empty-products state.
+  if (errorCode && errorCode !== "100") {
+    throw new SonyProductsBusinessEmptyError();
   }
   if (Array.isArray((payload as SonyWarrantyApiResponse).prodDetails)) {
     return normalizeSonyWarrantyResponse(

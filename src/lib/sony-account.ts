@@ -8,8 +8,24 @@ export class SonyCustomerNotFoundError extends Error {
   }
 }
 
+/** HTTP 200 business error that is not customer-not-found (errorCode !== 100). */
+export class SonyProductsBusinessEmptyError extends Error {
+  code = 'SONY_PRODUCTS_BUSINESS_EMPTY';
+  safeMessage = 'No products are available for this account.';
+  constructor() {
+    super('Sony product API returned a non-100 business error.');
+    this.name = 'SonyProductsBusinessEmptyError';
+  }
+}
+
 export function isSonyCustomerNotFound(error: unknown): error is SonyCustomerNotFoundError {
   return error instanceof SonyCustomerNotFoundError;
+}
+
+export function isSonyProductsBusinessEmpty(
+  error: unknown,
+): error is SonyProductsBusinessEmptyError {
+  return error instanceof SonyProductsBusinessEmptyError;
 }
 
 export function createSonyAccountPlaceholder() {

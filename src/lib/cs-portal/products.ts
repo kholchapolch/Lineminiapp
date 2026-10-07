@@ -1,7 +1,12 @@
 import { createNoProductState } from './no-product-state';
 import type { AppConfig } from '@/lib/app-config';
 import { createSonyProductsClient } from '@/lib/sony-products-client';
-import { isSonyCustomerNotFound, createSonyAccountPlaceholder, type SonyAccountPlaceholder } from '@/lib/sony-account';
+import {
+  isSonyCustomerNotFound,
+  isSonyProductsBusinessEmpty,
+  createSonyAccountPlaceholder,
+  type SonyAccountPlaceholder,
+} from '@/lib/sony-account';
 
 export class PortalProductsUnavailableError extends Error {}
 export type PortalOwnedProduct = {
@@ -33,6 +38,15 @@ export async function getPortalProducts(config: AppConfig, lineuuid: string): Pr
     };
   } catch (error) {
     if (isSonyCustomerNotFound(error)) return { accountStatus: 'not_linked', productState: 'not_applicable', isMock, products: [], placeholder: createSonyAccountPlaceholder() };
+    if (isSonyProductsBusinessEmpty(error)) {
+      return {
+        accountStatus: 'linked',
+        productState: 'no_products',
+        isMock,
+        products: [],
+        emptyState: createNoProductState(),
+      };
+    }
     throw new PortalProductsUnavailableError('Sony products are temporarily unavailable.');
   }
 }
