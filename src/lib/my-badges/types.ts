@@ -23,3 +23,21 @@ export type MyBadgesData = {
   missionBadges: MyBadgeItem[];
   fetchedAt: string;
 };
+
+export type MyBadgesNoProductsResponse = {
+  accountStatus: "linked";
+  productState: "no_products";
+  emptyState: {
+    title: { th: string; en: string };
+    action: { label: { th: string; en: string } };
+  };
+};
+
+export type MyBadgesNotLinkedResponse = {
+  accountStatus: "not_linked";
+  placeholder: {
+    title: { th: string; en: string };
+    message: { th: string; en: string };
+    action: { label: { th: string; en: string } };
+  };
+};
