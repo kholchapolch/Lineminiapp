@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Database Update Summary (Part 3) — Sony Badge Pilot</title>
+  <style>
+
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code,
+#database-rule-update-guide-backup-command,
+#database-rule-update-guide-sql-product,
+#database-rule-update-guide-sql-quest {
+  background: none;
+  padding: 0;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 12px; color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+svg, img { max-width: 100%; height: auto; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#data-update-migration-script">Data Update Script</a>
+    <a href="#before-after-data-comparison">Before–After</a>
+    <a href="#backup-rollback-plan">Backup &amp; Rollback</a>
+    <a href="database-update-summary-part2.html">← กลับ Part 2</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>Database Update Summary (Part 3)</h1>
+      <p class="lede">ส่วนที่ 3 จาก 3 ของ <code>docs/database_update/</code> — สคริปต์ เทียบ และ backup</p>
+      <p>Migration/seed script, เทียบก่อน–หลัง และแผนสำรอง–ย้อนกลับ</p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li><a href="#data-update-migration-script">Data Update Script / Migration Script</a><span>สคริปต์อัปเดตข้อมูลและตำแหน่งเวอร์ชันกฎ</span></li>
+        <li><a href="#before-after-data-comparison">Before–After Data Comparison</a><span>เทียบข้อมูลกฎก่อน–หลังการอัปเดต seed</span></li>
+        <li><a href="#backup-rollback-plan">Backup &amp; Rollback Plan</a><span>แผนสำรองและย้อนกลับเมื่ออัปเดตข้อมูลผิดพลาด</span></li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        รัน migrate/seed ตามสคริปต์ ตรวจ before–after และมีแผน backup/rollback ก่อนลง UAT/production — คู่มือแนวคิด/SQL อยู่ใน Part 1–2
+      </div>
+    </header>
+
+<section class="doc" id="data-update-migration-script">
+  <p class="doc-source">แหล่งที่มา: <code>data-update-migration-script.html</code> — สคริปต์อัปเดตข้อมูลและตำแหน่งเวอร์ชันกฎ</p>
+  <header class="hero">
+        <h2 class="doc-heading">Data Update Script / Migration Script</h2>
+        <p class="lede">
+          Script ที่ใช้ปรับปรุงข้อมูล พร้อม Version และวิธีใช้งาน
+        </p>
+        <p>
+          ไม่มีตาราง <code>schema_migrations</code>
+          เวอร์ชันข้อมูลกฎอยู่ที่ <code>app_config.badge_rules_version</code>
+          ค่าปัจจุบันใน seed ทั้งสองชุด:
+          <code>2026-07-24-product-urls-001</code>
+        </p>
+      </header>
+
+      <section>
+        <h2>เวอร์ชัน (Version)</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ชั้น</th>
+                <th>ที่เก็บ</th>
+                <th>ค่าปัจจุบัน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Schema</td>
+                <td>ลำดับ statement ใน <code>scripts/db/migrate.mjs</code></td>
+                <td>ไม่มีเลขเวอร์ชันในฐาน — รันซ้ำได้ (idempotent)</td>
+              </tr>
+              <tr>
+                <td>Badge rules</td>
+                <td>
+                  <code>scripts/db/seed-data.mjs</code> และ
+                  <code>scripts/db/prod/seed-data.mjs</code>
+                  คีย์ <code>badge_rules_version</code>
+                </td>
+                <td><code>2026-07-24-product-urls-001</code></td>
+              </tr>
+              <tr>
+                <td>สำเนา SQL เก่าในรีโป</td>
+                <td><code>scripts/db/seed-all-rules_backup.sql</code></td>
+                <td><code>2026-07-20-confirmed-badge-rules-001</code> — ไม่ใช่แหล่งความจริง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          เมื่อแก้กฎ ระดับ หรือเงื่อนไข ต้อง bump <code>badge_rules_version</code>
+          ชุด default กับ prod ใช้สตริงเดียวกันทั้งที่แคตตาล็อกสินค้าต่างกันที่
+          <code>SEL1224GM</code> — อย่าใช้สตริงนี้แยกว่า seed ชุดไหนอยู่ในฐาน
+        </div>
+      </section>
+
+      <section>
+        <h2>รายการ script</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>คำสั่ง</th>
+                <th>ไฟล์</th>
+                <th>สิ่งที่ทำ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>npm run db:migrate</code></td>
+                <td><code>scripts/db/migrate.mjs</code></td>
+                <td>
+                  สร้างตาราง/คอลัมน์/index
+                  ALTER/INDEX ที่ซ้ำข้ามด้วย <code>ER_DUP_FIELDNAME</code> /
+                  <code>ER_DUP_KEYNAME</code>
+                  ไม่ลบแถว
+                </td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed</code></td>
+                <td><code>seed.mjs</code> + <code>seed-data.mjs</code></td>
+                <td>
+                  ธุรกรรมเดียว: upsert <code>app_config</code>
+                  ลบแล้วใส่ <code>badge_display_groups</code>
+                  upsert กฎ แล้วแทนที่ thresholds/conditions ของกฎที่ seed
+                  ลบกฎที่ไม่อยู่ในไฟล์ (CASCADE ลูก)
+                </td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:prod</code></td>
+                <td><code>seed.mjs --seed ./prod/seed-data.mjs</code></td>
+                <td>เหมือน seed แต่ใช้ชุด UAT/prod (URL รูป blob, มีเหรียญ SEL1224GM)</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:all</code> / <code>:prod</code></td>
+                <td><code>seed-all-rules.mjs</code></td>
+                <td>migrate → seed → verify ติดกัน</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql</code></td>
+                <td><code>generate-seed-sql.mjs</code></td>
+                <td>เขียน <code>seed-all-rules.sql</code> จาก seed (ไม่แตะฐาน)</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql:prod</code></td>
+                <td>generate + <code>--out ./prod/seed-all-rules.sql</code></td>
+                <td>สร้าง SQL ชุด prod — ไฟล์นี้ไม่ได้อยู่ในรีโปตอนจัดทำเอกสาร</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:seed:sql:check</code></td>
+                <td><code>generate-seed-sql.mjs --check</code></td>
+                <td>CI บังคับให้ SQL ที่ commit ตรง seed เริ่มต้น</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:verify</code> / <code>:prod</code></td>
+                <td><code>verify.mjs</code></td>
+                <td>เทียบ COUNT ตารางกับความยาวอาร์เรย์ใน seed และมีคีย์เวอร์ชัน</td>
+              </tr>
+              <tr>
+                <td><code>npm run db:reset</code></td>
+                <td><code>reset.mjs</code></td>
+                <td>
+                  DROP ตารางแอปทั้งหมดรวม <code>badge_calculation_logs</code>
+                  แล้ว migrate + seed ชุด default + verify — ใช้แค่ local
+                </td>
+              </tr>
+              <tr>
+                <td>regenerate prod seed</td>
+                <td><code>scripts/db/prod/generate-seed-data.mjs</code></td>
+                <td>
+                  อ่าน dump <code>uat_sony_table.sql</code>
+                  ไม่รันใน CI
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>วิธีใช้งาน</h2>
+        <h3>ข้อกำหนด</h3>
+        <ul>
+          <li><code>DATABASE_URL</code> รูปแบบ <code>mysql://user:pass@host:port/db</code> (ไม่มี secret ในเอกสารนี้)</li>
+          <li>Azure MySQL: <code>DATABASE_SSL=true</code> หรือ <code>?ssl=true</code> — ไม่ปิดการตรวจใบรับรอง</li>
+        </ul>
+        <h3>Local — ใส่กฎชุด default</h3>
+        <pre>export DATABASE_URL='mysql://sony:sony@127.0.0.1:3307/sony_badges'
+npm run db:migrate
+npm run db:seed
+npm run db:verify</pre>
+        <p>หรือ <code>npm run db:seed:all</code> / ล้างทั้ง schema: <code>npm run db:reset</code></p>
+        <h3>อัปเดตกฎในโค้ดแล้วส่งเข้าฐาน</h3>
+        <ol>
+          <li>แก้เฉพาะ <code>scripts/db/seed-data.mjs</code> (หรือ prod ตามสภาพแวดล้อม)</li>
+          <li>bump <code>badge_rules_version</code></li>
+          <li><code>npm run db:seed:sql</code> และ <code>npm run db:seed:sql:check</code></li>
+          <li>สำรองฐาน แล้ว <code>npm run db:seed</code> หรือ <code>db:seed:prod</code></li>
+          <li><code>npm run db:verify</code> หรือ <code>db:verify:prod</code></li>
+        </ol>
+        <h3>ทางเลือก SQL ด้วยมือ</h3>
+        <pre>npm run db:migrate
+# แล้ว import scripts/db/seed-all-rules.sql (ชุด default)
+npm run db:verify</pre>
+        <div class="note warn">
+          Push แอปไป UAT ไม่รัน migrate/seed
+          workflow ตรวจแค่ <code>db:seed:sql:check</code> กับเทส/lint/build
+          ผู้ปฏิบัติการต้องรัน script ต่อ Azure MySQL จากโฮสต์ที่เข้าถึงได้
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="before-after-data-comparison">
+  <p class="doc-source">แหล่งที่มา: <code>before-after-data-comparison.html</code> — เทียบข้อมูลกฎก่อน–หลังการอัปเดต seed</p>
+  <header class="hero">
+        <h2 class="doc-heading">Before–After Data Comparison</h2>
+        <p class="lede">
+          เปรียบเทียบข้อมูลก่อนและหลัง Update จากไฟล์ในรีโป ไม่ใช่ dump ของฐาน UAT ณ เวลาจริง
+        </p>
+      </header>
+
+      <section>
+        <h2>A. Seed SQL ที่ commit — 20 ก.ค. เทียบ 24 ก.ค. 2026</h2>
+        <p>
+          ก่อน: <code>scripts/db/seed-all-rules_backup.sql</code>
+          (<code>2026-07-20-confirmed-badge-rules-001</code>)
+          หลัง: <code>scripts/db/seed-all-rules.sql</code> จาก
+          <code>seed-data.mjs</code>
+          (<code>2026-07-24-product-urls-001</code>)
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>จำนวนแถวในไฟล์ generated (ชุด default)</caption>
+            <thead>
+              <tr>
+                <th>ตาราง</th>
+                <th>Before (backup SQL)</th>
+                <th>After (ปัจจุบัน)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>badge_display_groups</td>
+                <td>6</td>
+                <td>6 (ชุดกลุ่มเดียวกัน)</td>
+              </tr>
+              <tr>
+                <td>badge_rules</td>
+                <td>64</td>
+                <td>64 (รหัสกฎชุดเดียวกัน ไม่มี product-sel1224gm)</td>
+              </tr>
+              <tr>
+                <td>badge_rule_thresholds</td>
+                <td>70</td>
+                <td>70</td>
+              </tr>
+              <tr>
+                <td>badge_rule_conditions</td>
+                <td>66</td>
+                <td>66</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>เนื้อหาที่เปลี่ยนแม้จำนวนแถวเท่ากัน</caption>
+            <thead>
+              <tr>
+                <th>ฟิลด์</th>
+                <th>Before</th>
+                <th>After</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>badge_rules_version</td>
+                <td>2026-07-20-confirmed-badge-rules-001</td>
+                <td>2026-07-24-product-urls-001</td>
+              </tr>
+              <tr>
+                <td>ชื่อแสดงเหรียญสินค้า (display_name / threshold)</td>
+                <td>รหัสรุ่น เช่น SEL100M28GM</td>
+                <td>ชื่อการตลาด เช่น FE 100 mm.F2.8 Macro GM OSS</td>
+              </tr>
+              <tr>
+                <td>รูป achieved / share</td>
+                <td><code>/mock/my-product/badge-hero.svg</code> (ไฟล์เดียวกันทุกสินค้า)</td>
+                <td>
+                  <code>/product-badge/{MODEL}.png</code> และ
+                  <code>/quest-badge/{stem}.png</code>
+                </td>
+              </tr>
+              <tr>
+                <td>product_url</td>
+                <td>มีคอลัมน์ใน SQL แล้ว (ค่ายังขึ้นกับไฟล์ backup)</td>
+                <td>URL หน้าสินค้า Sony Thailand ตาม map ใน seed</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>B. ชุด default เทียบชุด prod (ไฟล์ seed ปัจจุบัน)</h2>
+        <p>
+          ทั้งคู่ประกาศเวอร์ชันเดียวกัน
+          <code>2026-07-24-product-urls-001</code>
+        </p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>Default (<code>seed-data.mjs</code>)</th>
+                <th>Prod (<code>prod/seed-data.mjs</code>)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>กลุ่มแสดงผล</td>
+                <td>6</td>
+                <td>6</td>
+              </tr>
+              <tr>
+                <td>กฎทั้งหมด</td>
+                <td>64 (สินค้า 56 + ภารกิจ 8)</td>
+                <td>65 (สินค้า 57 + ภารกิจ 8)</td>
+              </tr>
+              <tr>
+                <td>thresholds / conditions</td>
+                <td>70 / 66</td>
+                <td>71 / 67</td>
+              </tr>
+              <tr>
+                <td>เหรียญสินค้า SEL1224GM</td>
+                <td>ไม่มี — รุ่นนี้อยู่แค่เงื่อนไข Wide Architect</td>
+                <td>มี <code>product-sel1224gm</code></td>
+              </tr>
+              <tr>
+                <td>path รูปสินค้า</td>
+                <td>สัมพัทธ์ <code>/product-badge/…</code></td>
+                <td>
+                  URL เต็มไปยัง Azure blob (โฮสต์ตาม dump)
+                  path มีชื่อโฟลเดอร์กลุ่มที่ encode แล้ว
+                </td>
+              </tr>
+              <tr>
+                <td>ภารกิจ 8 รายการและขั้น</td>
+                <td>ชุดเดียวกัน</td>
+                <td>ชุดเดียวกัน (เกณฑ์และ SKU ภารกิจตรงกัน รวม Wide Architect มี SEL1224GM)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          รัน <code>db:seed</code> (default) ทับฐานที่เคย seed ด้วย prod จะ
+          <strong>ลบ</strong> <code>product-sel1224gm</code>
+          เพราะกฎที่ไม่อยู่ในไฟล์ที่เลือกจะถูกลบ
+        </div>
+      </section>
+
+      <section>
+        <h2>C. Schema ก่อน–หลัง migrate (idempotent)</h2>
+        <p>
+          ฐานว่าง: ได้ตารางครบตาม <code>migrate.mjs</code>
+          รวมคอลัมน์ <code>display_group_code</code>, <code>product_model_code</code>,
+          <code>product_url</code>, <code>share_image_url</code> และ index ที่ระบุ
+        </p>
+        <p>
+          ฐานที่มีตารางเก่าแล้ว: CREATE ข้ามถ้ามีอยู่ ALTER ที่ซ้ำถูกกลืน
+          แถวข้อมูลเดิมไม่ถูกลบจนกว่าจะ seed
+        </p>
+        <p>
+          Seed ไม่แตะ <code>badge_calculation_logs</code>
+          <code>db:reset</code> ลบตารางนี้ด้วย
+        </p>
+      </section>
+
+      <section>
+        <h2>วิธีเทียบบนฐานจริงหลังอัปเดต</h2>
+        <ul>
+          <li>
+            ก่อนรัน: บันทึก
+            <code>SELECT value FROM app_config WHERE \`key\` = 'badge_rules_version'</code>
+            และ COUNT ของสี่ตารางกฎ
+          </li>
+          <li>
+            หลังรัน: <code>npm run db:verify</code> หรือ <code>db:verify:prod</code>
+            ตามไฟล์ที่เพิ่ง seed
+          </li>
+          <li>
+            ตรวจว่ามีหรือไม่มี <code>product-sel1224gm</code> ให้ตรงชุดที่ตั้งใจ
+          </li>
+        </ul>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="backup-rollback-plan">
+  <p class="doc-source">แหล่งที่มา: <code>backup-rollback-plan.html</code> — แผนสำรองและย้อนกลับเมื่ออัปเดตข้อมูลผิดพลาด</p>
+  <header class="hero">
+        <h2 class="doc-heading">Backup &amp; Rollback Plan</h2>
+        <p class="lede">
+          วิธีสำรองและย้อนกลับข้อมูล หากพบปัญหา
+        </p>
+        <p>
+          Seed ทำงานในธุรกรรม: ถ้า script ล้มจะ <code>rollback</code> การเปลี่ยนแปลงรอบนั้น
+          ถ้า commit แล้วแล้วพบว่ากฎผิด ต้องกู้จากสำเนาหรือ seed เวอร์ชันก่อนใน Git
+          <strong>ไม่มี</strong> คำสั่ง rollback อัตโนมัติใน npm
+        </p>
+      </header>
+
+      <section>
+        <h2>สิ่งที่ seed ทำลายได้</h2>
+        <ul>
+          <li>แทนที่กลุ่มแสดงผลทั้งตาราง</li>
+          <li>ลบ thresholds/conditions ของกฎที่ถูก seed แล้วใส่ใหม่</li>
+          <li>ลบกฎที่ไม่อยู่ในไฟล์ seed (ลูกถูกลบด้วย ON DELETE CASCADE)</li>
+          <li>ไม่ลบ <code>badge_calculation_logs</code></li>
+        </ul>
+        <div class="note warn">
+          <code>npm run db:reset</code> DROP ตารางแอปทั้งหมดรวมปูมคำนวณ
+          ห้ามใช้บน UAT/production
+        </div>
+      </section>
+
+      <section>
+        <h2>สำรองก่อนอัปเดต (Backup)</h2>
+        <p>
+          ใช้ mysqldump หรือเครื่องมือเทียบเท่าของ Azure
+          ใส่โฮสต์/ผู้ใช้จากสภาพแวดล้อม ไม่ commit ไฟล์ที่มีรหัสผ่าน
+        </p>
+        <pre>mysqldump --single-transaction --set-gtid-purged=OFF \
+  -h &lt;host&gt; -P &lt;port&gt; -u &lt;user&gt; -p \
+  --ssl-mode=REQUIRED \
+  &lt;database&gt; \
+  app_config badge_display_groups badge_rules \
+  badge_rule_thresholds badge_rule_conditions \
+  &gt; badge-rules-backup-$(date +%Y%m%d-%H%M).sql
+
+# ถ้าต้องการเก็บปูมคำนวณด้วย
+mysqldump --single-transaction \
+  -h &lt;host&gt; -P &lt;port&gt; -u &lt;user&gt; -p \
+  --ssl-mode=REQUIRED \
+  &lt;database&gt; badge_calculation_logs \
+  &gt; badge-calculation-logs-backup-$(date +%Y%m%d-%H%M).sql</pre>
+        <p>จดควบคู่: Git SHA ของแอป, ไฟล์ seed ที่จะรัน (default หรือ prod), ค่า <code>badge_rules_version</code> ก่อนเปลี่ยน</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>สิ่งที่อยู่ในรีโป</th>
+                <th>ใช้ย้อนฐานได้หรือไม่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>scripts/db/seed-all-rules_backup.sql</code></td>
+                <td>
+                  เป็น snapshot ของ generated SQL เก่า (รูป mock SVG)
+                  ไม่ใช่ dump ของ Azure
+                  ใช้ย้อน “ชุดกฎใน Git” ได้ถ้าตั้งใจกลับไปเวอร์ชันนั้น
+                </td>
+              </tr>
+              <tr>
+                <td><code>scripts/db/uat_sony_table.sql</code></td>
+                <td>
+                  dump อ้างอิง ณ วันที่ในไฟล์
+                  ไม่รับประกันว่าตรงฐานปัจจุบัน
+                </td>
+              </tr>
+              <tr>
+                <td>Git history ของ <code>seed-data.mjs</code> / <code>prod/seed-data.mjs</code></td>
+                <td>
+                  ย้อนโค้ดแล้วรัน <code>db:seed</code> / <code>db:seed:prod</code> ใหม่
+                  จะเขียนทับกฎให้ตรงไฟล์นั้น
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>ย้อนกลับ (Rollback)</h2>
+        <ol>
+          <li>หยุดการ seed ซ้ำถ้ายังไม่เสร็จ</li>
+          <li>
+            กู้จากไฟล์ dump ที่ถ่ายก่อนอัปเดต
+            (restore เฉพาะตารางกฎ หรือทั้งฐานตามขอบเขตที่สำรอง)
+          </li>
+          <li>
+            ทางเลือก: checkout ไฟล์ seed เวอร์ชันก่อน แล้ว
+            <code>npm run db:seed</code> หรือ <code>db:seed:prod</code>
+            — จะลบกฎที่เพิ่มในเวอร์ชันใหม่ถ้าไม่มีในไฟล์เก่า
+          </li>
+          <li>
+            <code>npm run db:verify</code> ให้ตรงไฟล์ที่ใช้ย้อน
+          </li>
+          <li>
+            ตรวจ <code>badge_rules_version</code> และเคสที่ยืนยันแล้ว
+            (เช่น มี/ไม่มี <code>product-sel1224gm</code>)
+          </li>
+        </ol>
+        <pre># ตัวอย่าง restore ตารางกฎ (ปรับตามเครื่องมือที่อนุญาต)
+mysql --ssl-mode=REQUIRED -h &lt;host&gt; -P &lt;port&gt; -u &lt;user&gt; -p &lt;database&gt; \
+  &lt; badge-rules-backup-YYYYMMDD-HHMM.sql</pre>
+        <div class="note warn">
+          ถ้า restore ทับตารางที่มี FK ให้ทำตามลำดับที่ dump กำหนด หรือปิดตรวจ FK ชั่วคราวเฉพาะหน้าต่าง restore ที่ควบคุมได้
+          อย่า seed ชุด default ทับ UAT ที่ต้องมี SEL1224GM เป็นเหรียญสินค้า
+        </div>
+      </section>
+
+      <section>
+        <h2>เมื่อ seed ล้มระหว่างรัน</h2>
+        <p>
+          <code>seed.mjs</code> เรียก <code>beginTransaction</code> และ
+          <code>rollback</code> เมื่อ throw
+          ฐานควรกลับไปสถานะก่อนคำสั่งนั้น
+          จากนั้นแก้ข้อมูล seed หรือการเชื่อมต่อ แล้วยิงใหม่
+          ไม่ต้อง restore ถ้าธุรกรรมไม่ถูก commit
+        </p>
+        <p>
+          ไฟล์ SQL ที่ generate ใช้ <code>START TRANSACTION</code> / <code>COMMIT</code>
+          การ import ที่ล้มครึ่งทางขึ้นกับไคลเอนต์ — ถ้าไม่แน่ใจให้ restore จาก dump
+        </p>
+      </section>
+
+      <section>
+        <h2>Schema rollback</h2>
+        <p>
+          <code>migrate.mjs</code> ไม่มี down migration
+          คอลัมน์ที่เพิ่มแล้วจะไม่ถูกลบด้วยการรัน migrate ซ้ำ
+          ถ้าต้องถอดคอลัมน์ ต้องมี ALTER ด้วยมือและแผนทดสอบแยก
+          โดยทั่วไปการย้อนกฎไม่ต้องถอด schema
+        </p>
+      </section>
+</section>
+
+  </main>
+</body>
+</html>

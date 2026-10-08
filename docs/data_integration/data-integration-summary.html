@@ -1,0 +1,1736 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Integration Summary — Sony Badge Pilot</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+.req { color: #9b1c1c; font-weight: 700; }
+.opt { color: var(--muted); }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 12px; color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+svg, img { max-width: 100%; height: auto; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#integration-specification">Integration Specification</a>
+<a href="#api-specification">API Specification</a>
+<a href="#product-data-mapping">Product Data Mapping</a>
+<a href="#error-handling-retry-flow">Error Handling &amp; Retry Flow</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>Data Integration Summary</h1>
+      <p class="lede">
+        รวมและสรุปเอกสารในโฟลเดอร์ <code>docs/data_integration/</code>
+        เป็นไฟล์เดียวสำหรับอ่าน/แชร์
+      </p>
+      <p>
+        ครอบคลุมการเชื่อมต่อ Sony / LINE, สเปก API, การแมปข้อมูลสินค้า
+        และ flow การจัดการ error / retry
+      </p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li><a href="#integration-specification">Integration Specification</a><span>สเปกการเชื่อมต่อระบบภายนอก (Sony / LINE / session)</span></li>
+<li><a href="#api-specification">API Specification / ICD</a><span>สเปก API / Interface Control Document ของแอป</span></li>
+<li><a href="#product-data-mapping">Product Data Mapping</a><span>แมปฟิลด์ Sony warranty API → แอป → กฎเหรียญ</span></li>
+<li><a href="#error-handling-retry-flow">Error Handling &amp; Retry Flow</a><span>การจัดการ error และการ retry ของ integration</span></li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        แอปดึงสินค้าจาก Sony warranty API ด้วย LINE ID,
+        แมป SKU เข้ากฎเหรียญใน MySQL, เปิดเผยผลผ่าน API ของแอปเอง
+        และมีแผนจัดการ error / retry เมื่อ integration ล้มเหลว
+      </div>
+    </header>
+    
+<section class="doc" id="integration-specification">
+  <p class="doc-source">แหล่งที่มา: <code>integration-specification.html</code> — สเปกการเชื่อมต่อระบบภายนอก (Sony / LINE / session)</p>
+  <header class="hero">
+        <h2 class="doc-heading">Integration Specification</h2>
+        <p class="lede">
+          ขอบเขตการเชื่อมต่อ ระบบต้นทาง–ปลายทาง วิธีรับส่งข้อมูล และความถี่ในการเชื่อมต่อ
+          ของ Sony Badge Pilot ตามที่โค้ดเรียกจริง
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#integration-specification-scope">ขอบเขต</a></li>
+            <li><a href="#integration-specification-matrix">ต้นทาง–ปลายทาง</a></li>
+            <li><a href="#integration-specification-contracts">สัญญาข้อมูล</a></li>
+            <li><a href="#integration-specification-frequency">ความถี่</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="integration-specification-scope">
+        <h2>ขอบเขตการเชื่อมต่อ (Scope)</h2>
+        <p>
+          ระบบนี้เป็น synchronous request/response ไม่มี message queue, webhook เข้า, หรือ batch job
+          การเชื่อมต่อรันไทม์มีสี่เส้นทางหลัก
+        </p>
+        <div class="grid">
+          <div class="box">
+            <strong>อยู่ในขอบเขต</strong>
+            LINE LIFF (ไคลเอนต์), LINE ID token verify (เซิร์ฟเวอร์),
+            Sony warranty APIM, MySQL กฎเหรียญ
+          </div>
+          <div class="box">
+            <strong>นอกขอบเขต API</strong>
+            ผู้ใช้กดไปเว็บ Sony (บัญชี / ลงทะเบียน / microsite) เป็นการนำทางเบราว์เซอร์
+            แอปไม่ส่ง LINE ID ติด query
+          </div>
+          <div class="box">
+            <strong>ไม่เชื่อมต่อ</strong>
+            ไม่มี CMS, ไม่เรียก Facebook Graph จากเซิร์ฟเวอร์,
+            ไม่มี webhook จาก Sony เมื่อลูกค้าลงทะเบียนสินค้าใหม่
+          </div>
+        </div>
+        <div class="note">
+          โหมด <code>SONY_PRODUCT_API_MODE=mock</code> ไม่เรียก APIM
+          ใช้ข้อมูลจำลองในโปรเซส ใช้ได้ตามที่ตั้งค่า (local / หรือ UAT ที่ยังเป็น mock)
+        </div>
+      </section>
+
+      <section id="integration-specification-matrix">
+        <h2>ระบบต้นทาง–ปลายทาง</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Integration catalog</caption>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>ต้นทาง (Source)</th>
+                <th>ปลายทาง (Destination)</th>
+                <th>โปรโตคอล</th>
+                <th>ทิศทาง</th>
+                <th>จุดประสงค์</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>INT-01</td>
+                <td>LIFF / Mini App</td>
+                <td>LINE Platform</td>
+                <td>LIFF SDK ใน webview</td>
+                <td>ไคลเอนต์ ↔ LINE</td>
+                <td>init LIFF, ขอ ID token และโปรไฟล์</td>
+              </tr>
+              <tr>
+                <td>INT-02</td>
+                <td>Mini App</td>
+                <td>Omelet Next.js</td>
+                <td>HTTPS JSON</td>
+                <td>ไคลเอนต์ → แอป</td>
+                <td>
+                  <code>POST /api/line-session</code>,
+                  <code>GET /api/my-*</code>
+                </td>
+              </tr>
+              <tr>
+                <td>INT-03</td>
+                <td>Omelet Next.js</td>
+                <td>LINE Login</td>
+                <td>HTTPS <code>application/x-www-form-urlencoded</code></td>
+                <td>แอป → LINE</td>
+                <td>verify ID token แลก LINE user ID (<code>sub</code>)</td>
+              </tr>
+              <tr>
+                <td>INT-04</td>
+                <td>Omelet Next.js</td>
+                <td>Sony Azure APIM</td>
+                <td>HTTPS JSON + subscription key</td>
+                <td>แอป → Sony → แอป</td>
+                <td>ดึงสินค้าที่ลูกค้าลงทะเบียนด้วย LINE ID</td>
+              </tr>
+              <tr>
+                <td>INT-05</td>
+                <td>Omelet Next.js</td>
+                <td>Azure MySQL</td>
+                <td>MySQL / TLS</td>
+                <td>แอป ↔ DB</td>
+                <td>อ่านกฎเหรียญ; เขียน log hash บนเส้นทาง legacy</td>
+              </tr>
+              <tr>
+                <td>INT-06</td>
+                <td>Mini App (ผู้ใช้)</td>
+                <td>Sony websites</td>
+                <td>HTTPS navigation</td>
+                <td>เบราว์เซอร์ → Sony</td>
+                <td>บัญชี, ลงทะเบียนสินค้า, หน้า digital-badge</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="integration-specification-contracts">
+        <h2>วิธีรับส่งข้อมูล (Contracts)</h2>
+
+        <h3>INT-01 LINE LIFF</h3>
+        <p>
+          ไลบรารี <code>@line/liff</code> ใช้ <code>NEXT_PUBLIC_LIFF_ID</code>
+          เรียก <code>liff.init</code>, <code>liff.getIDToken()</code>, <code>liff.getProfile()</code>
+          ต้องอยู่ภายใน LINE client
+        </p>
+
+        <h3>INT-03 LINE verify</h3>
+        <p>
+          ค่าเริ่มต้น URL:
+          <code>https://api.line.me/oauth2/v2.1/verify</code>
+          (ปรับได้ด้วย <code>LINE_VERIFY_ID_TOKEN_URL</code>)
+        </p>
+        <pre>POST
+Content-Type: application/x-www-form-urlencoded
+
+id_token=&lt;LIFF ID token&gt;
+client_id=&lt;LINE_CHANNEL_ID&gt;</pre>
+        <p>
+          แอปใช้ <code>sub</code> เป็น LINE user ID และตรวจ <code>aud</code> ให้ตรงช่อง
+          ไม่ persist ID token
+        </p>
+
+        <h3>INT-02 Mini App ↔ Omelet</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>API</th>
+                <th>Method</th>
+                <th>ข้อมูลเข้า</th>
+                <th>ข้อมูลออก</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/api/line-session</code></td>
+                <td>POST JSON</td>
+                <td><code>{ "idToken": "..." }</code></td>
+                <td><code>{ "ok": true }</code> + cookie <code>sony_line_session</code></td>
+              </tr>
+              <tr>
+                <td><code>/api/my-badges</code> เป็นต้น</td>
+                <td>GET</td>
+                <td>query <code>lineuuid</code>, บางเส้นมี <code>locale</code></td>
+                <td>JSON เหรียญ/สินค้า/ภารกิจ; ไม่มีตัวตนถ้าไม่ส่ง lineuuid (ชั้นล็อก)</td>
+              </tr>
+              <tr>
+                <td><code>/api/customer-products</code></td>
+                <td>GET</td>
+                <td>cookie session (เส้นทาง diagnostic)</td>
+                <td>shelf แบบตัด PII; อาจมี cache hint</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>INT-04 Sony warranty APIM</h3>
+        <p>
+          URL มาจาก <code>SONY_PRODUCT_API_BASE_URL</code>
+          ตัวอย่างสภาพแวดล้อมพัฒนา:
+          <code>https://apim-rcap-dev.azure-api.net/mysony-api/QueryWarrantyMySonyByLine</code>
+        </p>
+        <pre>POST
+Accept: application/json
+Content-Type: application/json
+Ocp-Apim-Subscription-Key: &lt;server-only secret&gt;
+
+{
+  "countryCode": "th",
+  "lineId": "&lt;LINE user ID&gt;"
+}</pre>
+        <p>รูปแบบตอบที่แอปแปลงใช้:</p>
+        <pre>{
+  "prodDetails": [
+    {
+      "lineId": "U...",
+      "serialNumber": "1000003",
+      "modelName": "ZV-E10M2/BQ AP2",
+      "registrationDate": "2026-03-25",
+      "warrantyExpiryDate": "2027-06-23"
+    }
+  ]
+}</pre>
+        <p>
+          แอป map <code>modelName</code> เป็น SKU ภายใน
+          HTTP 404 ตีความเป็นลูกค้าไม่พบ
+          <code>cache: "no-store"</code> ทุกครั้ง
+        </p>
+
+        <h3>INT-05 MySQL</h3>
+        <p>
+          เชื่อมด้วย <code>DATABASE_URL</code> (โปรโตคอล <code>mysql:</code>)
+          UAT ต้องเปิด TLS
+          อ่าน <code>badge_rules</code> และตารางลูก
+          ไม่ได้เก็บ ownership ของลูกค้า
+        </p>
+
+        <h3>INT-06 เว็บ Sony</h3>
+        <p>
+          <code>NEXT_PUBLIC_ACCOUNT_URL</code>,
+          <code>NEXT_PUBLIC_REGISTER_PRODUCT_URL</code>,
+          และลิงก์ inquiry ไป
+          <code>https://www.sony.co.th/microsite/digital-badge/</code>
+          ไม่มี request body จากเซิร์ฟเวอร์แอป
+        </p>
+      </section>
+
+      <section id="integration-specification-frequency">
+        <h2>ความถี่ในการเชื่อมต่อ (Frequency)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>ไม่มี scheduler — เกิดตามการกระทำของผู้ใช้</caption>
+            <thead>
+              <tr>
+                <th>Integration</th>
+                <th>ทริกเกอร์</th>
+                <th>ความถี่โดยประมาณ</th>
+                <th>Cache / จำกัดซ้ำ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>INT-01 LIFF</td>
+                <td>โหลด Mini App / <code>LineSessionProvider</code></td>
+                <td>ครั้งต่อแท็บจนกว่า session ในหน้าพร้อม</td>
+                <td>init LIFF ใช้ promise รวมในโมดูล; โปรไฟล์เก็บใน sessionStorage ของแท็บ</td>
+              </tr>
+              <tr>
+                <td>INT-03 LINE verify</td>
+                <td><code>POST /api/line-session</code></td>
+                <td>ครั้งเมื่อสร้างหรือต่ออายุ session จาก LIFF</td>
+                <td>cookie อายุ 1 ชั่วโมง ไม่ได้ refresh อัตโนมัติเป็นพื้นหลัง</td>
+              </tr>
+              <tr>
+                <td>INT-04 Sony APIM</td>
+                <td>ทุกครั้งที่ <code>/api/my-*</code> มี <code>lineuuid</code> (และเส้นทาง customer-products แบบ cache miss)</td>
+                <td>ต่อหน้า / ต่อการ fetch ของไคลเอนต์ ไม่มี polling</td>
+                <td>ไคลเอนต์ my-* ใช้ <code>cache: "no-store"</code> จึงเรียก Sony ใหม่ทุกโหลด</td>
+              </tr>
+              <tr>
+                <td>INT-05 MySQL อ่านกฎ</td>
+                <td>คู่กับคำนวณเหรียญ</td>
+                <td>ต่อ request ที่ต้องใช้กฎ</td>
+                <td>cache ในโปรเซส 60 วินาที ตาม <code>badge_rules_version</code></td>
+              </tr>
+              <tr>
+                <td>INT-05 เขียน log</td>
+                <td>เส้นทาง <code>getBadgeResultForLineUuid</code> (legacy shelf)</td>
+                <td>ต่อครั้งที่คำนวณเส้นนั้น</td>
+                <td>หน้า Mini App หลักไม่เขียนตารางนี้</td>
+              </tr>
+              <tr>
+                <td>INT-06 เว็บ Sony</td>
+                <td>ผู้ใช้กดปุ่ม</td>
+                <td>ตามการใช้งาน ไม่ใช่ตามรอบเวลา</td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          ไม่มี inbound webhook เมื่อลูกค้าเพิ่งลงทะเบียนสินค้าที่ Sony
+          เหรียญจะอัปเดตเมื่อผู้ใช้เปิด Mini App แล้วแอปเรียก warranty API รอบใหม่
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="api-specification">
+  <p class="doc-source">แหล่งที่มา: <code>api-specification.html</code> — สเปก API / Interface Control Document ของแอป</p>
+  <header class="hero">
+        <h2 class="doc-heading">API Specification / Interface Control Document</h2>
+        <p class="lede">
+          Endpoint, method, header, parameter, request, response, authentication
+          และ error code ของ HTTP API ที่แอปนี้เปิดไว้ (Next.js App Router ภายใต้ <code>/api</code>)
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#api-specification-conventions">ข้อตกลงร่วม</a></li>
+            <li><a href="#api-specification-auth">Authentication</a></li>
+            <li><a href="#api-specification-errors">Error code</a></li>
+            <li><a href="#api-specification-health">GET /api/health</a></li>
+            <li><a href="#api-specification-line-session">POST /api/line-session</a></li>
+            <li><a href="#api-specification-mock-session">GET /api/mock-session</a></li>
+            <li><a href="#api-specification-my-badges">GET /api/my-badges</a></li>
+            <li><a href="#api-specification-my-products">GET /api/my-products</a></li>
+            <li><a href="#api-specification-my-product">GET /api/my-products/{productId}</a></li>
+            <li><a href="#api-specification-my-missions">GET /api/my-missions</a></li>
+            <li><a href="#api-specification-my-mission">GET /api/my-missions/{missionId}</a></li>
+            <li><a href="#api-specification-customer-products">GET /api/customer-products</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="api-specification-conventions">
+        <h2>ข้อตกลงร่วม</h2>
+        <ul>
+          <li>Base path คือ origin ของแอป เช่น <code>https://stglineminiapp.sony.co.th</code></li>
+          <li>JSON ใช้ <code>Content-Type: application/json</code></li>
+          <li>ไม่มี version prefix เช่น <code>/v1</code></li>
+          <li>ไม่มี CORS header พิเศษ — คาดว่าเรียก same-origin จาก Mini App</li>
+          <li>ไคลเอนต์ Mini App ส่ง <code>cache: "no-store"</code> เมื่อเรียก <code>/api/my-*</code></li>
+        </ul>
+        <div class="tableWrap">
+          <table>
+            <caption>รายการ endpoint</caption>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Auth</th>
+                <th>ใช้โดย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/health</code></td>
+                <td>ไม่มี</td>
+                <td>ตรวจสุขภาพ deploy</td>
+              </tr>
+              <tr>
+                <td>POST</td>
+                <td><code>/api/line-session</code></td>
+                <td>LINE ID token ใน body</td>
+                <td>สร้าง cookie session</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/mock-session</code></td>
+                <td>local + mock เท่านั้น</td>
+                <td>จำลองสินค้าด้วย SKU</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-badges</code></td>
+                <td>query <code>lineuuid</code></td>
+                <td>หน้าแรก Mini App</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-products</code></td>
+                <td>query <code>lineuuid</code> (ว่าง = ชั้นล็อก)</td>
+                <td>รายการเหรียญผลิตภัณฑ์</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-products/{productId}</code></td>
+                <td>query <code>lineuuid</code></td>
+                <td>รายละเอียดเหรียญที่ปลดล็อก</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-missions</code></td>
+                <td>query <code>lineuuid</code> (ว่าง = ชั้นล็อก)</td>
+                <td>รายการภารกิจ</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/my-missions/{missionId}</code></td>
+                <td>query <code>lineuuid</code> (ว่าง = ชั้นล็อก)</td>
+                <td>รายละเอียดภารกิจ</td>
+              </tr>
+              <tr>
+                <td>GET</td>
+                <td><code>/api/customer-products</code></td>
+                <td>cookie session</td>
+                <td>เส้นทาง diagnostic / legacy shelf</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="api-specification-auth">
+        <h2>Authentication</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>แบบ</th>
+                <th>ตำแหน่ง</th>
+                <th>รายละเอียด</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>LINE ID token</td>
+                <td>JSON body <code>idToken</code></td>
+                <td>เซิร์ฟเวอร์ verify กับ LINE แล้วตั้ง cookie ไม่คืน LINE ID ใน JSON</td>
+              </tr>
+              <tr>
+                <td>Cookie <code>sony_line_session</code></td>
+                <td>Header <code>Cookie</code></td>
+                <td>HttpOnly, SameSite=Lax, อายุ 1 ชม. ใช้กับ <code>/entry</code> และ <code>/api/customer-products</code></td>
+              </tr>
+              <tr>
+                <td>Query <code>lineuuid</code></td>
+                <td>URL query</td>
+                <td>ใช้กับ <code>/api/my-*</code> ในปัจจุบัน <strong>ไม่ตรวจ cookie</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Mini App ส่ง LINE user ID ใน query ของ XHR
+          นี่คือสัญญาที่ใช้จริง ไม่ใช่โมเดลที่แนะนำด้านความปลอดภัย
+        </div>
+      </section>
+
+      <section id="api-specification-errors">
+        <h2>Error code</h2>
+        <p>เมื่อล้มเหลว บอดี้เป็น JSON:</p>
+        <pre>{
+  "code": "UNAUTHORIZED",
+  "message": "LINE session is required."
+}</pre>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>HTTP</th>
+                <th>code</th>
+                <th>message (ที่ส่งให้ไคลเอนต์)</th>
+                <th>เมื่อไหร่</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>400</td>
+                <td><code>MISSING_ID_TOKEN</code></td>
+                <td>LINE ID token is required.</td>
+                <td>body ไม่มี <code>idToken</code> ที่เป็นสตริงไม่ว่าง</td>
+              </tr>
+              <tr>
+                <td>400</td>
+                <td><code>MISSING_SKU</code></td>
+                <td>At least one SKU is required.</td>
+                <td>mock-session ไม่มี query <code>sku</code></td>
+              </tr>
+              <tr>
+                <td>401</td>
+                <td><code>UNAUTHORIZED</code></td>
+                <td>LINE session is required. (หรือข้อความ verify ไม่ผ่าน)</td>
+                <td>ไม่มี/คุกกี้ไม่ถูกต้อง, token หมดอายุ, aud ไม่ตรง</td>
+              </tr>
+              <tr>
+                <td>404</td>
+                <td><code>NOT_FOUND</code></td>
+                <td>Not found. / Product badge not found. / Mission badge not found.</td>
+                <td>mock-session นอก local; สินค้า/ภารกิจไม่มีหรือยังไม่ปลดล็อก</td>
+              </tr>
+              <tr>
+                <td>404</td>
+                <td><code>CUSTOMER_NOT_FOUND</code></td>
+                <td>Customer profile was not found.</td>
+                <td>Sony APIM คืน 404 — ใช้บน <code>/api/customer-products</code></td>
+              </tr>
+              <tr>
+                <td>500</td>
+                <td><code>SONY_PRODUCT_API_ERROR</code></td>
+                <td>Badge data is temporarily unavailable.</td>
+                <td>warranty API ไม่สำเร็จหรือรูปแบบไม่ถูก</td>
+              </tr>
+              <tr>
+                <td>500</td>
+                <td><code>UNKNOWN_ERROR</code></td>
+                <td>Something went wrong. Please try again later.</td>
+                <td>ข้อผิดพลาดที่ไม่มี <code>safeMessage</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <code>/api/my-products</code> และ <code>/api/my-missions</code> เมื่อ error มักคืนชั้นล็อก 200 แทน error JSON
+          <code>/api/my-badges</code> คืน error JSON ตามตาราง
+        </p>
+      </section>
+
+      <section id="api-specification-health">
+        <h2>GET /api/health</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>ค่า</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Authentication</td>
+                <td>ไม่มี</td>
+              </tr>
+              <tr>
+                <td>Header</td>
+                <td>ไม่มีที่บังคับ</td>
+              </tr>
+              <tr>
+                <td>Parameter</td>
+                <td>ไม่มี</td>
+              </tr>
+              <tr>
+                <td>Request body</td>
+                <td>ไม่มี</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre>200
+{ "status": "ok", "runtime": "nodejs" }</pre>
+      </section>
+
+      <section id="api-specification-line-session">
+        <h2>POST /api/line-session</h2>
+        <div class="tableWrap">
+          <table>
+            <tbody>
+              <tr>
+                <td>Authentication</td>
+                <td>LINE ID token ใน body (ยังไม่มี cookie ตอนเรียกครั้งแรก)</td>
+              </tr>
+              <tr>
+                <td>Header</td>
+                <td><code>Content-Type: application/json</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre>Request
+{ "idToken": "&lt;liff.getIDToken()&gt;" }
+
+Response 200
+Set-Cookie: sony_line_session=&lt;payload&gt;.&lt;hmac&gt;; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600; Secure
+{ "ok": true }</pre>
+        <p><code>Secure</code> ไม่ถูกใส่เมื่อ <code>APP_ENV=local</code></p>
+      </section>
+
+      <section id="api-specification-mock-session">
+        <h2>GET /api/mock-session</h2>
+        <p>ใช้ได้เฉพาะ <code>APP_ENV=local</code> และ <code>SONY_PRODUCT_API_MODE=mock</code> นอกนั้น 404</p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>ที่อยู่</th>
+                <th>Required</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sku</code></td>
+                <td>query (ซ้ำได้)</td>
+                <td>อย่างน้อย 1</td>
+                <td>รหัสรุ่นจำลอง</td>
+              </tr>
+              <tr>
+                <td><code>locale</code></td>
+                <td>query</td>
+                <td>ไม่</td>
+                <td><code>th</code> หรือ <code>en</code> ค่าเริ่มต้น <code>th</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>สำเร็จ: 302 ไป <code>/{locale}/my-badges</code> พร้อมตั้ง cookie session ของ mock LINE UUID</p>
+      </section>
+
+      <section id="api-specification-my-badges">
+        <h2>GET /api/my-badges</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>ที่อยู่</th>
+                <th>Required</th>
+                <th>ความหมาย</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>lineuuid</code></td>
+                <td>query</td>
+                <td>ควรมี (ว่างแล้วยังเรียก Sony ด้วยสตริงว่าง)</td>
+                <td>LINE user ID — ไม่ตรวจ cookie</td>
+              </tr>
+              <tr>
+                <td><code>locale</code></td>
+                <td>query</td>
+                <td>ไม่</td>
+                <td><code>th</code> / <code>en</code> ไม่ใช่ค่าที่รองรับจะใช้ <code>th</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre>200
+{
+  "profile": {
+    "channelName": "sony-thailand",
+    "lineDisplayName": "Sony Customer",
+    "linePictureUrl": null,
+    "handle": "",
+    "isVerified": true,
+    "isOnline": true,
+    "productBadgeCount": 1,
+    "productBadgeTotal": 10,
+    "missionBadgeCount": 2,
+    "missionBadgeTotal": 12
+  },
+  "productBadges": [{ "id": "product-sel2470gm2", "title": "...", "imageUrl": "/product-badge/SEL2470GM2.png" }],
+  "missionBadges": [{ "id": "portrait-master-gold", "title": "...", "imageUrl": "/quest-badge/portrait-gold.png" }],
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+      </section>
+
+      <section id="api-specification-my-products">
+        <h2>GET /api/my-products</h2>
+        <p>query <code>lineuuid</code> ไม่บังคับ — ถ้าว่างคืนชั้นล็อกทุกชิ้น โดยไม่เรียก Sony</p>
+        <pre>200
+{
+  "categories": [
+    {
+      "id": "prime-lens",
+      "items": [
+        {
+          "id": "product-sel35f14gm",
+          "title": "FE 35mm F1.4 GM",
+          "imageUrl": "/product-badge/SEL35F14GM.png",
+          "categoryId": "prime-lens",
+          "status": "unlocked"
+        }
+      ]
+    }
+  ],
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+        <p>
+          <code>categoryId</code>:
+          <code>full-frame-camera</code>,
+          <code>prime-lens</code>,
+          <code>wide-normal-zoom-lens</code>,
+          <code>telephoto-super-telephoto-lens</code>,
+          <code>macro-lens</code>
+        </p>
+        <p><code>status</code>: <code>locked</code> | <code>unlocked</code></p>
+      </section>
+
+      <section id="api-specification-my-product">
+        <h2>GET /api/my-products/{productId}</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>ที่อยู่</th>
+                <th>Required</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>productId</code></td>
+                <td>path</td>
+                <td>ใช่ — เช่น <code>product-sel2470gm2</code> (<code>badge_code</code>)</td>
+              </tr>
+              <tr>
+                <td><code>lineuuid</code></td>
+                <td>query</td>
+                <td>ควรมี เพื่อให้ปลดล็อกได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>คืน 404 ถ้าไม่มีกฎ หรือยังไม่ปลดล็อก</p>
+        <pre>200
+{
+  "product": {
+    "id": "product-sel2470gm2",
+    "title": "FE 24-70mm F2.8 GM II",
+    "badgeImageUrl": "/product-badge/SEL2470GM2.png",
+    "shareImageUrl": "/product-badge/SEL2470GM2.png",
+    "unlockedAt": "2026-05-20",
+    "quantity": 1,
+    "registrations": [
+      { "serialNumber": "SN-001", "registeredAt": "2026-05-20" }
+    ]
+  },
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+      </section>
+
+      <section id="api-specification-my-missions">
+        <h2>GET /api/my-missions</h2>
+        <p>query <code>lineuuid</code> ไม่บังคับ — ว่างหรือ error ฝั่ง Sony มักได้ 200 ชั้นล็อก</p>
+        <pre>200
+{
+  "sections": [
+    {
+      "id": "portrait-master",
+      "tiers": [
+        {
+          "id": "portrait-master-bronze",
+          "imageUrl": "/quest-badge/portrait-bronze.png",
+          "progress": 2,
+          "target": 2,
+          "status": "achieved"
+        }
+      ]
+    }
+  ],
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+        <p><code>status</code> ของ tier: <code>achieved</code> | <code>in-progress</code> | <code>locked</code></p>
+      </section>
+
+      <section id="api-specification-my-mission">
+        <h2>GET /api/my-missions/{missionId}</h2>
+        <p>path <code>missionId</code> คือ <code>{badge_code}-{level}</code> เช่น <code>the-visionary-gold</code> หรือ <code>trinity-master-achievement</code></p>
+        <pre>200
+{
+  "mission": {
+    "id": "portrait-master-gold",
+    "sectionId": "portrait-master",
+    "level": "gold",
+    "tierTitle": "Portrait Master Gold",
+    "tierCount": 3,
+    "badgeImageUrl": "/quest-badge/portrait-gold.png",
+    "shareImageUrl": "/quest-badge/portrait-gold.png",
+    "progress": 4,
+    "target": 4,
+    "unlockedAt": "2026-06-01",
+    "tickets": [
+      {
+        "id": "portrait-master-gold-ticket-1",
+        "productCode": "SEL35F14GM",
+        "title": "FE 35mm F1.4 GM",
+        "imageUrl": "/product-badge/SEL35F14GM.png",
+        "status": "completed",
+        "productUrl": "https://www.sony.co.th/..."
+      }
+    ]
+  },
+  "fetchedAt": "2026-08-19T00:00:00.000Z"
+}</pre>
+        <p>ticket <code>status</code>: <code>completed</code> | <code>pending</code> — ไม่มีซีเรียลใน response นี้</p>
+      </section>
+
+      <section id="api-specification-customer-products">
+        <h2>GET /api/customer-products</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>รายการ</th>
+                <th>ค่า</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Authentication</td>
+                <td>Cookie <code>sony_line_session</code> บังคับ (ยกเว้น local debug+mock ที่อนุญาต query <code>lineuuid</code>)</td>
+              </tr>
+              <tr>
+                <td>Header (ไม่บังคับ)</td>
+                <td>
+                  <code>x-badge-cache-customer-key</code>,
+                  <code>x-badge-cache-sku-hash</code>,
+                  <code>x-badge-cache-rules-version</code>
+                  — ถ้าตรงกับ metadata ปัจจุบันได้ <code>cacheStatus: "hit"</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Query</td>
+                <td><code>debug=1</code> เปิด trace นอก production; <code>lineuuid</code> ใช้ได้เฉพาะ local mock+debug</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Response ตัด PII: ไม่มี <code>lineuuid</code>, ไม่มีรายการสินค้าดิบ, ไม่มีซีเรียล</p>
+        <pre>200 cache miss
+{
+  "cacheStatus": "miss",
+  "customer": {
+    "displayName": "Sony Customer",
+    "lineDisplayName": null,
+    "linePictureUrl": null
+  },
+  "productCount": 3,
+  "supportMessage": "Please contact Sony Thailand support if badge data looks incorrect.",
+  "badges": [
+    {
+      "code": "product-sel2470gm2",
+      "name": "...",
+      "type": "product",
+      "description": "...",
+      "status": "earned",
+      "progress": 100,
+      "remainingCount": 0,
+      "matchedCount": 1,
+      "requiredCount": 1,
+      "imageUrl": "...",
+      "level": "achievement"
+    }
+  ],
+  "badgeShelf": [],
+  "cache": {
+    "customerCacheKey": "&lt;hmac hex&gt;",
+    "skuHash": "&lt;sha256 hex&gt;",
+    "rulesVersion": "2026-07-24-product-urls-001",
+    "calculatedAt": "2026-08-19T00:00:00.000Z"
+  }
+}</pre>
+        <p>
+          <code>badges[].status</code>: <code>earned</code> | <code>locked</code> | <code>no-badge</code>
+          shelf <code>status</code>: <code>achieved</code> | <code>available</code>
+        </p>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="product-data-mapping">
+  <p class="doc-source">แหล่งที่มา: <code>product-data-mapping.html</code> — แมปฟิลด์ Sony warranty API → แอป → กฎเหรียญ</p>
+  <header class="hero">
+        <h2 class="doc-heading">Product Data Mapping</h2>
+        <p class="lede">
+          การ map Product Model, Product Name, Category, Serial Number
+          และฟิลด์ที่ใช้คำนวณ Badge จาก Sony warranty API ไปยังกฎเหรียญ
+        </p>
+        <p>
+          แหล่งรายการรุ่น: <code>scripts/db/seed-data.mjs</code>
+          เวอร์ชันกฎ <code>2026-07-24-product-urls-001</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#product-data-mapping-fields">Field mapping</a></li>
+            <li><a href="#product-data-mapping-calc">ข้อมูลที่ใช้คำนวณ</a></li>
+            <li><a href="#product-data-mapping-catalog">รายการรุ่น × หมวด</a></li>
+            <li><a href="#product-data-mapping-quest">SKU ที่ใช้ใน Quest</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="product-data-mapping-fields">
+        <h2>Field mapping</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>Sony API → ฟิลด์ภายใน → การใช้</caption>
+            <thead>
+              <tr>
+                <th>คำธุรกิจ</th>
+                <th>Sony warranty</th>
+                <th>ฟิลด์ในแอป</th>
+                <th>กฎเหรียญใน DB</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Product Model</td>
+                <td><code>prodDetails[].modelName</code></td>
+                <td>
+                  <code>sku</code> และ <code>modelName</code> (ค่าเดียวกันจาก warranty)
+                  เทียบกับรหัสรุ่นในกฎหลัง normalize (uppercase, trim, suffix)
+                </td>
+                <td>
+                  <code>badge_rules.product_model_code</code>
+                  และ <code>badge_rule_conditions.sony_skus</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Product Name</td>
+                <td>ไม่มีฟิลด์ชื่อทางการตลาดใน warranty response</td>
+                <td>ใช้ <code>badge_rules.badge_name</code> เป็นชื่อบน UI</td>
+                <td>ใส่ตอน seed เช่น <code>FE 24-70mm F2.8 GM II</code></td>
+              </tr>
+              <tr>
+                <td>Category</td>
+                <td>ไม่มีหมวดจาก Sony API</td>
+                <td>
+                  <code>displayGroupCode</code> ของกฎ
+                  เช่น <code>prime-lens</code>
+                </td>
+                <td>
+                  <code>badge_rules.display_group_code</code>
+                  ↔ <code>badge_display_groups.group_code</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Serial Number</td>
+                <td><code>prodDetails[].serialNumber</code></td>
+                <td><code>serialNumber</code></td>
+                <td>ไม่เก็บในกฎ</td>
+              </tr>
+              <tr>
+                <td>วันลงทะเบียน</td>
+                <td><code>prodDetails[].registrationDate</code></td>
+                <td><code>registeredAt</code></td>
+                <td>เทียบกับ <code>registration_start</code> / <code>registration_end</code></td>
+              </tr>
+              <tr>
+                <td>วันหมดประกัน</td>
+                <td><code>warrantyExpiryDate</code></td>
+                <td>ไม่ map</td>
+                <td>ไม่ใช้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          Warranty ไม่มี SKU แยกจากชื่อรุ่น แอปจึงใช้ <code>modelName</code> เป็นรหัสเทียบ
+          ค่าในกฎต้องเป็นรหัสรุ่นแกน เช่น <code>SEL2470GM2</code>
+          ไม่ใช่สตริงเต็มอย่าง <code>SEL2470GM2/QSYX</code>
+        </div>
+      </section>
+
+      <section id="product-data-mapping-calc">
+        <h2>ข้อมูลที่ใช้คำนวณ Badge</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ฟิลด์</th>
+                <th>เหรียญผลิตภัณฑ์</th>
+                <th>เหรียญ Quest / Mission</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Product Model (<code>sku</code>)</td>
+                <td class="use">ใช้ — ต้อง match <code>sony_skus</code> ของกฎนั้น (มักมีรุ่นเดียว)</td>
+                <td class="use">ใช้ — นับรุ่นที่อยู่ใน Eligible Product ของแต่ละ condition</td>
+              </tr>
+              <tr>
+                <td>Product Name</td>
+                <td class="skip">ไม่ใช้คำนวณ ใช้แสดงชื่อ</td>
+                <td class="skip">ไม่ใช้คำนวณ</td>
+              </tr>
+              <tr>
+                <td>Category</td>
+                <td class="skip">ไม่ใช้คำนวณ ใช้จัดกลุ่มบน UI</td>
+                <td class="skip">quest อยู่กลุ่ม <code>quest</code></td>
+              </tr>
+              <tr>
+                <td>Serial Number</td>
+                <td>
+                  <span class="use">ใช้ปลดล็อก</span> ถ้ามีอย่างน้อยหนึ่งซีเรียลที่รุ่นตรง
+                  <code>quantity</code> = จำนวนซีเรียล
+                  ไม่ได้ใช้ซีเรียลเป็นรหัสเทียบ
+                </td>
+                <td class="skip">ไม่นับซ้ำต่อซีเรียล — นับรุ่นไม่ซ้ำ (unique SKU) ต่อเงื่อนไข</td>
+              </tr>
+              <tr>
+                <td>วันลงทะเบียน</td>
+                <td class="use">ต้องอยู่ในหน้าต่างลงทะเบียนของกฎ ถ้ากฎกำหนดไว้ (seed ปัจจุบันเป็น null = ไม่จำกัด)</td>
+                <td class="use">เช่นเดียวกันก่อนนับ matched count</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>กฎการเทียบรุ่น</h3>
+        <ul>
+          <li>uppercase + trim</li>
+          <li>เท่ากับรหัสในกฎ หรือขึ้นต้นด้วยรหัสนั้นแล้วส่วนที่เหลือเป็น suffix แคตตาล็อก เช่น <code>/QSYX</code>, <code> SYX</code>, <code>QSYX</code></li>
+          <li><code>SEL70200GM</code> ไม่ถือว่า match <code>SEL70200G</code></li>
+        </ul>
+        <div class="grid">
+          <div class="box">
+            <strong>ตัวอย่าง warranty → กฎ</strong>
+            <code>modelName: "SEL2470GM2/QSYX"</code>
+            → sku ภายในเป็นสตริงนั้น
+            → match กฎ <code>product-sel2470gm2</code> ที่ <code>sony_skus: ["SEL2470GM2"]</code>
+          </div>
+          <div class="box">
+            <strong>ซีเรียลสองตัวรุ่นเดียวกัน</strong>
+            เหรียญผลิตภัณฑ์: ปลดล็อก, quantity = 2, รายการ registrations สองแถว
+            Quest: นับ 1 รุ่นในเงื่อนไขนั้น
+          </div>
+        </div>
+      </section>
+
+      <section id="product-data-mapping-catalog">
+        <h2>รายการรุ่น × หมวด (Product catalog)</h2>
+        <p>
+          Category มาจากกลุ่มแสดงผล ไม่ใช่จาก Sony
+          <code>badge_code</code> = <code>product-</code> + รหัสรุ่นตัวพิมพ์เล็ก
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>Full Frame Camera (<code>full-frame-camera</code>)</caption>
+            <thead>
+              <tr>
+                <th>Product Model</th>
+                <th>Product Name</th>
+                <th>badge_code</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>ILCE-1M2</td><td>Alpha 1 II</td><td>product-ilce-1m2</td></tr>
+              <tr><td>ILCE-9M3</td><td>Alpha 9 III</td><td>product-ilce-9m3</td></tr>
+              <tr><td>ILCE-7RM5</td><td>Alpha 7R V</td><td>product-ilce-7rm5</td></tr>
+              <tr><td>ILCE-7M5</td><td>Alpha 7 V</td><td>product-ilce-7m5</td></tr>
+              <tr><td>ILCE-7M4</td><td>Alpha 7 IV</td><td>product-ilce-7m4</td></tr>
+              <tr><td>ILCE-7M3</td><td>Alpha 7 III</td><td>product-ilce-7m3</td></tr>
+              <tr><td>ILCE-7CM2</td><td>Alpha 7C II</td><td>product-ilce-7cm2</td></tr>
+              <tr><td>ILCE-7C</td><td>Alpha 7C</td><td>product-ilce-7c</td></tr>
+              <tr><td>ILCE-7CR</td><td>Alpha 7CR</td><td>product-ilce-7cr</td></tr>
+              <tr><td>ILCE-7SM3</td><td>Alpha 7S III</td><td>product-ilce-7sm3</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>Prime Lens (<code>prime-lens</code>)</caption>
+            <thead>
+              <tr>
+                <th>Product Model</th>
+                <th>Product Name</th>
+                <th>badge_code</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>SEL30M35</td><td>E 30mm F3.5 Macro</td><td>product-sel30m35</td></tr>
+              <tr><td>SEL135F18GM</td><td>FE 135mm F1.8 GM</td><td>product-sel135f18gm</td></tr>
+              <tr><td>SEL14F18GM</td><td>FE 14mm F1.8 GM</td><td>product-sel14f18gm</td></tr>
+              <tr><td>SEL16F18G</td><td>FE 16mm F1.8 G</td><td>product-sel16f18g</td></tr>
+              <tr><td>SEL20F18G</td><td>FE 20mm F1.8 G</td><td>product-sel20f18g</td></tr>
+              <tr><td>SEL24F14GM</td><td>FE 24mm F1.4 GM</td><td>product-sel24f14gm</td></tr>
+              <tr><td>SEL24F28G</td><td>FE 24mm F2.8 G</td><td>product-sel24f28g</td></tr>
+              <tr><td>SEL35F14GM</td><td>FE 35mm F1.4 GM</td><td>product-sel35f14gm</td></tr>
+              <tr><td>SEL35F18F</td><td>FE 35mm F1.8</td><td>product-sel35f18f</td></tr>
+              <tr><td>SEL50F12GM</td><td>FE 50mm F1.2 GM</td><td>product-sel50f12gm</td></tr>
+              <tr><td>SEL50F14GM</td><td>FE 50mm F1.4 GM</td><td>product-sel50f14gm</td></tr>
+              <tr><td>SEL50M28</td><td>FE 50mm F2.8 Macro</td><td>product-sel50m28</td></tr>
+              <tr><td>SEL85F14GM</td><td>FE 85mm F1.4 GM</td><td>product-sel85f14gm</td></tr>
+              <tr><td>SEL85F14GM2</td><td>FE 85mm F1.4 GM II</td><td>product-sel85f14gm2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>Wide &amp; Normal Zoom Lens (<code>wide-normal-zoom-lens</code>)</caption>
+            <thead>
+              <tr>
+                <th>Product Model</th>
+                <th>Product Name</th>
+                <th>badge_code</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>SEL1655G</td><td>E 16-55mm F2.8 G</td><td>product-sel1655g</td></tr>
+              <tr><td>SEL55210</td><td>E 55-210mm F4.5-6.3 OSS</td><td>product-sel55210</td></tr>
+              <tr><td>SELP18110G</td><td>E PZ 18-110mm F4 G OSS</td><td>product-selp18110g</td></tr>
+              <tr><td>SEL1625G</td><td>FE 16-25mm F2.8 G</td><td>product-sel1625g</td></tr>
+              <tr><td>SEL1635GM</td><td>FE 16-35mm F2.8 GM</td><td>product-sel1635gm</td></tr>
+              <tr><td>SEL1635GM2</td><td>FE 16-35mm F2.8 GM II</td><td>product-sel1635gm2</td></tr>
+              <tr><td>SEL2070G</td><td>FE 20-70mm F4 G</td><td>product-sel2070g</td></tr>
+              <tr><td>SEL24105G</td><td>FE 24-105mm F4 G OSS</td><td>product-sel24105g</td></tr>
+              <tr><td>SEL2450G</td><td>FE 24-50mm F2.8 G</td><td>product-sel2450g</td></tr>
+              <tr><td>SEL2470GM</td><td>FE 24-70mm F2.8 GM</td><td>product-sel2470gm</td></tr>
+              <tr><td>SEL2470GM2</td><td>FE 24-70mm F2.8 GM II</td><td>product-sel2470gm2</td></tr>
+              <tr><td>SEL2870GM</td><td>FE 28-70mm F2 GM</td><td>product-sel2870gm</td></tr>
+              <tr><td>SEL50150GM</td><td>FE 50-150 mm.F2 GM</td><td>product-sel50150gm</td></tr>
+              <tr><td>SELC1635G</td><td>FE C 16-35mm T3.1 G</td><td>product-selc1635g</td></tr>
+              <tr><td>SELP1635G</td><td>FE PZ 16-35mm F4 G</td><td>product-selp1635g</td></tr>
+              <tr><td>SELP28135G</td><td>FE PZ 28-135mm F4 G OSS</td><td>product-selp28135g</td></tr>
+              <tr><td>SEL1635Z</td><td>Vario-Tessar T* FE 16-35mm F4 ZA OSS</td><td>product-sel1635z</td></tr>
+              <tr><td>SEL2470Z</td><td>Vario-Tessar T* FE 24-70mm F4 ZA OSS</td><td>product-sel2470z</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>Telephoto &amp; Super Telephoto Lens (<code>telephoto-super-telephoto-lens</code>)</caption>
+            <thead>
+              <tr>
+                <th>Product Model</th>
+                <th>Product Name</th>
+                <th>badge_code</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>SEL70350G</td><td>E 70-350mm F4.5-6.3 G OSS</td><td>product-sel70350g</td></tr>
+              <tr><td>SEL100400MC</td><td>FE 100-400 mm.F4.5 GM OSS</td><td>product-sel100400mc</td></tr>
+              <tr><td>SEL100400GM</td><td>FE 100-400mm F4.5-5.6 GM OSS</td><td>product-sel100400gm</td></tr>
+              <tr><td>SEL200600G</td><td>FE 200-600mm F5.6-6.3 G OSS</td><td>product-sel200600g</td></tr>
+              <tr><td>SEL300F28GM</td><td>FE 300mm F2.8 GM OSS</td><td>product-sel300f28gm</td></tr>
+              <tr><td>SEL400800G</td><td>FE 400-800 mm.F6.3-8 G OSS</td><td>product-sel400800g</td></tr>
+              <tr><td>SEL400F28GM</td><td>FE 400mm F2.8 GM OSS</td><td>product-sel400f28gm</td></tr>
+              <tr><td>SEL600F40GM</td><td>FE 600mm F4 GM OSS</td><td>product-sel600f40gm</td></tr>
+              <tr><td>SEL70200GM</td><td>FE 70-200mm F2.8 GM OSS</td><td>product-sel70200gm</td></tr>
+              <tr><td>SEL70200GM2</td><td>FE 70-200mm F2.8 GM OSS II</td><td>product-sel70200gm2</td></tr>
+              <tr><td>SEL70200G</td><td>FE 70-200mm F4 G OSS</td><td>product-sel70200g</td></tr>
+              <tr><td>SEL70200G2</td><td>FE 70-200mm F4 Macro G OSS II</td><td>product-sel70200g2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <caption>Macro Lens (<code>macro-lens</code>) — กลุ่มบนชั้นเหรียญผลิตภัณฑ์</caption>
+            <thead>
+              <tr>
+                <th>Product Model</th>
+                <th>Product Name</th>
+                <th>badge_code</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>SEL100M28GM</td><td>FE 100 mm.F2.8 Macro GM OSS</td><td>product-sel100m28gm</td></tr>
+              <tr><td>SEL90M28G</td><td>FE 90mm F2.8 Macro G OSS</td><td>product-sel90m28g</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          SEL30M35 และ SEL50M28 อยู่ในหมวด Prime บนชั้นผลิตภัณฑ์
+          แต่ยังเป็น Eligible Product ของ quest The Magnifier
+        </div>
+      </section>
+
+      <section id="product-data-mapping-quest">
+        <h2>SKU ที่ใช้คำนวณ Quest (ไม่มีหมวดจาก Sony)</h2>
+        <p>รุ่นเดียวกันไปได้ทั้งเหรียญผลิตภัณฑ์และ quest ตามรายการใน <code>sony_skus</code></p>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Quest</th>
+                <th>Eligible Product Models</th>
+                <th>วิธีนับ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Portrait Master</td>
+                <td>SEL35F14GM, SEL50F14GM, SEL50F12GM, SEL85F14GM, SEL85F14GM2, SEL100M28GM, SEL135F18GM</td>
+                <td>unique SKU, bronze 2 / silver 3 / gold 4</td>
+              </tr>
+              <tr>
+                <td>Wide Architect</td>
+                <td>SEL1224GM และรายการ wide/prime ที่ seed กำหนด (รวม SEL2470GM, SEL35F14GM เป็นต้น)</td>
+                <td>unique SKU, bronze 3 / silver 4 / gold 5</td>
+              </tr>
+              <tr>
+                <td>The Visionary</td>
+                <td>SEL100400GM, SEL400800G, SEL200600G, SEL300F28GM, SEL400F28GM, SEL600F40GM, SEL70350G, SEL55210, SEL100400MC</td>
+                <td>unique SKU, bronze 2 / silver 3 / gold 4</td>
+              </tr>
+              <tr>
+                <td>Trinity Master</td>
+                <td>16-35 GM: SEL1635GM, SEL1635GM2 · 24-70 GM: SEL2470GM, SEL2470GM2 · 70-200 GM: SEL70200GM, SEL70200GM2</td>
+                <td>any 1 ต่อตระกูล รวม 3</td>
+              </tr>
+              <tr>
+                <td>Trinity Junior</td>
+                <td>SEL2450G, SEL1625G, SEL70200G2</td>
+                <td>all 3 รุ่น</td>
+              </tr>
+              <tr>
+                <td>All Rounder</td>
+                <td>SEL2070G, SELP1635G, SEL1635Z, SEL70200G</td>
+                <td>min 3 จาก 4</td>
+              </tr>
+              <tr>
+                <td>F2 Master</td>
+                <td>SEL2870GM, SEL50150GM</td>
+                <td>all 2 รุ่น</td>
+              </tr>
+              <tr>
+                <td>The Magnifier</td>
+                <td>SEL100M28GM, SEL90M28G, SEL50M28, SEL30M35</td>
+                <td>any 1 รุ่น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          <code>SEL1224GM</code> อยู่ใน Wide Architect แต่ไม่มีแถวเหรียญผลิตภัณฑ์ใน catalog ด้านบน
+          รุ่นนี้ยังนับ quest ได้ถ้า warranty ส่ง modelName ที่ match
+        </div>
+      </section>
+</section>
+<hr class='doc-sep' />
+<section class="doc" id="error-handling-retry-flow">
+  <p class="doc-source">แหล่งที่มา: <code>error-handling-retry-flow.html</code> — การจัดการ error และการ retry ของ integration</p>
+  <header class="hero">
+        <h2 class="doc-heading">Error Handling &amp; Retry Flow</h2>
+        <p class="lede">
+          วิธีจัดการเมื่อเชื่อมต่อไม่สำเร็จ การ Retry และการบันทึก Log
+          ของ LINE, Sony APIM, MySQL และ Mini App API
+        </p>
+        <p>
+          สถานะปัจจุบัน: <strong>ไม่มีการ retry / backoff ในแอป</strong>
+          แต่ละการเรียกภายนอกเป็นครั้งเดียว (single attempt)
+          ความล้มเหลวถูก map เป็นรหัสปลอดภัย หรือแสดงแคตตาล็อกล็อก
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#error-handling-retry-flow-policy">นโยบาย (Policy)</a></li>
+            <li><a href="#error-handling-retry-flow-retry">Retry</a></li>
+            <li><a href="#error-handling-retry-flow-flow">ลำดับเมื่อล้มเหลว (Failure flow)</a></li>
+            <li><a href="#error-handling-retry-flow-codes">รหัสข้อผิดพลาด (Error codes)</a></li>
+            <li><a href="#error-handling-retry-flow-surfaces">พฤติกรรมต่อ API</a></li>
+            <li><a href="#error-handling-retry-flow-logs">การบันทึก Log</a></li>
+            <li><a href="#error-handling-retry-flow-gaps">ช่องว่าง (Gaps)</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="error-handling-retry-flow-policy">
+        <h2>นโยบาย (Policy)</h2>
+        <div class="grid">
+          <div class="box">
+            <strong>ไม่เปิดเผยรายละเอียดภายใน</strong>
+            JSON สาธารณะใช้ <code>toSafeError</code>
+            ข้อความทั่วไป เช่น “temporarily unavailable”
+            ไม่ส่ง stack, token, หรือ serial
+          </div>
+          <div class="box">
+            <strong>ไม่ retry อัตโนมัติ</strong>
+            ไม่มี loop, ไม่มี exponential backoff, ไม่มี queue
+            ผู้ใช้ต้องโหลดหน้าใหม่ หรือเข้าหน้าอีกครั้ง
+          </div>
+          <div class="box">
+            <strong>สองแบบการตอบผู้ใช้</strong>
+            <code>/api/customer-products</code> ส่ง HTTP error ·
+            <code>/api/my-products</code> และรายการภารกิจส่วนใหญ่
+            พยายามคืนหน้าล็อกแทน
+          </div>
+        </div>
+        <p>
+          การเชื่อมต่อที่อาจล้ม: LIFF init, LINE verify ID token, Sony
+          <code>QueryWarrantyMySonyByLine</code>, MySQL กฎเหรียญ
+          ไม่มี webhook / job ที่ retry ภายหลัง
+        </p>
+      </section>
+
+      <section id="error-handling-retry-flow-retry">
+        <h2>Retry</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>สิ่งที่มีและไม่มี (What exists)</caption>
+            <thead>
+              <tr>
+                <th>ชั้น (Layer)</th>
+                <th>Retry ในโค้ด</th>
+                <th>พฤติกรรมจริง (Actual behavior)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sony APIM <code>fetch</code></td>
+                <td class="none">ไม่มี</td>
+                <td>
+                  ครั้งเดียว · ไม่มี <code>AbortSignal</code> · ไม่มี timeout ในแอป
+                </td>
+              </tr>
+              <tr>
+                <td>LINE verify ID token</td>
+                <td class="none">ไม่มี</td>
+                <td>
+                  HTTP ไม่สำเร็จ → <code>UNAUTHORIZED</code> ทันที
+                </td>
+              </tr>
+              <tr>
+                <td>LIFF <code>liff.init</code></td>
+                <td class="ok">รีเซ็ต promise เมื่อล้ม</td>
+                <td>
+                  ครั้งถัดไปที่เรียก <code>getCurrentLiffClient</code> จะ init ใหม่
+                  ไม่ใช่ retry ภายในครั้งเดียว
+                </td>
+              </tr>
+              <tr>
+                <td>ไคลเอนต์ Mini App</td>
+                <td class="none">ไม่มีปุ่ม retry อัตโนมัติ</td>
+                <td>
+                  <code>useLineSessionData</code> fetch ครั้งเดียวต่อ
+                  <code>lineUuid</code> · ยกเลิกด้วย AbortController เมื่อ unmount
+                </td>
+              </tr>
+              <tr>
+                <td>MySQL pool</td>
+                <td class="skip">ไม่ใช่ retry ของธุรกิจ</td>
+                <td>
+                  <code>waitForConnections: true</code>,
+                  <code>connectionLimit: 10</code>
+                  คิวรอ connection ในพูล ไม่ลอง query ซ้ำเมื่อ query ล้ม
+                </td>
+              </tr>
+              <tr>
+                <td>เขียน <code>badge_calculation_logs</code></td>
+                <td class="none">ไม่ retry</td>
+                <td>
+                  <code>.catch(() =&gt; undefined)</code> ทิ้งความล้มเหลวของการเขียน log
+                  เพื่อไม่ให้บังหน้าผลคำนวณ
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          คำว่า “Please try again later” ใน <code>UNKNOWN_ERROR</code>
+          เป็นข้อความผู้ใช้ ไม่ได้หมายความว่าเซิร์ฟเวอร์จะลองใหม่ให้
+        </div>
+      </section>
+
+      <section id="error-handling-retry-flow-flow">
+        <h2>ลำดับเมื่อเชื่อมต่อไม่สำเร็จ (Failure flow)</h2>
+        <h3>Sony warranty (INT-04)</h3>
+        <pre class="flow">getCustomerProducts(lineId)
+  │
+  ├─ ไม่มี subscription key → SONY_PRODUCT_API_ERROR
+  ├─ HTTP 404              → CUSTOMER_NOT_FOUND
+  ├─ HTTP อื่นที่ไม่ใช่ 2xx → SONY_PRODUCT_API_ERROR
+  ├─ payload ไม่ครบ        → SONY_PRODUCT_API_ERROR
+  └─ เครือข่ายค้าง/timeout ของแพลตฟอร์ม
+                           → ไม่มีรหัส TIMEOUT (กลายเป็น UNKNOWN หรือ API error)</pre>
+        <h3>เส้นทางคำนวณเหรียญแบบมี log</h3>
+        <p>
+          เฉพาะ <code>getBadgeResultForLineUuid</code>
+          (ใช้โดย <code>GET /api/customer-products</code>)
+        </p>
+        <pre class="flow">try Sony + MySQL rules + calculate
+  ├─ สำเร็จ → writeBadgeCalculationLog (hash, นับ SKU, สรุปเหรียญ)
+  │           .catch เงียบถ้า DB เขียนไม่ได้
+  └─ ล้ม    → writeBadgeCalculationLog (error_code, error_message ที่ปลอดภัย)
+             แล้ว throw ต่อ → HTTP 401 / 404 / 500</pre>
+        <h3>เส้นทาง Mini App (my-*)</h3>
+        <pre class="flow">GET /api/my-products | /api/my-missions
+  ├─ ไม่มี lineuuid     → แคตตาล็อกล็อก (ไม่เรียก Sony)
+  ├─ Sony/DB ล้ม         → พยายามแคตตาล็อกล็อก HTTP 200
+  └─ โหลดกฎล็อกไม่ได้   → 500 { code, message }
+
+GET /api/my-badges
+  └─ ล้ม → 500 ทันที (ไม่มี fallback ล็อกใน route นี้)
+           และ console.log locale + lineuuid ดิบ
+
+GET /api/my-products/[id] | /api/my-missions/[id]
+  ├─ ไม่พบรหัสในกฎ      → 404 NOT_FOUND
+  └─ Sony ล้ม (detail)   → mission มี fallback ล็อก; product detail ส่ง 500</pre>
+        <h3>LINE session</h3>
+        <pre class="flow">LIFF getIDToken → POST /api/line-session
+  ├─ ไม่มี idToken        → 400 MISSING_ID_TOKEN
+  ├─ LINE verify ไม่ผ่าน  → 401 UNAUTHORIZED
+  └─ ข้อผิดพลาดอื่น       → 500 UNKNOWN_ERROR
+ไคลเอนต์: response ไม่ ok → throw "LINE session could not be verified."
+getLineProfile จาก LIFF ล้ม → คืน null (ไม่บล็อกเซสชัน)</pre>
+      </section>
+
+      <section id="error-handling-retry-flow-codes">
+        <h2>รหัสข้อผิดพลาด (Error codes)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>รหัสที่ไคลเอนต์อาจเห็น (Public codes)</caption>
+            <thead>
+              <tr>
+                <th>code</th>
+                <th>HTTP โดยทั่วไป</th>
+                <th>สาเหตุ (Cause)</th>
+                <th>ข้อความปลอดภัย (safeMessage)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>MISSING_ID_TOKEN</code></td>
+                <td>400</td>
+                <td>body ไม่มี <code>idToken</code></td>
+                <td>LINE ID token is required.</td>
+              </tr>
+              <tr>
+                <td><code>UNAUTHORIZED</code></td>
+                <td>401</td>
+                <td>
+                  ไม่มีคุกกี้เซสชัน หรือ LINE verify ล้ม
+                </td>
+                <td>LINE session is required. (หรือข้อความ verify)</td>
+              </tr>
+              <tr>
+                <td><code>CUSTOMER_NOT_FOUND</code></td>
+                <td>404</td>
+                <td>Sony HTTP 404 หรือ mock ไม่รู้จัก lineuuid</td>
+                <td>Customer profile was not found.</td>
+              </tr>
+              <tr>
+                <td><code>NOT_FOUND</code></td>
+                <td>404</td>
+                <td>productId / missionId ไม่อยู่ในกฎ หรือยังไม่ปลดล็อก</td>
+                <td>Product / Mission badge not found.</td>
+              </tr>
+              <tr>
+                <td><code>SONY_PRODUCT_API_ERROR</code></td>
+                <td>500</td>
+                <td>APIM ไม่สำเร็จ หรือ payload ไม่ถูกต้อง</td>
+                <td>Badge data is temporarily unavailable.</td>
+              </tr>
+              <tr>
+                <td><code>UNKNOWN_ERROR</code></td>
+                <td>500</td>
+                <td>error ที่ไม่มี <code>code</code> + <code>safeMessage</code></td>
+                <td>Something went wrong. Please try again later.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <code>toSafeError</code> คืนรหัสต้นทางเฉพาะเมื่อ object มีทั้ง
+          <code>code</code> และ <code>safeMessage</code> เป็นสตริง
+          Error ของ MySQL ดิบจะกลายเป็น <code>UNKNOWN_ERROR</code>
+        </p>
+      </section>
+
+      <section id="error-handling-retry-flow-surfaces">
+        <h2>พฤติกรรมต่อพื้นผิว API (Per-surface behavior)</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>เมื่อ Sony หรือฐานข้อมูลล้มเหลว</caption>
+            <thead>
+              <tr>
+                <th>Endpoint</th>
+                <th>ผู้ใช้เห็น (User-facing)</th>
+                <th>เขียน calculation log</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GET /api/customer-products</code></td>
+                <td>JSON error + HTTP 404/500</td>
+                <td class="ok">ใช่ (hash เท่านั้น)</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-products</code>, <code>GET /api/my-missions</code></td>
+                <td>แคตตาล็อกล็อก HTTP 200 ถ้าโหลดกฎได้</td>
+                <td class="none">ไม่</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-badges</code></td>
+                <td>500 JSON error · หน้าบ้านแสดงวิวว่าง</td>
+                <td class="none">ไม่</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/health</code></td>
+                <td>เสมอ <code>{ status: "ok" }</code></td>
+                <td class="skip">ไม่ตรวจ Sony/DB</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          หน้า Mini App ไม่มีปุ่ม “ลองใหม่” แยก
+          การโหลดใหม่ของ LIFF หรือเปลี่ยน <code>lineUuid</code> จะยิง fetch อีกครั้งหนึ่ง
+        </p>
+      </section>
+
+      <section id="error-handling-retry-flow-logs">
+        <h2>การบันทึก Log (Logging)</h2>
+        <h3>1. Application console (stdout ของ App Service)</h3>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ตำแหน่ง</th>
+                <th>สิ่งที่พิมพ์</th>
+                <th>ความเสี่ยง (Risk)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>sony-products-client.ts</code></td>
+                <td><code>getCustomerProducts</code> + lineuuid ดิบ</td>
+                <td>PII ใน log ของแพลตฟอร์มทุกครั้งที่เรียก Sony</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-badges</code></td>
+                <td><code>{ locale, lineuuid }</code></td>
+                <td>PII</td>
+              </tr>
+              <tr>
+                <td><code>GET /api/my-missions</code></td>
+                <td><code>{ lineuuid }</code> และเมื่อล้ม <code>{ error }</code></td>
+                <td>อาจมี stack / รายละเอียดภายใน</td>
+              </tr>
+              <tr>
+                <td>catch ของ my-badges</td>
+                <td><code>{ safeError }</code></td>
+                <td>รหัสปลอดภัยเท่านั้น</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>2. ตาราง <code>badge_calculation_logs</code></h3>
+        <p>
+          เขียนแบบ fire-and-forget จาก <code>getBadgeResultForLineUuid</code>
+          ถ้าไม่มี <code>DATABASE_URL</code> จะข้าม
+        </p>
+        <div class="tableWrap">
+          <table>
+            <caption>คอลัมน์ที่เก็บ (Stored columns)</caption>
+            <thead>
+              <tr>
+                <th>คอลัมน์</th>
+                <th>เนื้อหา</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>customer_line_uuid_hash</code></td>
+                <td>
+                  HMAC-SHA256 ของ lineuuid ด้วย
+                  <code>LOG_HASH_SECRET</code> หรือ fallback
+                  <code>APP_SESSION_SECRET</code>
+                  ไม่เก็บ LINE ID ดิบ
+                </td>
+              </tr>
+              <tr>
+                <td><code>source_sku_count</code></td>
+                <td>จำนวนสินค้าจาก Sony (เมื่อล้มเป็น 0)</td>
+              </tr>
+              <tr>
+                <td><code>matched_sku_count</code></td>
+                <td>ผลรวม <code>matchedCount</code> ของเหรียญที่คำนวณ</td>
+              </tr>
+              <tr>
+                <td><code>earned_badges_json</code></td>
+                <td>
+                  อาร์เรย์ <code>{ code, status, matchedCount }</code>
+                  เมื่อล้มเป็น <code>[]</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>error_code</code> / <code>error_message</code></td>
+                <td>
+                  จาก <code>toSafeError</code> เมื่อ catch
+                  สำเร็จเป็น NULL
+                </td>
+              </tr>
+              <tr>
+                <td><code>created_at</code></td>
+                <td>timestamp · มี index เรียงใหม่ก่อน</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">
+          Mini App ที่ใช้ <code>getBadgeExperienceForLineUuid</code>
+          ไม่เขียนแถวนี้
+          การเปิด my-badges / my-products จึงไม่เหลือประวัติ error ในตาราง
+          แม้ Sony จะล้ม
+        </div>
+        <p>
+          ไม่มี job ลบ log ตามอายุ (retention)
+          การลบต้องทำนอกแอป
+        </p>
+        <h3>3. สิ่งที่ไม่ถูก log</h3>
+        <ul>
+          <li>ไม่ส่ง log ไป SIEM / Application Insights จากโค้ดแอปโดยตรง</li>
+          <li>ไม่เก็บ serial, modelName, ID token ในตาราง log</li>
+          <li>
+            <code>/api/customer-products</code> ตัด serial ออกจาก JSON แสดงผล
+            แต่ debug trace แบบ local ยังมีชุดข้อมูลที่ redact แล้ว
+          </li>
+        </ul>
+      </section>
+
+      <section id="error-handling-retry-flow-gaps">
+        <h2>ช่องว่าง (Gaps)</h2>
+        <ul>
+          <li>
+            กำหนด timeout + retry นโยบายชัด (เช่น 1 ครั้งเมื่อ 502/503/timeout จาก APIM)
+            และรหัส <code>TIMEOUT</code> แยกจาก <code>SONY_PRODUCT_API_ERROR</code>
+          </li>
+          <li>
+            หยุดพิมพ์ lineuuid ดิบใน console ให้ใช้ <code>hashLineUuid</code>
+          </li>
+          <li>
+            เขียน calculation log จากเส้นทาง my-* ด้วย หรือรวมให้เหลือแหล่งเดียว
+          </li>
+          <li>
+            ทำ health check ที่ตรวจ MySQL / APIM แยกจาก liveness ของโปรเซส
+          </li>
+          <li>
+            ปุ่มหรือข้อความ “ลองใหม่” บน Mini App เมื่อเป็น 500 จริง
+            (ตอนนี้ my-products อาจดูเหมือน “ยังไม่มีเหรียญ” ทั้งที่ Sony ล่ม)
+          </li>
+          <li>
+            <code>GET /api/my-missions</code> มีโค้ดหลัง
+            <code>return</code> ใน catch ที่ไม่ถูกเรียก
+            fallback 500 เมื่อโหลดแคตตาล็อกล็อกไม่ได้จึงไม่ทำงานใน route นี้
+          </li>
+        </ul>
+      </section>
+</section>
+
+  </main>
+</body>
+</html>

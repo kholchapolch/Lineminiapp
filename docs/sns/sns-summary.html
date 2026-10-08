@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SNS Summary — Sony Badge Pilot</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: pre;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 12px; color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+svg, img { max-width: 100%; height: auto; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#social-sharing-specification">Social Sharing Spec</a>
+    <a href="#sharing-configuration">Sharing Config</a>
+    <a href="#share-content-asset-list">Share Content &amp; Assets</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>SNS Summary</h1>
+      <p class="lede">
+        รวมและสรุปเอกสารในโฟลเดอร์ <code>docs/sns/</code>
+        เป็นไฟล์เดียวสำหรับอ่าน/แชร์
+      </p>
+      <p>
+        ครอบคลุมสเปกแชร์ Facebook, ค่าคอนฟิก/OG URL และรายการ asset รูปเหรียญ
+      </p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li>
+          <a href="#social-sharing-specification">Social Sharing Specification</a>
+          <span>ช่องทางที่รองรับ สิ่งที่ส่งตอนกดแชร์ และหน้า OG</span>
+        </li>
+        <li>
+          <a href="#sharing-configuration">Sharing Configuration Document</a>
+          <span>Environment, Domain, Share URL และ Open Graph</span>
+        </li>
+        <li>
+          <a href="#share-content-asset-list">Share Content &amp; Asset List</a>
+          <span>ข้อความตามสถานะ และรายการรูป product / quest badge</span>
+        </li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        ปุ่มแชร์ใน Mini App ส่ง URL ของไฟล์รูปเหรียญ (ไม่ใช่หน้าแอป)
+        ผ่าน Web Share sheet หรือ Facebook sharer โดยหน้า
+        <code>/share/...</code> มีไว้สำหรับ OG crawler ไม่ใช่ flow ปุ่มหลัก
+      </div>
+    </header>
+
+<section class="doc" id="social-sharing-specification">
+  <p class="doc-source">แหล่งที่มา: <code>social-sharing-specification.html</code> — ช่องทางที่รองรับ สิ่งที่ส่งตอนกดแชร์ และหน้า OG</p>
+  <header class="hero">
+        <h2 class="doc-heading">Social Sharing Specification</h2>
+        <p class="lede">
+          ช่องทางที่รองรับ (Facebook) พร้อมข้อความ รูปภาพ และ URL ที่แชร์
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#social-sharing-specification-channels">ช่องทางที่รองรับ</a></li>
+            <li><a href="#social-sharing-specification-payload">สิ่งที่ถูกส่งตอนกดแชร์</a></li>
+            <li><a href="#social-sharing-specification-og">หน้า OG</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="social-sharing-specification-channels">
+        <h2>ช่องทางที่รองรับ</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ช่องทาง</th>
+                <th>สถานะ</th>
+                <th>วิธีเรียกจากแอป</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Facebook</td>
+                <td>รองรับ — ปุ่มเดียวใน UI</td>
+                <td>
+                  ป้าย <code>แชร์ (Share)</code> + ไอคอน Facebook ·
+                  ลำดับ: Web Share sheet (ผู้ใช้เลือก Facebook) →
+                  <code>liff.openWindow</code> ไป facebook.com/sharer →
+                  <code>window.open</code>
+                </td>
+              </tr>
+              <tr>
+                <td>LINE แชท / X / Instagram</td>
+                <td>ไม่มีปุ่มเฉพาะ</td>
+                <td>
+                  ถ้าอุปกรณ์มี <code>navigator.share</code> ผู้ใช้อาจเลือกแอปอื่นในระบบ
+                  แอปส่งแค่ URL ไม่บังคับแอปปลายทาง
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          จุดกด: รายละเอียดสินค้าที่ปลดล็อก และหน้ารายละเอียดภารกิจเมื่อชั้นนั้นครบแล้วเท่านั้น
+        </p>
+      </section>
+
+      <section id="social-sharing-specification-payload">
+        <h2>สิ่งที่ถูกส่งตอนกดแชร์ใน Mini App</h2>
+        <div class="note warn">
+          ปุ่มแชร์ส่ง <strong>URL ของไฟล์รูปเหรียญ</strong> ไม่ใช่ URL หน้า Mini App
+          และไม่ใช่หน้า <code>/share/...</code>
+          <code>navigator.share({ url })</code> ไม่ส่ง title, text, ไฟล์ หรือ hashtag
+          คอมโพเนนต์มี props <code>hashtag</code> แต่หน้าเรียกไม่ส่งค่า
+        </div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>องค์ประกอบ</th>
+                <th>ค่าที่ใช้จริง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ข้อความ / caption จากแอป</td>
+                <td>ไม่มี — Facebook หรือ share sheet กำหนดเอง ยกเว้นหน้า OG ถ้า crawler เปิดหน้า share</td>
+              </tr>
+              <tr>
+                <td>รูป</td>
+                <td>
+                  Product: <code>shareImageUrl</code> ของ threshold (seed = รูป achieved)
+                  Quest: <code>shareImageUrl || badgeImageUrl</code> ของชั้นนั้น
+                </td>
+              </tr>
+              <tr>
+                <td>URL</td>
+                <td>
+                  รูปที่แปลงเป็น absolute ด้วย
+                  <code>NEXT_PUBLIC_APP_BASE_URL</code> / <code>APP_BASE_URL</code>
+                  path ถูก percent-encode (ห้ามเว้นวรรคดิบ)
+                </td>
+              </tr>
+              <tr>
+                <td>Facebook sharer URL</td>
+                <td>
+                  <code>https://www.facebook.com/sharer/sharer.php?u=</code>
+                  + encode พิเศษของ <code>%20</code> เป็นลำดับ <code>%252520</code> ใน query
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <pre>กดแชร์
+  → toShareableAssetUrl(รูป)
+  → ถ้ามี Web Share: navigator.share({ url: รูป }) เท่านั้น
+  → ไม่มี / ล้มที่ไม่ใช่ยกเลิก: เปิด Facebook sharer ของ URL รูป
+  → ผู้ใช้ยกเลิก share sheet (AbortError) = ถือว่าจัดการแล้ว ไม่เปิด Facebook ซ้ำ</pre>
+      </section>
+
+      <section id="social-sharing-specification-og">
+        <h2>หน้า OG (ไม่ได้อยู่ในปุ่มหลัก)</h2>
+        <p>
+          ถ้ามีคนเปิดหรือแชร์
+          <code>https://&lt;host&gt;/{locale}/share/product/{productId}</code>
+          หรือ <code>.../share/mission/{missionId}</code>
+          crawler จะได้ og:title / og:description คงที่จาก <code>shareOg</code>
+          และ og:image เป็นรูปเหรียญ
+        </p>
+        <ul>
+          <li>title: เหรียญของฉันจาก Sony (My badges from Sony)</li>
+          <li>description: มาดูเหรียญที่ฉันปลดล็อกได้ในแคมเปญนี้!</li>
+        </ul>
+      </section>
+</section>
+
+<hr class="doc-sep" />
+
+<section class="doc" id="sharing-configuration">
+  <p class="doc-source">แหล่งที่มา: <code>sharing-configuration.html</code> — Environment, Domain, Share URL และ Open Graph</p>
+  <header class="hero">
+        <h2 class="doc-heading">Sharing Configuration Document</h2>
+        <p class="lede">
+          Open Graph, Share URL, Redirect URL, Domain และ Environment ที่เกี่ยวข้อง
+          ไม่ใส่ secret
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#sharing-configuration-env">Environment</a></li>
+            <li><a href="#sharing-configuration-domain">Domain</a></li>
+            <li><a href="#sharing-configuration-urls">Share URL</a></li>
+            <li><a href="#sharing-configuration-og">Open Graph</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="sharing-configuration-env">
+        <h2>Environment</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ตัวแปร</th>
+                <th>บทบาทต่อการแชร์</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>NEXT_PUBLIC_APP_BASE_URL</code></td>
+                <td>
+                  origin ที่ไคลเอนต์ใช้ประกอบ URL รูป
+                  ต้อง HTTPS บน staging/production และตรง <code>APP_BASE_URL</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>APP_BASE_URL</code></td>
+                <td>
+                  origin ฝั่งเซิร์ฟเวอร์สำหรับ OG
+                  <code>metadataBase</code> และ <code>og:url</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>NEXT_PUBLIC_LIFF_ID</code></td>
+                <td><code>liff.openWindow</code> เมื่อไม่มี Web Share หรือ Web Share ใช้ไม่ได้</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          ไฟล์สาธารณะรูปเหรียญอยู่ภายใต้
+          <code>/product-badge/</code> และ <code>/quest-badge/</code>
+          (หรือ URL เต็มถ้ากฎเก็บ absolute เช่น blob storage)
+        </p>
+      </section>
+
+      <section id="sharing-configuration-domain">
+        <h2>Domain</h2>
+        <ul>
+          <li>แอป Mini App / OG: โฮสต์ใน <code>APP_BASE_URL</code> (placeholder <code>https://&lt;public-host&gt;</code>)</li>
+          <li>Facebook: <code>www.facebook.com</code> (sharer) — ต้องอนุญาตเปิดหน้าต่างภายนอกจาก LIFF</li>
+          <li>ถ้าเก็ปรูปนอกแอป: origin ของ CDN/blob ตามค่าในฐานข้อมูล</li>
+        </ul>
+        <div class="note warn">
+          ไม่มี Facebook App ID, redirect_uri ของ Facebook Login หรือ OAuth ในโปรเจกต์นี้
+          “Redirect” ของแชร์คือการเปิด sharer หรือ share sheet ไม่มีการกลับ callback เข้าแอป
+        </div>
+      </section>
+
+      <section id="sharing-configuration-urls">
+        <h2>Share URL</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ชนิด</th>
+                <th>รูปแบบ</th>
+                <th>ใครใช้</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Asset (ปุ่มในแอป)</td>
+                <td><code>{APP_BASE}/product-badge/{MODEL}.png</code> หรือ quest-badge</td>
+                <td>FacebookShareAction</td>
+              </tr>
+              <tr>
+                <td>Facebook sharer</td>
+                <td><code>https://www.facebook.com/sharer/sharer.php?u={encoded-asset}</code></td>
+                <td>openWindow / window.open</td>
+              </tr>
+              <tr>
+                <td>OG หน้าสินค้า</td>
+                <td><code>/{locale}/share/product/{productRuleCode}</code></td>
+                <td>crawler / เปิดตรง</td>
+              </tr>
+              <tr>
+                <td>OG หน้าภารกิจ</td>
+                <td><code>/{locale}/share/mission/{questCode}-{level}</code></td>
+                <td>เช่น portrait-master-gold, trinity-master-achievement</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="sharing-configuration-og">
+        <h2>Open Graph (หน้า /share/...)</h2>
+        <pre>og:type         website
+og:title        messages.shareOg.title   (ค่าคงที่ ไม่ใช่ชื่อรุ่น)
+og:description  messages.shareOg.description
+og:url          absolute ของ pagePath
+og:image        shareImageUrl หรือ achievedImageUrl ของกฎ/ชั้น
+twitter:card    summary_large_image
+image type      image/png เมื่อนามสกุล .png</pre>
+        <p>
+          ถ้าไม่พบกฎ: metadata ยังมี title/description ของแคมเปญ แต่หน้าเรนเดอร์เป็น <code>notFound</code>
+        </p>
+        <p>
+          ต้องให้ Facebook crawler เข้าถึงรูปและหน้า OG ได้โดยไม่ต้อง LIFF
+          โฮสต์ต้อง HTTPS ตามสเปก deploy
+        </p>
+      </section>
+</section>
+
+<hr class="doc-sep" />
+
+<section class="doc" id="share-content-asset-list">
+  <p class="doc-source">แหล่งที่มา: <code>share-content-asset-list.html</code> — ข้อความตามสถานะ และรายการรูป product / quest badge</p>
+  <header class="hero">
+        <h2 class="doc-heading">Share Content &amp; Asset List</h2>
+        <p class="lede">
+          Caption, Thumbnail, Badge Image และข้อความแต่ละสถานะ
+          ตาม seed <code>2026-07-24-product-urls-001</code>
+        </p>
+        <nav>
+          <ul class="toc">
+            <li><a href="#share-content-asset-list-status">ข้อความตามสถานะ</a></li>
+            <li><a href="#share-content-asset-list-product">Product badge images</a></li>
+            <li><a href="#share-content-asset-list-quest">Quest / tier badge images</a></li>
+            <li><a href="#share-content-asset-list-caption">Caption คงที่สำหรับ OG</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <section id="share-content-asset-list-status">
+        <h2>ข้อความตามสถานะ</h2>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>สถานะ UI</th>
+                <th>มีปุ่มแชร์?</th>
+                <th>Caption จากแอป</th>
+                <th>ข้อความบนจอ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>สินค้า locked</td>
+                <td>ไม่มี (เข้าหน้ารายละเอียดไม่ได้)</td>
+                <td>—</td>
+                <td>การ์ดไม่มีรูปในแคตตาล็อก</td>
+              </tr>
+              <tr>
+                <td>สินค้า unlocked</td>
+                <td>มี</td>
+                <td>ไม่ส่ง caption</td>
+                <td>
+                  แชร์เหรียญผลิตภัณฑ์ · เหรียญผลิตภัณฑ์ที่ได้รับ ·
+                  ชื่อรุ่น · ปลดล็อคเมื่อ · จำนวนที่มี
+                </td>
+              </tr>
+              <tr>
+                <td>ภารกิจชั้นยังไม่ครบ</td>
+                <td>ไม่มี</td>
+                <td>—</td>
+                <td>ความคืบหน้า และตั๋วรุ่น</td>
+              </tr>
+              <tr>
+                <td>ภารกิจชั้นครบ</td>
+                <td>มี</td>
+                <td>ไม่ส่ง caption</td>
+                <td>แชร์เหรียญภารกิจ · เหรียญภารกิจที่ได้รับ · วันที่ถ้ามี</td>
+              </tr>
+              <tr>
+                <td>หน้า OG /share</td>
+                <td>ไม่มีปุ่ม</td>
+                <td>
+                  og:title / og:description คงที่ของแคมเปญ
+                  (ไม่เปลี่ยนตามชื่อรุ่น)
+                </td>
+                <td>หัวข้อและคำโปรยเดียวกัน + รูป</td>
+              </tr>
+              <tr>
+                <td>ปุ่ม disabled</td>
+                <td>แสดงแต่กดไม่ได้</td>
+                <td>—</td>
+                <td>สร้าง URL รูปไม่ได้ หรือกำลังแชร์อยู่</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note warn">
+          Thumbnail บน Facebook เมื่อแชร์ URL รูปโดยตรง ขึ้นกับว่า Facebook ดึงไฟล์ PNG ได้หรือไม่
+          ไม่ได้ส่ง og:title คู่กับ URL รูป
+          Preview เต็มตามสเปก OG เกิดเมื่อแชร์ URL หน้า <code>/share/...</code> ซึ่งปุ่มหลักไม่ได้ใช้
+        </div>
+      </section>
+
+      <section id="share-content-asset-list-product">
+        <h2>Product badge images</h2>
+        <p>
+          Path สาธารณะ: <code>/product-badge/{productModelCode}.png</code>
+          seed ตั้งทั้ง achieved และ share เป็นไฟล์เดียวกัน
+          ตัวอย่างรหัส: ILCE-7M4 → <code>/product-badge/ILCE-7M4.png</code>
+          มี 56 ไฟล์ตามกลุ่มกล้องและเลนส์ (ไม่มี SEL1224GM)
+        </p>
+        <p>ปุ่มบนจอ: <code>แชร์ (Share)</code></p>
+      </section>
+
+      <section id="share-content-asset-list-quest">
+        <h2>Quest / tier badge images</h2>
+        <div class="tableWrap">
+          <table>
+            <caption>share = ไฟล์เดียวกับ achieved ใน seed</caption>
+            <thead>
+              <tr>
+                <th>ชั้น (missionId)</th>
+                <th>ชื่อแสดง</th>
+                <th>ไฟล์ (Thumbnail / Badge)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>portrait-master-bronze</td>
+                <td>Portrait Master Bronze</td>
+                <td><code>/quest-badge/portrait-bronze.png</code></td>
+              </tr>
+              <tr>
+                <td>portrait-master-silver</td>
+                <td>Portrait Master Silver</td>
+                <td><code>/quest-badge/portrait-silver.png</code></td>
+              </tr>
+              <tr>
+                <td>portrait-master-gold</td>
+                <td>Portrait Master Gold</td>
+                <td><code>/quest-badge/portrait-gold.png</code></td>
+              </tr>
+              <tr>
+                <td>wide-architect-bronze|silver|gold</td>
+                <td>Wide Architect …</td>
+                <td><code>/quest-badge/wide-bronze.png</code> (และ silver/gold)</td>
+              </tr>
+              <tr>
+                <td>the-visionary-bronze|silver|gold</td>
+                <td>The Visionary …</td>
+                <td><code>/quest-badge/the-visionary-bronze.png</code> (และ silver/gold)</td>
+              </tr>
+              <tr>
+                <td>trinity-master-achievement</td>
+                <td>Trinity Master</td>
+                <td><code>/quest-badge/trinity-master.png</code></td>
+              </tr>
+              <tr>
+                <td>trinity-junior-achievement</td>
+                <td>Trinity Junior</td>
+                <td><code>/quest-badge/trinity-junior.png</code></td>
+              </tr>
+              <tr>
+                <td>all-rounder-achievement</td>
+                <td>All Rounder</td>
+                <td><code>/quest-badge/all-around.png</code></td>
+              </tr>
+              <tr>
+                <td>f2-master-achievement</td>
+                <td>F2 Master</td>
+                <td><code>/quest-badge/f2-master.png</code></td>
+              </tr>
+              <tr>
+                <td>the-magnifier-achievement</td>
+                <td>The Magnifier</td>
+                <td><code>/quest-badge/the-magnifier.png</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="share-content-asset-list-caption">
+        <h2>Caption คงที่สำหรับ OG เท่านั้น</h2>
+        <ul>
+          <li>Title: เหรียญของฉันจาก Sony (My badges from Sony)</li>
+          <li>
+            Description: มาดูเหรียญที่ฉันปลดล็อกได้ในแคมเปญนี้!
+            (Check out the badges I unlocked in this campaign!)
+          </li>
+        </ul>
+      </section>
+</section>
+
+  </main>
+</body>
+</html>

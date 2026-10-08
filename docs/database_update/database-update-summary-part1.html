@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Database Update Summary (Part 1) — Sony Badge Pilot</title>
+  <style>
+
+:root {
+  color-scheme: light;
+  --bg: #f6f8fb;
+  --panel: #ffffff;
+  --ink: #1d2733;
+  --muted: #66758a;
+  --line: #d8e0ea;
+  --accent: #2557a7;
+  --accent-soft: #e8f0ff;
+  --ok: #198754;
+  --warn: #b55b00;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.65;
+}
+main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 56px; }
+h1, h2, h3 { line-height: 1.2; margin: 0 0 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); }
+h2 { margin-top: 8px; font-size: 26px; }
+h2.doc-heading { font-size: clamp(24px, 4vw, 34px); color: var(--accent); }
+h3 { margin-top: 20px; font-size: 20px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 22px; }
+code, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #eef3f8;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 13px;
+}
+.hero, .doc, section {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.doc > section { border: none; padding: 0; margin: 18px 0 0; }
+.lede { max-width: 900px; color: var(--muted); font-size: 18px; }
+.doc-source { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.summary-toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.summary-toc li a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.summary-toc li span { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px 18px; margin: 0; padding-left: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.box { border: 1px solid var(--line); border-radius: 8px; padding: 14px; background: #fbfdff; }
+.box strong { display: block; margin-bottom: 6px; }
+.note { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; margin: 14px 0; }
+.warn { border-left-color: var(--warn); background: #fff4e8; }
+.ok { border-left-color: var(--ok); background: #e9f7ef; }
+.tableWrap { overflow-x: auto; margin: 14px 0; }
+table { width: 100%; border-collapse: collapse; min-width: 760px; }
+caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+th, td { border: 1px solid var(--line); padding: 10px; text-align: left; vertical-align: top; }
+th { background: #eef3f8; }
+pre, .codeblock {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101923;
+  color: #f7fbff;
+  padding: 16px;
+  line-height: 1.5;
+  font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+pre code,
+#database-rule-update-guide-backup-command,
+#database-rule-update-guide-sql-product,
+#database-rule-update-guide-sql-quest {
+  background: none;
+  padding: 0;
+}
+.doc-sep { border: 0; border-top: 2px solid var(--line); margin: 28px 0; }
+.topnav { position: sticky; top: 0; z-index: 5; background: rgba(246,248,251,.92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 10px 18px; }
+.topnav a { margin-right: 12px; color: var(--accent); text-decoration: none; font-size: 13px; font-weight: 600; }
+svg, img { max-width: 100%; height: auto; }
+@media (max-width: 720px) { main { padding: 18px 12px 36px; } .topnav a { display: inline-block; margin-bottom: 6px; } }
+
+</style>
+</head>
+<body>
+  <nav class="topnav" aria-label="เอกสารในหน้านี้">
+    <a href="#summary">สรุป</a>
+    <a href="#database-rule-update-guide-part1">Rule Guide · Concepts</a>
+    <a href="database-update-summary-part2.html">ไป Part 2 →</a>
+  </nav>
+  <main>
+    <header class="hero" id="summary">
+      <h1>Database Update Summary (Part 1)</h1>
+      <p class="lede">ส่วนที่ 1 จาก 3 ของ <code>docs/database_update/</code> — แนวคิดและ workflow อัปเดตกฎ</p>
+      <p>Overview, ความสัมพันธ์ตาราง, logic และ workflow (backup / UAT / PROD)</p>
+      <h2>สารบัญเอกสารที่รวมไว้</h2>
+      <ul class="summary-toc">
+        <li><a href="#database-rule-update-guide-part1">Rule Update Guide · Concepts &amp; Workflow</a><span>เริ่มต้น, ตาราง, logic, workflow</span></li>
+      </ul>
+      <div class="note">
+        <strong>สรุปแกนกลาง:</strong>
+        กำหนดกฎให้ชัด แล้วอัปเดต source ใน repo ก่อนลง UAT ด้วย transaction + backup — ตัวอย่าง SQL อยู่ใน Part 2
+      </div>
+    </header>
+
+<section class="doc" id="database-rule-update-guide-part1">
+  <p class="doc-source">แหล่งที่มา: <code>database-rule-update-guide.html</code> — คู่มืออัปเดตกฎเหรียญในฐานข้อมูล (prod/seed/SQL) · Part 1</p>
+  <header class="hero">
+          <p class="eyebrow">Sony LINE Mini App · MySQL Operations</p>
+          <h2 class="doc-heading">คู่มือ Update Database เพื่อเพิ่มและแก้ Badge Rules · Part 1</h2>
+          <p class="heroLead">
+            คู่มือสำหรับเพิ่ม Product Badge, เพิ่ม Quest/Tier, แก้ SKU, เปลี่ยนรูป,
+            เปลี่ยน target และปิด rule โดยใช้ targeted SQL ที่ rollback ได้
+          </p>
+          <nav>
+            <ul class="toc">
+            <li><a href="#database-rule-update-guide-overview">เริ่มจากตรงไหน</a></li>
+            <li><a href="#database-rule-update-guide-relationship">ความสัมพันธ์</a></li>
+            <li><a href="#database-rule-update-guide-tables">ตาราง</a></li>
+            <li><a href="#database-rule-update-guide-logic">Logic</a></li>
+            <li><a href="#database-rule-update-guide-workflow">Workflow</a></li>
+            </ul>
+          </nav>
+        </header>
+
+<section id="database-rule-update-guide-overview">
+          <p class="eyebrow">Quick Start</p>
+          <h2>เริ่มจากตรงไหน</h2>
+          <div class="callout danger">
+            <strong>ห้าม copy SQL แล้วรันทันทีบน PROD</strong>
+            ค่า <code>REPLACE_ME_*</code>, SKU, image URL, date และ sort order ต้อง review ก่อนทุกครั้ง
+            และต้องมีผลทดสอบจาก UAT ด้วย rule ชุดเดียวกัน
+          </div>
+
+          <div class="flow">
+            <article class="flowItem">
+              <span class="number">1</span>
+              <h3>Define</h3>
+              <p>กำหนด code, type, SKU logic, tiers, รูป, date window และ rollback.</p>
+            </article>
+            <article class="flowItem">
+              <span class="number">2</span>
+              <h3>Update source</h3>
+              <p>แก้ seed source ใน repo ให้ตรงกับ SQL เพื่อไม่ให้การ seed ครั้งถัดไปลบทับ.</p>
+            </article>
+            <article class="flowItem">
+              <span class="number">3</span>
+              <h3>UAT</h3>
+              <p>backup, transaction, targeted SQL, verify query และทดสอบด้วยบัญชี LINE/UAT.</p>
+            </article>
+            <article class="flowItem">
+              <span class="number">4</span>
+              <h3>PROD</h3>
+              <p>ใช้ SQL ที่ผ่าน UAT, bump version, verify API/ภาพ และบันทึก change evidence.</p>
+            </article>
+          </div>
+
+          <div class="statGrid">
+            <div class="stat"><strong>6</strong><span>tables ใน schema ปัจจุบัน</span></div>
+            <div class="stat"><strong>3</strong><span>tables หลักต่อ 1 rule</span></div>
+            <div class="stat"><strong>60s</strong><span>runtime config/rule cache TTL</span></div>
+            <div class="stat"><strong>1:N</strong><span>rule → thresholds / conditions</span></div>
+          </div>
+
+          <p class="muted" style="margin-top: 14px">
+            PROD snapshot หลัง initial seed วันที่ 18 Aug 2026: 6 display groups, 65 rules,
+            71 thresholds, 67 conditions, version <code>2026-07-24-product-urls-001</code>.
+            จำนวนนี้เป็น snapshot ไม่ใช่ค่าตายตัว หลังเพิ่ม rule ต้อง query จำนวนจริงใหม่
+          </p>
+        </section>
+
+        <section id="database-rule-update-guide-relationship">
+          <p class="eyebrow">Data Model</p>
+          <h2>ความสัมพันธ์ของตาราง</h2>
+
+          <div class="relation" role="img" aria-label="badge rules table relationship">
+            <div class="relationBox">
+              <strong>app_config</strong><br />version / support text
+            </div>
+            <div class="relationBox parent">
+              <strong>badge_rules</strong><br />parent rule
+            </div>
+            <div class="relationBox">
+              <strong>badge_display_groups</strong><br />display metadata
+            </div>
+            <div class="relationArrow">badge_rules.id ↓ foreign key with ON DELETE CASCADE</div>
+            <div class="relationBox">
+              <strong>badge_rule_thresholds</strong><br />levels / targets / images
+            </div>
+            <div class="relationBox">
+              <strong>badge_rule_conditions</strong><br />match type / SKU JSON
+            </div>
+            <div class="relationBox">
+              <strong>badge_calculation_logs</strong><br />runtime audit log (แยกอิสระ)
+            </div>
+          </div>
+
+          <div class="callout warn">
+            <strong>จุดสำคัญ:</strong> <code>badge_display_groups</code> ไม่มี foreign key ไป
+            <code>badge_rules</code>. Runtime grouping อ่าน <code>badge_rules.display_group_code</code>
+            โดยตรง จึงต้องสะกด code ให้ตรงกันเอง
+          </div>
+          <div class="callout danger">
+            <strong>Schema dynamic แต่ UI บางส่วนใช้ fixed IDs:</strong>
+            เพิ่ม Product Badge ใน group เดิม หรือแก้ rule เดิมทำด้วย DB ได้ แต่การเพิ่ม Product group ใหม่
+            ต้องแก้ <code>PRODUCT_FILTER_IDS</code> และ i18n. การเพิ่ม Quest section ใหม่ต้องแก้
+            <code>MissionSectionId</code>, ข้อความ TH/EN และ tests ก่อน activate rule
+          </div>
+        </section>
+
+        <section id="database-rule-update-guide-tables">
+          <p class="eyebrow">Table Reference</p>
+          <h2>อธิบายแต่ละ table</h2>
+
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Table</th>
+                  <th>หน้าที่</th>
+                  <th>Column สำคัญ</th>
+                  <th>แก้เมื่อไร</th>
+                  <th>ข้อควรระวัง</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="tableName">app_config</td>
+                  <td>Key/value ของ runtime</td>
+                  <td><code>key</code>, <code>value</code></td>
+                  <td>ทุก rule change ต้องเปลี่ยน <code>badge_rules_version</code></td>
+                  <td>Version ใช้เป็น cache key; ไม่ bump อาจเห็น rule เก่านานถึง cache TTL</td>
+                </tr>
+                <tr>
+                  <td class="tableName">badge_display_groups</td>
+                  <td>Catalog ของหมวดแสดงผล เช่น Prime Lens, Quest</td>
+                  <td><code>group_code</code>, <code>badge_type</code>, <code>sort_order</code>, <code>is_active</code></td>
+                  <td>เพิ่มหมวดใหม่ หรือเปลี่ยนชื่อ/ลำดับหมวด</td>
+                  <td>ไม่มี FK; ต้องให้ <code>group_code</code> ตรงกับ rule</td>
+                </tr>
+                <tr>
+                  <td class="tableName">badge_rules</td>
+                  <td>Parent row ของ Badge/Quest หนึ่ง rule</td>
+                  <td><code>badge_code</code>, type, group, product model/url, dates, <code>is_active</code></td>
+                  <td>เพิ่ม rule, เปลี่ยน metadata, date window หรือ deactivate</td>
+                  <td><code>badge_code</code> ต้อง stable และ unique; อย่า update <code>id</code></td>
+                </tr>
+                <tr>
+                  <td class="tableName">badge_rule_thresholds</td>
+                  <td>ระดับปลดล็อกและรูปที่แสดง</td>
+                  <td><code>level</code>, <code>required_count</code>, image URLs, <code>sort_order</code></td>
+                  <td>เพิ่ม Bronze/Silver/Gold, เปลี่ยน target หรือรูป</td>
+                  <td>Unique ต่อ <code>(badge_rule_id, level)</code>; target สูงสุดต้องไม่เกิน condition cap</td>
+                </tr>
+                <tr>
+                  <td class="tableName">badge_rule_conditions</td>
+                  <td>เงื่อนไข SKU ที่ทำให้ progress เพิ่ม</td>
+                  <td><code>match_type</code>, <code>required_count</code>, <code>sony_skus</code> JSON</td>
+                  <td>เพิ่ม/ลบ SKU, เปลี่ยน any/all/min_count, ทำหลาย family</td>
+                  <td>JSON ต้อง valid; SKU ซ้ำข้ามหลาย condition อาจถูกนับซ้ำใน matched count</td>
+                </tr>
+                <tr>
+                  <td class="tableName">badge_calculation_logs</td>
+                  <td>Log ผลคำนวณแบบ hash LINE UUID สำหรับ diagnosis</td>
+                  <td>source/matched counts, result JSON, error, timestamp</td>
+                  <td>ระบบเขียนอัตโนมัติ ใช้อ่านตรวจปัญหา</td>
+                  <td>ไม่ใช่ config table; ไม่ insert/update เพื่อสร้าง badge</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <details>
+            <summary>Column behavior ที่มักสับสน</summary>
+            <ul>
+              <li><code>badge_type</code>: <code>product</code> หรือ <code>quest</code>.</li>
+              <li><code>rule_type</code>: <code>tier</code> หรือ <code>achievement</code>.</li>
+              <li><code>active_from/to</code>: คุมว่าตัว rule active ตอนนี้หรือไม่.</li>
+              <li><code>registration_start/end</code>: คัดเฉพาะสินค้าที่ registered อยู่ในช่วง.</li>
+              <li><code>locked_image_url = NULL</code>: runtime fallback ไปใช้ achieved image.</li>
+              <li><code>share_image_url = NULL</code>: หน้า share อาจ fallback ไป image หลัก.</li>
+              <li>การลบ row ใน <code>badge_rules</code> จะ cascade ลบ thresholds/conditions.</li>
+              <li>
+                Product group ใหม่ต้อง sync <code>src/lib/my-products/types.ts</code> และ i18n;
+                Quest code ใหม่ต้อง sync <code>src/lib/my-missions/types.ts</code> และ i18n.
+              </li>
+            </ul>
+          </details>
+        </section>
+
+        <section id="database-rule-update-guide-logic">
+          <p class="eyebrow">Rule Semantics</p>
+          <h2>Logic ที่ต้องรู้ก่อนเขียน SQL</h2>
+
+          <div class="cardGrid">
+            <article class="card">
+              <span class="tag runtime">any</span>
+              <h3 style="margin-top: 8px">มีอย่างน้อย N จากกลุ่ม</h3>
+              <p>ปกติใช้ <code>required_count = 1</code> สำหรับ “มีสักหนึ่งรุ่นใน family”.</p>
+              <div class="ruleFormula">count = MIN(unique matched SKU, required_count)</div>
+            </article>
+            <article class="card">
+              <span class="tag runtime">min_count</span>
+              <h3 style="margin-top: 8px">สะสมอย่างน้อย N รุ่น</h3>
+              <p>เหมาะกับ tier เพราะขยาย target เป็น 2/3/5 ได้ และนับ model/SKU ไม่ซ้ำ.</p>
+              <div class="ruleFormula">count = MIN(unique matched SKU, required_count)</div>
+            </article>
+            <article class="card">
+              <span class="tag runtime">all</span>
+              <h3 style="margin-top: 8px">ต้องครบทุก SKU</h3>
+              <p>Runtime ใช้จำนวนสมาชิกใน <code>sony_skus</code> เป็น cap แม้ค่า required_count จะต่าง.</p>
+              <div class="ruleFormula">count = MIN(unique matched SKU, sony_skus.length)</div>
+            </article>
+          </div>
+
+          <div class="callout warn">
+            <strong>หลาย conditions:</strong> matched count ของแต่ละ condition ถูกบวกเข้าด้วยกัน.
+            ใช้สร้าง Trinity แบบ “any 1 จาก family A + any 1 จาก B + any 1 จาก C” ได้
+            แต่ควรใช้ SKU sets ที่ไม่ overlap; SKU เดียวอยู่หลาย condition อาจเพิ่ม count หลายครั้ง
+          </div>
+
+          <div class="tableWrap">
+            <table>
+              <thead>
+                <tr><th>Requirement</th><th>Conditions</th><th>Thresholds</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Product badge ต่อหนึ่งรุ่น</td>
+                  <td><code>any / 1 / [MODEL_CODE]</code></td>
+                  <td><code>achievement = 1</code></td>
+                </tr>
+                <tr>
+                  <td>สะสม 2/3/5 รุ่นจาก list เดียว</td>
+                  <td><code>min_count / 5 / [SKU list]</code></td>
+                  <td>Bronze 2, Silver 3, Gold 5</td>
+                </tr>
+                <tr>
+                  <td>มีหนึ่งรุ่นจากแต่ละ 3 family</td>
+                  <td>สาม rows แบบ <code>any / 1</code></td>
+                  <td><code>achievement = 3</code></td>
+                </tr>
+                <tr>
+                  <td>ต้องมีครบทุก SKU</td>
+                  <td><code>all / จำนวน SKU / [SKU list]</code></td>
+                  <td>Target เท่าจำนวน SKU</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="callout">
+            <strong>Date window:</strong> <code>registration_end</code> เทียบด้วยวันที่และรวมวันสิ้นสุด.
+            ส่วน <code>active_to</code> ถูกอ่านเป็นเวลา 00:00 UTC; ถ้าต้องการให้ active ครบทั้งวัน
+            ให้ทดสอบ boundary และพิจารณาตั้งเป็นวันถัดไป
+          </div>
+        </section>
+
+        <section id="database-rule-update-guide-workflow">
+          <p class="eyebrow">Safe Delivery</p>
+          <h2>ขั้นตอน UAT → PROD</h2>
+
+          <div class="callout warn">
+            <strong>Deploy app ไม่ได้ update database.</strong> Workflow ปกติ build/deploy application เท่านั้น.
+            ต้องรัน SQL ที่ review แล้วกับ UAT/PROD database แยกต่างหาก
+          </div>
+
+          <ol>
+            <li>
+              <strong>Review requirement:</strong> ระบุ badge code, display group, SKU list,
+              match type, target, รูป, product URL, campaign dates และ rollback owner.
+            </li>
+            <li>
+              <strong>ตรวจ image ก่อน:</strong> URL ต้องตอบ 200, content type เป็น image และ PROD ต้องใช้
+              <code>https://mysonybadgestorageprd.blob.core.windows.net/...</code>.
+            </li>
+            <li>
+              <strong>Sync source:</strong> UAT ใช้ <code>scripts/db/seed-data.mjs</code>, PROD ใช้
+              <code>scripts/db/prod/seed-data.mjs</code>. Environment image URLs อาจต่างกัน.
+            </li>
+            <li><strong>Backup:</strong> dump 5 config tables ก่อนเปลี่ยน UAT/PROD.</li>
+            <li><strong>Execute targeted SQL ใน transaction</strong> และตรวจ affected rows.</li>
+            <li><strong>Bump <code>badge_rules_version</code></strong> ใน transaction เดียวกัน.</li>
+            <li><strong>Verify DB + API + LINE flow</strong>; รอ cache refresh สูงสุดประมาณ 60 วินาที.</li>
+            <li><strong>เก็บ evidence:</strong> ticket, SQL version, before/after counts, test account, URLs.</li>
+          </ol>
+
+          <details>
+            <summary>Code validation หลัง sync seed source</summary>
+            <div class="codeBlock">
+              <button class="copyButton" data-copy="source-validation">Copy</button>
+              <pre><code id="database-rule-update-guide-source-validation"># PROD source
+# scripts/db/prod/seed-data.mjs
+
+# Generate SQL สำหรับ review เท่านั้น; อย่ารันทั้งไฟล์จนกว่าจะ review full dataset
+npm run db:seed:sql:prod
+
+npm test
+npm run lint
+npm run build
+
+# ตรวจ diff/status แล้วเปิด generated SQL review ทั้งไฟล์
+git diff -- scripts/db/prod/seed-data.mjs
+git status --short scripts/db/prod/seed-all-rules.sql</code></pre>
+            </div>
+          </details>
+
+          <h3 style="margin-top: 20px">Backup command</h3>
+          <div class="codeBlock">
+            <button class="copyButton" data-copy="backup-command">Copy</button>
+            <pre><code id="database-rule-update-guide-backup-command"># รันจาก network ที่เข้าถึง Azure MySQL private endpoint ได้
+# อย่าใส่ password ลงใน command history
+mysqldump \
+  --host=&lt;DB_HOST&gt; \
+  --port=3306 \
+  --user=&lt;DB_USER&gt; \
+  --password \
+  --ssl-mode=REQUIRED \
+  --single-transaction \
+  lineminidb \
+  app_config badge_display_groups badge_rules \
+  badge_rule_thresholds badge_rule_conditions \
+  &gt; badge-rules-before-&lt;CHANGE_ID&gt;.sql</code></pre>
+          </div>
+
+          <div class="callout danger">
+            <strong>อย่าใช้ full seed เพื่อแก้ rule เดียวโดยไม่ review ทั้ง dataset.</strong>
+            <code>scripts/db/seed.mjs</code> replace groups/thresholds/conditions และลบ obsolete rules
+            ที่ไม่อยู่ใน source. Targeted SQL ลด blast radius กว่า
+          </div>
+        </section>
+<p class="footer">
+          Source references: <code>scripts/db/migrate.mjs</code>,
+          <code>scripts/db/seed.mjs</code>, <code>scripts/db/prod/seed-data.mjs</code>,
+          <code>src/lib/badge-repository.ts</code>, <code>src/lib/badge-engine.ts</code> ·
+          Updated 18 Aug 2026
+        </p>
+
+</section>
+
+  </main>
+</body>
+</html>
