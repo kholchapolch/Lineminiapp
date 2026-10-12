@@ -71,7 +71,7 @@ type SonyDataLayer = {
       section: string;
       currency: string;
     };
-    user: { id: string };
+    user: { lineUID: string };
   };
 };
 
@@ -183,7 +183,7 @@ describe("sony data layer", () => {
         section: "line",
         currency: "THB",
       },
-      user: { id: "U-line-user" },
+      user: { lineUID: "U-line-user" },
     });
   });
 
@@ -203,11 +203,11 @@ describe("sony data layer", () => {
     expect(
       (
         context.window as unknown as { buildSonyDataLayer: () => SonyDataLayer }
-      ).buildSonyDataLayer().digitalData.user.id,
+      ).buildSonyDataLayer().digitalData.user.lineUID,
     ).toBe("U-stored");
   });
 
   it("leaves the member id empty when nobody is logged in", () => {
-    expect(buildDataLayer("/th/my-badges").digitalData.user.id).toBe("");
+    expect(buildDataLayer("/th/my-badges").digitalData.user.lineUID).toBe("");
   });
 });

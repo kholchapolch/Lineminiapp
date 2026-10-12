@@ -396,12 +396,12 @@ https://tags.tiqcdn.com/utag/sony-marketing/sea/prod/utag.js</pre>
     <section id="userid">
       <h2>User ID</h2>
       <p>
-        <code>sony.digitalData.user.id</code> คือ My Sony Member ID ของ Mini App นี้
+        <code>sony.digitalData.user.lineUID</code> คือ My Sony Member ID ของ Mini App นี้
         และใช้ LINE UUID ของผู้ใช้ที่ล็อกอินผ่าน LINE
       </p>
       <div class="tableWrap">
         <table>
-          <caption>ค่า user.id</caption>
+          <caption>ค่า user.lineUID</caption>
           <thead>
             <tr>
               <th>สถานะ</th>
@@ -489,7 +489,7 @@ https://tags.tiqcdn.com/utag/sony-marketing/sea/prod/utag.js</pre>
         <li>บน production URL ของ sync และ async ต้องมี <code>/prod/</code> บน staging และ localhost ต้องมี
           <code>/qa/</code></li>
         <li>ในคอนโซลเรียก <code>buildSonyDataLayer()</code> แล้วตรวจ <code>digitalData.page</code> และ
-          <code>digitalData.user.id</code></li>
+          <code>digitalData.user.lineUID</code></li>
         <li>เปิด <code>/th/my-missions</code> แบบเต็มหน้า ต้องไม่พบ <code>utag.sync.js</code> หรือ
           <code>buildSonyDataLayer</code></li>
         <li>ใน Network tab ไฟล์ <code>utag.sync.js</code> และ <code>utag.js</code> ต้องตอบสำเร็จ</li>

@@ -127,7 +127,7 @@ export function sonyDataLayerScript(): string {
         sony.digitalData.page.currency = 'THB';
 
         sony.digitalData.user = {};
-        sony.digitalData.user.id = memberId;
+        sony.digitalData.user.lineUID = memberId;
 
         return sony;
     };
