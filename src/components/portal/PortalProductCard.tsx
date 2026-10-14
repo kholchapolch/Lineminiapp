@@ -55,6 +55,8 @@ export type PortalProductCardProps = {
     | "productActionsAriaLabel"
     | "serialBarcodeAriaLabel"
   >;
+  /** 1-based index of the highlighted CTA. Defaults to 1. */
+  currentActive?: number;
   onCtaClick?: (ctaId: string) => void;
   onArticleClick?: (articleId: string) => void;
 };
@@ -140,12 +142,17 @@ export function PortalProductCard({
   recommendedTitle,
   articles,
   ui,
+  currentActive = 1,
   onCtaClick,
   onArticleClick,
 }: PortalProductCardProps): JSX.Element {
   const ctasRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const activeCtaIndex = Math.min(
+    Math.max(currentActive, 1),
+    Math.max(ctas.length, 1),
+  );
   const previousLabel = ui?.previous ?? "Previous";
   const nextLabel = ui?.next ?? "Next";
   const actionsAriaLabel = ui?.productActionsAriaLabel ?? "Product actions";
@@ -180,6 +187,28 @@ export function PortalProductCard({
       window.removeEventListener("resize", updateScrollState);
     };
   }, [ctas]);
+
+  useEffect(() => {
+    const node = ctasRef.current;
+    if (!node) {
+      return;
+    }
+
+    const activeButton = node.querySelector<HTMLElement>(
+      `[data-cta-index="${activeCtaIndex}"]`,
+    );
+    if (!activeButton) {
+      return;
+    }
+
+    const nextLeft =
+      activeButton.offsetLeft -
+      (node.clientWidth - activeButton.offsetWidth) / 2;
+    node.scrollTo({
+      left: Math.max(0, nextLeft),
+      behavior: "smooth",
+    });
+  }, [activeCtaIndex, ctas]);
 
   function scrollCtas(direction: "left" | "right"): void {
     const node = ctasRef.current;
@@ -248,17 +277,22 @@ export function PortalProductCard({
           className="portalProductCard__ctas"
           aria-label={actionsAriaLabel}
         >
-          {ctas.map((cta) => (
-            <button
-              key={cta.id}
-              type="button"
-              className="portalProductCard__cta"
-              onClick={() => onCtaClick?.(cta.id)}
-            >
-              <span>{cta.title}</span>
-              {cta.subtitle ? <span>{cta.subtitle}</span> : null}
-            </button>
-          ))}
+          {ctas.map((cta, index) => {
+            const isActive = index + 1 === activeCtaIndex;
+            return (
+              <button
+                key={cta.id}
+                type="button"
+                data-cta-index={index + 1}
+                className={`portalProductCard__cta${isActive ? " isActive" : ""}`}
+                aria-pressed={isActive}
+                onClick={() => onCtaClick?.(cta.id)}
+              >
+                <span>{cta.title}</span>
+                {cta.subtitle ? <span>{cta.subtitle}</span> : null}
+              </button>
+            );
+          })}
         </div>
         <button
           type="button"
