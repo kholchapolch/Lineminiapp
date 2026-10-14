@@ -10,7 +10,7 @@ import { sonyDataLayerScript } from "@/lib/tealium";
 type SonyLayer = {
   digitalData?: {
     page?: Record<string, unknown>;
-    user?: { id?: string };
+    user?: { lineUID?: string };
   };
 };
 
@@ -54,7 +54,7 @@ function ensureDataLayer(installed: { current: boolean }): void {
 export function SonyDataLayerDebug(): JSX.Element | null {
   const installedDataLayer = useRef(false);
   const [enabled, setEnabled] = useState(false);
-  const [userId, setUserId] = useState("");
+  const [lineUID, setLineUID] = useState("");
   const [snapshot, setSnapshot] = useState("waiting for buildSonyDataLayer()");
 
   useEffect(() => {
@@ -73,13 +73,13 @@ export function SonyDataLayerDebug(): JSX.Element | null {
       ensureDataLayer(installedDataLayer);
       const build = window.buildSonyDataLayer;
       if (typeof build !== "function") {
-        setUserId("");
+        setLineUID("");
         setSnapshot("buildSonyDataLayer is not defined");
         return;
       }
 
       const layer = build();
-      setUserId(layer?.digitalData?.user?.id ?? "");
+      setLineUID(layer?.digitalData?.user?.lineUID ?? "");
       setSnapshot(JSON.stringify(layer, null, 2));
     };
 
@@ -118,7 +118,7 @@ export function SonyDataLayerDebug(): JSX.Element | null {
       <p style={{ margin: 0, fontSize: 13, color: "#9ecbff" }}>
         buildSonyDataLayer()
       </p>
-      <p style={{ margin: "8px 0 0", fontSize: 13 }}>user.id</p>
+      <p style={{ margin: "8px 0 0", fontSize: 13 }}>user.lineUID</p>
       <p
         style={{
           margin: "4px 0 0",
@@ -128,7 +128,7 @@ export function SonyDataLayerDebug(): JSX.Element | null {
           wordBreak: "break-all",
         }}
       >
-        {userId || "(empty)"}
+        {lineUID || "(empty)"}
       </p>
       <pre
         style={{
