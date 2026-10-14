@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {validateDataset,safeUrl} from './dataset.mjs';
+import {validateDataset,safeUrl,validateArticlePayload,validateCarouselPayload} from './dataset.mjs';
 import {importDraft,activateDataset,readDataset} from './repository.mjs';
 import {withProductPlaceholders,MOCK_PRODUCT_IMAGE_URL} from './product-placeholder.mjs';
 const fixture=()=>JSON.parse(fs.readFileSync(new URL('./fixtures/workbook-uat.json',import.meta.url)));
@@ -34,6 +34,15 @@ test('duplicate model, broken reference, locale, raw HTML, unknown blocks and un
 });
 test('workbook subset preserves null images and missing English register page',()=>{
  const {dataset}=validateDataset(fixture());assert.equal(dataset.products.length,649);assert.ok(dataset.products.every(p=>p.image_url===null));assert.equal(dataset.contents.length,5);assert.deepEqual(dataset.contents.filter(c=>c.content_type==='page').map(c=>c.locale),['th']);
+});
+test('article and carousel payloads allow blank or null imageUrl but still reject unsafe hosts',()=>{
+ const base={title:'T',description:'D',url:'https://www.sony.co.th/th/a'};
+ for(const imageUrl of ['','   ',null]){
+  assert.doesNotThrow(()=>validateArticlePayload({...base,imageUrl}));
+  assert.doesNotThrow(()=>validateCarouselPayload({...base,imageUrl}));
+ }
+ assert.throws(()=>validateArticlePayload({...base,imageUrl:'javascript:alert(1)'}));
+ assert.throws(()=>validateCarouselPayload({...base,imageUrl:'http://www.sony.co.th/a.png'}));
 });
 function fake({revision='0',failInsert=false,missing=false}={}){
  const events=[];

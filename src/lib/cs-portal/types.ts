@@ -30,12 +30,12 @@ export type PageBlock =
 export type PagePayload = { title: string; lead: string; blocks: PageBlock[] };
 export type RegisterProductPage = PagePayload & { key: 'register-product'; locale: 'th' | 'en' };
 
-export type CarouselPayload = { title: string; description: string; imageUrl: string; url: string };
+export type CarouselPayload = { title: string; description: string; imageUrl: string | null; url: string };
 export type CarouselItem = {
   key: string;
   title: string;
   description: string;
-  imageUrl: string;
+  imageUrl: string | null;
   imageAlt: string;
   href: string;
   // Source wall-clock value, without inventing a timezone for MySQL DATETIME.
@@ -70,9 +70,9 @@ export type PortalContentResponse = {
   models: (ModelCarouselContent & { ctaItems: CtaItem[] })[];
 };
 
-export type ArticlePayload = { title: string; description: string; imageUrl: string; url: string };
+export type ArticlePayload = { title: string; description: string; imageUrl: string | null; url: string };
 export type ArticleItem = {
-  key: string; title: string; summary: string; imageUrl: string; imageAlt: string;
+  key: string; title: string; summary: string; imageUrl: string | null; imageAlt: string;
   url: string; publishedAt: string | null; isMock: boolean;
 };
 export type ArticlesResponse = {

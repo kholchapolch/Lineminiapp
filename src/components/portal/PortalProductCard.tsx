@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import JsBarcode from "jsbarcode";
 import "./portal-product-card.css";
 import type { PortalBottomSheetArticle } from "@/components/portal/PortalBottomSheet";
+import { resolveContentImageUrl } from "@/lib/cs-portal/content-images";
 import type { Messages } from "@/lib/i18n/messages/types";
 
 export type PortalProductCtaAction =
@@ -284,14 +285,13 @@ export function PortalProductCard({
                   className="portalProductCard__article"
                   onClick={() => onArticleClick?.(article.id)}
                 >
-                  {article.imageSrc || article.badges?.length ? (
-                    <div className="portalProductCard__articleMedia">
-                      {article.imageSrc ? (
-                        /* eslint-disable-next-line @next/next/no-img-element -- Catalog carousel images from Sony hosts. */
-                        <img src={article.imageSrc} alt="" />
-                      ) : null}
-                    </div>
-                  ) : null}
+                  <div className="portalProductCard__articleMedia">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Carousel images from content hosts or product placeholder. */}
+                    <img
+                      src={resolveContentImageUrl(article.imageSrc)}
+                      alt=""
+                    />
+                  </div>
                   <h4>{article.title}</h4>
                   <p>{article.description}</p>
                 </button>

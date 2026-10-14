@@ -12,10 +12,12 @@ import {
   getPortalCtaLabels,
 } from "@/lib/cs-portal/portal-cta-labels";
 import type { ProductGroup } from "@/lib/cs-portal/product-groups";
+import {
+  FALLBACK_CONTENT_IMAGE_URL,
+  resolveContentImageUrl,
+} from "@/lib/cs-portal/content-images";
 import type { CtaAction, PortalDataset } from "@/lib/cs-portal/types";
 import type { Messages } from "@/lib/i18n/messages/types";
-
-const FALLBACK_PRODUCT_IMAGE = "/cs-portal-prototype/headphones.svg";
 
 function formatPortalDate(value: string | null): string | null {
   if (!value) {
@@ -75,7 +77,7 @@ function articlesForAction(
     title: item.title,
     description: item.summary,
     publishedAt: formatArticlePublishedAt(item.publishedAt),
-    imageSrc: item.imageUrl,
+    imageSrc: resolveContentImageUrl(item.imageUrl),
     href: item.url,
   }));
 }
@@ -123,7 +125,7 @@ function carouselForModel(
     id: item.key,
     title: item.title,
     description: item.description,
-    imageSrc: item.imageUrl,
+    imageSrc: resolveContentImageUrl(item.imageUrl),
     href: item.href,
   }));
 }
@@ -151,7 +153,7 @@ export function toProductCards(
         modelName: group.modelName,
         modelDescription:
           registration.modelName ?? group.categoryCode ?? group.modelKey,
-        imageSrc: group.imageUrl || FALLBACK_PRODUCT_IMAGE,
+        imageSrc: group.imageUrl || FALLBACK_CONTENT_IMAGE_URL,
         imageAlt: group.modelName,
         serialNumber,
         registeredAt: registeredAt
