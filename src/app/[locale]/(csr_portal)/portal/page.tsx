@@ -40,6 +40,7 @@ type PortalProductsView =
   | {
       kind: "empty";
       title: string;
+      description: string;
       actionLabel: string;
       actionHref: string;
     }
@@ -63,11 +64,7 @@ function readPortalSession(): { lineuuid: string } | null {
 }
 
 function linkAccountHref(): string {
-  return (
-    process.env.NEXT_PUBLIC_ACCOUNT_URL?.trim() ||
-    process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL?.trim() ||
-    "https://stg.mysony.sony-asia.com/th/line/chooselanguage"
-  );
+  return "https://www.sony.co.th/microsite/msr-line-menu/sign-up";
 }
 
 async function loadPortalProducts(
@@ -92,8 +89,11 @@ async function loadPortalProducts(
       return {
         kind: "empty",
         title: result.emptyState?.title[locale] ?? copy.emptyTitle,
+        description:
+          result.emptyState?.message[locale] ?? copy.emptyDescription,
         actionLabel:
-          result.emptyState?.action.label[locale] ?? copy.registerPage.registerCta,
+          result.emptyState?.action.label[locale] ??
+          copy.registerPage.registerCta,
         actionHref: `/${locale}/portal/register`,
       };
     }
@@ -162,6 +162,7 @@ function PortalProducts({
     return (
       <PortalEmptyProductsView
         title={view.title}
+        description={view.description}
         actionLabel={view.actionLabel}
         actionHref={view.actionHref}
       />

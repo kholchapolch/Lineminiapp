@@ -196,6 +196,7 @@ export type Messages = {
     serialBarcodeAriaLabel: string;
     notLinkedTitle: string;
     emptyTitle: string;
+    emptyDescription: string;
     registerPage: {
       registerCta: string;
       homeCta: string;

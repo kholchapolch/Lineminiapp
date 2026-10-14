@@ -29,6 +29,7 @@ export type MyBadgesNoProductsResponse = {
   productState: "no_products";
   emptyState: {
     title: { th: string; en: string };
+    message: { th: string; en: string };
     action: { label: { th: string; en: string } };
   };
 };

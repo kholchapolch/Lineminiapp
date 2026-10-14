@@ -2,12 +2,14 @@ import "./portal-empty-products.css";
 
 export type PortalEmptyProductsViewProps = {
   title: string;
+  description?: string;
   actionLabel: string;
   actionHref: string;
 };
 
 export function PortalEmptyProductsView({
   title,
+  description,
   actionLabel,
   actionHref,
 }: PortalEmptyProductsViewProps): JSX.Element {
@@ -22,7 +24,12 @@ export function PortalEmptyProductsView({
         height={76}
         aria-hidden="true"
       />
-      <h1 className="portalEmptyProducts__title">{title}</h1>
+      <div className="portalEmptyProducts__copy">
+        <h1 className="portalEmptyProducts__title">{title}</h1>
+        {description ? (
+          <p className="portalEmptyProducts__description">{description}</p>
+        ) : null}
+      </div>
       <a className="portalEmptyProducts__action" href={actionHref}>
         <span>{actionLabel}</span>
         <span aria-hidden="true">→</span>
