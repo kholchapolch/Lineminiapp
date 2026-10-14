@@ -7,10 +7,8 @@ import type {
 import { resolveArticles } from "@/lib/cs-portal/articles";
 import { resolveCarouselContent } from "@/lib/cs-portal/carousel-content";
 import { resolvePortalContent } from "@/lib/cs-portal/cta-content";
-import {
-  CTA_ACTION_ORDER,
-  getPortalCtaLabels,
-} from "@/lib/cs-portal/portal-cta-labels";
+import { getPortalCtaLabels } from "@/lib/cs-portal/portal-cta-labels";
+import { ctaActionsForCategory } from "@/lib/cs-portal/portal-cta-visibility";
 import type { ProductGroup } from "@/lib/cs-portal/product-groups";
 import {
   FALLBACK_CONTENT_IMAGE_URL,
@@ -86,15 +84,21 @@ function ctasFromResolved(
   dataset: PortalDataset,
   locale: "th" | "en",
   modelKey: string,
+  categoryCode: string | null,
   copy: Messages["portal"],
 ): PortalProductCta[] {
+  const allowedActions = ctaActionsForCategory(categoryCode);
+  if (allowedActions.length === 0) {
+    return [];
+  }
+
   const resolved = resolvePortalContent(dataset, locale, [modelKey]).models[0];
   const byActionKey = new Map(
     (resolved?.ctaItems ?? []).map((item) => [item.actionKey, item]),
   );
   const labels = getPortalCtaLabels(copy);
 
-  return CTA_ACTION_ORDER.map((actionKey) => {
+  return allowedActions.map((actionKey) => {
     const mapped = byActionKey.get(actionKey);
     const action = actionForKey(mapped?.action);
     const label = labels[actionKey];
@@ -137,7 +141,13 @@ export function toProductCards(
   copy: Messages["portal"],
 ): PortalProductCardProps[] {
   return groups.flatMap((group) => {
-    const ctas = ctasFromResolved(dataset, locale, group.modelKey, copy);
+    const ctas = ctasFromResolved(
+      dataset,
+      locale,
+      group.modelKey,
+      group.categoryCode,
+      copy,
+    );
     const articles = carouselForModel(dataset, locale, group.modelKey);
 
     return group.registrations.map((registration, index) => {

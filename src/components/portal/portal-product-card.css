@@ -229,11 +229,12 @@
   gap: 2px;
   min-height: 48px;
   align-content: center;
-  border: 0;
+  box-sizing: border-box;
+  border: 2px solid var(--portal-primary-color);
   border-radius: 20px;
-  background: var(--portal-primary-color);
+  background: transparent;
   padding: 12px 24px;
-  color: #fff;
+  color: var(--portal-primary-color);
   font: inherit;
   font-weight: 700;
   line-height: 1.25;
@@ -241,6 +242,12 @@
   white-space: nowrap;
   scroll-snap-align: start;
   cursor: pointer;
+}
+
+.portalProductCard__cta.isActive {
+  border-color: transparent;
+  background: var(--portal-primary-color);
+  color: #fff;
 }
 
 .portalProductCard__cta span:first-child {

@@ -24,10 +24,12 @@ export function PortalProductList({
   copy: Messages["portal"];
 }): JSX.Element {
   const router = useRouter();
-  const [sheetProductId, setSheetProductId] = useState<string | null>(null);
-  const [activeTabId, setActiveTabId] = useState("");
+  const [activeProductId, setActiveProductId] = useState<string | null>(null);
+  const [currentActive, setCurrentActive] = useState(1);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
-  const sheetProduct = products.find((item) => item.id === sheetProductId) ?? null;
+  const sheetProduct =
+    products.find((item) => item.id === activeProductId) ?? null;
 
   const sheetTabs = useMemo<PortalBottomSheetTab[]>(() => {
     if (!sheetProduct) {
@@ -44,7 +46,26 @@ export function PortalProductList({
       }));
   }, [sheetProduct]);
 
-  function handleCtaClick(product: PortalProductCardProps, cta: PortalProductCta): void {
+  const activeTabId = useMemo(() => {
+    if (!sheetProduct || sheetTabs.length === 0) {
+      return "";
+    }
+
+    const selectedCta = sheetProduct.ctas[currentActive - 1];
+    if (
+      selectedCta &&
+      sheetTabs.some((tab) => tab.id === selectedCta.actionKey)
+    ) {
+      return selectedCta.actionKey;
+    }
+
+    return sheetTabs[0]?.id ?? "";
+  }, [sheetProduct, sheetTabs, currentActive]);
+
+  function handleCtaClick(
+    product: PortalProductCardProps,
+    cta: PortalProductCta,
+  ): void {
     if (cta.action.type === "internal") {
       router.push(`/${locale}${cta.action.route}`);
       return;
@@ -55,8 +76,10 @@ export function PortalProductList({
       return;
     }
 
-    setSheetProductId(product.id);
-    setActiveTabId(cta.actionKey);
+    const index = product.ctas.findIndex((item) => item.id === cta.id);
+    setActiveProductId(product.id);
+    setCurrentActive(index >= 0 ? index + 1 : 1);
+    setSheetOpen(true);
   }
 
   return (
@@ -68,6 +91,9 @@ export function PortalProductList({
               <PortalProductCard
                 {...product}
                 ui={copy}
+                currentActive={
+                  product.id === activeProductId ? currentActive : 1
+                }
                 onCtaClick={(ctaId) => {
                   const cta = product.ctas.find((item) => item.id === ctaId);
                   if (!cta) {
@@ -90,10 +116,20 @@ export function PortalProductList({
         ))}
       </div>
       <PortalBottomSheet
-        open={sheetTabs.length > 0}
+        open={sheetOpen && sheetTabs.length > 0}
         tabs={sheetTabs}
         activeTabId={activeTabId}
-        onActiveTabChange={setActiveTabId}
+        onActiveTabChange={(tabId) => {
+          if (!sheetProduct) {
+            return;
+          }
+          const index = sheetProduct.ctas.findIndex(
+            (item) => item.actionKey === tabId,
+          );
+          if (index >= 0) {
+            setCurrentActive(index + 1);
+          }
+        }}
         labels={{
           close: copy.close,
           previous: copy.previous,
@@ -102,8 +138,7 @@ export function PortalProductList({
           articlesEmpty: copy.articlesEmpty,
         }}
         onClose={() => {
-          setSheetProductId(null);
-          setActiveTabId("");
+          setSheetOpen(false);
         }}
       />
     </>
