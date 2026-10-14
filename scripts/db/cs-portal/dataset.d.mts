@@ -3,6 +3,7 @@ export class DatasetValidationError extends Error { status: number }
 export function stableJson(value: unknown): string;
 export function safeUrl(value: unknown): string;
 export function safeImageUrl(value: unknown): string;
+export function optionalSafeImageUrl(value: unknown): string | null | undefined;
 export function validateDataset(input: unknown): {dataset: PortalDataset; version: string};
 export function validatePagePayload(input: unknown): asserts input is PagePayload;
 export function validateCarouselPayload(input: unknown): asserts input is CarouselPayload;

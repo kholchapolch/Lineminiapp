@@ -35,6 +35,13 @@ export function safeUrl(v) {
 export function safeImageUrl(v) {
   return httpsUrl(v);
 }
+/** Article/carousel may omit a thumbnail; the portal UI uses a shared product placeholder. */
+export function optionalSafeImageUrl(v) {
+  if (v === null || v === undefined) return v;
+  if (typeof v !== 'string') fail('URL');
+  if (!v.trim()) return v;
+  return safeImageUrl(v);
+}
 function payload(type, p) {
   if (type === 'cta') {
     keys(p, ['label', 'action']); text(p.label, 'CTA label');
@@ -61,7 +68,7 @@ function payload(type, p) {
   } else if (type === 'footer_link') {
     keys(p, ['label','url']); text(p.label, 'footer label'); safeUrl(p.url);
   } else if (type === 'article' || type === 'carousel') {
-    keys(p, ['title','description','imageUrl','url']); text(p.title, 'title'); text(p.description, 'description'); safeImageUrl(p.imageUrl); safeUrl(p.url);
+    keys(p, ['title','description','imageUrl','url']); text(p.title, 'title'); text(p.description, 'description'); optionalSafeImageUrl(p.imageUrl); safeUrl(p.url);
   } else fail('unsupported content type in this import stage');
 }
 export function validatePagePayload(input) {

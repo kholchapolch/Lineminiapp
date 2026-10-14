@@ -42,6 +42,12 @@ describe('article selection',()=>{
   const d=sample();const r=d.contents.find(r=>r.locale==='th')!;d.contents.push({...r,external_key:'mock:bad',published_at:null,payload:{...r.payload,imageUrl:'javascript:alert(1)'}});
   expect(()=>resolve(d)).toThrow();
  });
+ it('allows blank imageUrl and keeps the article',()=>{
+  const d=sample();const r=d.contents.find(r=>r.external_key==='mock:latest')!;
+  r.payload={...r.payload,imageUrl:''};
+  const item=resolve(d).items.find(i=>i.key==='mock:latest');
+  expect(item?.imageUrl).toBe('');
+ });
  it('parses one model and the exact action returned by CTA',()=>expect(parseArticlesQuery(new URLSearchParams('locale=th&modelKey=ILME-FX2&actionKey=firmware'))).toEqual({locale:'th',modelKey:'ILME-FX2',actionKey:'firmware'}));
  it.each(['','locale=ja&modelKey=A&actionKey=a','locale=th&actionKey=a','locale=th&modelKey=A','locale=th&modelKey=A&modelKey=B&actionKey=a','locale=th&modelKey=A&actionKey=a&actionKey=b','locale=th&modelKey=A&actionKey=%00','locale=th&modelKey=A&actionKey=a&version=draft'])('rejects invalid query %s',q=>expect(()=>parseArticlesQuery(new URLSearchParams(q))).toThrow());
 });

@@ -41,6 +41,13 @@ describe('carousel query and resolver', () => {
     const d = sample(); d.contents.find(c => c.external_key === 'mock:latest')!.payload.url = 'javascript:alert(1)';
     expect(() => resolveCarouselContent(d, 'th', ['ILME-FX2'])).toThrow();
   });
+  it('allows blank imageUrl and still returns the carousel item', () => {
+    const d = sample();
+    d.contents.find(c => c.external_key === 'mock:latest')!.payload.imageUrl = '';
+    const item = resolveCarouselContent(d, 'th', ['ILME-FX2']).models[0].carouselItems[0];
+    expect(item.key).toBe('mock:latest');
+    expect(item.imageUrl).toBe('');
+  });
   it('normalizes deduplication while preserving first requested spelling/order', () => {
     const parsed = parseContentQuery(new URLSearchParams('locale=th&modelKey=wh-1000xm6&modelKey=WH-1000XM6&modelKey=ILME-FX2'));
     expect(parsed.models).toEqual(['wh-1000xm6','ILME-FX2']);

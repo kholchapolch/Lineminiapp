@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { resolveContentImageUrl } from "@/lib/cs-portal/content-images";
 import "./portal-bottom-sheet.css";
 
 export type PortalBottomSheetArticle = {
@@ -244,10 +245,11 @@ export function PortalBottomSheet({
                   const content = (
                     <>
                       <div className="portalBottomSheet__thumb">
-                        {article.imageSrc ? (
-                          /* eslint-disable-next-line @next/next/no-img-element -- Prototype article thumbnails from local assets. */
-                          <img src={article.imageSrc} alt="" />
-                        ) : null}
+                        {/* eslint-disable-next-line @next/next/no-img-element -- Article thumbnails from content hosts or product placeholder. */}
+                        <img
+                          src={resolveContentImageUrl(article.imageSrc)}
+                          alt=""
+                        />
                       </div>
                       <div className="portalBottomSheet__itemBody">
                         <strong>{article.title}</strong>
