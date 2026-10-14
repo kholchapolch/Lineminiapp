@@ -25,6 +25,7 @@ function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
+/** Newest published_at first; same date (or both null) sorts by payload title, then key. */
 export function compareCarousel(left: PortalContent, right: PortalContent): number {
   // Canonical YYYY-MM-DD HH:mm:ss.SSS values can be ordered without timezone conversion.
   if (left.published_at !== right.published_at) {
@@ -32,7 +33,11 @@ export function compareCarousel(left: PortalContent, right: PortalContent): numb
     if (right.published_at === null) return -1;
     return compareText(right.published_at, left.published_at);
   }
-  return left.sort_order - right.sort_order || compareText(left.external_key, right.external_key);
+  const leftTitle = typeof left.payload.title === 'string' ? left.payload.title : '';
+  const rightTitle = typeof right.payload.title === 'string' ? right.payload.title : '';
+  const titleCmp = compareText(leftTitle, rightTitle);
+  if (titleCmp !== 0) return titleCmp;
+  return compareText(left.external_key, right.external_key);
 }
 
 export function resolveCarouselContent(dataset: PortalDataset, locale: 'th' | 'en', models: string[]): CarouselContentResponse {

@@ -9,8 +9,8 @@ function sample() {
 }
 const resolve=(d=sample(),model='ILME-FX2',locale:'th'|'en'='th',action='firmware')=>resolveArticles(d,locale,model,action);
 describe('article selection',()=>{
- it('sorts all articles, with null dates last and stable ties, without carousel limit',()=>{
-  expect(resolve().items.map(i=>i.key)).toEqual(['mock:latest','mock:same-first','mock:same-a','mock:same-b','mock:old','mock:undated-a','mock:undated-b']);
+ it('sorts by published_at then payload title, with null dates last, without carousel limit',()=>{
+  expect(resolve().items.map(i=>i.key)).toEqual(['mock:latest','mock:same-a','mock:same-b','mock:same-first','mock:old','mock:undated-a','mock:undated-b']);
  });
  it('merges explicit category and global mappings, and deduplicates destinations after sorting',()=>{
   const d=sample();const latest=d.contents.find(r=>r.external_key==='mock:latest')!;

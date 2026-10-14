@@ -5,10 +5,10 @@ import fixture from '../../../scripts/db/cs-portal/fixtures/carousel-e2e-mock.js
 const sample = () => validateDataset(structuredClone(fixture)).dataset;
 
 describe('carousel query and resolver', () => {
-  it('sorts newest first, then sort_order, then stable key; caps at five', () => {
+  it('sorts newest first, then payload title, then stable key; caps at five', () => {
     const d = sample(); d.contents.reverse();
     const items = resolveCarouselContent(d, 'th', ['ILME-FX2']).models[0].carouselItems;
-    expect(items.map(i => i.key)).toEqual(['mock:latest','mock:same-first','mock:same-a','mock:same-b','mock:old']);
+    expect(items.map(i => i.key)).toEqual(['mock:latest','mock:same-a','mock:same-b','mock:same-first','mock:old']);
     expect(items.every(i => i.isMock && i.title.startsWith('[MOCK]'))).toBe(true);
     expect(items[0].publishedAt).toBe('2026-09-18 09:00:00.000');
   });
