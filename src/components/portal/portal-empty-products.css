@@ -17,12 +17,27 @@
   height: 76px;
 }
 
-.portalEmptyProducts__title {
+.portalEmptyProducts__copy {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+}
+
+.portalEmptyProducts__title,
+.portalEmptyProducts__description {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
   line-height: 1.4;
   color: var(--portal-empty-ink);
+}
+
+.portalEmptyProducts__title {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.portalEmptyProducts__description {
+  font-size: 0.9375rem;
+  font-weight: 400;
 }
 
 .portalEmptyProducts__action {

@@ -4,7 +4,7 @@ export function createNoProductState() {
     showFooter: true as const,
     title: { th: 'ยังไม่มีสินค้า', en: 'No products yet' },
     message: {
-      th: '',
+      th: 'No products yet',
       en: '',
     },
     action: {

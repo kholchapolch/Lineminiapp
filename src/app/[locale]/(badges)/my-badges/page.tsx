@@ -56,6 +56,7 @@ type AccountGate =
   | {
       kind: "empty";
       title: string;
+      description: string;
       actionLabel: string;
       actionHref: string;
     };
@@ -109,6 +110,8 @@ function accountGateFromBadgesResponse(
     return {
       kind: "empty",
       title: payload.emptyState.title[locale] ?? portal.emptyTitle,
+      description:
+        payload.emptyState.message[locale] ?? portal.emptyDescription,
       actionLabel:
         payload.emptyState.action.label[locale] ??
         portal.registerPage.registerCta,
@@ -239,6 +242,7 @@ export default function MyBadgesPage({
       <div className="portalPage myBadgesPortalGate">
         <PortalEmptyProductsView
           title={accountGate.title}
+          description={accountGate.description}
           actionLabel={accountGate.actionLabel}
           actionHref={accountGate.actionHref}
         />
