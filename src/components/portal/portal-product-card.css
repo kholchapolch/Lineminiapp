@@ -230,13 +230,14 @@
   min-height: 48px;
   align-content: center;
   box-sizing: border-box;
-  border: 2px solid var(--portal-primary-color);
+  border: 1px solid var(--portal-primary-color, #005ece);
   border-radius: 20px;
-  background: transparent;
+  background: var(--portal-light-blue, #d5e3f4);
   padding: 12px 24px;
-  color: var(--portal-primary-color);
+  color: var(--portal-primary-color, #005ece);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.25px;
   line-height: 1.25;
   text-align: center;
   white-space: nowrap;
@@ -246,7 +247,7 @@
 
 .portalProductCard__cta.isActive {
   border-color: transparent;
-  background: var(--portal-primary-color);
+  background: var(--portal-primary-color, #005ece);
   color: #fff;
 }
 
@@ -254,12 +255,12 @@
   font-size: 14px;
   font-weight: 600;
   line-height: 1.25;
-
 }
 
 .portalProductCard__cta span:last-child {
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .portalProductCard__recommended {

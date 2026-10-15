@@ -1,20 +1,24 @@
 .portalLayout {
   --portal-primary-color: #005ece;
+  --portal-light-blue: #d5e3f4;
+  --portal-page-bg: #eef2f7;
 
   min-height: 100dvh;
-  background: #eef2f7;
+  background: var(--portal-page-bg);
   color: #111827;
 }
 
 .portalPage {
   --portal-primary-color: #005ece;
+  --portal-light-blue: #d5e3f4;
+  --portal-page-bg: #eef2f7;
 
   display: flex;
   flex-direction: column;
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
-  background: #eef2f7;
+  background: var(--portal-page-bg);
 }
 
 .portalPage--register {
