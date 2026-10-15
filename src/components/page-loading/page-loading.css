@@ -34,6 +34,42 @@
   border-radius: 24px;
 }
 
+/* Light portal surfaces — overrides the dark badge skeleton default. */
+.pageLoadingSkeleton--portal {
+  background: linear-gradient(90deg, #c9d7e8 0%, #e4edf7 50%, #c9d7e8 100%);
+  background-size: 200% 100%;
+}
+
+.pageLoadingPortal__box {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.pageLoadingPortal__meta {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pageLoadingPortal__serial,
+.pageLoadingPortal__warranty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.pageLoadingPortal__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
 @keyframes pageLoadingShimmer {
   0% {
     background-position: 200% 0;

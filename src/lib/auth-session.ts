@@ -40,17 +40,38 @@ export function resolveAuthorizedLineUuid({
   providedLineUuid?: string | null;
   allowDemoLineUuid?: boolean;
 }): string {
-  if (allowDemoLineUuid && config.appEnv === "local" && providedLineUuid?.trim()) {
+  if (
+    allowDemoLineUuid &&
+    config.appEnv === "local" &&
+    providedLineUuid?.trim()
+  ) {
     return providedLineUuid.trim();
   }
 
-  const session = readLineSession(headers, getSessionSecret(config));
+  return requireLineSession({ config, headers }).lineuuid;
+}
 
-  if (session) {
-    return session.lineuuid;
+/**
+ * Returns the authenticated LINE session for server-side Portal APIs.
+ *
+ * Unlike `resolveAuthorizedLineUuid`, this contract has no query-string or
+ * local-demo escape hatch. Callers receive only a verified signed-cookie
+ * session, or an UnauthorizedError.
+ */
+export function requireLineSession({
+  config,
+  headers,
+}: {
+  config: AppConfig;
+  headers: Headers;
+}): LineSession {
+  const session = readLineSessionFromHeaders(headers, config);
+
+  if (!session) {
+    throw new UnauthorizedError();
   }
 
-  throw new UnauthorizedError();
+  return session;
 }
 
 export async function verifyLineIdToken({
@@ -60,13 +81,42 @@ export async function verifyLineIdToken({
   config: AppConfig;
   idToken: string;
 }): Promise<string> {
-  if (!config.lineChannelId) {
+  const channelIds = config.lineChannelIds.length
+    ? config.lineChannelIds
+    : config.lineChannelId
+      ? [config.lineChannelId]
+      : [];
+
+  if (!channelIds.length) {
     throw new UnauthorizedError("LINE channel configuration is missing.");
   }
 
+  for (const channelId of channelIds) {
+    const lineuuid = await verifyLineIdTokenForChannel({
+      config,
+      idToken,
+      channelId,
+    });
+    if (lineuuid) {
+      return lineuuid;
+    }
+  }
+
+  throw new UnauthorizedError("LINE ID token verification failed.");
+}
+
+async function verifyLineIdTokenForChannel({
+  config,
+  idToken,
+  channelId,
+}: {
+  config: AppConfig;
+  idToken: string;
+  channelId: string;
+}): Promise<string | null> {
   const body = new URLSearchParams({
     id_token: idToken,
-    client_id: config.lineChannelId,
+    client_id: channelId,
   });
 
   const response = await fetch(config.lineVerifyIdTokenUrl, {
@@ -80,13 +130,13 @@ export async function verifyLineIdToken({
   });
 
   if (!response.ok) {
-    throw new UnauthorizedError("LINE ID token verification failed.");
+    return null;
   }
 
-  const payload = await response.json() as LineVerifyResponse;
+  const payload = (await response.json()) as LineVerifyResponse;
 
-  if (payload.aud !== config.lineChannelId || typeof payload.sub !== "string") {
-    throw new UnauthorizedError("LINE ID token payload is invalid.");
+  if (payload.aud !== channelId || typeof payload.sub !== "string") {
+    return null;
   }
 
   if (typeof payload.exp === "number" && payload.exp * 1000 < Date.now()) {
@@ -106,7 +156,10 @@ export function createLineSessionCookie({
   now?: number;
 }): string {
   const expiresAt = now + SESSION_TTL_SECONDS * 1000;
-  const payload = Buffer.from(JSON.stringify({ lineuuid, expiresAt }), "utf8").toString("base64url");
+  const payload = Buffer.from(
+    JSON.stringify({ lineuuid, expiresAt }),
+    "utf8",
+  ).toString("base64url");
   const signature = sign(payload, getSessionSecret(config));
 
   return [
@@ -116,7 +169,9 @@ export function createLineSessionCookie({
     "SameSite=Lax",
     `Max-Age=${SESSION_TTL_SECONDS}`,
     config.appEnv === "local" ? "" : "Secure",
-  ].filter(Boolean).join("; ");
+  ]
+    .filter(Boolean)
+    .join("; ");
 }
 
 export function readLineSessionFromHeaders(
@@ -140,7 +195,9 @@ function readLineSession(headers: Headers, secret: string): LineSession | null {
   }
 
   try {
-    const session = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as LineSession;
+    const session = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8"),
+    ) as LineSession;
 
     if (!session.lineuuid || session.expiresAt < Date.now()) {
       return null;
@@ -163,7 +220,11 @@ function sign(payload: string, secret: string): string {
   return createHmac("sha256", secret).update(payload).digest("base64url");
 }
 
-function verifySignature(payload: string, signature: string, secret: string): boolean {
+function verifySignature(
+  payload: string,
+  signature: string,
+  secret: string,
+): boolean {
   const expected = sign(payload, secret);
   const left = Buffer.from(signature);
   const right = Buffer.from(expected);

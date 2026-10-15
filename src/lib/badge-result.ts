@@ -15,7 +15,7 @@ import {
 import { hashLineUuid } from "@/lib/safe-logging";
 import { normalizeSku } from "@/lib/sku";
 import { createSonyProductsClient } from "@/lib/sony-products-client";
-import { SonyCustomerNotFoundError } from "@/lib/sony-products";
+export { isSonyCustomerNotFound } from "@/lib/sony-account";
 import { toSafeError } from "@/lib/safe-logging";
 import type {
   BadgeApiCacheHitPayload,
@@ -181,8 +181,4 @@ function toDisplayBadge(badge: CalculatedBadge): BadgeDisplayItem {
     registrationDate: firstProduct?.registeredAt ?? null,
     level: badge.level,
   };
-}
-
-export function isSonyCustomerNotFound(error: unknown): boolean {
-  return error instanceof SonyCustomerNotFoundError;
 }

@@ -11,6 +11,7 @@ export type SonyOwnedProduct = {
   modelName: string | null;
   serialNumber: string | null;
   registeredAt: string;
+  warrantyExpiryDate?: string | null;
 };
 
 export type SonyCustomerProfile = {

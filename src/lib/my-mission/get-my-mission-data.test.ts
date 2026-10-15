@@ -23,6 +23,7 @@ const experience: BadgeExperience = {
     lineDisplayName: null,
     linePictureUrl: null,
   },
+  ownedProductCount: portraitProducts.length,
   productBadges: portraitProducts.map(([sku, title], index) => ({
     id: `product-${sku.toLowerCase()}`,
     modelCode: sku,

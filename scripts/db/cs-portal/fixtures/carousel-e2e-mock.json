@@ -1,0 +1,150 @@
+{
+  "products": [
+    {
+      "external_key": null,
+      "model_name": "ILME-FX2",
+      "model_key": "ILME-FX2",
+      "category_code": "DI",
+      "image_url": null,
+      "sort_order": 0
+    },
+    {
+      "external_key": null,
+      "model_name": "WH-1000XM6",
+      "model_key": "WH-1000XM6",
+      "category_code": "Personal Entertainment",
+      "image_url": null,
+      "sort_order": 1
+    }
+  ],
+  "contents": [
+    {
+      "external_key": "mock:latest",
+      "locale": "th",
+      "content_type": "carousel",
+      "target_type": "model",
+      "target_key": "ILME-FX2",
+      "action_key": null,
+      "sort_order": 99,
+      "published_at": "2026-09-18 09:00:00.000",
+      "payload": {
+        "title": "[MOCK] Carousel latest",
+        "description": "ข้อมูลจำลองสำหรับทดสอบเท่านั้น ไม่ใช่คอนเทนต์ที่ Sony เผยแพร่",
+        "imageUrl": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+        "url": "https://www.sony.co.th/th"
+      }
+    },
+    {
+      "external_key": "mock:same-b",
+      "locale": "th",
+      "content_type": "carousel",
+      "target_type": "model",
+      "target_key": "ILME-FX2",
+      "action_key": null,
+      "sort_order": 2,
+      "published_at": "2026-09-17 09:00:00.000",
+      "payload": {
+        "title": "[MOCK] Carousel same-b",
+        "description": "ข้อมูลจำลองสำหรับทดสอบเท่านั้น ไม่ใช่คอนเทนต์ที่ Sony เผยแพร่",
+        "imageUrl": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+        "url": "https://www.sony.co.th/th"
+      }
+    },
+    {
+      "external_key": "mock:same-a",
+      "locale": "th",
+      "content_type": "carousel",
+      "target_type": "model",
+      "target_key": "ILME-FX2",
+      "action_key": null,
+      "sort_order": 2,
+      "published_at": "2026-09-17 09:00:00.000",
+      "payload": {
+        "title": "[MOCK] Carousel same-a",
+        "description": "ข้อมูลจำลองสำหรับทดสอบเท่านั้น ไม่ใช่คอนเทนต์ที่ Sony เผยแพร่",
+        "imageUrl": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+        "url": "https://www.sony.co.th/th"
+      }
+    },
+    {
+      "external_key": "mock:same-first",
+      "locale": "th",
+      "content_type": "carousel",
+      "target_type": "model",
+      "target_key": "ILME-FX2",
+      "action_key": null,
+      "sort_order": 1,
+      "published_at": "2026-09-17 09:00:00.000",
+      "payload": {
+        "title": "[MOCK] Carousel same-first",
+        "description": "ข้อมูลจำลองสำหรับทดสอบเท่านั้น ไม่ใช่คอนเทนต์ที่ Sony เผยแพร่",
+        "imageUrl": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+        "url": "https://www.sony.co.th/th"
+      }
+    },
+    {
+      "external_key": "mock:old",
+      "locale": "th",
+      "content_type": "carousel",
+      "target_type": "model",
+      "target_key": "ILME-FX2",
+      "action_key": null,
+      "sort_order": 0,
+      "published_at": "2026-08-01 09:00:00.000",
+      "payload": {
+        "title": "[MOCK] Carousel old",
+        "description": "ข้อมูลจำลองสำหรับทดสอบเท่านั้น ไม่ใช่คอนเทนต์ที่ Sony เผยแพร่",
+        "imageUrl": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+        "url": "https://www.sony.co.th/th"
+      }
+    },
+    {
+      "external_key": "mock:undated-a",
+      "locale": "th",
+      "content_type": "carousel",
+      "target_type": "model",
+      "target_key": "ILME-FX2",
+      "action_key": null,
+      "sort_order": 0,
+      "published_at": null,
+      "payload": {
+        "title": "[MOCK] Carousel undated-a",
+        "description": "ข้อมูลจำลองสำหรับทดสอบเท่านั้น ไม่ใช่คอนเทนต์ที่ Sony เผยแพร่",
+        "imageUrl": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+        "url": "https://www.sony.co.th/th"
+      }
+    },
+    {
+      "external_key": "mock:undated-b",
+      "locale": "th",
+      "content_type": "carousel",
+      "target_type": "model",
+      "target_key": "ILME-FX2",
+      "action_key": null,
+      "sort_order": 1,
+      "published_at": null,
+      "payload": {
+        "title": "[MOCK] Carousel undated-b",
+        "description": "ข้อมูลจำลองสำหรับทดสอบเท่านั้น ไม่ใช่คอนเทนต์ที่ Sony เผยแพร่",
+        "imageUrl": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+        "url": "https://www.sony.co.th/th"
+      }
+    },
+    {
+      "external_key": "mock:english",
+      "locale": "en",
+      "content_type": "carousel",
+      "target_type": "model",
+      "target_key": "ILME-FX2",
+      "action_key": null,
+      "sort_order": 99,
+      "published_at": "2026-09-18 09:00:00.000",
+      "payload": {
+        "title": "[MOCK] English carousel",
+        "description": "MOCK content for tests only",
+        "imageUrl": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+        "url": "https://www.sony.co.th/th"
+      }
+    }
+  ]
+}
