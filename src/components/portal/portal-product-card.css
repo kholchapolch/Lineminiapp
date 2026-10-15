@@ -9,10 +9,11 @@
 }
 
 .portalProductCard {
-  --portal-product-ink: #1a1a1a;
-  --portal-product-muted: #6b7280;
-  --portal-product-line: #e5e7eb;
+  --portal-product-ink: #111111;
+  --portal-product-muted: #666666;
+  --portal-product-line: #e8eaef;
   --portal-product-surface: #ffffff;
+  --portal-product-warranty: #f2f5f9;
   --portal-product-media: #111111;
 
   display: grid;
@@ -77,29 +78,43 @@
 }
 
 .portalProductCard__meta {
-  overflow: hidden;
-  border-radius: 16px;
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+  border-radius: 24px;
   background: var(--portal-product-surface);
+  padding: 20px 12px;
+  box-shadow: 0 5px 20px rgba(93, 96, 176, 0.15);
 }
 
 .portalProductCard__serial {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid var(--portal-product-line);
+  padding: 8px 12px;
+}
+
+.portalProductCard__serialText {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
 }
 
 .portalProductCard__serialIcon {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
+  flex: 0 0 37px;
+  width: 37px;
+  height: 37px;
   color: var(--portal-product-ink);
 }
 
 .portalProductCard__serialBarcode {
   flex: 0 0 auto;
-  width: 72px;
-  height: 28px;
+  width: 100px;
+  height: 37px;
   color: var(--portal-product-ink);
 }
 
@@ -111,6 +126,7 @@
 }
 
 .portalProductCard__serialNumber {
+  color: var(--portal-product-ink);
   font-size: 14px;
   font-weight: 500;
   line-height: 1.25;
@@ -122,26 +138,34 @@
   font-size: 10px;
   line-height: 1.35;
   font-weight: 400;
+  font-family: var(--font-sukhumvit-set), "Poppins", ui-sans-serif, system-ui, sans-serif;
+}
+
+.portalProductCard__warrantyText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
 }
 
 .portalProductCard__warrantyLabel {
+  color: var(--portal-product-muted);
   font-size: 10px;
   font-weight: 600;
   line-height: 1.35;
-
 }
 
 .portalProductCard__warranty {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  border-top: 1px solid var(--portal-product-line);
-  background: #f3f4f6;
-  padding: 12px 16px;
+  gap: 16px;
+  border-radius: 12px;
+  background: var(--portal-product-warranty);
+  padding: 12px;
 }
 
 .portalProductCard__warrantyExpiry {
+  color: var(--portal-product-ink);
   font-size: 13px;
   font-weight: 600;
   line-height: 1.3;
@@ -158,8 +182,8 @@
 }
 
 .portalProductCard__status--active {
-  background: #dcfce7;
-  color: #15803d;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 
 .portalProductCard__status--expired {
@@ -230,13 +254,14 @@
   min-height: 48px;
   align-content: center;
   box-sizing: border-box;
-  border: 2px solid var(--portal-primary-color);
+  border: 1px solid var(--portal-primary-color, #005ece);
   border-radius: 20px;
-  background: transparent;
+  background: var(--portal-light-blue, #d5e3f4);
   padding: 12px 24px;
-  color: var(--portal-primary-color);
+  color: var(--portal-primary-color, #005ece);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.25px;
   line-height: 1.25;
   text-align: center;
   white-space: nowrap;
@@ -246,7 +271,7 @@
 
 .portalProductCard__cta.isActive {
   border-color: transparent;
-  background: var(--portal-primary-color);
+  background: var(--portal-primary-color, #005ece);
   color: #fff;
 }
 
@@ -254,12 +279,12 @@
   font-size: 14px;
   font-weight: 600;
   line-height: 1.25;
-
 }
 
 .portalProductCard__cta span:last-child {
   font-size: 12px;
   font-weight: 600;
+  line-height: 1.2;
 }
 
 .portalProductCard__recommended {

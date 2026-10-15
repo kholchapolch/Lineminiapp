@@ -178,7 +178,7 @@
   box-sizing: border-box;
   border: 1px solid var(--portal-primary-color, #005ece);
   border-radius: 20px;
-  background: #d5e3f4;
+  background: var(--portal-light-blue, #d5e3f4);
   padding: 12px 24px;
   color: var(--portal-primary-color, #005ece);
   font: inherit;
@@ -204,13 +204,10 @@
 }
 
 .portalBottomSheet__tab.isActive {
-  background: var(--portal-primary-color);
-  color: #fff;
   border: 3px solid #d7e6f8;
-  box-shadow: none;
-
-  box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.15);
-
+  background: var(--portal-primary-color, #005ece);
+  color: #fff;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
 }
 
 .portalBottomSheet__sectionTitle {

@@ -241,14 +241,14 @@ export function PortalProductCard({
       <div className="portalProductCard__meta">
         <div className="portalProductCard__serial">
           <SerialBarcode value={serialNumber} ariaLabel={barcodeAriaLabel} />
-          <div>
+          <div className="portalProductCard__serialText">
             <p className="portalProductCard__serialNumber">{serialNumber}</p>
             <p className="portalProductCard__registered">{registeredAt}</p>
           </div>
         </div>
 
         <div className="portalProductCard__warranty">
-          <div>
+          <div className="portalProductCard__warrantyText">
             <p className="portalProductCard__warrantyLabel">{warrantyLabel}</p>
             <p className="portalProductCard__warrantyExpiry">
               {warrantyExpiry}
