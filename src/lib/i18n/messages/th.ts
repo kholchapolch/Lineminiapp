@@ -219,7 +219,7 @@ export const th: Messages = {
     back: "ย้อนกลับ (Back)",
   },
   portal: {
-    sessionRequired: "ต้องมี LINE session",
+    sessionRequired: "กรุณาปิดแอปแล้วเปิดใหม่อีกครั้ง",
     loadProductsFailed: "ไม่สามารถโหลดสินค้าได้",
     productsAriaLabel: "สินค้าที่ลงทะเบียน",
     loadingProductsAriaLabel: "กำลังโหลดสินค้า",

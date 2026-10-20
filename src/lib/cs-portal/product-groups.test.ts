@@ -33,6 +33,20 @@ describe('Product Card grouping',()=>{
   expect(g.map(x=>x.modelKey)).toEqual(['C','A','B']);
   expect(g[1].registrations.map(r=>r.serialNumber)).toEqual(['NEW','OLD','NONE']);
  });
+ it('sorts Sony YYYY-MM-DD HH:mm:ss registration timestamps newest first',()=>{
+  const g=groupPortalProducts([
+    row('SEL70200GM/QSYX','1900001','2026-09-01 14:56:49','2026-11-30'),
+    row('ILCE-7M4K/BQAP2','2020392','2026-09-01 15:31:50','2026-03-14'),
+    row('SEL70200G   AE','2600001','2026-09-01 14:45:45','2026-11-18'),
+    row('SEL35F14GM/QSYX','8111114','2026-07-31 16:02:53','2026-10-05'),
+  ],d,now);
+  expect(g.map(x=>x.registrations[0].serialNumber)).toEqual([
+    '2020392',
+    '1900001',
+    '2600001',
+    '8111114',
+  ]);
+ });
  it('preserves repeated or missing serial rows without losing ownership data',()=>{
   expect(groupPortalProducts([row('A',null,null),row('A',null,null),row('A','S',null),row('A','S',null)],d,now)[0].registrations).toHaveLength(4);
  });
