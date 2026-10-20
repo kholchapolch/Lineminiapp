@@ -203,7 +203,7 @@ export const en: Messages = {
     back: "Back",
   },
   portal: {
-    sessionRequired: "LINE session is required.",
+    sessionRequired: "Please close the app and open it again.",
     loadProductsFailed: "Unable to load products.",
     productsAriaLabel: "Registered products",
     loadingProductsAriaLabel: "Loading products",

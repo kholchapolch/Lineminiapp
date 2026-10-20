@@ -15,8 +15,25 @@ function validDay(value: string): boolean {
 function registrationTime(value: string | null): number | null {
   if (!value) return null;
   if (validDay(value)) return Date.parse(value);
-  // Only explicit ISO timestamps with a timezone; do not guess local time formats.
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value) || !validDay(value.slice(0,10))) return null;
+
+  // Sony ownership API uses Bangkok wall-clock timestamps without a timezone.
+  const sonyLocal = /^(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(value);
+  if (sonyLocal && validDay(sonyLocal[1])) {
+    const time = Date.parse(
+      `${sonyLocal[1]}T${sonyLocal[2]}:${sonyLocal[3]}:${sonyLocal[4]}+07:00`,
+    );
+    return Number.isFinite(time) ? time : null;
+  }
+
+  // Only explicit ISO timestamps with a timezone; do not guess other local formats.
+  if (
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(
+      value,
+    ) ||
+    !validDay(value.slice(0, 10))
+  ) {
+    return null;
+  }
   const time = Date.parse(value);
   return Number.isFinite(time) ? time : null;
 }
