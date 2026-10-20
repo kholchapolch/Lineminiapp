@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-labelledby="title">
+  <title id="title">Register Sony products placeholder</title>
+  <rect width="640" height="360" rx="24" fill="#edf1f4"/>
+  <circle cx="320" cy="180" r="122" fill="#dbe6ed"/>
+  <rect x="225" y="115" width="190" height="116" rx="8" fill="#242b31"/>
+  <rect x="237" y="127" width="166" height="92" fill="#9fbacb"/>
+  <path d="M320 231v33M274 266h92" stroke="#242b31" stroke-width="11" stroke-linecap="round"/>
+  <path d="M130 231v-48c0-45 32-75 77-75 20 0 38 6 51 17" fill="none" stroke="#4f5b65" stroke-width="18" stroke-linecap="round"/>
+  <rect x="112" y="205" width="46" height="72" rx="18" fill="#929ca5"/>
+  <path d="M474 114h71a19 19 0 0 1 19 19v104a19 19 0 0 1-19 19h-71a19 19 0 0 1-19-19V133a19 19 0 0 1 19-19z" fill="#6d7882"/>
+  <circle cx="510" cy="185" r="25" fill="#dbe6ed"/>
+</svg>

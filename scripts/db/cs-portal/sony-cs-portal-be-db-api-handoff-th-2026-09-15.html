@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sony CS Portal — BE DB API Handoff</title>
+  <style>
+    :root{--ink:#172132;--muted:#5e6979;--line:#d8e0e9;--bg:#eef2f6;--panel:#fff;--blue:#1769aa;--blue-bg:#eaf4fc;--green:#157347;--green-bg:#eaf7f0;--amber:#946200;--amber-bg:#fff5d6;--red:#b42318;--red-bg:#fff0ee}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.62 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}main{width:min(1140px,calc(100% - 28px));margin:22px auto 54px}header,section{margin-bottom:15px;padding:23px 27px;background:var(--panel);border:1px solid var(--line);border-radius:11px;box-shadow:0 2px 10px #18263b0a}header{border-top:6px solid var(--blue)}h1{margin:2px 0 9px;font-size:29px;line-height:1.25}h2{margin:0 0 11px;font-size:21px}h3{margin:20px 0 7px;font-size:17px}p{margin:8px 0}.lead{font-size:17px;color:#344054}.eyebrow{color:var(--blue);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}.chip{padding:5px 10px;border-radius:999px;background:var(--blue-bg);color:#0d568b;font-size:13px;font-weight:750}.chip.warn{background:var(--amber-bg);color:var(--amber)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.card{padding:15px;border:1px solid var(--line);border-radius:8px;background:#fbfcfe}.card h3{margin:0 0 6px}.ok{border-left:5px solid var(--green);background:var(--green-bg)}.warnbox{border-left:5px solid #e3a008;background:var(--amber-bg)}.danger{border-left:5px solid var(--red);background:var(--red-bg)}.table{overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px 10px;border:1px solid var(--line);vertical-align:top;text-align:left}th{background:#edf2f7}tr:nth-child(even) td{background:#fbfcfd}code{padding:1px 5px;border-radius:4px;background:#edf1f6;font:.92em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre{overflow:auto;margin:11px 0;padding:15px;border-radius:8px;background:#111a2a;color:#f4f7fb;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}pre code{padding:0;background:none;color:inherit}.diagram{background:#0d1726;color:#dcf3ff}.task{margin:10px 0;padding:14px;border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:8px}.task h3{margin:0 0 5px}.meta,.small{font-size:13px;color:var(--muted)}.tag{display:inline-block;margin-right:5px;padding:2px 7px;border-radius:4px;background:#edf2f7;font-size:12px;font-weight:750}ul,ol{padding-left:22px}a{color:var(--blue)}
+    @media(max-width:760px){main{width:min(100% - 16px,1140px);margin-top:8px}header,section{padding:18px}.grid{grid-template-columns:1fr}h1{font-size:24px}}@media print{body{background:#fff;font-size:10.5pt}main{width:100%;margin:0}header,section{box-shadow:none;border-radius:0}.task,.card,pre{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Guidance Draft — ต้องให้ Tech Lead ยืนยันก่อน Implementation</p>
+    <h1>Sony CS Portal — Backend DB API Handoff</h1>
+    <p class="lead">ขอบเขตเฉพาะ schema, Excel import, content resolver และ API สำหรับอ่านข้อมูลจาก database เพื่อให้ Frontend render Portal</p>
+    <div class="chips"><span class="chip">2 tables</span><span class="chip">3 GET APIs</span><span class="chip">DB content only</span><span class="chip warn">ไม่รวม LINE</span><span class="chip warn">ไม่รวม My Sony integration</span></div>
+  </header>
+
+  <section>
+    <p class="eyebrow">Version History</p>
+    <div class="table"><table><thead><tr><th>Version</th><th>Date</th><th>Change</th></tr></thead><tbody><tr><td>2.0</td><td>2026-09-15</td><td>ตัด LINE session และ My Sony orchestration; focus เฉพาะ DB-backed APIs</td></tr></tbody></table></div>
+  </section>
+
+  <section>
+    <p class="eyebrow">1. Scope</p>
+    <h2>สิ่งที่ BE ต้องทำ</h2>
+    <div class="grid">
+      <div class="card ok"><h3>In scope</h3><ul><li>สร้าง 2 CS Portal tables</li><li>Excel preview/apply/activate</li><li>Model/category/global content resolver</li><li>3 APIs อ่านข้อมูลจาก DB</li><li>Payload validation, safe URL, tests</li></ul></div>
+      <div class="card danger"><h3>Out of scope</h3><ul><li>LIFF initialization</li><li><code>POST /api/line-session</code></li><li>LINE UUID/session flow</li><li>My Sony API/customer/product retrieval</li><li>Product warranty/serial calculation</li><li>Badge logic/tables</li></ul></div>
+    </div>
+    <p>Assumption: FE หรือ existing product flow มีรายการ <code>modelKey</code> ของสินค้าแล้ว. API ชุดนี้คืนเฉพาะ content mapping เพื่อให้ FE merge กับ product data.</p>
+    <div class="card warnbox"><h3>Dependency สำคัญ</h3><p>ถ้า existing product response ไม่มี stable <code>MKT Kataban/modelKey</code> และมีเพียง free-text <code>Model Name</code>, mapping ยังปิดงานไม่ได้. ห้าม join ด้วยชื่อสินค้าแบบ fuzzy.</p></div>
+  </section>
+
+  <section>
+    <p class="eyebrow">2. Proposed Interface</p>
+    <h2>สาม APIs ครบทุก DB content ที่ FE ใช้</h2>
+    <div class="table"><table><thead><tr><th>API</th><th>ข้อมูลที่คืน</th><th>FE ใช้กับ</th></tr></thead><tbody>
+      <tr><td><code>GET /api/cs-portal/content</code></td><td>Product-specific CTA, carousel, image fallback และ global footer</td><td>Product Center / Product Cards</td></tr>
+      <tr><td><code>GET /api/cs-portal/articles</code></td><td>Articles ตาม model + action</td><td>Article Selection overlay</td></tr>
+      <tr><td><code>GET /api/cs-portal/pages/register-product</code></td><td>Typed page blocks</td><td>Register Product page</td></tr>
+    </tbody></table></div>
+    <p>ไม่มี API ต่อปุ่ม. <code>/content</code> รับหลาย model ในครั้งเดียว และคืน CTA ที่ resolve แล้วต่อ model.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">3. Schema</p>
+    <h2>2 tables + existing app_config</h2>
+    <pre><code>CREATE TABLE IF NOT EXISTS cs_portal_products (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  dataset_version CHAR(64) NOT NULL,
+  external_key VARCHAR(191) NULL,
+  model_name VARCHAR(255) NOT NULL,
+  model_key VARCHAR(191) NOT NULL,
+  category_code VARCHAR(100) NULL,
+  image_url VARCHAR(2048) NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+    ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_cs_portal_products_version_model
+    (dataset_version, model_key),
+  KEY idx_cs_portal_products_version_category
+    (dataset_version, category_code),
+  CONSTRAINT chk_cs_portal_products_sort CHECK (sort_order &gt;= 0)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS cs_portal_contents (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  dataset_version CHAR(64) NOT NULL,
+  external_key VARCHAR(191) NOT NULL,
+  locale VARCHAR(10) NOT NULL,
+  content_type VARCHAR(32) NOT NULL,
+  target_type VARCHAR(32) NOT NULL,
+  target_key VARCHAR(191) NOT NULL,
+  action_key VARCHAR(100) NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  published_at DATETIME(3) NULL,
+  payload JSON NOT NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
+    ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_cs_portal_content_version_locale_type_key
+    (dataset_version, locale, content_type, external_key),
+  KEY idx_cs_portal_content_lookup
+    (dataset_version, locale, content_type, target_type, target_key, action_key),
+  KEY idx_cs_portal_content_order
+    (dataset_version, locale, content_type, target_key, published_at, sort_order),
+  CONSTRAINT chk_cs_portal_content_locale CHECK (locale IN ('th','en')),
+  CONSTRAINT chk_cs_portal_content_type
+    CHECK (content_type IN ('cta','article','carousel','page','footer_link')),
+  CONSTRAINT chk_cs_portal_target_type
+    CHECK (target_type IN ('model','category','global')),
+  CONSTRAINT chk_cs_portal_content_sort CHECK (sort_order &gt;= 0)
+) ENGINE=InnoDB;</code></pre>
+    <pre><code>app_config.cs_portal_active_dataset_version = &lt;workbook SHA-256&gt;
+app_config.cs_portal_schema_version = 1</code></pre>
+    <p><code>cs_portal_products</code> เป็น mapping catalog ไม่ใช่ customer product table. ห้ามเก็บ LINE UUID, customer ID, serial หรือ warranty.</p>
+    <h3>Target resolution</h3>
+    <pre><code>model → category → global
+
+model:    target_key = WF-1000XM5
+category: target_key = HEADPHONES
+global:   target_key = PRODUCT_CENTER</code></pre>
+    <div class="card warnbox"><h3>Category ยังไม่พร้อม</h3><p>เปิด category fallback ได้เมื่อ Product Master มี <code>MKT Kataban → category_code</code> หรือมี authoritative category source. ระหว่างนี้ resolver ใช้ <code>model → global</code>. Category rows ต้อง import fail ไม่ใช่เดา category จาก model name.</p></div>
+  </section>
+
+  <section>
+    <p class="eyebrow">4. Shared Response Types</p>
+    <pre><code>type PortalAction = {
+  key: string;
+  label: string;
+  enabled: boolean;
+  iconUrl: string | null;
+} &amp; (
+  | { kind: "article_list"; actionKey: string }
+  | { kind: "internal_link"; href: string }
+  | { kind: "external_link"; href: string }
+);
+
+type ModelContent = {
+  requestedModelKey: string;
+  modelKey: string;
+  matchedCatalog: boolean;
+  categoryCode: string | null;
+  fallbackImageUrl: string | null;
+  ctas: PortalAction[];
+  carouselItems: Array&lt;{
+    key: string;
+    eyebrow: string | null;
+    title: string;
+    description: string | null;
+    imageUrl: string | null;
+    imageAlt: string | null;
+    href: string;
+  }&gt;;
+};
+
+type ContentBlock =
+  | { type: "heading"; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "check_list"; items: string[] }
+  | { type: "image"; url: string; alt: string }
+  | { type: "link_button"; label: string; url: string };</code></pre>
+  </section>
+
+  <section>
+    <p class="eyebrow">5. API — Product Content</p>
+    <h2>GET /api/cs-portal/content</h2>
+    <h3>Query contract</h3>
+    <pre><code>GET /api/cs-portal/content
+  ?locale=th
+  &amp;modelKey=WF-1000XM5
+  &amp;modelKey=XR-75X91L
+
+locale    required: th | en
+modelKey  optional repeated parameter; maximum 50 unique values
+body      none</code></pre>
+    <p>ไม่ส่ง <code>modelKey</code> ได้ เพื่อโหลด global footer สำหรับ No Product state. FE ต้องส่ง stable model key จาก existing product flow.</p>
+    <h3>Response</h3>
+    <pre><code>{
+  "locale": "th",
+  "models": [{
+    "requestedModelKey": "WF-1000XM5",
+    "modelKey": "WF-1000XM5",
+    "matchedCatalog": true,
+    "categoryCode": null,
+    "fallbackImageUrl": "https://approved-host/product.jpg",
+    "ctas": [{
+      "key": "cta-firmware",
+      "label": "Check Firmware",
+      "enabled": true,
+      "iconUrl": null,
+      "kind": "article_list",
+      "actionKey": "firmware"
+    }],
+    "carouselItems": []
+  }],
+  "footerActions": []
+}</code></pre>
+    <h3>DB query</h3>
+    <pre><code>SELECT value FROM app_config
+WHERE `key` = 'cs_portal_active_dataset_version';
+
+SELECT model_key, category_code, image_url
+FROM cs_portal_products
+WHERE dataset_version = ? AND model_key IN (?, ...);
+
+SELECT external_key, content_type, target_type, target_key,
+       action_key, sort_order, payload
+FROM cs_portal_contents
+WHERE dataset_version = ? AND locale = ?
+  AND content_type IN ('cta','carousel','footer_link')
+  AND (
+    (target_type = 'model' AND target_key IN (?, ...))
+    OR (target_type = 'category' AND target_key IN (?, ...))
+    OR (target_type = 'global' AND target_key IN ('PRODUCT_CENTER','PRODUCT_CENTER_FOOTER'))
+  );</code></pre>
+    <h3>Rules</h3>
+    <ul><li>Normalize/dedupe model keys; preserve first input order</li><li>Unknown model ยังคืน entry พร้อม <code>matchedCatalog=false</code> และ empty content</li><li>CTA ใช้ highest target precedence ต่อ <code>action_key</code></li><li>Different action keys แสดงพร้อมกันตาม <code>sort_order</code></li><li>All SQL values parameterized</li></ul>
+  </section>
+
+  <section>
+    <p class="eyebrow">6. API — Articles</p>
+    <h2>GET /api/cs-portal/articles</h2>
+    <h3>Query contract</h3>
+    <pre><code>GET /api/cs-portal/articles
+  ?locale=th
+  &amp;modelKey=WF-1000XM5
+  &amp;actionKey=firmware
+
+locale     required: th | en
+modelKey   required: value returned/used by /content
+actionKey  required: value returned inside CTA</code></pre>
+    <h3>Response</h3>
+    <pre><code>{
+  "modelKey": "WF-1000XM5",
+  "actionKey": "firmware",
+  "items": [{
+    "key": "article-firmware-01",
+    "title": "อัปเดตเฟิร์มแวร์",
+    "summary": "รายละเอียดโดยย่อ",
+    "imageUrl": null,
+    "imageAlt": null,
+    "url": "https://www.sony.co.th/approved-path",
+    "publishedAt": "2026-01-01T00:00:00.000Z"
+  }]
+}</code></pre>
+    <h3>DB query</h3>
+    <pre><code>SELECT category_code FROM cs_portal_products
+WHERE dataset_version = ? AND model_key = ? LIMIT 1;
+
+SELECT external_key, target_type, target_key,
+       sort_order, published_at, payload
+FROM cs_portal_contents
+WHERE dataset_version = ? AND locale = ?
+  AND content_type = 'article' AND action_key = ?
+  AND (
+    (target_type = 'model' AND target_key = ?)
+    OR (target_type = 'category' AND target_key = ?)
+    OR (target_type = 'global' AND target_key = 'PRODUCT_CENTER')
+  )
+ORDER BY published_at DESC, sort_order ASC, external_key ASC;</code></pre>
+    <p>ถ้าไม่มี category ให้ตัด category condition. ไม่มี article คืน <code>200 { items: [] }</code>.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">7. API — Register Product Page</p>
+    <h2>GET /api/cs-portal/pages/register-product</h2>
+    <h3>Query contract</h3><pre><code>GET /api/cs-portal/pages/register-product?locale=th
+
+locale required: th | en
+body   none</code></pre>
+    <h3>Response</h3>
+    <pre><code>{
+  "key": "register-product",
+  "locale": "th",
+  "title": "Register Product",
+  "lead": "Membership benefits",
+  "blocks": [
+    { "type": "heading", "text": "สิทธิประโยชน์" },
+    { "type": "check_list", "items": ["Benefit 1", "Benefit 2"] },
+    { "type": "link_button", "label": "Register Now", "url": "https://approved-host/register" }
+  ]
+}</code></pre>
+    <h3>DB query</h3>
+    <pre><code>SELECT external_key, payload
+FROM cs_portal_contents
+WHERE dataset_version = ? AND locale = ?
+  AND content_type = 'page'
+  AND target_type = 'global'
+  AND target_key = 'REGISTER_PRODUCT'
+  AND external_key = 'register-product'
+LIMIT 1;</code></pre>
+    <p>ไม่มี page ของ locale นี้คืน 404. ไม่ fallback ข้ามภาษา. Payload invalid คืน safe 500.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">8. Sequence Diagrams</p>
+    <h2>เฉพาะ DB APIs</h2>
+    <h3>8.1 Product Content</h3>
+    <pre class="diagram">FE                    /content             app_config          products/content tables       Resolver
+ |-- locale + models -->|                     |                         |                         |
+ |                      |-- active version -->|                         |                         |
+ |                      |&lt;-- dataset hash ----|                         |                         |
+ |                      |-- model rows + matching content ------------>|                         |
+ |                      |&lt;-- rows -------------------------------------|                         |
+ |                      |------------------------------------------------ resolve precedence -->|
+ |&lt;-- content per model + footer ---------------------------------------------------------------|</pre>
+    <h3>8.2 Articles</h3>
+    <pre class="diagram">FE                    /articles            app_config          products/content tables       Resolver
+ |-- locale/model/action>|                     |                         |                         |
+ |                      |-- active version -->|                         |                         |
+ |                      |-- category lookup + article query ---------->|                         |
+ |                      |&lt;-- rows -------------------------------------|                         |
+ |                      |------------------------------------------ dedupe/sort/validate ------->|
+ |&lt;-- items[] ----------------------------------------------------------------------------------|</pre>
+    <h3>8.3 Register Product Page</h3>
+    <pre class="diagram">FE                    /pages/register-product       app_config       contents table       Validator
+ |-- locale -------------------->|                       |                  |                  |
+ |                               |-- active version ---->|                  |                  |
+ |                               |-- query page -------------------------->|                  |
+ |                               |&lt;-- payload -----------------------------|                  |
+ |                               |-------------------------------- validate typed blocks ----->|
+ |&lt;-- title + lead + blocks ------------------------------------------------------------------|</pre>
+  </section>
+
+  <section>
+    <p class="eyebrow">9. Common API Behavior</p>
+    <div class="table"><table><thead><tr><th>Status</th><th>ใช้เมื่อ</th></tr></thead><tbody><tr><td>200</td><td>สำเร็จ; Articles empty list ยังเป็น 200</td></tr><tr><td>400</td><td>locale/modelKey/actionKey invalid หรือ model เกิน 50</td></tr><tr><td>401</td><td>ถ้า Portal policy บังคับ existing session; implementation session ไม่อยู่ scope นี้</td></tr><tr><td>404</td><td>Register Product page ไม่มี</td></tr><tr><td>500</td><td>active dataset หาย หรือ stored payload invalid</td></tr></tbody></table></div>
+    <pre><code>{ "code": "CS_PORTAL_INVALID_QUERY", "message": "Invalid portal query." }</code></pre>
+    <p>ใช้ direct JSON ตาม codebase. <code>Cache-Control: private, no-store</code> ใน Phase 1 เพื่อให้ dataset activation/rollback เห็นผลทันที.</p>
+  </section>
+
+  <section>
+    <p class="eyebrow">10. Excel Mapping</p>
+    <h2>Excel เป็น import contract ไม่ใช่ runtime schema</h2>
+    <div class="card warnbox"><h3>ยังไม่มี Excel จริง</h3><p>ต้อง preview ก่อน lock sheets, headers, UID meaning, locale, blank/delete semantics และ duplicates.</p></div>
+    <div class="table"><table><thead><tr><th>Excel</th><th>Schema</th><th>Rule</th></tr></thead><tbody>
+      <tr><td>Product Master / <code>MKT Kataban</code></td><td><code>cs_portal_products.model_key</code></td><td>Normalized exact match</td></tr>
+      <tr><td><code>Model Name</code></td><td><code>model_name</code></td><td>Display only; ไม่ใช้ join</td></tr>
+      <tr><td><code>Product Category</code></td><td><code>category_code</code></td><td>จำเป็นถ้าจะใช้ Category CTA</td></tr>
+      <tr><td><code>Wty Pdt Image URL</code></td><td><code>image_url</code></td><td>HTTPS/approved host</td></tr>
+      <tr><td>CTA / Category CTA</td><td><code>content_type=cta</code></td><td>Label อยู่ payload; stable code อยู่ <code>action_key</code></td></tr>
+      <tr><td>Article</td><td><code>content_type=article</code></td><td>ใช้ action key เดียวกับ CTA</td></tr>
+      <tr><td>Carousel</td><td><code>content_type=carousel</code></td><td>Title/image/alt/url อยู่ payload</td></tr>
+      <tr><td>Register Product</td><td><code>content_type=page</code></td><td>Page fields แปลงเป็น typed blocks</td></tr>
+      <tr><td>Footer</td><td><code>content_type=footer_link</code></td><td>Global target; ไม่สร้างตารางเพิ่ม</td></tr>
+      <tr><td><code>UID</code></td><td><code>external_key</code> เฉพาะ stable content ID</td><td>ห้ามใช้ customer/LINE UID</td></tr>
+    </tbody></table></div>
+    <h3>Fields ที่ต้องยืนยัน/ขอเพิ่ม</h3>
+    <pre><code>external_key, locale, content_type, target_type, target_key,
+action_key, sort_order, published_at, enabled, image_alt</code></pre>
+    <h3>Body_Content</h3>
+    <pre><code>split CRLF/LF → trim → remove blank lines → ContentBlock check_list
+Body_Cotent = explicit temporary alias
+unknown block/raw HTML = reject</code></pre>
+  </section>
+
+  <section>
+    <p class="eyebrow">11. Import Flow</p>
+    <pre class="diagram">Operator       Import CLI       Parser/Validator       cs_portal_* tables       app_config
+   |-- preview -->|-- map/validate -->|                       |                      |
+   |&lt;-- report; no DB write ----------|                       |                      |
+   |-- apply ---->|-- validate all --->|-- transaction insert>|                      |
+   |&lt;-- applied, not active ----------------------------------|                      |
+   |-- activate &lt;hash&gt; ----------------------------------------------------------->|
+   |&lt;-- active only after both tables pass verify ---------------------------------|
+
+Rollback = activate previous valid hash. ไม่มี automatic DROP.</pre>
+  </section>
+
+  <section>
+    <p class="eyebrow">12. Focused BE Tasks</p>
+    <div class="task"><h3>DB-01 — Isolated Migration &amp; Verify</h3><p class="meta"><span class="tag">EX-13796</span></p><ul><li>สร้าง 2 tables/indexes และ namespaced config keys</li><li>แยก <code>scripts/db/cs-portal/</code></li><li>Check-only default; apply explicit</li><li>Badge schema/row counts unchanged</li></ul></div>
+    <div class="task"><h3>DB-02 — Payload Validators &amp; Excel Importer</h3><p class="meta"><span class="tag">EX-13796</span></p><ul><li>Map workbook → canonical rows</li><li>Preview/apply/activate/idempotent hash</li><li>Reject invalid target/category/locale/URL/payload</li><li>Generate row-level report</li></ul></div>
+    <div class="task"><h3>DB-03 — Content Repository &amp; Resolver</h3><p class="meta"><span class="tag">EX-13792</span><span class="tag">EX-13793</span><span class="tag">EX-13795</span></p><ul><li>Parameterized queries</li><li>Model/category/global precedence</li><li>Dedupe/order/payload validation</li><li>Category off until source confirmed</li></ul></div>
+    <div class="task"><h3>API-01 — GET /api/cs-portal/content</h3><p class="meta"><span class="tag">Product Center</span></p><ul><li>Batch model keys สูงสุด 50</li><li>คืน CTA/carousel ต่อ model และ footer global</li><li>Unknown model คืน empty mapping</li><li>No customer/product PII</li></ul></div>
+    <div class="task"><h3>API-02 — GET /api/cs-portal/articles</h3><p class="meta"><span class="tag">Article Selection</span></p><ul><li>Validate locale/model/action</li><li>Active dataset only</li><li>Published order deterministic</li><li>Empty list = 200</li></ul></div>
+    <div class="task"><h3>API-03 — GET /api/cs-portal/pages/register-product</h3><p class="meta"><span class="tag">Registered Product</span></p><ul><li>Typed blocks only</li><li>No cross-locale fallback</li><li>Missing = 404</li><li>Invalid stored payload = safe error</li></ul></div>
+    <div class="task"><h3>QA-DB-01 — Integration &amp; Regression</h3><ul><li>Migration/import/resolver/API matrix</li><li>Model/global/category-conditional cases</li><li>Unsafe URL/raw HTML/invalid payload</li><li>Badge tests, lint, build และ DB evidence</li></ul></div>
+  </section>
+
+  <section>
+    <p class="eyebrow">13. Dependency Order</p>
+    <pre class="diagram">DB-01 Schema
+   └──> DB-02 Import/validators
+          └──> DB-03 Repository/resolver
+                 ├──> API-01 Product content
+                 ├──> API-02 Articles
+                 └──> API-03 Register page
+
+QA-DB-01 ครอบทุก task</pre>
+  </section>
+
+  <section>
+    <p class="eyebrow">14. Production Gates</p>
+    <ol><li>Excel จริงและ approved mapping</li><li>Stable modelKey จาก existing FE/product flow</li><li>Product-category source หากต้องใช้ Category CTA</li><li>Final footer label/url/icon/visibility</li><li>DB version/charset/collation และ migration permission</li><li>Approved URL hosts และ locale content</li></ol>
+    <p class="small">เอกสารนี้ไม่แก้ LINE, My Sony, Badge, ClickUp, source code หรือ database.</p>
+  </section>
+</main>
+</body>
+</html>
