@@ -21,10 +21,19 @@ function registrationTime(value: string | null): number | null {
   return Number.isFinite(time) ? time : null;
 }
 const compareText = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
+/** Newest valid date first; missing/invalid dates last. */
+function compareDateDesc(a: string | null, b: string | null): number {
+  const left = registrationTime(a), right = registrationTime(b);
+  if (left === right) return 0;
+  return left === null ? 1 : right === null ? -1 : right - left;
+}
 function compareRegistration(a: PortalOwnedProduct, b: PortalOwnedProduct): number {
-  const left = registrationTime(a.registeredAt), right = registrationTime(b.registeredAt);
-  if (left !== right) return left === null ? 1 : right === null ? -1 : right - left;
-  return compareText(a.serialNumber ?? '', b.serialNumber ?? '') || compareText(a.sku, b.sku);
+  return (
+    compareDateDesc(a.registeredAt, b.registeredAt) ||
+    compareDateDesc(a.warrantyExpiryDate, b.warrantyExpiryDate) ||
+    compareText(a.serialNumber ?? '', b.serialNumber ?? '') ||
+    compareText(a.sku, b.sku)
+  );
 }
 export function getWarrantyStatus(expiry: string | null, now = new Date()): ProductRegistration['warrantyStatus'] {
   if (!expiry) return 'unknown';
@@ -55,9 +64,13 @@ export function groupPortalProducts(products: PortalOwnedProduct[], dataset: Por
     group.registrations.push({ ...product, warrantyStatus: getWarrantyStatus(product.warrantyExpiryDate, now) });
   }
   for (const group of groups.values()) group.registrations.sort(compareRegistration);
-  return [...groups.values()].sort((a,b) => {
-    const left=registrationTime(a.registrations[0].registeredAt), right=registrationTime(b.registrations[0].registeredAt);
-    if(left!==right) return left===null?1:right===null?-1:right-left;
-    return compareText(a.modelKey,b.modelKey);
+  return [...groups.values()].sort((a, b) => {
+    const left = a.registrations[0];
+    const right = b.registrations[0];
+    return (
+      compareDateDesc(left.registeredAt, right.registeredAt) ||
+      compareDateDesc(left.warrantyExpiryDate, right.warrantyExpiryDate) ||
+      compareText(a.modelKey, b.modelKey)
+    );
   });
 }

@@ -22,6 +22,17 @@ describe('Product Card grouping',()=>{
   const g=groupPortalProducts([row('Z','M',null),row('A','B','2026-01-01'),row('A','A','2026-01-01'),row('A',null,'bad-date'),row('B','M','2026-02-01')],d,now);
   expect(g.map(x=>x.modelKey)).toEqual(['B','A','Z']);expect(g[1].registrations.map(r=>r.serialNumber)).toEqual(['A','B',null]);
  });
+ it('ties equal registration dates by warranty expiry newest first',()=>{
+  const g=groupPortalProducts([
+    row('A','OLD','2026-01-01','2026-06-01'),
+    row('A','NEW','2026-01-01','2027-01-01'),
+    row('A','NONE','2026-01-01',null),
+    row('B','EARLY','2026-01-01','2026-03-01'),
+    row('C','LATE','2026-01-01','2028-01-01'),
+  ],d,now);
+  expect(g.map(x=>x.modelKey)).toEqual(['C','A','B']);
+  expect(g[1].registrations.map(r=>r.serialNumber)).toEqual(['NEW','OLD','NONE']);
+ });
  it('preserves repeated or missing serial rows without losing ownership data',()=>{
   expect(groupPortalProducts([row('A',null,null),row('A',null,null),row('A','S',null),row('A','S',null)],d,now)[0].registrations).toHaveLength(4);
  });
