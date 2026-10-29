@@ -51,6 +51,14 @@ def url(v):
         return None
     return v
 
+def https_any_url(v):
+    """Register CTA may point outside the Sony content allowlist (e.g. MySony staging)."""
+    v = clean(v)
+    u = urlparse(v)
+    if u.scheme != 'https' or not u.hostname or u.username or u.password:
+        return None
+    return v
+
 def https_image_url(v):
     v = clean(v)
     u = urlparse(v)
@@ -107,6 +115,68 @@ for n, row in enumerate(s.iter_rows(min_row=2, values_only=True), 2):
     if category_code and (category_code.startswith('http://') or category_code.startswith('https://')):
         issue(s.title,n,'Category','CATEGORY_LOOKS_LIKE_URL_STORED_NULL'); category_code = None
     products.append(dict(external_key=identifier or None, model_name=model, model_key=model_key, category_code=category_code, image_url=image_url, sort_order=len(products)))
+
+products_by_key = {p['model_key']: p for p in products}
+mapping_stats = dict(
+    added=0,
+    skipped_existing=0,
+    missing_kataban=0,
+    missing_model=0,
+    articles_cloned=0,
+    carousels_cloned=0,
+    content_skipped_duplicate=0,
+    content_skipped_key_too_long=0,
+)
+# MKT Kataban -> mapped Model Name keys (SKU variants that share image/content).
+kataban_to_aliases = {}
+
+# Expand catalog SKUs from Mobile/Game mapping: Model Name clones image/category from MKT Kataban.
+mapping_sheet = '10. Mobile& Game Mapping'
+if mapping_sheet not in w.sheetnames:
+    issue('workbook', 0, mapping_sheet, 'SHEET_MISSING_MAPPING_EXPANSION_SKIPPED')
+else:
+    s = w[mapping_sheet]
+    for n, row in enumerate(s.iter_rows(min_row=2, values_only=True), 2):
+        if not any(v is not None for v in row):
+            continue
+        cells = list(row) + [None] * 4
+        model = clean(cells[1])
+        kataban = clean(cells[2])
+        if not model:
+            mapping_stats['missing_model'] += 1
+            issue(s.title, n, 'Model_Name', 'ROW_EXCLUDED_MISSING_MODEL')
+            continue
+        if not kataban:
+            mapping_stats['missing_kataban'] += 1
+            issue(s.title, n, 'MKT_Kataban', 'ROW_EXCLUDED_MISSING_KATABAN')
+            continue
+        model_key = model.upper()
+        kataban_key = kataban.upper()
+        parent = products_by_key.get(kataban_key)
+        if not parent:
+            mapping_stats['missing_kataban'] += 1
+            issue(s.title, n, 'MKT_Kataban', 'ROW_EXCLUDED_KATABAN_NOT_IN_PRODUCT_IMAGE')
+            continue
+        aliases = kataban_to_aliases.setdefault(kataban_key, [])
+        if model_key not in aliases and model_key != kataban_key:
+            aliases.append(model_key)
+        if model_key in seen_models:
+            mapping_stats['skipped_existing'] += 1
+            issue(s.title, n, 'Model_Name', 'ROW_SKIPPED_MODEL_ALREADY_IN_CATALOG')
+            continue
+        seen_models.add(model_key)
+        cloned = dict(
+            external_key=None,
+            model_name=model,
+            model_key=model_key,
+            category_code=parent['category_code'],
+            image_url=parent['image_url'],
+            sort_order=len(products),
+        )
+        products.append(cloned)
+        products_by_key[model_key] = cloned
+        mapping_stats['added'] += 1
+        issue(s.title, n, 'Model_Name', 'MODEL_CLONED_FROM_KATABAN')
 
 def ensure_model(model, sheet, row):
     model_key = model.upper()
@@ -266,13 +336,54 @@ for n, row in enumerate(s.iter_rows(min_row=2, values_only=True), 2):
     contents.append(item)
     carousel_stats[key_source] += 1
 
+# Clone model-targeted articles/carousels from each MKT Kataban onto mapped SKU Model Names.
+seen_content_keys = {
+    f"{row['locale']}:{row['content_type']}:{row['external_key']}".lower()
+    for row in contents
+}
+
+def cloned_external_key(source_key, source_target, alias_key):
+    suffix = f':{source_target}'
+    if source_key.upper().endswith(suffix):
+        return source_key[: -len(source_target)] + alias_key
+    return f'{source_key}:{alias_key}'
+
+expanded_contents = []
+for row in contents:
+    if row['content_type'] not in ('article', 'carousel') or row['target_type'] != 'model':
+        continue
+    aliases = kataban_to_aliases.get(row['target_key'])
+    if not aliases:
+        continue
+    for alias_key in aliases:
+        external_key = cloned_external_key(row['external_key'], row['target_key'], alias_key)
+        if len(external_key) > 191:
+            mapping_stats['content_skipped_key_too_long'] += 1
+            issue(mapping_sheet, 0, 'external_key', 'CONTENT_CLONE_SKIPPED_EXTERNAL_KEY_TOO_LONG')
+            continue
+        locale_type_key = f"{row['locale']}:{row['content_type']}:{external_key}".lower()
+        if locale_type_key in seen_content_keys:
+            mapping_stats['content_skipped_duplicate'] += 1
+            continue
+        seen_content_keys.add(locale_type_key)
+        cloned = dict(row)
+        cloned['external_key'] = external_key
+        cloned['target_key'] = alias_key
+        cloned['payload'] = dict(row['payload'])
+        expanded_contents.append(cloned)
+        if row['content_type'] == 'article':
+            mapping_stats['articles_cloned'] += 1
+        else:
+            mapping_stats['carousels_cloned'] += 1
+contents.extend(expanded_contents)
+
 s=w['8. Register Product Page Data']
 for n,row in enumerate(s.iter_rows(min_row=2,values_only=True),2):
     if not any(v is not None for v in row): continue
     cells=list(row[:6])+[None]*(6-len(row[:6]))
     title,lead,image,heading,body,register = map(clean,cells)
     image_url=url(image)
-    register_url=url(register) if register else None
+    register_url=https_any_url(register) if register else None
     if not all((title,lead,heading,body,image_url)):
         issue(s.title,n,'page','ROW_EXCLUDED_INCOMPLETE_PAGE');continue
     blocks=[dict(type='image',url=image_url,alt=title),dict(type='heading',text=heading),dict(type='check_list',items=[line.strip().lstrip('-').strip() for line in body.splitlines() if line.strip()])]
@@ -311,11 +422,12 @@ report=dict(
     source=source.name,
     sourceSha256=hashlib.sha256(source.read_bytes()).hexdigest(),
     sampleData=True,
-    policy='Import validated subset; Content_ID/Carousel_ID use ID:MODEL keys when present; missing IDs use deterministic gen: hash; article/carousel images accept any HTTPS host; missing thumbnails use sony-logo fallback; no invented PublishTime; missing product images are null.',
+    policy='Import validated subset; Content_ID/Carousel_ID use ID:MODEL keys when present; missing IDs use deterministic gen: hash; article/carousel images accept any HTTPS host; missing thumbnails use sony-logo fallback; no invented PublishTime; missing product images are null; Mobile/Game mapping clones Product Image, article, and carousel rows for each Model Name under its MKT Kataban.',
     products=len(products),
     contents=len(contents),
     articles=article_stats,
     carousels=carousel_stats,
+    mobileGameMapping=mapping_stats,
     issues=issues,
 )
 out.with_suffix('.report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')

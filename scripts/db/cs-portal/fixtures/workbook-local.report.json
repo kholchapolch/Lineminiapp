@@ -1,10 +1,10 @@
 {
   "source": "SONY CS Portal Data Schema and Data Sampling_Back up.xlsx",
-  "sourceSha256": "c71ed4f83947b354aef0248d8e132ba0fde26a36941da26816f176fd8a02f9da",
+  "sourceSha256": "392123d8dad65fe4a7b3d8f66c53d18922f694e1df3e9845f12cfe084ed4896d",
   "sampleData": true,
-  "policy": "Import validated subset; Content_ID/Carousel_ID use ID:MODEL keys when present; missing IDs use deterministic gen: hash; article/carousel images accept any HTTPS host; missing thumbnails use sony-logo fallback; no invented PublishTime; missing product images are null.",
-  "products": 994,
-  "contents": 8986,
+  "policy": "Import validated subset; Content_ID/Carousel_ID use ID:MODEL keys when present; missing IDs use deterministic gen: hash; article/carousel images accept any HTTPS host; missing thumbnails use sony-logo fallback; no invented PublishTime; missing product images are null; Mobile/Game mapping clones Product Image, article, and carousel rows for each Model Name under its MKT Kataban.",
+  "products": 1054,
+  "contents": 9990,
   "articles": {
     "content_id_key": 488,
     "synthetic_external_key": 7570
@@ -13,7 +13,377 @@
     "carousel_id_key": 0,
     "synthetic_external_key": 927
   },
+  "mobileGameMapping": {
+    "added": 60,
+    "skipped_existing": 0,
+    "missing_kataban": 0,
+    "missing_model": 0,
+    "articles_cloned": 902,
+    "carousels_cloned": 102,
+    "content_skipped_duplicate": 0,
+    "content_skipped_key_too_long": 0
+  },
   "issues": [
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 2,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 3,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 4,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 5,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 6,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 7,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 8,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 9,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 10,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 11,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 12,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 13,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 14,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 15,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 16,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 17,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 18,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 19,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 20,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 21,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 22,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 23,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 24,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 25,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 26,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 27,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 28,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 29,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 30,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 31,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 32,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 33,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 34,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 35,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 36,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 37,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 38,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 39,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 40,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 41,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 42,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 43,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 44,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 45,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 46,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 47,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 48,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 49,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 50,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 51,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 52,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 53,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 54,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 55,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 56,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 57,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 58,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 59,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 60,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
+    {
+      "sheet": "10. Mobile& Game Mapping",
+      "row": 61,
+      "field": "Model_Name",
+      "reason": "MODEL_CLONED_FROM_KATABAN"
+    },
     {
       "sheet": "6. Product Article Data",
       "row": 2,
@@ -55231,12 +55601,6 @@
       "row": 928,
       "field": "Carousel_ID",
       "reason": "SYNTHETIC_EXTERNAL_KEY"
-    },
-    {
-      "sheet": "8. Register Product Page Data",
-      "row": 2,
-      "field": "Register_Now_URL",
-      "reason": "REGISTER_URL_MISSING_LINK_BUTTON_OMITTED"
     },
     {
       "sheet": "9. CTA Type (Omelet Mapping)",

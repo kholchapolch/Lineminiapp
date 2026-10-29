@@ -87,6 +87,35 @@
   box-shadow: 0 5px 20px rgba(93, 96, 176, 0.15);
 }
 
+.portalProductCard__metaCarousel {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 4px 2px 8px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.portalProductCard__metaCarousel::-webkit-scrollbar {
+  display: none;
+}
+
+.portalProductCard__metaSlide {
+  display: grid;
+  flex: 0 0 min(297px, calc(100% - 36px));
+  gap: 20px;
+  min-width: 0;
+  box-sizing: border-box;
+  border-radius: 24px;
+  background: var(--portal-product-surface);
+  padding: 20px 12px;
+  box-shadow: 0 5px 20px rgba(93, 96, 176, 0.15);
+  scroll-snap-align: start;
+}
+
 .portalProductCard__serial {
   display: flex;
   align-items: flex-start;
@@ -162,6 +191,14 @@
   border-radius: 12px;
   background: var(--portal-product-warranty);
   padding: 12px;
+}
+
+.portalProductCard__warranty--expired {
+  background: rgba(185, 16, 19, 0.05);
+}
+
+.portalProductCard__warranty--unknown {
+  background: #eef1f5;
 }
 
 .portalProductCard__warrantyExpiry {
