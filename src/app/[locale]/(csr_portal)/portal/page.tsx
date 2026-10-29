@@ -12,6 +12,7 @@ import { requireLineSession, UnauthorizedError } from "@/lib/auth-session";
 import {
   loadActiveProductCatalog,
   loadPortalContentDataset,
+  loadRegisterProductPage,
 } from "@/lib/cs-portal/content-repository";
 import { toProductCards } from "@/lib/cs-portal/portal-product-cards";
 import { groupPortalProducts } from "@/lib/cs-portal/product-groups";
@@ -19,6 +20,11 @@ import {
   getPortalProducts,
   PortalProductsUnavailableError,
 } from "@/lib/cs-portal/products";
+import {
+  PageNotFoundError,
+  resolveRegisterProductContent,
+  resolveRegisterProductHref,
+} from "@/lib/cs-portal/register-product-page";
 import { createSonyAccountPlaceholder } from "@/lib/sony-account";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
@@ -63,11 +69,18 @@ function readPortalSession(): { lineuuid: string } | null {
   }
 }
 
-function linkAccountHref(): string {
-  return (
-    process.env.NEXT_PUBLIC_CSR_PORTAL_REGISTER_URL ??
-    "https://www.sony.co.th/microsite/msr-line-menu/sign-up"
-  );
+async function loadRegisterHref(locale: Locale): Promise<string> {
+  try {
+    const content = await loadRegisterProductPage(locale);
+    return resolveRegisterProductHref(
+      resolveRegisterProductContent(content, locale),
+    );
+  } catch (error) {
+    if (!(error instanceof PageNotFoundError)) {
+      console.error("Failed to load register-product CMS link", error);
+    }
+    return resolveRegisterProductHref(null);
+  }
 }
 
 async function loadPortalProducts(
@@ -85,7 +98,7 @@ async function loadPortalProducts(
         title: placeholder.title[locale],
         message: placeholder.message[locale],
         actionLabel: placeholder.action.label[locale],
-        actionHref: linkAccountHref(),
+        actionHref: await loadRegisterHref(locale),
       };
     }
     if (!result.products.length) {

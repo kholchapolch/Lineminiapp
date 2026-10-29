@@ -10,6 +10,7 @@ import { loadRegisterProductPage } from "@/lib/cs-portal/content-repository";
 import {
   PageNotFoundError,
   resolveRegisterProductContent,
+  resolveRegisterProductHref,
 } from "@/lib/cs-portal/register-product-page";
 import type { PageBlock, RegisterProductPage } from "@/lib/cs-portal/types";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
@@ -62,12 +63,7 @@ function buildRegisterView(
   const heading = firstBlock(blocks, "heading");
   const checklist = firstBlock(blocks, "check_list");
   const linkButton = firstBlock(blocks, "link_button");
-  const linkUrl =
-    linkButton && "url" in linkButton ? linkButton.url.trim() : "";
-  const registerHref =
-    linkUrl ||
-    process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL?.trim() ||
-    "https://www.sony.co.th/microsite/msr-line-menu/product-register";
+  const registerHref = resolveRegisterProductHref(page);
 
   return {
     title: page.title,
