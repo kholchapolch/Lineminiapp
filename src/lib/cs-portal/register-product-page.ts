@@ -3,6 +3,25 @@ import type { PortalContent, PortalDataset, RegisterProductPage } from './types'
 
 export class PageNotFoundError extends Error {}
 
+const DEFAULT_REGISTER_PRODUCT_URL =
+  'https://www.sony.co.th/microsite/msr-line-menu/product-register';
+
+/**
+ * Register CTA href: CMS link_button → NEXT_PUBLIC_REGISTER_PRODUCT_URL → default.
+ */
+export function resolveRegisterProductHref(
+  page: RegisterProductPage | null | undefined,
+): string {
+  const linkButton = page?.blocks.find((block) => block.type === 'link_button');
+  const linkUrl =
+    linkButton && 'url' in linkButton ? linkButton.url.trim() : '';
+  return (
+    linkUrl ||
+    process.env.NEXT_PUBLIC_REGISTER_PRODUCT_URL?.trim() ||
+    DEFAULT_REGISTER_PRODUCT_URL
+  );
+}
+
 function toRegisterProductPage(
   content: PortalContent,
   locale: 'th' | 'en',
