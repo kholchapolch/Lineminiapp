@@ -90,7 +90,10 @@ async function loadPortalProducts(
 ): Promise<PortalProductsView> {
   try {
     const config = loadAppConfig();
-    const result = await getPortalProducts(config, lineuuid);
+    const result = await getPortalProducts(
+      config,
+      "U9755e17c03ee033105d5bc905e63c7da",
+    );
     if (result.accountStatus === "not_linked") {
       const placeholder = result.placeholder ?? createSonyAccountPlaceholder();
       return {

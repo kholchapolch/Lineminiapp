@@ -15,26 +15,9 @@ import {
   FALLBACK_CONTENT_IMAGE_URL,
   resolveContentImageUrl,
 } from "@/lib/cs-portal/content-images";
+import { formatPortalDate } from "@/lib/cs-portal/portal-dates";
 import type { CtaAction, PortalDataset } from "@/lib/cs-portal/types";
 import type { Messages } from "@/lib/i18n/messages/types";
-
-function formatPortalDate(value: string | null): string | null {
-  if (!value) {
-    return null;
-  }
-
-  const date = new Date(value.length === 10 ? `${value}T00:00:00+07:00` : value);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "Asia/Bangkok",
-  }).format(date);
-}
 
 function formatArticlePublishedAt(value: string | null): string {
   if (!value) {
