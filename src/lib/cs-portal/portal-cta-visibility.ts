@@ -15,6 +15,7 @@ const CATEGORY_ALIASES: Record<string, PortalCtaCategoryCode> = {
   MOBILE: "MC",
   PS: "PS",
   GAME: "PS",
+  "GAME BUSINESS": "PS",
 };
 
 const SHARED_FIVE: readonly PortalCtaActionKey[] = [

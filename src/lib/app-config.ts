@@ -188,7 +188,9 @@ function blankToUndefined(value: string | undefined): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
-function channelIdFromLiffId(liffId: string | undefined): string | undefined {
+export function channelIdFromLiffId(
+  liffId: string | undefined,
+): string | undefined {
   const channelId = blankToUndefined(liffId)?.split("-")[0];
   return channelId && /^\d+$/.test(channelId) ? channelId : undefined;
 }

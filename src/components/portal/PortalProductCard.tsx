@@ -30,6 +30,16 @@ export type PortalRecommendedArticle = {
   badges?: string[];
 };
 
+export type PortalProductRegistration = {
+  id: string;
+  serialNumber: string;
+  registeredAt: string;
+  warrantyLabel: string;
+  warrantyExpiry: string;
+  warrantyStatus: "active" | "expired" | "unknown";
+  warrantyStatusLabel: string;
+};
+
 export type PortalProductCardProps = {
   id: string;
   /** Catalog / content target for this serial's product. */
@@ -39,12 +49,7 @@ export type PortalProductCardProps = {
   modelDescription: string;
   imageSrc: string;
   imageAlt: string;
-  serialNumber: string;
-  registeredAt: string;
-  warrantyLabel: string;
-  warrantyExpiry: string;
-  warrantyStatus: "active" | "expired" | "unknown";
-  warrantyStatusLabel: string;
+  registrations: PortalProductRegistration[];
   ctas: PortalProductCta[];
   recommendedTitle: string;
   articles: PortalRecommendedArticle[];
@@ -54,6 +59,7 @@ export type PortalProductCardProps = {
     | "next"
     | "productActionsAriaLabel"
     | "serialBarcodeAriaLabel"
+    | "serialsAriaLabel"
   >;
   /** 1-based index of the highlighted CTA. Defaults to 1. */
   currentActive?: number;
@@ -127,17 +133,61 @@ function SerialBarcode({
   );
 }
 
+function RegistrationSlide({
+  registration,
+  barcodeAriaTemplate,
+}: {
+  registration: PortalProductRegistration;
+  barcodeAriaTemplate: string;
+}): JSX.Element {
+  const barcodeAriaLabel = fillTemplate(barcodeAriaTemplate, {
+    value: registration.serialNumber,
+  });
+
+  return (
+    <>
+      <div className="portalProductCard__serial">
+        <SerialBarcode
+          value={registration.serialNumber}
+          ariaLabel={barcodeAriaLabel}
+        />
+        <div className="portalProductCard__serialText">
+          <p className="portalProductCard__serialNumber">
+            {registration.serialNumber}
+          </p>
+          <p className="portalProductCard__registered">
+            {registration.registeredAt}
+          </p>
+        </div>
+      </div>
+
+      <div
+        className={`portalProductCard__warranty portalProductCard__warranty--${registration.warrantyStatus}`}
+      >
+        <div className="portalProductCard__warrantyText">
+          <p className="portalProductCard__warrantyLabel">
+            {registration.warrantyLabel}
+          </p>
+          <p className="portalProductCard__warrantyExpiry">
+            {registration.warrantyExpiry}
+          </p>
+        </div>
+        <span
+          className={`portalProductCard__status portalProductCard__status--${registration.warrantyStatus}`}
+        >
+          {registration.warrantyStatusLabel}
+        </span>
+      </div>
+    </>
+  );
+}
+
 export function PortalProductCard({
   modelName,
   modelDescription,
   imageSrc,
   imageAlt,
-  serialNumber,
-  registeredAt,
-  warrantyLabel,
-  warrantyExpiry,
-  warrantyStatus,
-  warrantyStatusLabel,
+  registrations,
   ctas,
   recommendedTitle,
   articles,
@@ -156,10 +206,10 @@ export function PortalProductCard({
   const previousLabel = ui?.previous ?? "Previous";
   const nextLabel = ui?.next ?? "Next";
   const actionsAriaLabel = ui?.productActionsAriaLabel ?? "Product actions";
-  const barcodeAriaLabel = fillTemplate(
-    ui?.serialBarcodeAriaLabel ?? "Serial barcode {value}",
-    { value: serialNumber },
-  );
+  const barcodeAriaTemplate =
+    ui?.serialBarcodeAriaLabel ?? "Serial barcode {value}";
+  const serialsAriaLabel = ui?.serialsAriaLabel ?? "Serial numbers";
+  const hasSerialCarousel = registrations.length > 1;
 
   useEffect(() => {
     const node = ctasRef.current;
@@ -238,29 +288,33 @@ export function PortalProductCard({
         <p className="portalProductCard__description">{modelDescription}</p>
       </div>
 
-      <div className="portalProductCard__meta">
-        <div className="portalProductCard__serial">
-          <SerialBarcode value={serialNumber} ariaLabel={barcodeAriaLabel} />
-          <div className="portalProductCard__serialText">
-            <p className="portalProductCard__serialNumber">{serialNumber}</p>
-            <p className="portalProductCard__registered">{registeredAt}</p>
-          </div>
-        </div>
-
-        <div className="portalProductCard__warranty">
-          <div className="portalProductCard__warrantyText">
-            <p className="portalProductCard__warrantyLabel">{warrantyLabel}</p>
-            <p className="portalProductCard__warrantyExpiry">
-              {warrantyExpiry}
-            </p>
-          </div>
-          <span
-            className={`portalProductCard__status portalProductCard__status--${warrantyStatus}`}
+      {registrations.length > 0 ? (
+        hasSerialCarousel ? (
+          <div
+            className="portalProductCard__metaCarousel"
+            aria-label={serialsAriaLabel}
           >
-            {warrantyStatusLabel}
-          </span>
-        </div>
-      </div>
+            {registrations.map((registration) => (
+              <div
+                key={registration.id}
+                className="portalProductCard__metaSlide"
+              >
+                <RegistrationSlide
+                  registration={registration}
+                  barcodeAriaTemplate={barcodeAriaTemplate}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="portalProductCard__meta">
+            <RegistrationSlide
+              registration={registrations[0]}
+              barcodeAriaTemplate={barcodeAriaTemplate}
+            />
+          </div>
+        )
+      ) : null}
 
       <div className="portalProductCard__ctasWrap">
         <button

@@ -77,7 +77,10 @@ async function loadPortalProducts(
 ): Promise<PortalProductsView> {
   try {
     const config = loadAppConfig();
-    const result = await getPortalProducts(config, lineuuid);
+    const result = await getPortalProducts(
+      config,
+      "U62ada022b493086fa741304265ddffa5",
+    );
     if (result.accountStatus === "not_linked") {
       const placeholder = result.placeholder ?? createSonyAccountPlaceholder();
       return {
@@ -102,6 +105,7 @@ async function loadPortalProducts(
     }
     // Catalog/CMS enrichment is best-effort. Owned products already came from Sony;
     // a local DB/tunnel outage must not surface as "failed to load products".
+    // Portal cards only include models present in the active Excel/catalog dataset.
     let catalog: Awaited<ReturnType<typeof loadActiveProductCatalog>> = [];
     let dataset: Awaited<ReturnType<typeof loadPortalContentDataset>> = {
       products: [],
@@ -109,13 +113,13 @@ async function loadPortalProducts(
     };
     try {
       catalog = await loadActiveProductCatalog();
-      const provisionalGroups = groupPortalProducts(result.products, {
+      const matchedKeys = groupPortalProducts(result.products, {
         products: catalog,
         contents: [],
-      });
-      dataset = await loadPortalContentDataset(
-        provisionalGroups.map((group) => group.modelKey),
-      );
+      })
+        .filter((group) => group.matchedCatalog)
+        .map((group) => group.modelKey);
+      dataset = await loadPortalContentDataset(matchedKeys);
     } catch {
       catalog = [];
       dataset = { products: [], contents: [] };
@@ -123,7 +127,19 @@ async function loadPortalProducts(
     const groups = groupPortalProducts(result.products, {
       products: catalog,
       contents: [],
-    });
+    }).filter((group) => group.matchedCatalog);
+    if (!groups.length) {
+      return {
+        kind: "empty",
+        title: result.emptyState?.title[locale] ?? copy.emptyTitle,
+        description:
+          result.emptyState?.message[locale] ?? copy.emptyDescription,
+        actionLabel:
+          result.emptyState?.action.label[locale] ??
+          copy.registerPage.registerCta,
+        actionHref: `/${locale}/portal/register`,
+      };
+    }
     const products =
       dataset.products.length > 0
         ? dataset.products

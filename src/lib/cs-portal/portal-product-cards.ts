@@ -2,6 +2,7 @@ import type { PortalBottomSheetArticle } from "@/components/portal/PortalBottomS
 import type {
   PortalProductCardProps,
   PortalProductCta,
+  PortalProductRegistration,
   PortalRecommendedArticle,
 } from "@/components/portal/PortalProductCard";
 import { resolveArticles } from "@/lib/cs-portal/articles";
@@ -134,13 +135,39 @@ function carouselForModel(
   }));
 }
 
+function toRegistration(
+  group: ProductGroup,
+  registration: ProductGroup["registrations"][number],
+  index: number,
+  copy: Messages["portal"],
+): PortalProductRegistration {
+  const registeredAt = formatPortalDate(registration.registeredAt);
+  const warrantyExpiry = formatPortalDate(registration.warrantyExpiryDate);
+  const serialNumber = registration.serialNumber ?? "—";
+  const warrantyStatus = registration.warrantyStatus;
+
+  return {
+    id: `${group.modelKey}:${serialNumber}:${index}`,
+    serialNumber,
+    registeredAt: registeredAt
+      ? fillTemplate(copy.registered, { date: registeredAt })
+      : copy.registeredUnknown,
+    warrantyLabel: copy.warrantyLabel,
+    warrantyExpiry: warrantyExpiry
+      ? fillTemplate(copy.warrantyExpiry, { date: warrantyExpiry })
+      : copy.warrantyExpiryUnknown,
+    warrantyStatus,
+    warrantyStatusLabel: copy.warrantyStatus[warrantyStatus],
+  };
+}
+
 export function toProductCards(
   groups: ProductGroup[],
   dataset: PortalDataset,
   locale: "th" | "en" = "th",
   copy: Messages["portal"],
 ): PortalProductCardProps[] {
-  return groups.flatMap((group) => {
+  return groups.map((group) => {
     const ctas = ctasFromResolved(
       dataset,
       locale,
@@ -149,36 +176,25 @@ export function toProductCards(
       copy,
     );
     const articles = carouselForModel(dataset, locale, group.modelKey);
+    const registrations = group.registrations.map((registration, index) =>
+      toRegistration(group, registration, index, copy),
+    );
 
-    return group.registrations.map((registration, index) => {
-      const registeredAt = formatPortalDate(registration.registeredAt);
-      const warrantyExpiry = formatPortalDate(registration.warrantyExpiryDate);
-      const serialNumber = registration.serialNumber ?? "—";
-      const warrantyStatus = registration.warrantyStatus;
-
-      return {
-        id: `${group.modelKey}:${serialNumber}:${index}`,
-        modelKey: group.modelKey,
-        targetKey: group.modelKey,
-        modelName: group.modelName,
-        modelDescription:
-          registration.modelName ?? group.categoryCode ?? group.modelKey,
-        imageSrc: group.imageUrl || FALLBACK_CONTENT_IMAGE_URL,
-        imageAlt: group.modelName,
-        serialNumber,
-        registeredAt: registeredAt
-          ? fillTemplate(copy.registered, { date: registeredAt })
-          : copy.registeredUnknown,
-        warrantyLabel: copy.warrantyLabel,
-        warrantyExpiry: warrantyExpiry
-          ? fillTemplate(copy.warrantyExpiry, { date: warrantyExpiry })
-          : copy.warrantyExpiryUnknown,
-        warrantyStatus,
-        warrantyStatusLabel: copy.warrantyStatus[warrantyStatus],
-        ctas,
-        recommendedTitle: copy.recommendedTitle,
-        articles,
-      };
-    });
+    return {
+      id: group.modelKey,
+      modelKey: group.modelKey,
+      targetKey: group.modelKey,
+      modelName: group.modelName,
+      modelDescription:
+        group.registrations[0]?.modelName ??
+        group.categoryCode ??
+        group.modelKey,
+      imageSrc: group.imageUrl || FALLBACK_CONTENT_IMAGE_URL,
+      imageAlt: group.modelName,
+      registrations,
+      ctas,
+      recommendedTitle: copy.recommendedTitle,
+      articles,
+    };
   });
 }

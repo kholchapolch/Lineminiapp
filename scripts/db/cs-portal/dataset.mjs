@@ -35,6 +35,10 @@ export function safeUrl(v) {
 export function safeImageUrl(v) {
   return httpsUrl(v);
 }
+/** Any https URL without host allowlist (Register Now / link_button). */
+export function safeHttpsUrl(v) {
+  return httpsUrl(v);
+}
 /** Article/carousel may omit a thumbnail; the portal UI uses a shared product placeholder. */
 export function optionalSafeImageUrl(v) {
   if (v === null || v === undefined) return v;
@@ -62,7 +66,7 @@ function payload(type, p) {
       if (b.type === 'heading' || b.type === 'paragraph') { keys(b, ['type','text']); text(b.text, 'block text'); }
       else if (b.type === 'image') { keys(b, ['type','url','alt']); safeImageUrl(b.url); text(b.alt, 'image alt'); }
       else if (b.type === 'check_list') { keys(b, ['type','items']); if (!Array.isArray(b.items) || !b.items.length) fail('list'); b.items.forEach(t => text(t, 'list item')); }
-      else if (b.type === 'link_button') { keys(b, ['type','label','url']); text(b.label, 'button'); safeUrl(b.url); }
+      else if (b.type === 'link_button') { keys(b, ['type','label','url']); text(b.label, 'button'); safeHttpsUrl(b.url); }
       else fail('unknown block');
     }
   } else if (type === 'footer_link') {

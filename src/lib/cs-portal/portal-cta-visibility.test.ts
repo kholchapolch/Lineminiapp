@@ -12,6 +12,7 @@ describe("portal CTA visibility by category_code", () => {
     expect(normalizePortalCtaCategoryCode("Personal Entertainment")).toBe("PE");
     expect(normalizePortalCtaCategoryCode("Mobile")).toBe("MC");
     expect(normalizePortalCtaCategoryCode("Game")).toBe("PS");
+    expect(normalizePortalCtaCategoryCode("Game Business")).toBe("PS");
     expect(normalizePortalCtaCategoryCode("unknown")).toBeNull();
     expect(normalizePortalCtaCategoryCode(null)).toBeNull();
   });

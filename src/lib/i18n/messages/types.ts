@@ -194,6 +194,7 @@ export type Messages = {
     articleCategoriesAriaLabel: string;
     articlesEmpty: string;
     serialBarcodeAriaLabel: string;
+    serialsAriaLabel: string;
     notLinkedTitle: string;
     emptyTitle: string;
     emptyDescription: string;

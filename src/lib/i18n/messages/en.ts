@@ -226,6 +226,7 @@ export const en: Messages = {
     articleCategoriesAriaLabel: "Article categories",
     articlesEmpty: "No articles in this category yet",
     serialBarcodeAriaLabel: "Serial barcode {value}",
+    serialsAriaLabel: "Serial numbers",
     notLinkedTitle: "Your LINE account is not linked\nwith My Sony Rewards yet",
     emptyTitle: "No products yet",
     emptyDescription: "",

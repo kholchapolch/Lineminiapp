@@ -55,7 +55,11 @@ export function PortalRegisterView({
       {imageUrl ? (
         <div className="portalRegister__hero">
           {/* eslint-disable-next-line @next/next/no-img-element -- CMS/CDN product imagery. */}
-          <img className="portalRegister__heroImage" src={imageUrl} alt={imageAlt} />
+          <img
+            className="portalRegister__heroImage"
+            src={imageUrl}
+            alt={imageAlt}
+          />
         </div>
       ) : null}
 
