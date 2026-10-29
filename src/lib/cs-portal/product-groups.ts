@@ -68,8 +68,11 @@ export function groupPortalProducts(products: PortalOwnedProduct[], dataset: Por
   const catalog = new Map(dataset.products.map(p => [p.model_key, p]));
   const groups = new Map<string, ProductGroup>();
   for (const product of products) {
-    const canonical = resolveCanonicalModelKey(product.sku, catalog.keys());
-    const modelKey = canonical ?? normalizeSku(product.sku);
+    // Prefer raw Sony modelName (Column B / full kataban+color) so slash variants
+    // resolve exactly; fall back to canonical sku used by badges ingest.
+    const resolveInput = product.modelName?.trim() || product.sku;
+    const canonical = resolveCanonicalModelKey(resolveInput, catalog.keys());
+    const modelKey = canonical ?? normalizeSku(resolveInput);
     const entry = canonical ? catalog.get(canonical) : undefined;
     let group = groups.get(modelKey);
     if (!group) {

@@ -126,6 +126,7 @@ mapping_stats = dict(
     carousels_cloned=0,
     content_skipped_duplicate=0,
     content_skipped_key_too_long=0,
+    modelNames=[],
 )
 # MKT Kataban -> mapped Model Name keys (SKU variants that share image/content).
 kataban_to_aliases = {}
@@ -157,6 +158,9 @@ else:
             mapping_stats['missing_kataban'] += 1
             issue(s.title, n, 'MKT_Kataban', 'ROW_EXCLUDED_KATABAN_NOT_IN_PRODUCT_IMAGE')
             continue
+        # Column B Model_Name successfully tied to a Product Image kataban.
+        if model not in mapping_stats['modelNames']:
+            mapping_stats['modelNames'].append(model)
         aliases = kataban_to_aliases.setdefault(kataban_key, [])
         if model_key not in aliases and model_key != kataban_key:
             aliases.append(model_key)
@@ -431,5 +435,20 @@ report=dict(
     issues=issues,
 )
 out.with_suffix('.report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
+model_names_path = out.with_name('mobile-game-mapping-model-names.json')
+model_names_path.write_text(
+    json.dumps(
+        dict(
+            source='10. Mobile& Game Mapping Column B Model_Name',
+            workbook=source.name,
+            count=len(mapping_stats['modelNames']),
+            modelNames=mapping_stats['modelNames'],
+        ),
+        ensure_ascii=False,
+        indent=2,
+    )
+    + '\n'
+)
 print(json.dumps({k:v for k,v in report.items() if k!='issues'},ensure_ascii=False))
 print('Issues:',len(issues))
+print('Mobile/Game Column B model names:', model_names_path)
