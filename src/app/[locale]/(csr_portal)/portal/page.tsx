@@ -100,13 +100,30 @@ async function loadPortalProducts(
         actionHref: `/${locale}/portal/register`,
       };
     }
-    const catalog = await loadActiveProductCatalog();
+    // Catalog/CMS enrichment is best-effort. Owned products already came from Sony;
+    // a local DB/tunnel outage must not surface as "failed to load products".
+    let catalog: Awaited<ReturnType<typeof loadActiveProductCatalog>> = [];
+    let dataset: Awaited<ReturnType<typeof loadPortalContentDataset>> = {
+      products: [],
+      contents: [],
+    };
+    try {
+      catalog = await loadActiveProductCatalog();
+      const provisionalGroups = groupPortalProducts(result.products, {
+        products: catalog,
+        contents: [],
+      });
+      dataset = await loadPortalContentDataset(
+        provisionalGroups.map((group) => group.modelKey),
+      );
+    } catch {
+      catalog = [];
+      dataset = { products: [], contents: [] };
+    }
     const groups = groupPortalProducts(result.products, {
       products: catalog,
       contents: [],
     });
-    const modelKeys = groups.map((group) => group.modelKey);
-    const dataset = await loadPortalContentDataset(modelKeys);
     const products =
       dataset.products.length > 0
         ? dataset.products
