@@ -29,4 +29,31 @@ describe("resolveCanonicalModelKey", () => {
     expect(resolveCanonicalModelKey("   ", ["ABC"])).toBeNull();
     expect(resolveCanonicalModelKey("XYZ", ["ABC"])).toBeNull();
   });
+
+  it("reverse-matches Sony base SKU to catalog slash variants", () => {
+    expect(
+      resolveCanonicalModelKey("XQ-EC72", [
+        "XQ-EC72/B1SEAC0",
+        "XQ-EC72/G1SEAC0",
+        "XQ-EC72/S1SEAC0",
+      ]),
+    ).toBe("XQ-EC72/B1SEAC0");
+    expect(
+      resolveCanonicalModelKey("xq-ec72", ["XQ-EC72/G1SEAC0", "XQ-EC72/B1SEAC0"]),
+    ).toBe("XQ-EC72/B1SEAC0");
+  });
+
+  it("prefers an exact catalog key over slash variants", () => {
+    expect(
+      resolveCanonicalModelKey("XQ-EC72", [
+        "XQ-EC72/B1SEAC0",
+        "XQ-EC72",
+        "XQ-EC72/G1SEAC0",
+      ]),
+    ).toBe("XQ-EC72");
+  });
+
+  it("does not reverse-match longer glued model codes without a slash", () => {
+    expect(resolveCanonicalModelKey("ILCE-7C", ["ILCE-7CM2"])).toBeNull();
+  });
 });

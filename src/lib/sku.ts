@@ -107,16 +107,41 @@ function matchesSkuOrSonySuffix(
  *
  * Uses the same longest-prefix rule as My Badges (`resolveCatalogSku`):
  * `ILCE-7CM2LSQAP2` maps to `ILCE-7CM2`, not `ILCE-7C`.
+ *
+ * Also reverse-matches when Sony returns a base model and the catalog stores
+ * slash variants: `XQ-EC72` → `XQ-EC72/B1SEAC0`. Exact keys win; otherwise the
+ * lexicographically first slash-variant is chosen.
  */
 export function resolveCanonicalModelKey(
   modelName: string,
   canonicalModelKeys: Iterable<string>,
 ): string | null {
-  if (!normalizeSku(modelName)) {
+  const normalized = normalizeSku(modelName);
+  if (!normalized) {
     return null;
   }
 
-  return resolveCatalogSku(modelName, canonicalModelKeys);
+  const keys = [...canonicalModelKeys];
+  const forward = resolveCatalogSku(normalized, keys);
+  if (forward) {
+    return forward;
+  }
+
+  const reverseMatches = keys
+    .map((key) => normalizeSku(key))
+    .filter(
+      (key) => key === normalized || key.startsWith(`${normalized}/`),
+    );
+
+  if (!reverseMatches.length) {
+    return null;
+  }
+
+  if (reverseMatches.includes(normalized)) {
+    return normalized;
+  }
+
+  return [...reverseMatches].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))[0];
 }
 
 /** Returns true when the product SKU equals or is a suffixed form of an eligible rule SKU. */
