@@ -64,7 +64,10 @@ function readPortalSession(): { lineuuid: string } | null {
 }
 
 function linkAccountHref(): string {
-  return "https://www.sony.co.th/microsite/msr-line-menu/sign-up";
+  return (
+    process.env.NEXT_PUBLIC_CSR_PORTAL_REGISTER_URL ??
+    "https://www.sony.co.th/microsite/msr-line-menu/sign-up"
+  );
 }
 
 async function loadPortalProducts(

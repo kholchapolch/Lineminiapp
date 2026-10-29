@@ -18,7 +18,7 @@ export function getDatabaseUrl() {
   return databaseUrl;
 }
 
-export function createConnectionPool() {
+export function createConnectionPool({ tunnelPort } = {}) {
   const url = new URL(getDatabaseUrl());
   const sslValue =
     process.env.DATABASE_SSL ??
@@ -26,15 +26,22 @@ export function createConnectionPool() {
     url.searchParams.get("ssl-mode") ??
     "";
   const sslEnabled = ENABLED_SSL_VALUES.has(sslValue.trim().toLowerCase());
+  const useTunnel =
+    tunnelPort !== undefined && tunnelPort !== null && Number.isFinite(Number(tunnelPort));
 
   return mysql.createPool({
-    host: url.hostname,
-    port: Number(url.port || 3306),
+    host: useTunnel ? "127.0.0.1" : url.hostname,
+    port: useTunnel ? Number(tunnelPort) : Number(url.port || 3306),
     user: decodeURIComponent(url.username),
     password: decodeURIComponent(url.password),
     database: url.pathname.replace(/^\//, ""),
     ssl: sslEnabled
-      ? { minVersion: "TLSv1.2", rejectUnauthorized: true }
+      ? {
+          minVersion: "TLSv1.2",
+          rejectUnauthorized: true,
+          // Keep original hostname for certificate verification when tunneling.
+          servername: url.hostname,
+        }
       : undefined,
     waitForConnections: true,
     connectionLimit: 5,
