@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216" height="160" viewBox="0 0 216 160" role="img" aria-labelledby="title">
+  <title id="title">Headphones placeholder</title>
+  <rect width="216" height="160" rx="18" fill="#f2f4f6"/>
+  <path d="M55 88V69c0-30 22-50 53-50s53 20 53 50v19" fill="none" stroke="#303840" stroke-width="13" stroke-linecap="round"/>
+  <rect x="43" y="75" width="34" height="57" rx="14" fill="#a9afb6" stroke="#303840" stroke-width="5"/>
+  <rect x="139" y="75" width="34" height="57" rx="14" fill="#a9afb6" stroke="#303840" stroke-width="5"/>
+  <path d="M76 112c18 14 46 14 64 0" fill="none" stroke="#6f7780" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -86,6 +86,64 @@ export function resolvedSku(
  */
 const SONY_MODEL_NAME_SUFFIX = /^(?:\s+|(?:QSYX|CSYX|SYX)\b).*$/;
 
+function matchesSkuOrSonySuffix(
+  normalizedModelName: string,
+  normalizedCanonicalKey: string,
+): boolean {
+  if (normalizedModelName === normalizedCanonicalKey) {
+    return true;
+  }
+
+  if (!normalizedModelName.startsWith(normalizedCanonicalKey)) {
+    return false;
+  }
+
+  const remainder = normalizedModelName.slice(normalizedCanonicalKey.length);
+  return remainder === "" || SONY_MODEL_NAME_SUFFIX.test(remainder);
+}
+
+/**
+ * Resolves a Sony model name to one canonical model key from the portal catalog.
+ *
+ * Uses the same longest-prefix rule as My Badges (`resolveCatalogSku`):
+ * `ILCE-7CM2LSQAP2` maps to `ILCE-7CM2`, not `ILCE-7C`.
+ *
+ * Also reverse-matches when Sony returns a base model and the catalog stores
+ * slash variants: `XQ-EC72` → `XQ-EC72/B1SEAC0`. Exact keys win; otherwise the
+ * lexicographically first slash-variant is chosen.
+ */
+export function resolveCanonicalModelKey(
+  modelName: string,
+  canonicalModelKeys: Iterable<string>,
+): string | null {
+  const normalized = normalizeSku(modelName);
+  if (!normalized) {
+    return null;
+  }
+
+  const keys = [...canonicalModelKeys];
+  const forward = resolveCatalogSku(normalized, keys);
+  if (forward) {
+    return forward;
+  }
+
+  const reverseMatches = keys
+    .map((key) => normalizeSku(key))
+    .filter(
+      (key) => key === normalized || key.startsWith(`${normalized}/`),
+    );
+
+  if (!reverseMatches.length) {
+    return null;
+  }
+
+  if (reverseMatches.includes(normalized)) {
+    return normalized;
+  }
+
+  return [...reverseMatches].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))[0];
+}
+
 /** Returns true when the product SKU equals or is a suffixed form of an eligible rule SKU. */
 export function matchesEligibleSku(
   productSku: string,
@@ -104,16 +162,7 @@ export function matchesEligibleSku(
   for (const eligibleSku of eligibleSkus) {
     const normalizedEligibleSku = canonicalSku(eligibleSku);
 
-    if (normalizedProductSku === normalizedEligibleSku) {
-      return true;
-    }
-
-    if (!normalizedProductSku.startsWith(normalizedEligibleSku)) {
-      continue;
-    }
-
-    const remainder = normalizedProductSku.slice(normalizedEligibleSku.length);
-    if (remainder === "" || SONY_MODEL_NAME_SUFFIX.test(remainder)) {
+    if (matchesSkuOrSonySuffix(normalizedProductSku, normalizedEligibleSku)) {
       return true;
     }
   }

@@ -1,0 +1,393 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import JsBarcode from "jsbarcode";
+import "./portal-product-card.css";
+import type { PortalBottomSheetArticle } from "@/components/portal/PortalBottomSheet";
+import { resolveContentImageUrl } from "@/lib/cs-portal/content-images";
+import type { Messages } from "@/lib/i18n/messages/types";
+
+export type PortalProductCtaAction =
+  | { type: "articles" }
+  | { type: "external"; url: string }
+  | { type: "internal"; route: "/my-badges" | "/register-product" };
+
+export type PortalProductCta = {
+  id: string;
+  actionKey: string;
+  title: string;
+  subtitle: string;
+  action: PortalProductCtaAction;
+  articles: PortalBottomSheetArticle[];
+};
+
+export type PortalRecommendedArticle = {
+  id: string;
+  title: string;
+  description: string;
+  imageSrc?: string | null;
+  href?: string | null;
+  badges?: string[];
+};
+
+export type PortalProductRegistration = {
+  id: string;
+  serialNumber: string;
+  registeredAt: string;
+  warrantyLabel: string;
+  warrantyExpiry: string;
+  warrantyStatus: "active" | "expired" | "unknown";
+  warrantyStatusLabel: string;
+};
+
+export type PortalProductCardProps = {
+  id: string;
+  /** Catalog / content target for this serial's product. */
+  modelKey: string;
+  targetKey: string;
+  modelName: string;
+  modelDescription: string;
+  imageSrc: string;
+  imageAlt: string;
+  registrations: PortalProductRegistration[];
+  ctas: PortalProductCta[];
+  recommendedTitle: string;
+  articles: PortalRecommendedArticle[];
+  ui?: Pick<
+    Messages["portal"],
+    | "previous"
+    | "next"
+    | "productActionsAriaLabel"
+    | "serialBarcodeAriaLabel"
+    | "serialsAriaLabel"
+  >;
+  /** 1-based index of the highlighted CTA. Defaults to 1. */
+  currentActive?: number;
+  onCtaClick?: (ctaId: string) => void;
+  onArticleClick?: (articleId: string) => void;
+};
+
+function fillTemplate(template: string, values: Record<string, string>): string {
+  return Object.entries(values).reduce(
+    (text, [key, value]) => text.replaceAll(`{${key}}`, value),
+    template,
+  );
+}
+
+function SerialBarcode({
+  value,
+  ariaLabel,
+}: {
+  value: string;
+  ariaLabel: string;
+}): JSX.Element {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const node = svgRef.current;
+    setReady(false);
+
+    if (!node || !value || value === "—") {
+      return;
+    }
+
+    try {
+      JsBarcode(node, value, {
+        format: "CODE128",
+        displayValue: false,
+        background: "transparent",
+        lineColor: "#1a1a1a",
+        margin: 0,
+        height: 28,
+        width: 1.2,
+      });
+      setReady(true);
+    } catch {
+      setReady(false);
+    }
+  }, [value]);
+
+  return (
+    <>
+      <svg
+        ref={svgRef}
+        className="portalProductCard__serialBarcode"
+        role="img"
+        aria-label={ariaLabel}
+        style={{ display: ready ? undefined : "none" }}
+      />
+      {!ready ? (
+        <svg
+          className="portalProductCard__serialIcon"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="M3 5h2v14H3V5Zm4 0h1v14H7V5Zm3 0h2v14h-2V5Zm4 0h1v14h-1V5Zm3 0h2v14h-2V5Zm4 0h1v14h-1V5Z"
+            fill="currentColor"
+          />
+        </svg>
+      ) : null}
+    </>
+  );
+}
+
+function RegistrationSlide({
+  registration,
+  barcodeAriaTemplate,
+}: {
+  registration: PortalProductRegistration;
+  barcodeAriaTemplate: string;
+}): JSX.Element {
+  const barcodeAriaLabel = fillTemplate(barcodeAriaTemplate, {
+    value: registration.serialNumber,
+  });
+
+  return (
+    <>
+      <div className="portalProductCard__serial">
+        <SerialBarcode
+          value={registration.serialNumber}
+          ariaLabel={barcodeAriaLabel}
+        />
+        <div className="portalProductCard__serialText">
+          <p className="portalProductCard__serialNumber">
+            {registration.serialNumber}
+          </p>
+          <p className="portalProductCard__registered">
+            {registration.registeredAt}
+          </p>
+        </div>
+      </div>
+
+      <div
+        className={`portalProductCard__warranty portalProductCard__warranty--${registration.warrantyStatus}`}
+      >
+        <div className="portalProductCard__warrantyText">
+          <p className="portalProductCard__warrantyLabel">
+            {registration.warrantyLabel}
+          </p>
+          <p className="portalProductCard__warrantyExpiry">
+            {registration.warrantyExpiry}
+          </p>
+        </div>
+        <span
+          className={`portalProductCard__status portalProductCard__status--${registration.warrantyStatus}`}
+        >
+          {registration.warrantyStatusLabel}
+        </span>
+      </div>
+    </>
+  );
+}
+
+export function PortalProductCard({
+  modelName,
+  modelDescription,
+  imageSrc,
+  imageAlt,
+  registrations,
+  ctas,
+  recommendedTitle,
+  articles,
+  ui,
+  currentActive = 1,
+  onCtaClick,
+  onArticleClick,
+}: PortalProductCardProps): JSX.Element {
+  const ctasRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const activeCtaIndex = Math.min(
+    Math.max(currentActive, 1),
+    Math.max(ctas.length, 1),
+  );
+  const previousLabel = ui?.previous ?? "Previous";
+  const nextLabel = ui?.next ?? "Next";
+  const actionsAriaLabel = ui?.productActionsAriaLabel ?? "Product actions";
+  const barcodeAriaTemplate =
+    ui?.serialBarcodeAriaLabel ?? "Serial barcode {value}";
+  const serialsAriaLabel = ui?.serialsAriaLabel ?? "Serial numbers";
+  const hasSerialCarousel = registrations.length > 1;
+
+  useEffect(() => {
+    const node = ctasRef.current;
+    if (!node) {
+      return;
+    }
+
+    function updateScrollState(): void {
+      if (!node) {
+        return;
+      }
+
+      setCanScrollLeft(node.scrollLeft > 4);
+      setCanScrollRight(
+        node.scrollLeft + node.clientWidth < node.scrollWidth - 4,
+      );
+    }
+
+    updateScrollState();
+    node.addEventListener("scroll", updateScrollState, { passive: true });
+    window.addEventListener("resize", updateScrollState);
+
+    return () => {
+      node.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [ctas]);
+
+  useEffect(() => {
+    const node = ctasRef.current;
+    if (!node) {
+      return;
+    }
+
+    const activeButton = node.querySelector<HTMLElement>(
+      `[data-cta-index="${activeCtaIndex}"]`,
+    );
+    if (!activeButton) {
+      return;
+    }
+
+    const nextLeft =
+      activeButton.offsetLeft -
+      (node.clientWidth - activeButton.offsetWidth) / 2;
+    node.scrollTo({
+      left: Math.max(0, nextLeft),
+      behavior: "smooth",
+    });
+  }, [activeCtaIndex, ctas]);
+
+  function scrollCtas(direction: "left" | "right"): void {
+    const node = ctasRef.current;
+    if (!node) {
+      return;
+    }
+
+    node.scrollBy({
+      left: direction === "left" ? -180 : 180,
+      behavior: "smooth",
+    });
+  }
+
+  return (
+    <section className="portalProductCard">
+      <div className="portalProductCard__media">
+        {/* eslint-disable-next-line @next/next/no-img-element -- Prototype product art from local/public assets. */}
+        <img
+          className="portalProductCard__image"
+          src={imageSrc}
+          alt={imageAlt}
+        />
+      </div>
+
+      <div className="portalProductCard__heading">
+        <h2 className="portalProductCard__model">{modelName}</h2>
+        <p className="portalProductCard__description">{modelDescription}</p>
+      </div>
+
+      {registrations.length > 0 ? (
+        hasSerialCarousel ? (
+          <div
+            className="portalProductCard__metaCarousel"
+            aria-label={serialsAriaLabel}
+          >
+            {registrations.map((registration) => (
+              <div
+                key={registration.id}
+                className="portalProductCard__metaSlide"
+              >
+                <RegistrationSlide
+                  registration={registration}
+                  barcodeAriaTemplate={barcodeAriaTemplate}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="portalProductCard__meta">
+            <RegistrationSlide
+              registration={registrations[0]}
+              barcodeAriaTemplate={barcodeAriaTemplate}
+            />
+          </div>
+        )
+      ) : null}
+
+      <div className="portalProductCard__ctasWrap">
+        <button
+          type="button"
+          className="portalProductCard__chevron portalProductCard__chevron--left"
+          aria-label={previousLabel}
+          disabled={!canScrollLeft}
+          onClick={() => scrollCtas("left")}
+        >
+          ‹
+        </button>
+        <div
+          ref={ctasRef}
+          className="portalProductCard__ctas"
+          aria-label={actionsAriaLabel}
+        >
+          {ctas.map((cta, index) => {
+            const isActive = index + 1 === activeCtaIndex;
+            return (
+              <button
+                key={cta.id}
+                type="button"
+                data-cta-index={index + 1}
+                className={`portalProductCard__cta${isActive ? " isActive" : ""}`}
+                aria-pressed={isActive}
+                onClick={() => onCtaClick?.(cta.id)}
+              >
+                <span>{cta.title}</span>
+                {cta.subtitle ? <span>{cta.subtitle}</span> : null}
+              </button>
+            );
+          })}
+        </div>
+        <button
+          type="button"
+          className="portalProductCard__chevron portalProductCard__chevron--right"
+          aria-label={nextLabel}
+          disabled={!canScrollRight}
+          onClick={() => scrollCtas("right")}
+        >
+          ›
+        </button>
+      </div>
+      {articles.length > 0 ? (
+        <>
+          <hr className="portalProductCard__divider" />
+          <div className="portalProductCard__recommended">
+            <h3 className="portalProductCard__recommendedTitle">
+              {recommendedTitle}
+            </h3>
+            <div className="portalProductCard__articles">
+              {articles.map((article) => (
+                <button
+                  key={article.id}
+                  type="button"
+                  className="portalProductCard__article"
+                  onClick={() => onArticleClick?.(article.id)}
+                >
+                  <div className="portalProductCard__articleMedia">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Carousel images from content hosts or product placeholder. */}
+                    <img
+                      src={resolveContentImageUrl(article.imageSrc)}
+                      alt=""
+                    />
+                  </div>
+                  <h4>{article.title}</h4>
+                  <p>{article.description}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      ) : null}
+    </section>
+  );
+}

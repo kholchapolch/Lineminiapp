@@ -1,0 +1,21 @@
+{
+  "locale": "th",
+  "models": [
+    {
+      "requestedModelKey": "ILME-FX2",
+      "modelKey": "ILME-FX2",
+      "matchedCatalog": true,
+      "categoryCode": "DI",
+      "fallbackImageUrl": "https://placehold.co/600x600/F1F5F9/475569/png?text=MOCK%5CnPRODUCT+IMAGE%5CnPLACEHOLDER",
+      "carouselItems": []
+    },
+    {
+      "requestedModelKey": "UNKNOWN",
+      "modelKey": "UNKNOWN",
+      "matchedCatalog": false,
+      "categoryCode": null,
+      "fallbackImageUrl": null,
+      "carouselItems": []
+    }
+  ]
+}
