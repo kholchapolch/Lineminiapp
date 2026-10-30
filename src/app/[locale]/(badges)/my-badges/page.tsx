@@ -5,8 +5,11 @@ import { useLineSession } from "@/components/LineSessionProvider";
 import { SonyDataLayerDebug } from "@/components/SonyDataLayerDebug";
 import { MyBadgesView } from "@/components/my-badges/MyBadgesView";
 import { PageLoading } from "@/components/page-loading/PageLoading";
+import PortalPageContainer from "@/components/portal/PageContainer";
 import { PortalEmptyProductsView } from "@/components/portal/PortalEmptyProductsView";
+import { PortalFooter } from "@/components/portal/PortalFooter";
 import { PortalNotLinkedView } from "@/components/portal/PortalNotLinkedView";
+import { PortalSessionHeader } from "@/components/portal/PortalSessionHeader";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, type Locale } from "@/lib/i18n/locales";
 import type {
@@ -228,24 +231,35 @@ export default function MyBadgesPage({
     content = <PageLoading variant="my-badges" />;
   } else if (accountGate.kind === "not_linked") {
     content = (
-      <div className="portalPage myBadgesPortalGate">
-        <PortalNotLinkedView
-          title={accountGate.title}
-          message={accountGate.message}
-          actionLabel={accountGate.actionLabel}
-          actionHref={accountGate.actionHref}
+      <div className="portalPage">
+        <PortalSessionHeader
+          profileFallbackName={messages.portal.profileFallbackName}
         />
+        <PortalPageContainer>
+          <PortalNotLinkedView
+            title={accountGate.title}
+            message={accountGate.message}
+            actionLabel={accountGate.actionLabel}
+            actionHref={accountGate.actionHref}
+          />
+        </PortalPageContainer>
       </div>
     );
   } else if (accountGate.kind === "empty") {
     content = (
-      <div className="portalPage myBadgesPortalGate">
-        <PortalEmptyProductsView
-          title={accountGate.title}
-          description={accountGate.description}
-          actionLabel={accountGate.actionLabel}
-          actionHref={accountGate.actionHref}
+      <div className="portalPage">
+        <PortalSessionHeader
+          profileFallbackName={messages.portal.profileFallbackName}
         />
+        <PortalPageContainer>
+          <PortalEmptyProductsView
+            title={accountGate.title}
+            description={accountGate.description}
+            actionLabel={accountGate.actionLabel}
+            actionHref={accountGate.actionHref}
+          />
+        </PortalPageContainer>
+        <PortalFooter locale={locale} copy={messages.portal.footer} />
       </div>
     );
   } else if (error) {
