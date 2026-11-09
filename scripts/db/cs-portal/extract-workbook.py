@@ -17,6 +17,8 @@ ALLOWED_URL_HOSTS = (
     'www.playstation.com',
 )
 FALLBACK_CONTENT_IMAGE_URL = 'https://www.sony.co.th/microsite/cs-portal/sony-logo.png'
+# Kept when sheet 8 omits Register_Now_URL (dropped in newer workbook copies).
+FALLBACK_REGISTER_PRODUCT_URL = 'https://www.sony.co.th/microsite/msr-line-menu/product-register'
 CTA_ACTION_KEYS = {
     1: 'firmware',
     2: 'user-manual',
@@ -388,13 +390,17 @@ for n,row in enumerate(s.iter_rows(min_row=2,values_only=True),2):
     title,lead,image,heading,body,register = map(clean,cells)
     image_url=url(image)
     register_url=https_any_url(register) if register else None
+    if not register_url:
+        register_url = FALLBACK_REGISTER_PRODUCT_URL
+        issue(s.title,n,'Register_Now_URL','REGISTER_URL_MISSING_USED_PREVIOUS_FALLBACK')
     if not all((title,lead,heading,body,image_url)):
         issue(s.title,n,'page','ROW_EXCLUDED_INCOMPLETE_PAGE');continue
-    blocks=[dict(type='image',url=image_url,alt=title),dict(type='heading',text=heading),dict(type='check_list',items=[line.strip().lstrip('-').strip() for line in body.splitlines() if line.strip()])]
-    if register_url:
-        blocks.append(dict(type='link_button',label=title,url=register_url))
-    else:
-        issue(s.title,n,'Register_Now_URL','REGISTER_URL_MISSING_LINK_BUTTON_OMITTED')
+    blocks=[
+        dict(type='image',url=image_url,alt=title),
+        dict(type='heading',text=heading),
+        dict(type='check_list',items=[line.strip().lstrip('-').strip() for line in body.splitlines() if line.strip()]),
+        dict(type='link_button',label=title,url=register_url),
+    ]
     c=base('register-product','page')
     c['payload']=dict(title=title,lead=lead,blocks=blocks)
     contents.append(c)

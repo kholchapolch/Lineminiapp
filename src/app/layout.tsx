@@ -4,7 +4,7 @@ import "./globals.css";
 import { TealiumBodyScript, TealiumHeadScripts } from "@/components/TealiumScripts";
 import { sukhumvitSet } from "@/lib/fonts";
 import { defaultLocale } from "@/lib/i18n/locales";
-import { isDigitalBadgeHomePath } from "@/lib/tealium";
+import { isTealiumHomePath } from "@/lib/tealium";
 
 export const metadata: Metadata = {
   title: "Sony Thailand",
@@ -25,7 +25,7 @@ export default function RootLayout({
 }>): JSX.Element {
   const requestHeaders = headers();
   const locale = requestHeaders.get("x-locale") ?? defaultLocale;
-  const trackHome = isDigitalBadgeHomePath(requestHeaders.get("x-pathname") ?? "");
+  const trackHome = isTealiumHomePath(requestHeaders.get("x-pathname") ?? "");
 
   return (
     <html lang={locale} className={sukhumvitSet.variable}>
