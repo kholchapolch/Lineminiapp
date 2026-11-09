@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import PortalPageContainer from "@/components/portal/PageContainer";
+import { PortalDataLayerDebug } from "@/components/portal/PortalDataLayerDebug";
 import { PortalFooter } from "@/components/portal/PortalFooter";
 import { PortalEmptyProductsView } from "@/components/portal/PortalEmptyProductsView";
 import { PortalNotLinkedView } from "@/components/portal/PortalNotLinkedView";
@@ -250,6 +251,7 @@ export default async function CSRPortalPage({
         )}
       </PortalPageContainer>
       {showFooter ? <PortalFooter locale={locale} copy={copy.footer} /> : null}
+      <PortalDataLayerDebug />
     </div>
   );
 }
