@@ -1,7 +1,9 @@
 import { runInNewContext } from "node:vm";
 import { describe, expect, it } from "vitest";
 import {
+  isCsPortalHomePath,
   isDigitalBadgeHomePath,
+  isTealiumHomePath,
   shouldDispatchDataLayerReady,
   sonyDataLayerScript,
   tealiumAsyncLoader,
@@ -148,6 +150,25 @@ describe("isDigitalBadgeHomePath", () => {
   });
 });
 
+describe("isCsPortalHomePath", () => {
+  it("matches only the CS Portal home page", () => {
+    expect(isCsPortalHomePath("/th/portal")).toBe(true);
+    expect(isCsPortalHomePath("/en/portal")).toBe(true);
+    expect(isCsPortalHomePath("/th/portal/register")).toBe(false);
+    expect(isCsPortalHomePath("/th/my-badges")).toBe(false);
+    expect(isCsPortalHomePath("/th/portal/extra")).toBe(false);
+  });
+});
+
+describe("isTealiumHomePath", () => {
+  it("tracks Digital Badge and CS Portal homes only", () => {
+    expect(isTealiumHomePath("/th/my-badges")).toBe(true);
+    expect(isTealiumHomePath("/en/portal")).toBe(true);
+    expect(isTealiumHomePath("/th/portal/register")).toBe(false);
+    expect(isTealiumHomePath("/th/my-missions")).toBe(false);
+  });
+});
+
 describe("sony data layer", () => {
   it("names pages from the mini app route", () => {
     expect(buildDataLayer("/th/my-badges").digitalData.page.name).toBe("home");
@@ -162,6 +183,10 @@ describe("sony data layer", () => {
     );
     expect(buildDataLayer("/th/my-products").digitalData.page.name).toBe(
       "product-list",
+    );
+    expect(buildDataLayer("/th/portal").digitalData.page.name).toBe("home");
+    expect(buildDataLayer("/en/portal/register").digitalData.page.name).toBe(
+      "portal",
     );
     expect(buildDataLayer("/en/my-badges").digitalData.page.language).toBe(
       "en",
@@ -185,6 +210,24 @@ describe("sony data layer", () => {
       },
       user: { lineUID: "U-line-user" },
     });
+  });
+
+  it("builds the CS Portal home data layer", () => {
+    expect(buildDataLayer("/th/portal", "U-line-user").digitalData).toEqual({
+      page: {
+        name: "home",
+        country: "TH",
+        language: "th",
+        pageTemplate: "cs-portal",
+        section: "line",
+        currency: "THB",
+      },
+      user: { lineUID: "U-line-user" },
+    });
+    expect(buildDataLayer("/en/portal").digitalData.page.pageTemplate).toBe(
+      "cs-portal",
+    );
+    expect(buildDataLayer("/th/portal").digitalData.user.lineUID).toBe("");
   });
 
   it("uses the stored LINE user id before the page sets it", () => {

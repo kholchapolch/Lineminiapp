@@ -1,0 +1,31 @@
+{
+  "key": "register-product",
+  "locale": "th",
+  "title": "ลงทะเบียนสินค้า",
+  "lead": "เพิ่มคอลเลคชั่นสินค้าที่คุณมี และปลดล็อกเนื้อหาเพิ่มเติมพร้อมสิทิพิเศษมากมาย",
+  "blocks": [
+    {
+      "alt": "ลงทะเบียนสินค้า",
+      "url": "https://www.sony.co.th/microsite/my-sony-rewards-promotion/images/content/banner-mobile.png",
+      "type": "image"
+    },
+    {
+      "text": "สิทธิพิเศษเมื่อลงทะเบียนสินค้า",
+      "type": "heading"
+    },
+    {
+      "type": "check_list",
+      "items": [
+        "ปลดล็อกเนื้อหาเพิ่มเติม",
+        "รับประกันเพิ่มเติมสูงสุด 1 ปี (เมื่อลงทะเบียนสินค้าใหม่ใน 30 วันหลังซื้อ)",
+        "สิทธิเข้าร่วมเวิร์คช้อปและกิจกรรมพิเศษ",
+        "รับข่าวสารเกี่ยวกับโซนี่และผลิตภัณฑ์ที่คุณสนใจแบบ Exclusive และก่อนใคร"
+      ]
+    },
+    {
+      "url": "https://www.sony.co.th/microsite/msr-line-menu/product-register",
+      "type": "link_button",
+      "label": "ลงทะเบียนสินค้า"
+    }
+  ]
+}

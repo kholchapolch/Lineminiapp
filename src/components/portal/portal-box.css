@@ -1,0 +1,8 @@
+.portalBox {
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible;
+  background: #d5e3f4;
+  border-radius: 24px;
+  padding: 20px;
+}

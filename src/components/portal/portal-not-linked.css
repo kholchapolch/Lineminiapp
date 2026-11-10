@@ -1,0 +1,55 @@
+.portalNotLinked {
+  --portal-not-linked-ink: #111827;
+  --portal-not-linked-muted: #6b7280;
+  --portal-not-linked-blue: var(--portal-primary-color, #005ece);
+
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  max-width: 360px;
+  margin: 48px auto 24px;
+  padding: 8px 12px 24px;
+  text-align: center;
+  color: var(--portal-not-linked-ink);
+}
+
+.portalNotLinked__icon {
+  width: 56px;
+  height: 56px;
+}
+
+.portalNotLinked__title,
+.portalNotLinked__message {
+  margin: 0;
+}
+
+.portalNotLinked__title {
+  white-space: pre-line;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.portalNotLinked__message {
+  max-width: 28ch;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--portal-not-linked-muted);
+}
+
+.portalNotLinked__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  margin-top: 12px;
+  padding: 0 28px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--portal-not-linked-blue);
+  box-shadow: 0 10px 24px rgba(0, 94, 206, 0.28);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}

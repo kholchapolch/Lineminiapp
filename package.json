@@ -25,10 +25,16 @@
     "db:seed:sql:check": "node scripts/db/generate-seed-sql.mjs --check",
     "db:reset": "node scripts/db/reset.mjs",
     "db:verify": "node scripts/db/verify.mjs",
-    "db:verify:prod": "node scripts/db/verify.mjs --seed ./prod/seed-data.mjs"
+    "db:verify:prod": "node scripts/db/verify.mjs --seed ./prod/seed-data.mjs",
+    "db:cs-portal:migrate": "node scripts/db/cs-portal/migrate.mjs",
+    "db:cs-portal:migrate:apply": "node scripts/db/cs-portal/migrate.mjs --apply",
+    "db:cs-portal:verify": "node scripts/db/cs-portal/verify.mjs",
+    "db:cs-portal:dataset": "node --env-file=.env scripts/db/cs-portal/dataset-cli.mjs",
+    "test:cs-portal-import": "node --test scripts/db/cs-portal/dataset.test.mjs"
   },
   "dependencies": {
     "@line/liff": "^2.27.1",
+    "jsbarcode": "^3.12.3",
     "mysql2": "^3.22.5",
     "next": "^14.2.23",
     "react": "^18.3.1",
@@ -37,6 +43,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "@types/jsbarcode": "^3.11.4",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.17",
     "@types/react-dom": "^18.3.5",

@@ -53,6 +53,7 @@ export type QuestBadgeExperience = {
 
 export type BadgeExperience = {
   customer: SonyCustomerProducts["customer"];
+  ownedProductCount: number;
   productBadges: ProductBadgeExperience[];
   questBadges: QuestBadgeExperience[];
   recentProductBadges: ProductBadgeExperience[];
@@ -80,6 +81,7 @@ export function buildBadgeExperience({
 
   return {
     customer: customerProducts.customer,
+    ownedProductCount: customerProducts.products.length,
     productBadges,
     questBadges,
     recentProductBadges: productBadges

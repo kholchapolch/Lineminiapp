@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216" height="160" viewBox="0 0 216 160" role="img" aria-labelledby="title">
+  <title id="title">Television placeholder</title>
+  <rect width="216" height="160" rx="18" fill="#f2f4f6"/>
+  <rect x="25" y="25" width="166" height="100" rx="5" fill="#20262c"/>
+  <rect x="34" y="34" width="148" height="82" fill="#d9e5ef"/>
+  <path d="m34 97 38-34 25 23 28-28 57 58H34z" fill="#89a8bd"/>
+  <path d="M108 125v14M74 141h68" stroke="#303840" stroke-width="7" stroke-linecap="round"/>
+</svg>

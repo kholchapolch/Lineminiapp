@@ -87,6 +87,20 @@ export function isDigitalBadgeHomePath(pathname: string): boolean {
   );
 }
 
+export function isCsPortalHomePath(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  return (
+    (segments[0] === "th" || segments[0] === "en") &&
+    segments[1] === "portal" &&
+    segments.length === 2
+  );
+}
+
+/** Tealium Step A–D only on Digital Badge Home and CS Portal Home. */
+export function isTealiumHomePath(pathname: string): boolean {
+  return isDigitalBadgeHomePath(pathname) || isCsPortalHomePath(pathname);
+}
+
 export function sonyDataLayerScript(): string {
   return `if (typeof window.buildSonyDataLayer === 'undefined') {
     window.buildSonyDataLayer = function() {
@@ -95,6 +109,7 @@ export function sonyDataLayerScript(): string {
         var language = parts[0] === 'en' ? 'en' : 'th';
         var route = (parts[0] === 'en' || parts[0] === 'th') ? parts.slice(1).join('/') : parts.join('/');
         var pageName = 'home';
+        var pageTemplate = 'digital-badge';
 
         if (route === 'my-missions') {
             pageName = 'quest-list';
@@ -102,8 +117,12 @@ export function sonyDataLayerScript(): string {
             pageName = 'badge-detail';
         } else if (route === 'my-products') {
             pageName = 'product-list';
-        } else if (route === 'portal' || route.indexOf('portal/') === 0) {
+        } else if (route === 'portal') {
+            pageName = 'home';
+            pageTemplate = 'cs-portal';
+        } else if (route.indexOf('portal/') === 0) {
             pageName = 'portal';
+            pageTemplate = 'cs-portal';
         }
 
         var memberId = '';
@@ -122,7 +141,7 @@ export function sonyDataLayerScript(): string {
         sony.digitalData.page.name = pageName;
         sony.digitalData.page.country = 'TH';
         sony.digitalData.page.language = language;
-        sony.digitalData.page.pageTemplate = 'digital-badge';
+        sony.digitalData.page.pageTemplate = pageTemplate;
         sony.digitalData.page.section = 'line';
         sony.digitalData.page.currency = 'THB';
 

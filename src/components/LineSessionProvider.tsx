@@ -27,10 +27,12 @@ const LineSessionContext = createContext<LineSessionState | null>(null);
 
 type LineSessionProviderProps = {
   children: ReactNode;
+  liffId?: string;
 };
 
 export function LineSessionProvider({
   children,
+  liffId = process.env.NEXT_PUBLIC_LIFF_ID,
 }: LineSessionProviderProps): JSX.Element {
   const [lineUuid, setLineUuid] = useState<string | null>(null);
   const [lineProfile, setLineProfile] = useState<LineProfile | null>(null);
@@ -43,7 +45,7 @@ export function LineSessionProvider({
       setLineUuid(persistedLineUuid);
     }
 
-    if (!process.env.NEXT_PUBLIC_LIFF_ID) {
+    if (!liffId) {
       setStatus("unavailable");
       return;
     }
@@ -54,7 +56,7 @@ export function LineSessionProvider({
 
     async function bootstrapLineSession() {
       try {
-        const session = await createLineSessionFromCurrentLiff();
+        const session = await createLineSessionFromCurrentLiff(liffId);
 
         if (!active) {
           return;
@@ -69,7 +71,7 @@ export function LineSessionProvider({
         }
       }
 
-      const profile = await getLineProfileFromCurrentLiff();
+      const profile = await getLineProfileFromCurrentLiff(liffId);
 
       if (!active) {
         return;
@@ -102,7 +104,7 @@ export function LineSessionProvider({
     return () => {
       active = false;
     };
-  }, []);
+  }, [liffId]);
 
   const value = useMemo<LineSessionState>(
     () => ({

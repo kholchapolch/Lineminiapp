@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { LineSessionProvider } from "@/components/LineSessionProvider";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { isLocale, locales, type Locale } from "@/lib/i18n/locales";
+import { sukhumvitSet } from "@/lib/fonts";
 
 type LocaleLayoutProps = {
   children: React.ReactNode;
@@ -38,5 +39,9 @@ export default function LocaleLayout({
     notFound();
   }
 
-  return <LineSessionProvider>{children}</LineSessionProvider>;
+  return (
+    <LineSessionProvider>
+      <div className={sukhumvitSet.variable}>{children}</div>
+    </LineSessionProvider>
+  );
 }

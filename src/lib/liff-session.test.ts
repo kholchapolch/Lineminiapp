@@ -71,6 +71,24 @@ describe("createLineSessionFromLiff", () => {
       }),
     ).rejects.toThrow(/could not be verified/);
   });
+
+  it("creates the server session when optional profile lookup fails", async () => {
+    const fetchImpl = vi.fn(async () => Response.json({ ok: true }));
+    const liff = liffClient();
+    liff.getProfile = vi.fn(async () => {
+      throw new Error("profile temporarily unavailable");
+    });
+
+    await expect(
+      createLineSessionFromLiff({
+        liffId: "liff-id",
+        liff,
+        fetchImpl,
+      }),
+    ).resolves.toEqual({ profile: undefined });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("getLineProfileFromLiff", () => {

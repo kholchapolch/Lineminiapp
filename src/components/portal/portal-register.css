@@ -1,0 +1,129 @@
+.portalRegister {
+  --portal-register-ink: #111827;
+  --portal-register-muted: #4b5563;
+  --portal-register-blue: var(--portal-primary-color, #005ece);
+  --portal-register-card: #ffffff;
+  --portal-register-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+
+  display: grid;
+  gap: 20px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+  color: var(--portal-register-ink);
+  text-align: center;
+}
+
+.portalRegister__intro {
+  display: grid;
+  gap: 10px;
+}
+
+.portalRegister__title,
+.portalRegister__lead,
+.portalRegister__cardTitle,
+.portalRegister__benefit span {
+  margin: 0;
+}
+
+.portalRegister__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.portalRegister__lead {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--portal-register-muted);
+}
+
+.portalRegister__hero {
+  overflow: hidden;
+  border-radius: 24px;
+  background: #dbe4f0;
+  box-shadow: var(--portal-register-shadow);
+}
+
+.portalRegister__heroImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.portalRegister__card {
+  padding: 20px 18px;
+  border-radius: 20px;
+  background: var(--portal-register-card);
+  box-shadow: var(--portal-register-shadow);
+  text-align: left;
+}
+
+.portalRegister__cardTitle {
+  margin-bottom: 16px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.portalRegister__benefits {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portalRegister__benefit {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  color: var(--portal-register-ink);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.portalRegister__checkIcon {
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  color: var(--portal-register-blue);
+}
+
+.portalRegister__actions {
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.portalRegister__primary,
+.portalRegister__secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.portalRegister__primary {
+  color: #ffffff;
+  background: var(--portal-register-blue);
+  box-shadow: 0 10px 24px rgba(0, 94, 206, 0.28);
+}
+
+.portalRegister__secondary {
+  color: var(--portal-register-blue);
+  background: #ffffff;
+  border: 1.5px solid var(--portal-register-blue);
+}

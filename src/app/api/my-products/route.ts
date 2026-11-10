@@ -6,7 +6,8 @@ import {
 import { toSafeError } from "@/lib/safe-logging";
 
 export async function GET(request: Request): Promise<NextResponse> {
-  const lineuuid = new URL(request.url).searchParams.get("lineuuid")?.trim() ?? "";
+  const lineuuid =
+    new URL(request.url).searchParams.get("lineuuid")?.trim() ?? "";
 
   try {
     if (!lineuuid) {
