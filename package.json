@@ -33,7 +33,7 @@
     "test:cs-portal-import": "node --test scripts/db/cs-portal/dataset.test.mjs"
   },
   "dependencies": {
-    "@line/liff": "^2.27.1",
+    "@line/liff": "^2.32.0",
     "jsbarcode": "^3.12.3",
     "mysql2": "^3.22.5",
     "next": "^14.2.23",
